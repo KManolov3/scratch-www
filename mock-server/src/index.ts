@@ -5,6 +5,8 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { readFile } from "fs/promises";
 import { mocks } from "./mocks.js";
 
+// See https://the-guild.dev/graphql/tools/docs/mocking for documentation
+
 const schema = await readFile('./schema.graphql', 'utf-8')
 
 const server = new ApolloServer({
