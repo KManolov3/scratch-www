@@ -3,8 +3,6 @@ import dotenv from 'dotenv'
 
 const { parsed: env } = dotenv.config()
 
-console.log(env)
-
 if (!env) {
   throw new Error('Missing .env for graphql-codegen')
 }
