@@ -1,13 +1,16 @@
 import { SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { AppRoot } from '../AppRoot';
 
 export function ItemLookupApp() {
   return (
-    <SafeAreaView>
-      <StatusBar barStyle="dark-content" />
+    <AppRoot>
+      <SafeAreaView>
+        <StatusBar barStyle="dark-content" />
 
-      <View>
-        <Text>Item Lookup Application</Text>
-      </View>
-    </SafeAreaView>
+        <View>
+          <Text>Item Lookup Application</Text>
+        </View>
+      </SafeAreaView>
+    </AppRoot>
   );
 }

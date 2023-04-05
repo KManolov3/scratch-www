@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -386,3 +387,11 @@ export type _Service = {
   __typename?: '_Service';
   sdl: Scalars['String'];
 };
+
+export type CycleCountAppQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CycleCountAppQuery = { __typename?: 'Query', cycleCounts?: Array<{ __typename?: 'CycleCount', storeNumber?: string | null, cycleCountName?: string | null, cycleCountId?: number | null, cycleCountType?: CycleCountType | null, skus?: Array<string | null> | null, items?: Array<{ __typename?: 'Item', sku?: string | null, mfrPartNum?: string | null, partDesc?: string | null, retailPrice?: number | null } | null> | null } | null> | null };
+
+
+export const CycleCountAppDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"cycleCountApp"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountType"}},{"kind":"Field","name":{"kind":"Name","value":"skus"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}}]}}]}}]}}]} as unknown as DocumentNode<CycleCountAppQuery, CycleCountAppQueryVariables>;

@@ -1,13 +1,15 @@
 import { SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { AppRoot } from '../AppRoot';
+import { CycleCountScreen } from '../screens/CycleCountScreen';
 
 export function CycleCountApp() {
   return (
-    <SafeAreaView>
-      <StatusBar barStyle="dark-content" />
+    <AppRoot>
+      <SafeAreaView>
+        <StatusBar barStyle="dark-content" />
 
-      <View>
-        <Text>Cycle Count Application</Text>
-      </View>
-    </SafeAreaView>
+        <CycleCountScreen />
+      </SafeAreaView>
+    </AppRoot>
   );
 }
