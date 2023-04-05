@@ -169,4 +169,5 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply plugin: 'org.jetbrains.kotlin.android'; applyNativeModulesAppBuildGradle(project)
