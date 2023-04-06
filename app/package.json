@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
