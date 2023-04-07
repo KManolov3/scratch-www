@@ -1,0 +1,301 @@
+directive @extends on OBJECT | INTERFACE
+directive @external on FIELD_DEFINITION
+directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+directive @specifiedBy(url: String!) on SCALAR
+scalar _FieldSet
+
+type _Service {
+  sdl: String!
+}
+
+enum Action {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  REFRESH
+}
+
+type BackStockSlot {
+  guid: String
+  storeNumber: String
+  slotId: Int
+  slotName: String
+  slotDescription: String
+  sectionsLotName: String
+  sectionsLotNum: String
+  lastModified: Date
+  qty: Int
+}
+
+input ContainerData {
+  containerId: String
+}
+
+input CreateCycleCount {
+  storeNumber: String!
+  status: Status!
+  dueDate: String!
+  createdDate: String!
+  cycleCountType: CycleCountType!
+}
+
+input CreateCycleCountRequest {
+  cycleCount: CreateCycleCount!
+  items: [CreateItemRequest!]!
+}
+
+input CreateItemRequest {
+  sku: String!
+  qty: Int!
+}
+
+type CycleCount {
+  storeNumber: String
+  cycleCountName: String
+  cycleCountId: Int
+  groupId: String
+  groupName: String
+  guid: String
+  status: Status
+  dueDate: Date
+  createdDate: Date
+  cycleCountType: CycleCountType
+  skus: [String]
+  items: [Item]
+}
+
+input CycleCountDetail {
+  sku: String!
+  onhandAtCountQty: String!
+  action: Action = UPDATE
+  countQty: String = ""
+  deptDesc: String = ""
+  freezeQty: String = ""
+  invPrice: String = ""
+  manPartNo: String = ""
+  multiLocation: String = ""
+  regisCount: Int = 0
+  seqNum: Int = 0
+  subDept: String = ""
+  systemOnHandQty: String = ""
+  variance: String = ""
+  varianceIsNegative: Int = 0
+  vendor: String = ""
+  planograms: [KafkaPlanogram] = []
+}
+
+input CycleCountList {
+  storeNumber: String!
+  count: Int = 1
+  nativeStoreId: String = ""
+  updateType: String = "Update"
+  dataProducer: String = "sc_inventory_gateway"
+  cycleCounts: [KafkaCycleCount!]!
+}
+
+enum CycleCountType {
+  SYSTEM_GENERATED
+  NEGATIVE_QUANTITY_ON_HAND
+  CONFIRM_COUNT
+  VERIFY_DUE_TO_SALE
+  CORE_COUNT
+  REFUND_COUNT
+  ORDER_QUANTITY_CHANGED
+  PENDING_ASN
+  SYSTEM_REQUEST
+  PHYSICAL_INVENTORY_VARIANCE
+  BATCH_COUNT
+  OUTAGE
+}
+
+scalar Date
+
+enum ErrorDetail {
+  UNKNOWN
+  FIELD_NOT_FOUND
+  INVALID_CURSOR
+  UNIMPLEMENTED
+  INVALID_ARGUMENT
+  DEADLINE_EXCEEDED
+  SERVICE_ERROR
+  THROTTLED_CPU
+  THROTTLED_CONCURRENCY
+  ENHANCE_YOUR_CALM
+  TCP_FAILURE
+  MISSING_RESOURCE
+}
+
+enum ErrorType {
+  UNKNOWN
+  INTERNAL
+  NOT_FOUND
+  UNAUTHENTICATED
+  PERMISSION_DENIED
+  BAD_REQUEST
+  UNAVAILABLE
+  FAILED_PRECONDITION
+}
+
+input FrontTagItem {
+  sku: String
+  planogramId: String
+  count: Int
+  sequence: Int
+}
+
+type Item {
+  mfrPartNum: String
+  partDesc: String
+  sku: String
+  upc: String
+  retailPrice: Float
+  onHand: Int
+  planograms: [Planogram]
+  backStockSlots: [BackStockSlot]
+}
+
+input KafkaCycleCount {
+  action: Action!
+  createDate: String!
+  dueDate: String!
+  status: Status!
+  groupId: String = ""
+  cycleCountName: String
+  count: Int = 1
+  createId: Int = 0
+  groupName: String = ""
+  referenceId: String = "none"
+  cycleCountType: CycleCountType
+  hostId: String = ""
+  lastDateTime: String = ""
+  lastId: Int = 0
+  lastUpdatedBy: String = ""
+  posSystem: String = ""
+  systemFlag: Boolean = false
+  teamMember: String = ""
+  items: [CycleCountDetail!]!
+}
+
+input KafkaPlanogram {
+  planogramId: String!
+  description: String!
+  seqNum: Int!
+}
+
+type Mutation {
+  createTruckScan(truckScan: TruckScanInput!): TruckScan
+  frontTagRequest(
+    storeNumber: String!
+    printer: String! = "1"
+    data: [FrontTagItem]
+  ): PrintRequestStatus
+  containerTagRequest(
+    storeNumber: String!
+    printer: String! = "1"
+    data: [ContainerData]
+  ): PrintRequestStatus
+  sendCycleCountList(request: CycleCountList!): Boolean
+}
+
+type Planogram {
+  planogramId: String
+  description: String
+  seqNum: Int
+}
+
+type Pog {
+  storeNumber: String
+  skuNumber: String
+  pogId: String
+  pogDescription: String
+  sequence: String
+  lastModifiedDate: String
+}
+
+enum PrintRequestStatus {
+  ERROR
+  ACCEPTED
+}
+
+type Query {
+  cycleCounts(storeNumber: String!, completed: Boolean = false): [CycleCount]
+  batchCounts(storeNumber: String!): [CycleCount]
+  outageCounts(storeNumber: String!): [CycleCount]
+  itemsBySkuList(storeNumber: String!, skus: [String!]!): [Item]
+  itemBySku(sku: String!, storeNumber: String!): Item
+  itemByUpc(upc: String!, storeNumber: String!): Item
+  truckScansByStore(
+    storeNumber: String!
+    status: TruckScanStatus = OPEN
+  ): [TruckScan]
+  truckScanByASN(asnReferenceNumber: String!): TruckScan
+  truckScansByStatus(
+    storeNumber: String!
+    status: TruckScanStatus = OPEN
+  ): [TruckScan]
+  removeTruckScanItem(
+    asnReferenceNumber: String!
+    storeNumber: String!
+    sku: String!
+  ): TruckScanItem
+  planograms(storeNumber: String!, skuNumber: String!): [Pog]
+  _service: _Service
+}
+
+enum Status {
+  NOT_STARTED
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  VERIFY
+}
+
+type TruckScan {
+  asnReferenceNumber: String
+  status: TruckScanStatus
+  storeNumber: String
+  items: [TruckScanItem]
+}
+
+input TruckScanInput {
+  asnReferenceNumber: String
+  storeNumber: String
+  status: TruckScanStatus
+  items: [TruckScanItemInput]
+}
+
+type TruckScanItem {
+  sku: String
+  upc: String
+  mfrPartNum: String
+  partDesc: String
+  expectedCount: Int
+  actualCount: Int
+}
+
+input TruckScanItemInput {
+  sku: String
+  upc: String
+  expectedCount: Int
+  actualCount: Int
+}
+
+enum TruckScanStatus {
+  OPEN
+  CLOSED
+}
+
+input UpdateCycleCountRequest {
+  storeNumber: String!
+  cycleCountName: String!
+  status: Status!
+  items: [UpdateItemRequest]
+}
+
+input UpdateItemRequest {
+  sku: String!
+  totalCountQty: Int!
+}
