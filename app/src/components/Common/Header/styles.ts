@@ -1,6 +1,7 @@
 import { neutralGray, pure } from '../../../styles/colors';
 import { StyleSheet } from 'react-native';
 import { scale, shadow } from '../../../styles/base';
+import { FontWeight, scaleFont } from '../../../styles/font';
 
 export const defaultIconSize = scale(20);
 
@@ -26,9 +27,9 @@ export default StyleSheet.create({
   },
   title: {
     color: neutralGray,
-    fontSize: 14,
+    fontSize: scaleFont(14),
     lineHeight: scale(20),
-    fontWeight: '700', // demi
+    fontWeight: FontWeight.Demi,
     alignSelf: 'center',
   },
   spacerContainer: {

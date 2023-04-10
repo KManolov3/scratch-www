@@ -7,6 +7,7 @@ import {
   pure,
 } from '../../../../styles/colors';
 import { StyleSheet } from 'react-native';
+import { scaleFont } from '../../../../styles/font';
 
 export const primaryColor = advanceVoid;
 export const secondaryColor = lightVoid;
@@ -32,10 +33,9 @@ export default StyleSheet.create({
     backgroundColor: pure,
   },
   text: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     lineHeight: scale(24),
     color: primaryColor,
-    fontWeight: '500',
   },
   disabledText: {
     color: secondaryColor,
