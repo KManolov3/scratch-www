@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { lightGray } from '../../styles/colors';
+import { lightGray } from '@styles/colors';
+import { scale } from '@styles/base';
 
 export default StyleSheet.create({
   container: {
@@ -7,6 +8,6 @@ export default StyleSheet.create({
     backgroundColor: lightGray,
   },
   list: {
-    paddingVertical: 12,
+    paddingVertical: scale(12),
   },
 });

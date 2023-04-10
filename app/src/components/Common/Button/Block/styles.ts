@@ -1,13 +1,13 @@
-import { scale } from '../../../../styles/base';
+import { scale } from '@styles/base';
 import {
   advanceYellow,
   advanceVoid,
   lightGray,
   lightVoid,
   pure,
-} from '../../../../styles/colors';
+} from '@styles/colors';
 import { StyleSheet } from 'react-native';
-import { scaleFont } from '../../../../styles/font';
+import { scaleFont } from '@styles/font';
 
 export const primaryColor = advanceVoid;
 export const secondaryColor = lightVoid;

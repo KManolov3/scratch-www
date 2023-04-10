@@ -1,4 +1,4 @@
-import { advanceVoid, mediumVoid } from '../../../styles/colors';
+import { advanceVoid, mediumVoid } from '@styles/colors';
 import { StyleSheet } from 'react-native';
 
 export const placeholderColor = mediumVoid;

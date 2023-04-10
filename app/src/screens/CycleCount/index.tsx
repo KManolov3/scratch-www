@@ -1,11 +1,11 @@
 import React, { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { gql } from '../../__generated__';
 import { useQuery } from '@apollo/client';
-import Header from '../../components/Common/Header';
+import Header from '@components/Common/Header';
 import styles from './styles';
 import { useCallback, useMemo } from 'react';
 import { CycleCount } from '../../__generated__/graphql';
-import CycleCountCard from '../../components/CycleCount/Card';
+import CycleCountCard from '@components/CycleCount/Card';
 
 const QUERY = gql(`
   query cycleCountApp {

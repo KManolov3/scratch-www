@@ -6,7 +6,7 @@ import {
   Keyboard,
   KeyboardTypeOptions,
 } from 'react-native';
-import { getFontFamily } from '../../../styles/font';
+import { getFontFamily } from '@styles/font';
 import styles, { placeholderColor } from './styles';
 
 export type TextInputRef = TextInput;

@@ -1,7 +1,7 @@
-import { neutralGray, pure } from '../../../styles/colors';
+import { neutralGray, pure } from '@styles/colors';
 import { StyleSheet } from 'react-native';
-import { scale, shadow } from '../../../styles/base';
-import { FontWeight, scaleFont } from '../../../styles/font';
+import { scale, shadow } from '@styles/base';
+import { FontWeight, scaleFont } from '@styles/font';
 
 export const defaultIconSize = scale(20);
 

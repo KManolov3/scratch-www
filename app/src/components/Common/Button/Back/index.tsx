@@ -1,6 +1,6 @@
 import React from 'react';
 import styles, { iconHeigh, iconWidth } from './styles';
-import { BackArrowIcon } from '../../../../assets/icons';
+import { BackArrowIcon } from '@assets/icons';
 import { Pressable } from 'react-native';
 
 interface Props {

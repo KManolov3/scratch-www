@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { scale, shadow } from '../../../styles/base';
-import { advanceRed, pure } from '../../../styles/colors';
+import { scale, shadow } from '@styles/base';
+import { advanceRed, pure } from '@styles/colors';
 
 export default StyleSheet.create({
   card: {
