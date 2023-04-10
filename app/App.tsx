@@ -4,7 +4,8 @@
  *
  * @format
  */
-
+// Required, to have react available in .jsx files
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React from 'react';
 import type { PropsWithChildren } from 'react';
 import {
