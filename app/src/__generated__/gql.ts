@@ -14,6 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n  query cycleCountApp {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountName\n      cycleCountId\n      cycleCountType\n      skus\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n      }\n    }\n  }\n": types.CycleCountAppDocument,
+    "\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
+    "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
 };
 
 /**
@@ -34,6 +36,14 @@ export function gql(source: string): unknown;
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query cycleCountApp {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountName\n      cycleCountId\n      cycleCountType\n      skus\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n      }\n    }\n  }\n"): (typeof documents)["\n  query cycleCountApp {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountName\n      cycleCountId\n      cycleCountType\n      skus\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n"): (typeof documents)["\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n"): (typeof documents)["\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
