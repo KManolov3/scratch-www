@@ -1,6 +1,7 @@
-import React, { Pressable, Text } from 'react-native';
+import React, { Pressable } from 'react-native';
 import { CycleCount } from '../../../__generated__/graphql';
 import styles from './styles';
+import Text from '../../Common/Text';
 
 export interface Props {
   item: CycleCount;
