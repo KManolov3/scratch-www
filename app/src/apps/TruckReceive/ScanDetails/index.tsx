@@ -1,9 +1,9 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { FixedLayout } from '../layouts/FixedLayout';
-import { Colors } from '../lib/colors';
-import { gql } from '../__generated__';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { FixedLayout } from '../../../layouts/FixedLayout';
+import { gql } from '../../../__generated__';
 import { useQuery } from '@apollo/client';
-import { ScreenProps } from '../config/routes';
+import { ScreenProps } from '../../../config/routes';
+import { styles } from './styles';
 
 export interface TruckScanDetailsProps {
   asn: string;
@@ -20,7 +20,9 @@ const QUERY = gql(`
   }
 `);
 
-export function TruckScanDetails({ route }: ScreenProps<'TruckScanDetails'>) {
+export function TruckReceiveScanDetails({
+  route,
+}: ScreenProps<'TruckScanDetails'>) {
   const { loading, data, error } = useQuery(QUERY, {
     variables: { asn: route.params.asn },
   });
@@ -49,12 +51,3 @@ export function TruckScanDetails({ route }: ScreenProps<'TruckScanDetails'>) {
     </FixedLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  summary: {
-    margin: 10,
-    backgroundColor: Colors.lightGray,
-    borderRadius: 8,
-    padding: 16,
-  },
-});

@@ -1,16 +1,14 @@
 import {
   ActivityIndicator,
   FlatList,
-  StyleSheet,
   Text,
   TouchableHighlight,
   View,
 } from 'react-native';
-import { DocumentType, gql } from '../__generated__';
+import { DocumentType, gql } from '../../../__generated__';
 import { useQuery } from '@apollo/client';
-import { FixedLayout } from '../layouts/FixedLayout';
-import { Colors } from '../lib/colors';
-import { useNavigation } from '@react-navigation/native';
+import { FixedLayout } from '../../../layouts/FixedLayout';
+import { styles } from './styles';
 
 const QUERY = gql(`
   query cycleCountApp {
@@ -80,27 +78,3 @@ function CycleCountListItem({
 function Separator() {
   return <View style={styles.separator} />;
 }
-
-const styles = StyleSheet.create({
-  cycleCounts: {},
-
-  cycleCount: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-
-  cycleCountTitle: {
-    fontSize: 16,
-  },
-
-  cycleCountSubtext: {
-    marginTop: 2,
-    color: Colors.darkGray,
-  },
-
-  separator: {
-    backgroundColor: Colors.grayer,
-    height: 1,
-    marginHorizontal: 10,
-  },
-});

@@ -2,9 +2,10 @@ import {
   NativeStackNavigationOptions,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { CycleCountHome } from '../screens/CycleCountHome';
-import { TruckReceiveHome } from '../screens/TruckReceiveHome';
-import { TruckScanDetails } from '../screens/TruckScanDetails';
+import { CycleCountHome } from '../apps/CycleCount/Home';
+import { TruckReceiveHome } from '../apps/TruckReceive/Home';
+import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
+import { ItemLookupHome } from '../apps/ItemLookup/Home';
 
 export const Routes = {
   CycleCountHome: defineRoute({
@@ -19,7 +20,12 @@ export const Routes = {
 
   TruckScanDetails: defineRoute<{ asn: string }>({
     title: 'Truck Scan Details',
-    component: TruckScanDetails,
+    component: TruckReceiveScanDetails,
+  }),
+
+  ItemLookupHome: defineRoute({
+    title: 'Item Lookup',
+    component: ItemLookupHome,
   }),
 } as const;
 export type Routes = typeof Routes;

@@ -1,4 +1,4 @@
-import { AppRoot } from '../AppRoot';
+import { AppRoot } from '../../AppRoot';
 
 export function CycleCountApp() {
   return <AppRoot initialRoute="CycleCountHome" />;
