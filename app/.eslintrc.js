@@ -42,6 +42,7 @@ module.exports = {
     "react/jsx-props-no-spreading": "off",
     "react/no-array-index-key": "off",
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
+    "react/require-default-props": "off",
     "require-await": "error",
     "no-useless-constructor": "off",
     "@typescript-eslint/no-useless-constructor": "error",
