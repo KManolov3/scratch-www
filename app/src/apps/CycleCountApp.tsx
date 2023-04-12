@@ -1,4 +1,4 @@
-import { SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { SafeAreaView, StatusBar } from 'react-native';
 import { AppRoot } from '../AppRoot';
 import { CycleCountScreen } from '../screens/CycleCountScreen';
 

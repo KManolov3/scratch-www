@@ -1,6 +1,6 @@
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
-import { gql } from '../__generated__';
 import { useQuery } from '@apollo/client';
+import { gql } from '../__generated__';
 
 const QUERY = gql(`
   query cycleCountApp {
@@ -42,6 +42,7 @@ export function CycleCountScreen() {
       <FlatList
         data={data.cycleCounts}
         renderItem={({ item }) => <Text>{item?.cycleCountName}</Text>}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         keyExtractor={_ => _?.cycleCountId?.toString()!}
       />
     </View>
