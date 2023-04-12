@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -6,12 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { FixedLayout } from '../../../layouts/FixedLayout';
-import { useState } from 'react';
-import { DocumentType, gql } from '../../../__generated__';
-import { Colors } from '../../../lib/colors';
 import { useQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
+import { FixedLayout } from '../../../layouts/FixedLayout';
+import { DocumentType, gql } from '../../../__generated__';
+import { Colors } from '../../../lib/colors';
 import { styles } from './styles';
 
 const QUERY = gql(`
@@ -54,8 +54,10 @@ export function TruckReceiveHome() {
       <FlatList
         style={styles.truckScans}
         data={data.truckScansByStore}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderItem={({ item }) => <TruckScanListItem truckScan={item!} />}
         ItemSeparatorComponent={Separator}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         keyExtractor={_ => _?.asnReferenceNumber?.toString()!}
       />
     </FixedLayout>
@@ -70,6 +72,7 @@ function TruckScanListItem({ truckScan }: { truckScan: TruckScanFromQuery }) {
       style={styles.truckScanListItem}
       onPress={() =>
         navigation.navigate('TruckScanDetails', {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           asn: truckScan.asnReferenceNumber!,
         })
       }>

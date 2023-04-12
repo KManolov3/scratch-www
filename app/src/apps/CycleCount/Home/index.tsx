@@ -5,8 +5,8 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
-import { DocumentType, gql } from '../../../__generated__';
 import { useQuery } from '@apollo/client';
+import { DocumentType, gql } from '../../../__generated__';
 import { FixedLayout } from '../../../layouts/FixedLayout';
 import { styles } from './styles';
 
@@ -48,8 +48,10 @@ export function CycleCountHome() {
       <FlatList
         style={styles.cycleCounts}
         data={data.cycleCounts}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderItem={({ item }) => <CycleCountListItem cycleCount={item!} />}
         ItemSeparatorComponent={Separator}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         keyExtractor={_ => _?.cycleCountId?.toString()!}
       />
     </FixedLayout>

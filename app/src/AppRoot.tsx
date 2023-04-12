@@ -1,14 +1,14 @@
+import { useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import { ApolloProvider } from '@apollo/client';
-import { apolloClient } from './config/graphql';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import { apolloClient } from './config/graphql';
 import { RoutePropTypes, Routes } from './config/routes';
-import { StyleSheet } from 'react-native';
 import { Colors } from './lib/colors';
-import { useMemo } from 'react';
 
 export function AppRoot({ initialRoute }: { initialRoute: keyof Routes }) {
   const screenOptions = useMemo<NativeStackNavigationOptions>(
@@ -52,6 +52,7 @@ function RootNavigator({
           key={key}
           name={key as keyof Routes}
           options={{ headerTitle: route.title }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           component={route.component as any}
         />
       ))}
