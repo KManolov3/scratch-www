@@ -1,6 +1,6 @@
 import { BackArrowIcon } from '@assets/icons';
 import { Pressable } from 'react-native';
-import styles, { iconHeigh, iconWidth } from './styles';
+import styles, { iconHeight, iconWidth } from './styles';
 
 interface Props {
   disabled?: boolean;
@@ -15,7 +15,7 @@ function BackButton({ disabled = false }: Props) {
       onPress={navigateBack}
       style={styles.backButton}
       disabled={disabled}>
-      <BackArrowIcon height={iconHeigh} width={iconWidth} />
+      <BackArrowIcon height={iconHeight} width={iconWidth} />
     </Pressable>
   );
 }

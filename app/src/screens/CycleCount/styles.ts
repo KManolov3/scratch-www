@@ -1,13 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { lightGray } from '@styles/colors';
-import { scale } from '@styles/base';
+import { Colors } from '@lib/colors';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightGray,
+    backgroundColor: Colors.lightGray,
   },
   list: {
-    paddingVertical: scale(12),
+    paddingVertical: 12,
   },
 });

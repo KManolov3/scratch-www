@@ -1,10 +1,10 @@
-import { advanceVoid, mediumVoid } from '@styles/colors';
+import { Colors } from '@lib/colors';
 import { StyleSheet } from 'react-native';
 
-export const placeholderColor = mediumVoid;
+export const placeholderColor = Colors.mediumVoid;
 
 export default StyleSheet.create({
   default: {
-    color: advanceVoid,
+    color: Colors.advanceVoid,
   },
 });

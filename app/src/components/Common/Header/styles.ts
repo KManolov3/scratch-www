@@ -1,22 +1,21 @@
-import { neutralGray, pure } from '@styles/colors';
+import { Colors } from '@lib/colors';
 import { StyleSheet } from 'react-native';
-import { scale, shadow } from '@styles/base';
-import { FontWeight, scaleFont } from '@styles/font';
+import { FontWeight } from 'src/lib/font';
 
-export const defaultIconSize = scale(20);
+export const defaultIconSize = 20;
 
 export default StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: scale(10),
-    height: scale(72),
-    backgroundColor: pure,
-    borderBottomColor: pure,
-    borderBottomLeftRadius: scale(16),
-    borderBottomRightRadius: scale(16),
-    ...shadow,
+    padding: 10,
+    height: 72,
+    backgroundColor: Colors.pure,
+    borderBottomColor: Colors.pure,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    elevation: 8,
   },
   body: {
     flexGrow: 1,
@@ -26,15 +25,15 @@ export default StyleSheet.create({
     flexShrink: 1,
   },
   title: {
-    color: neutralGray,
-    fontSize: scaleFont(14),
-    lineHeight: scale(20),
+    color: Colors.advanceBlack,
+    fontSize: 14,
+    lineHeight: 20,
     fontWeight: FontWeight.Demi,
     alignSelf: 'center',
   },
   spacerContainer: {
-    paddingVertical: scale(14),
-    paddingHorizontal: scale(10),
+    paddingVertical: 14,
+    paddingHorizontal: 10,
   },
   spacer: {
     width: defaultIconSize,

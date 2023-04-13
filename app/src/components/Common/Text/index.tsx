@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
-import { getFontFamily } from '@styles/font';
+import { getFontFamily } from 'src/lib/font';
 import styles from './styles';
 
 export interface Props extends TextProps {
