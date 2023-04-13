@@ -70,6 +70,6 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    backgroundColor: Colors.pure,
+    backgroundColor: Colors.lightGray,
   },
 });

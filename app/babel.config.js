@@ -9,6 +9,8 @@ module.exports = {
           src: './src',
           '@assets': './src/assets',
           '@components': './src/components',
+          '@config': './src/config',
+          '@layouts': './src/layouts',
           '@lib': './src/lib',
         },
       },

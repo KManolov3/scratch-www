@@ -1,13 +1,9 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableHighlight,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
+import CycleCountCard from 'src/apps/CycleCount/Card';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { DocumentType, gql } from '../../../__generated__';
-import { FixedLayout } from '../../../layouts/FixedLayout';
 import { styles } from './styles';
 
 const QUERY = gql(`
@@ -28,8 +24,28 @@ const QUERY = gql(`
   }
 `);
 
+type CycleCountFromQuery = NonNullable<
+  NonNullable<DocumentType<typeof QUERY>['cycleCounts']>[number]
+>;
+
 export function CycleCountHome() {
   const { loading, data, error } = useQuery(QUERY);
+
+  const cycleCounts = useMemo(
+    () =>
+      (data?.cycleCounts
+        ? data.cycleCounts.filter(count => !!count)
+        : []) as CycleCountFromQuery[],
+    [data?.cycleCounts],
+  );
+
+  const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
+    ({ item }: { item: CycleCountFromQuery }) => (
+      <CycleCountCard cycleCount={item} />
+    ),
+    [],
+  );
 
   if (loading) {
     return <ActivityIndicator size="large" />;
@@ -46,37 +62,12 @@ export function CycleCountHome() {
   return (
     <FixedLayout>
       <FlatList
+        data={cycleCounts}
+        renderItem={renderItem}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        keyExtractor={({ cycleCountId }) => cycleCountId?.toString()!}
         style={styles.cycleCounts}
-        data={data.cycleCounts}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        renderItem={({ item }) => <CycleCountListItem cycleCount={item!} />}
-        ItemSeparatorComponent={Separator}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        keyExtractor={_ => _?.cycleCountId?.toString()!}
       />
     </FixedLayout>
   );
-}
-
-type CycleCountFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof QUERY>['cycleCounts']>[number]
->;
-
-function CycleCountListItem({
-  cycleCount,
-}: {
-  cycleCount: CycleCountFromQuery;
-}) {
-  return (
-    <TouchableHighlight style={styles.cycleCount}>
-      <Text style={styles.cycleCountTitle}>{cycleCount?.cycleCountName}</Text>
-      <Text style={styles.cycleCountSubtext}>
-        {cycleCount?.skus?.join(', ')}
-      </Text>
-    </TouchableHighlight>
-  );
-}
-
-function Separator() {
-  return <View style={styles.separator} />;
 }

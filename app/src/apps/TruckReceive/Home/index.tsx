@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
-import { FixedLayout } from '../../../layouts/FixedLayout';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
 import { DocumentType, gql } from '../../../__generated__';
-import { Colors } from '../../../lib/colors';
 import { styles } from './styles';
 
 const QUERY = gql(`
