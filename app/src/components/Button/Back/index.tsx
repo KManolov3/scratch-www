@@ -1,5 +1,6 @@
 import { BackArrowIcon } from '@assets/icons';
 import { Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { styles, iconHeight, iconWidth } from './styles';
 
 interface Props {
@@ -7,12 +8,11 @@ interface Props {
 }
 
 export function BackButton({ disabled = false }: Props) {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  const navigateBack = () => {};
+  const navigation = useNavigation();
 
   return (
     <Pressable
-      onPress={navigateBack}
+      onPress={() => navigation.goBack()}
       style={styles.backButton}
       disabled={disabled}>
       <BackArrowIcon height={iconHeight} width={iconWidth} />
