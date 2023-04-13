@@ -1,15 +1,17 @@
 import React from 'react';
 import {
   StyleSheet,
+  // eslint-disable-next-line no-restricted-syntax
   TextInputProps,
-  TextInput,
+  // eslint-disable-next-line no-restricted-syntax
+  TextInput as RNTextInput,
   Keyboard,
   KeyboardTypeOptions,
 } from 'react-native';
 import { getFontFamily } from 'src/lib/font';
-import styles, { placeholderColor } from './styles';
+import { styles, placeholderColor } from './styles';
 
-export type TextInputRef = TextInput;
+export type TextInputRef = RNTextInput;
 
 const getReturnKeyType = (keyboardType: KeyboardTypeOptions) => {
   switch (keyboardType) {
@@ -23,7 +25,7 @@ const getReturnKeyType = (keyboardType: KeyboardTypeOptions) => {
   }
 };
 
-export default React.forwardRef<TextInput, TextInputProps>(
+export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
   (
     {
       style,
@@ -43,7 +45,7 @@ export default React.forwardRef<TextInput, TextInputProps>(
     };
 
     return (
-      <TextInput
+      <RNTextInput
         style={[styles.default, restOfStyle, customStyle]}
         placeholderTextColor={placeholderTextColor ?? placeholderColor}
         onSubmitEditing={onSubmitEditing ?? Keyboard.dismiss}

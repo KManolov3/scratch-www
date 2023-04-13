@@ -4,7 +4,7 @@ import { FontWeight } from 'src/lib/font';
 
 export const defaultIconSize = 20;
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',

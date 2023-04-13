@@ -1,15 +1,16 @@
 import React, { ReactNode } from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
+// eslint-disable-next-line no-restricted-syntax
+import { Text as RNText, TextProps, StyleSheet } from 'react-native';
 import { getFontFamily } from 'src/lib/font';
-import styles from './styles';
+import { styles } from './styles';
 
 export interface Props extends TextProps {
   children: ReactNode;
 }
 
-export type TextRef = Text;
+export type TextRef = RNText;
 
-export default React.forwardRef<TextRef, Props>(
+export const Text = React.forwardRef<TextRef, Props>(
   ({ children, style, ...rest }, ref) => {
     const resolvedStyle = StyleSheet.flatten(style) || {};
     const { fontWeight, fontFamily, fontStyle, ...restOfStyle } = resolvedStyle;
@@ -19,13 +20,13 @@ export default React.forwardRef<TextRef, Props>(
     };
 
     return (
-      <Text
+      <RNText
         style={[styles.default, restOfStyle, customStyle]}
         {...rest}
         allowFontScaling={false}
         ref={ref}>
         {children}
-      </Text>
+      </RNText>
     );
   },
 );

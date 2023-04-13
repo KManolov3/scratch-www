@@ -2,14 +2,14 @@ import { ReactElement } from 'react';
 import {
   ActivityIndicator,
   StyleProp,
-  Text,
   TextStyle,
   Pressable,
   ViewStyle,
   PressableProps,
 } from 'react-native';
+import { Text } from '@components/Text';
 import { SvgType } from '*.svg';
-import styles, { iconSize, primaryColor, secondaryColor } from './styles';
+import { styles, iconSize, primaryColor, secondaryColor } from './styles';
 
 interface Props extends PressableProps {
   label: string | ReactElement;
@@ -23,7 +23,7 @@ interface Props extends PressableProps {
   disabledTextStyle?: StyleProp<TextStyle>;
 }
 
-function BlockButton({
+export function BlockButton({
   label,
   Icon,
   onPress,
@@ -73,4 +73,3 @@ function BlockButton({
     </Pressable>
   );
 }
-export default BlockButton;

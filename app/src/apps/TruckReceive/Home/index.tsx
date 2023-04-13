@@ -2,14 +2,14 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { Text } from '@components/Text';
+import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';

@@ -6,7 +6,7 @@ export const secondaryColor = Colors.lightVoid;
 
 export const iconSize = 16;
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

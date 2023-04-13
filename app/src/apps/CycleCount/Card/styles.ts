@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,

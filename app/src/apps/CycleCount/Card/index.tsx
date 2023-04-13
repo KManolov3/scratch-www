@@ -1,13 +1,13 @@
 import { Pressable } from 'react-native';
-import Text from '@components/Text';
+import { Text } from '@components/Text';
 import { CycleCount } from 'src/__generated__/graphql';
-import styles from './styles';
+import { styles } from './styles';
 
 export interface Props {
   cycleCount: CycleCount;
 }
 
-function CycleCountCard({ cycleCount }: Props) {
+export function CycleCountCard({ cycleCount }: Props) {
   // TODO: determine whether a cycle count is
   // critical based on its due date
   const critical = true;
@@ -21,5 +21,3 @@ function CycleCountCard({ cycleCount }: Props) {
     </Pressable>
   );
 }
-
-export default CycleCountCard;

@@ -1,8 +1,9 @@
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useCallback, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import CycleCountCard from 'src/apps/CycleCount/Card';
+import { CycleCountCard } from 'src/apps/CycleCount/Card';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { Text } from '@components/Text';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';
 
