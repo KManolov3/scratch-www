@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import {
   ActivityIndicator,
   StyleProp,
@@ -23,7 +23,7 @@ interface Props extends PressableProps {
   disabledTextStyle?: StyleProp<TextStyle>;
 }
 
-const BlockButton = ({
+function BlockButton({
   label,
   Icon,
   onPress,
@@ -34,7 +34,7 @@ const BlockButton = ({
   disabledStyle,
   disabledTextStyle,
   ...rest
-}: Props) => {
+}: Props) {
   return (
     <Pressable
       style={[
@@ -72,5 +72,5 @@ const BlockButton = ({
       )}
     </Pressable>
   );
-};
+}
 export default BlockButton;

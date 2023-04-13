@@ -1,11 +1,11 @@
-import React, { ActivityIndicator, FlatList, Text, View } from 'react-native';
-import { gql } from '../../__generated__';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { useQuery } from '@apollo/client';
 import Header from '@components/Common/Header';
-import styles from './styles';
 import { useCallback, useMemo } from 'react';
-import { CycleCount } from '../../__generated__/graphql';
 import CycleCountCard from '@components/CycleCount/Card';
+import styles from './styles';
+import { CycleCount } from '../../__generated__/graphql';
+import { gql } from '../../__generated__';
 
 const QUERY = gql(`
   query cycleCountApp {
@@ -37,6 +37,7 @@ export function CycleCountScreen() {
   );
 
   const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: CycleCount }) => <CycleCountCard item={item} />,
     [],
   );
@@ -60,6 +61,7 @@ export function CycleCountScreen() {
       <FlatList
         data={cycleCounts}
         renderItem={renderItem}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         keyExtractor={({ cycleCountId }) => cycleCountId?.toString()!}
         style={styles.list}
       />

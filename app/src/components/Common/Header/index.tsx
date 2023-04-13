@@ -1,20 +1,21 @@
-import React from 'react';
 import { View, Text } from 'react-native';
 import styles from './styles';
 import BackButton from '../Button/Back';
 
-const Spacer = () => (
-  <View style={styles.spacerContainer}>
-    <View style={styles.spacer} />
-  </View>
-);
+function Spacer() {
+  return (
+    <View style={styles.spacerContainer}>
+      <View style={styles.spacer} />
+    </View>
+  );
+}
 
 interface Props {
   title?: string;
   withBackButton?: boolean;
 }
 
-const Header = ({ title = '', withBackButton = false }: Props) => {
+function Header({ title = '', withBackButton = false }: Props) {
   return (
     <View style={styles.header}>
       <View style={styles.side}>
@@ -30,6 +31,6 @@ const Header = ({ title = '', withBackButton = false }: Props) => {
       </View>
     </View>
   );
-};
+}
 
 export default Header;

@@ -1,10 +1,12 @@
+/* eslint-disable import/no-extraneous-dependencies */
+// Used only for dev purposes - to generate gql models
 import { CodegenConfig } from '@graphql-codegen/cli';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
-const { parsed: env } = dotenv.config()
+const { parsed: env } = dotenv.config();
 
 if (!env) {
-  throw new Error('Missing .env for graphql-codegen')
+  throw new Error('Missing .env for graphql-codegen');
 }
 
 const codegenConfig: CodegenConfig = {
@@ -16,8 +18,8 @@ const codegenConfig: CodegenConfig = {
       plugins: [],
       presetConfig: {
         gqlTagName: 'gql',
-      }
-    }
+      },
+    },
   },
   ignoreNoDocuments: true,
 };

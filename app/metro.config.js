@@ -5,16 +5,19 @@
  * @format
  */
 
+/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { getDefaultConfig } = require('metro-config');
 
-module.exports =  (async () => {
+module.exports = async () => {
   const {
-    resolver: { sourceExts, assetExts }
+    resolver: { sourceExts, assetExts },
   } = await getDefaultConfig();
 
   return {
     transformer: {
-      babelTransformerPath: require.resolve("react-native-svg-transformer"),
+      babelTransformerPath: require.resolve('react-native-svg-transformer'),
+      // eslint-disable-next-line require-await
       getTransformOptions: async () => ({
         transform: {
           experimentalImportSupport: false,
@@ -24,8 +27,8 @@ module.exports =  (async () => {
     },
 
     resolver: {
-      assetExts: assetExts.filter(ext => ext !== "svg"),
-      sourceExts: [...sourceExts, "svg"]
-    }
+      assetExts: assetExts.filter(ext => ext !== 'svg'),
+      sourceExts: [...sourceExts, 'svg'],
+    },
   };
-});
+};

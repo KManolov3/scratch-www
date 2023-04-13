@@ -4,14 +4,14 @@ module.exports = {
     [
       'module-resolver',
       {
-        'root': './',
-        'alias': {
-          'src': './src',
+        root: './',
+        alias: {
+          src: './src',
           '@assets': './src/assets',
           '@components': './src/components',
           '@styles': './src/styles',
-        }
-      }
+        },
+      },
     ],
-  ]
+  ],
 };

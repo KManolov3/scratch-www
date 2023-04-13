@@ -1,4 +1,4 @@
-import React, { Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import { CycleCount } from '../../../__generated__/graphql';
 import styles from './styles';
 import Text from '../../Common/Text';
