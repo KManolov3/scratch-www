@@ -56,6 +56,10 @@ module.exports = {
         "selector": "ImportDeclaration[source.value='react-native-config'] > ImportSpecifier[imported.name=Config]",
         "message": "Please import 'Config' from 'config.ts' instead."
       },
+      {
+        "selector": "ImportDeclaration[source.value='react-native'] > ImportSpecifier[imported.name=/(Text(?!Style)(?!Props)|TextInput)/]",
+        "message": "Please import 'Text' and 'TextInput 'from '@components' instead."
+      },
     ],
   },
 };
