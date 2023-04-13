@@ -6,6 +6,7 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import { FontWeight } from '@lib/font';
 import { apolloClient } from './config/graphql';
 import { RoutePropTypes, Routes } from './config/routes';
 import { Colors } from './lib/colors';
@@ -62,11 +63,14 @@ function RootNavigator({
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: Colors.advanceBlack,
+    backgroundColor: Colors.pure,
   },
 
   headerTitle: {
-    color: Colors.lightGray,
+    color: Colors.advanceBlack,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: FontWeight.Demi,
   },
 
   content: {
