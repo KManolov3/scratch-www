@@ -8,9 +8,9 @@ export interface Props extends TextProps {
   children: ReactNode;
 }
 
-export type TextRef = RNText;
+export type TextRef = React.RefObject<RNText>;
 
-export const Text = React.forwardRef<TextRef, Props>(
+export const Text = React.forwardRef<RNText, Props>(
   ({ children, style, ...rest }, ref) => {
     const resolvedStyle = StyleSheet.flatten(style) || {};
     const { fontWeight, fontFamily, fontStyle, ...restOfStyle } = resolvedStyle;

@@ -11,7 +11,7 @@ import {
 import { getFontFamily } from 'src/lib/font';
 import { styles, placeholderColor } from './styles';
 
-export type TextInputRef = RNTextInput;
+export type TextInputRef = React.RefObject<RNTextInput>;
 
 const getReturnKeyType = (keyboardType: KeyboardTypeOptions) => {
   switch (keyboardType) {

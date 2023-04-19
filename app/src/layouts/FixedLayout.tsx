@@ -21,7 +21,7 @@ export function FixedLayout({ children, style }: FixedLayoutProps) {
         backgroundColor={Colors.advanceBlack}
       />
 
-      <KeyboardAvoidingView contentContainerStyle={style}>
+      <KeyboardAvoidingView contentContainerStyle={style} behavior="position">
         {children}
       </KeyboardAvoidingView>
     </SafeAreaView>
