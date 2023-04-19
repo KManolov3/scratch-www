@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   StatusBar,
   StyleProp,
+  StyleSheet,
   ViewStyle,
 } from 'react-native';
 import { Colors } from '../lib/colors';
@@ -15,15 +16,21 @@ export interface FixedLayoutProps {
 
 export function FixedLayout({ children, style }: FixedLayoutProps) {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.root}>
       <StatusBar
         barStyle="light-content"
         backgroundColor={Colors.advanceBlack}
       />
 
-      <KeyboardAvoidingView contentContainerStyle={style}>
+      <KeyboardAvoidingView
+        style={StyleSheet.compose(styles.keyboardAvoidingView, style)}>
         {children}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  keyboardAvoidingView: { flex: 1 },
+});
