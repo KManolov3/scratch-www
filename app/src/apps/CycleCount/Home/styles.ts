@@ -2,7 +2,9 @@ import { StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
 
 export const styles = StyleSheet.create({
-  cycleCounts: {},
+  cycleCounts: {
+    flex: 1,
+  },
 
   cycleCount: {
     paddingHorizontal: 10,

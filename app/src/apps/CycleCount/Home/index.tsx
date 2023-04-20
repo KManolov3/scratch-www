@@ -1,20 +1,20 @@
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useCallback, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import { CycleCountCard } from 'src/apps/CycleCount/Card';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
-import { DocumentType, gql } from '../../../__generated__';
+import { DocumentType, gql } from 'src/__generated__';
+import { CycleCountCard } from './Components/Card';
 import { styles } from './styles';
 
 const QUERY = gql(`
   query cycleCountApp {
     cycleCounts(storeNumber: "0363") {
       storeNumber
-      cycleCountName
-      cycleCountId
       cycleCountType
-      skus
+
+      ...CycleCountCardFragment
+
       items {
         sku
         mfrPartNum
