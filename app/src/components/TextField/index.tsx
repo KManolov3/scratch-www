@@ -28,6 +28,10 @@ export function TextField({
 }: Props) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
+  const onChangeText = useCallback(
+    (text: string) => setValue(text),
+    [setValue],
+  );
   return (
     <Container style={containerStyle}>
       <Container style={styles.icon}>{icon}</Container>
@@ -36,7 +40,7 @@ export function TextField({
         placeholder={placeholder}
         placeholderTextColor={Colors.lightVoid}
         value={value}
-        onChangeText={text => setValue(text)}
+        onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
       />
