@@ -15,8 +15,9 @@ export function SearchBar({ onFocus, onBlur, isSearchFocused }: Props) {
   return (
     <Container style={styles.container}>
       <TextField
-        inputStyle={styles.input}
+        placeholder="Search for a SKU"
         icon={<SearchIcon height={iconHeight} width={iconWidth} />}
+        inputStyle={styles.input}
         onFocus={onFocus}
         onBlur={onBlur}
         clearable

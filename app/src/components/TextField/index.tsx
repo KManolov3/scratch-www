@@ -8,6 +8,7 @@ import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
 
 interface Props {
+  placeholder: string;
   icon?: ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
@@ -17,21 +18,22 @@ interface Props {
 }
 
 export function TextField({
+  placeholder,
+  icon,
   containerStyle,
   inputStyle,
   clearable = false,
-  icon,
   onFocus,
   onBlur,
 }: Props) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
   return (
-    <Container style={[containerStyle]}>
+    <Container style={containerStyle}>
       <Container style={styles.icon}>{icon}</Container>
       <TextInput
         style={[styles.input, inputStyle, !!icon && styles.iconIntersection]}
-        placeholder="Search for a SKU"
+        placeholder={placeholder}
         placeholderTextColor={Colors.lightVoid}
         value={value}
         onChangeText={text => setValue(text)}
