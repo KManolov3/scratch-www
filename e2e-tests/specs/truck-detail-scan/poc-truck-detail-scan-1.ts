@@ -1,6 +1,6 @@
-describe("Truck Detail Scan", () => {
-  it("#1", async () => {
+describe('Truck Detail Scan', () => {
+  it('#1', async () => {
     await driver.pause(2 * 1000);
-    await expect($(".android.view.View")).toBeDisplayed();
+    await expect($('.android.view.View')).toBeDisplayed();
   });
 });
