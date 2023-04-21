@@ -2,15 +2,26 @@ import {
   NativeStackNavigationOptions,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { CycleCountHome } from '../apps/CycleCount/Home';
 import { TruckReceiveHome } from '../apps/TruckReceive/Home';
 import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
 import { ItemLookupHome } from '../apps/ItemLookup/Home';
+import {
+  CycleCountNavigator,
+  CycleCountRoutePropTypes,
+} from '@apps/CycleCount/navigator';
+import { NavigatorScreenParams } from '@react-navigation/native';
 
 export const Routes = {
-  CycleCountHome: defineRoute({
-    title: 'Cycle Count',
-    component: CycleCountHome,
+  // CycleCountHome: defineRoute({
+  //   title: 'Cycle Count',
+  //   component: CycleCountHome,
+  // }),
+  CycleCountHome: defineRoute<NavigatorScreenParams<CycleCountRoutePropTypes>>({
+    title: 'ASDF',
+    component: CycleCountNavigator,
+    options: {
+      headerShown: false,
+    },
   }),
 
   TruckDetailHome: defineRoute({
@@ -39,9 +50,12 @@ export type PropsOf<T extends ScreenDefinition<any>> =
 export type ScreenProps<RouteName extends keyof Routes> =
   NativeStackScreenProps<RoutePropTypes, RouteName>;
 
+// TODO: Unexport this
 // This is actually used to get the get props using PropsOf above
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-interface ScreenDefinition<Props extends Record<string, any> | undefined> {
+export interface ScreenDefinition<
+  Props extends Record<string, any> | undefined,
+> {
   title: string;
   component: Element;
   options?: NativeStackNavigationOptions;

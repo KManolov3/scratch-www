@@ -52,7 +52,7 @@ function RootNavigator({
         <Stack.Screen
           key={key}
           name={key as keyof Routes}
-          options={{ headerTitle: route.title }}
+          options={{ headerTitle: route.title, ...route.options }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           component={route.component as any}
         />

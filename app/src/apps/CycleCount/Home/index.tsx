@@ -1,49 +1,44 @@
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  ListRenderItem,
+  View,
+} from 'react-native';
 import { useCallback, useMemo } from 'react';
-import { useQuery } from '@apollo/client';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
-import { DocumentType, gql } from 'src/__generated__';
 import { CycleCountCard } from './Components/Card';
 import { styles } from './styles';
-
-const QUERY = gql(`
-  query cycleCountApp {
-    cycleCounts(storeNumber: "0363") {
-      storeNumber
-      cycleCountType
-
-      ...CycleCountCardFragment
-
-      items {
-        sku
-        mfrPartNum
-        partDesc
-        retailPrice
-      }
-    }
-  }
-`);
-
-type CycleCountFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof QUERY>['cycleCounts']>[number]
->;
+import { sortBy } from 'lodash-es';
+import { filterNotNull } from '@lib/array';
+import { CycleCountRouteNavigationType } from '../navigator';
+import { useNavigation } from '@react-navigation/native';
+import { useCycleCountState } from '../Details/state';
 
 export function CycleCountHome() {
-  const { loading, data, error } = useQuery(QUERY);
+  const { cycleCounts: data, error, loading } = useCycleCountState();
 
-  const cycleCounts = useMemo(
-    () =>
-      (data?.cycleCounts
-        ? data.cycleCounts.filter(count => !!count)
-        : []) as CycleCountFromQuery[],
-    [data?.cycleCounts],
-  );
+  const cycleCounts = useMemo(() => {
+    if (!data) {
+      return [];
+    }
 
-  const renderItem = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: CycleCountFromQuery }) => (
-      <CycleCountCard cycleCount={item} />
+    // TODO: Check if the actual API sorts them by dueDate or if we need to sort ourselves
+    return sortBy(filterNotNull(data), _ => _?.dueDate);
+  }, [data]);
+
+  const navigation = useNavigation<CycleCountRouteNavigationType>();
+
+  const renderItem = useCallback<ListRenderItem<(typeof cycleCounts)[number]>>(
+    ({ item }) => (
+      <CycleCountCard
+        cycleCount={item}
+        onPress={() =>
+          navigation.navigate('PlanogramList', {
+            cycleCountId: item.cycleCountId!,
+          })
+        }
+      />
     ),
     [],
   );
@@ -52,10 +47,10 @@ export function CycleCountHome() {
     return <ActivityIndicator size="large" />;
   }
 
-  if (!data?.cycleCounts || error) {
+  if (!cycleCounts || error) {
     return (
       <View>
-        <Text>{error?.message ?? 'Unknown error'}</Text>
+        <Text>{(error as any)?.message ?? 'Unknown error'}</Text>
       </View>
     );
   }

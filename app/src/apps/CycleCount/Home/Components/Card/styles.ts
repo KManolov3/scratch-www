@@ -20,10 +20,12 @@ export const styles = StyleSheet.create({
   },
 
   criticalContainer: {
-    width: 60,
+    minWidth: 60,
     backgroundColor: Colors.advanceRed,
 
     padding: 5,
+
+    justifyContent: 'center',
   },
 
   content: {
