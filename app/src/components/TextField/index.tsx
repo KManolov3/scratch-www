@@ -7,7 +7,7 @@ import { buttonStyle } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
 
-interface Props {
+export interface TextFieldProps {
   placeholder: string;
   icon?: ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
@@ -25,7 +25,7 @@ export function TextField({
   clearable = false,
   onFocus,
   onBlur,
-}: Props) {
+}: TextFieldProps) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
   const onChangeText = useCallback(

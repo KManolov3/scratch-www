@@ -5,13 +5,17 @@ import { Text } from '@components/Text';
 import { TextField } from '@components/TextField';
 import { Container } from '@components/Container';
 
-interface Props {
+export interface SearchBarProps {
   onFocus: () => void;
   onBlur: () => void;
   isSearchFocused: boolean;
 }
 
-export function SearchBar({ onFocus, onBlur, isSearchFocused }: Props) {
+export function SearchBar({
+  onFocus,
+  onBlur,
+  isSearchFocused,
+}: SearchBarProps) {
   return (
     <Container style={styles.container}>
       <TextField
