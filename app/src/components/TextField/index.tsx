@@ -6,6 +6,7 @@ import { FontWeight } from '@lib/font';
 import { buttonStyle } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
+import { noop } from 'lodash';
 
 export interface TextFieldProps {
   placeholder: string;
@@ -15,6 +16,7 @@ export interface TextFieldProps {
   clearable?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  onSubmit?: (value: string) => void;
 }
 
 export function TextField({
@@ -25,6 +27,7 @@ export function TextField({
   clearable = false,
   onFocus,
   onBlur,
+  onSubmit = noop,
 }: TextFieldProps) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
@@ -43,6 +46,7 @@ export function TextField({
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
+        onSubmitEditing={() => onSubmit(value)}
       />
       {clearable && (
         <ClearButton

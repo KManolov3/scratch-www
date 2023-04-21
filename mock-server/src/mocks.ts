@@ -2,7 +2,9 @@ import { faker } from "@faker-js/faker";
 import { IMocks, MockList } from "@graphql-tools/mock";
 
 const storeNumberFaker = () => faker.random.numeric(4);
+const planogramIdFaker = () => faker.random.numeric(5);
 const skuFaker = () => faker.random.numeric(8);
+const quantityFaker = () => faker.datatype.number({min: 0, max: 50});
 
 const itemFakes = {
   sku: skuFaker,
@@ -10,6 +12,24 @@ const itemFakes = {
   partDesc: () => faker.commerce.productDescription(),
   upc: () => faker.random.numeric(10),
 };
+
+// const getFakePlanogram = () => ({
+//   planogramId: () => faker.random.numeric(5),
+//   description: () => faker.commerce.productDescription(),
+//   seqNum: () => faker.datatype.number({ min: 0, max: 50 }),
+// });
+
+// const getFakeBackstockSlot = () => ({
+//   guid?: Maybe<Scalars['String']>;
+//   lastModified?: Maybe<Scalars['Date']>;
+//   qty?: Maybe<Scalars['Int']>;
+//   sectionsLotName?: Maybe<Scalars['String']>;
+//   sectionsLotNum?: Maybe<Scalars['String']>;
+//   slotDescription?: Maybe<Scalars['String']>;
+//   slotId?: Maybe<Scalars['Int']>;
+//   slotName?: Maybe<Scalars['String']>;
+//   storeNumber?: Maybe<Scalars['String']>;
+// })
 
 export const mocks: IMocks = {
   String: () => faker.random.words(),
@@ -20,7 +40,19 @@ export const mocks: IMocks = {
 
     retailPrice: () =>
       faker.datatype.float({ min: 10, max: 100, precision: 0.01 }),
-    onHand: () => faker.datatype.number({ min: 0, max: 50 }),
+    onHand: quantityFaker,
+  },
+
+  Planogram: {
+    planogramId: planogramIdFaker,
+    description: () => faker.commerce.productDescription(),
+    // Does seqNum indicate quantity?
+    seqNum: quantityFaker,
+  },
+  
+  BackStockSlot: {
+    slotId: () => faker.datatype.number({ min: 0, max: 99999999 }),
+    qty: quantityFaker, 
   },
 
   CycleCount: {
@@ -43,7 +75,7 @@ export const mocks: IMocks = {
   Pog: {
     storeNumber: storeNumberFaker,
     skuNumber: skuFaker,
-    pogId: () => faker.random.numeric(5),
+    pogId: planogramIdFaker,
     pogDescription: () => faker.commerce.productDescription(),
     lastModifiedDate: () => faker.date.past(),
   },

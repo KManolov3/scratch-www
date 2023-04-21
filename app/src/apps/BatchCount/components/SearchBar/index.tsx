@@ -6,8 +6,9 @@ import { TextField } from '@components/TextField';
 import { Container } from '@components/Container';
 
 export interface SearchBarProps {
-  onFocus: () => void;
-  onBlur: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onSubmit?: (value: string) => void;
   isSearchFocused: boolean;
 }
 
@@ -15,6 +16,7 @@ export function SearchBar({
   onFocus,
   onBlur,
   isSearchFocused,
+  onSubmit,
 }: SearchBarProps) {
   return (
     <Container style={styles.container}>
@@ -24,6 +26,7 @@ export function SearchBar({
         inputStyle={styles.input}
         onFocus={onFocus}
         onBlur={onBlur}
+        onSubmit={onSubmit}
         clearable
       />
       {isSearchFocused && (
