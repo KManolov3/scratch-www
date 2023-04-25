@@ -17,16 +17,6 @@ export function generateRandomString(
   return randomString;
 }
 
-export async function withImplicitWait(context, implicit: number) {
-  await driver.setTimeout({ implicit });
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await context();
-  } finally {
-    await driver.setTimeout({ implicit: WAIT_FOR_TIMEOUT });
-  }
-}
-
 export async function waitFor(
   selector: string,
   timeout = WAIT_FOR_TIMEOUT
@@ -58,24 +48,20 @@ export async function waitAndClick(
   console.log(`Clicked on element ${selector}`);
 }
 
-export async function setValue(selector: string, value?: string | number) {
-  if (value !== undefined) {
-    const element = await $(selector);
-    await element.setValue(value);
-    console.log(`Value ${value} is set to ${selector}`);
-  }
+export async function setValue(selector: string, value: string | number) {
+  const element = await $(selector);
+  await element.setValue(value);
+  console.log(`Value ${value} is set to ${selector}`);
 }
 
 export async function clearAndSetValue(
   selector: string,
-  value?: string | number
+  value: string | number
 ) {
-  if (value !== undefined) {
-    await clearValue(selector);
-    const element = await $(selector);
-    await element.setValue(value);
-    console.log(`Value ${value} is set to ${selector}`);
-  }
+  await clearValue(selector);
+  const element = await $(selector);
+  await element.setValue(value);
+  console.log(`Value ${value} is set to ${selector}`);
 }
 
 export async function clearValue(selector: string) {
