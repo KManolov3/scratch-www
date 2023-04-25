@@ -72,11 +72,14 @@ class LaunchDarklyService {
 
     this.client = new LDClient();
 
-    this.isCurrentlyInitialising = this.client.configure(
-      config,
-      context,
-      LD_CONFIGURE_TIMEOUT_MS,
-    );
+    this.isCurrentlyInitialising = Promise.race([
+      this.client.configure(config, context, LD_CONFIGURE_TIMEOUT_MS),
+      new Promise<null>(resolve => {
+        setTimeout(() => {
+          resolve(null);
+        }, LD_CONFIGURE_TIMEOUT_MS);
+      }),
+    ]);
 
     return this.isCurrentlyInitialising.then(() => {
       this.isCurrentlyInitialising = undefined;
