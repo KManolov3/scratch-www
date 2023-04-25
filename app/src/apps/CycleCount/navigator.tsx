@@ -10,6 +10,7 @@ import { CycleCountPlanogram } from './Details/Planogram';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
+  NavigatorScreenParams,
 } from '@react-navigation/native';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 
@@ -37,6 +38,8 @@ export function CycleCountNavigator() {
     </CycleCountStateProvider>
   );
 }
+
+export type CycleCountNavigatorScreenParams = NavigatorScreenParams<Routes>;
 
 export type CycleCountScreenProps<K extends keyof Routes> =
   CompositeScreenProps<

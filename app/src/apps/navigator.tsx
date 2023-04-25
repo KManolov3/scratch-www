@@ -1,7 +1,10 @@
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import { ItemLookupHome } from './ItemLookup/Home';
-import { CycleCountNavigator } from '@apps/CycleCount/navigator';
+import {
+  CycleCountNavigator,
+  CycleCountNavigatorScreenParams,
+} from '@apps/CycleCount/navigator';
 import {
   NativeStackNavigationOptions,
   NativeStackScreenProps,
@@ -10,7 +13,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 
 type Routes = {
-  CycleCountHome: undefined;
+  CycleCountHome: CycleCountNavigatorScreenParams;
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: undefined;
@@ -23,7 +26,7 @@ export type RootScreenProps<K extends RootRouteName> = NativeStackScreenProps<
   Routes,
   K
 >;
-export type RootNavigation<K extends RootRouteName = any> =
+export type RootNavigation<K extends RootRouteName = keyof Routes> =
   NativeStackNavigationProp<Routes, K>;
 
 export function RootNavigator({
