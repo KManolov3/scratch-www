@@ -8,10 +8,13 @@ import {
 } from '@react-navigation/native-stack';
 import { FontWeight } from '@lib/font';
 import { apolloClient } from './config/graphql';
-import { RoutePropTypes, Routes } from './config/routes';
 import { Colors } from './lib/colors';
+import { RootRoutes } from '@config/routes';
+import { NavigatorComponent, NavigatorRouteProps } from '@lib/navigators';
 
-export function AppRoot({ initialRoute }: { initialRoute: keyof Routes }) {
+const RootStack = createNativeStackNavigator<NavigatorRouteProps<RootRoutes>>();
+
+export function AppRoot({ initialRoute }: { initialRoute: keyof RootRoutes }) {
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({
       headerStyle: styles.header,
@@ -26,7 +29,9 @@ export function AppRoot({ initialRoute }: { initialRoute: keyof Routes }) {
   return (
     <ApolloProvider client={apolloClient}>
       <NavigationContainer>
-        <RootNavigator
+        <NavigatorComponent
+          navigator={RootStack}
+          routes={RootRoutes}
           initialRoute={initialRoute}
           screenOptions={screenOptions}
         />
@@ -35,31 +40,29 @@ export function AppRoot({ initialRoute }: { initialRoute: keyof Routes }) {
   );
 }
 
-const Stack = createNativeStackNavigator<RoutePropTypes>();
-
-function RootNavigator({
-  initialRoute,
-  screenOptions,
-}: {
-  initialRoute: keyof Routes;
-  screenOptions?: NativeStackNavigationOptions;
-}) {
-  return (
-    <Stack.Navigator
-      initialRouteName={initialRoute}
-      screenOptions={screenOptions}>
-      {Object.entries(Routes).map(([key, route]) => (
-        <Stack.Screen
-          key={key}
-          name={key as keyof Routes}
-          options={{ headerTitle: route.title, ...route.options }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          component={route.component as any}
-        />
-      ))}
-    </Stack.Navigator>
-  );
-}
+// function RootNavigator({
+//   initialRoute,
+//   screenOptions,
+// }: {
+//   initialRoute: keyof RootRoutes;
+//   screenOptions?: NativeStackNavigationOptions;
+// }) {
+//   return (
+//     <Stack.Navigator
+//       initialRouteName={initialRoute}
+//       screenOptions={screenOptions}>
+//       {Object.entries(Routes).map(([key, route]) => (
+//         <Stack.Screen
+//           key={key}
+//           name={key as keyof Routes}
+//           options={{ headerTitle: route.title, ...route.options }}
+//           // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//           component={route.component as any}
+//         />
+//       ))}
+//     </Stack.Navigator>
+//   );
+// }
 
 const styles = StyleSheet.create({
   header: {

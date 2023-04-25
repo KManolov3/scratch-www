@@ -1,69 +1,48 @@
-import type { PropsOf, RoutePropTypes, ScreenDefinition } from '@config/routes';
 import { CycleCountHome } from './Home';
-import {
-  NativeStackNavigationProp,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CycleCountPlanogramList } from './Details/PlanogramList';
 import { CycleCountPlanogram } from './Details/Planogram';
 import { CycleCountStateProvider } from './Details/state';
-import { CompositeNavigationProp } from '@react-navigation/native';
+import {
+  NavigatorComponent,
+  NavigatorRouteProps,
+  SubNavigatorType,
+  defineScreen,
+  defineScreenCollection,
+} from '@lib/navigators';
+import { RootRoutes } from '@config/routes';
 
-const CycleCountRoutes = {
-  Home: defineRoute({
+export const CycleCountRoutes = defineScreenCollection({
+  Home: defineScreen({
     title: 'Cycle Count',
     component: CycleCountHome,
   }),
 
-  PlanogramList: defineRoute<{ cycleCountId: number }>({
+  PlanogramList: defineScreen<{ cycleCountId: number }>({
     title: 'Select Location',
     component: CycleCountPlanogramList,
   }),
 
-  Planogram: defineRoute<{ cycleCountId: number; planogramId: string }>({
+  Planogram: defineScreen<{ cycleCountId: number; planogramId: string }>({
     title: 'Cycle Count by Location',
     component: CycleCountPlanogram,
   }),
-} as const;
-type CycleCountRoutes = typeof CycleCountRoutes;
+});
 
-export type CycleCountRouteProps = {
-  [key in keyof CycleCountRoutes]: PropsOf<CycleCountRoutes[key]>;
-};
+export type CycleCountRoutes = typeof CycleCountRoutes;
 
-// export type CycleCountScreenProps = CompositeScreenProps<
-//   NativeStackScreenProps<RoutePropTypes, 'CycleCountHome'>,
-//   NativeStackScreenProps<CycleCountRouteProps>
-// >;
-
-export type CycleCountRouteNavigationType = CompositeNavigationProp<
-  NativeStackNavigationProp<RoutePropTypes>,
-  NativeStackNavigationProp<CycleCountRouteProps>
+export type CycleCountRouteNavigationType = SubNavigatorType<
+  RootRoutes,
+  CycleCountRoutes
 >;
 
-const Stack = createNativeStackNavigator<CycleCountRouteProps>();
+const Stack =
+  createNativeStackNavigator<NavigatorRouteProps<CycleCountRoutes>>();
 
-// TODO: Make this generic?
 export function CycleCountNavigator() {
   return (
     <CycleCountStateProvider>
-      <Stack.Navigator>
-        {Object.entries(CycleCountRoutes).map(([key, route]) => (
-          <Stack.Screen
-            key={key}
-            name={key as keyof CycleCountRoutes}
-            options={{ headerTitle: route.title }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            component={route.component as any}
-          />
-        ))}
-      </Stack.Navigator>
+      <NavigatorComponent navigator={Stack} routes={CycleCountRoutes} />
     </CycleCountStateProvider>
   );
-}
-
-function defineRoute<Props extends Record<string, any> | undefined = undefined>(
-  route: ScreenDefinition<Props>,
-): ScreenDefinition<Props> {
-  return route;
 }
