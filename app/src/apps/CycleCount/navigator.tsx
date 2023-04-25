@@ -1,48 +1,50 @@
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
+import { CycleCountStateProvider } from './Details/state';
 import { CycleCountHome } from './Home';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CycleCountPlanogramList } from './Details/PlanogramList';
 import { CycleCountPlanogram } from './Details/Planogram';
-import { CycleCountStateProvider } from './Details/state';
 import {
-  NavigatorComponent,
-  NavigatorRouteProps,
-  SubNavigatorType,
-  defineScreen,
-  defineScreenCollection,
-} from '@lib/navigators';
-import { RootRoutes } from '@config/routes';
+  CompositeNavigationProp,
+  CompositeScreenProps,
+} from '@react-navigation/native';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 
-export const CycleCountRoutes = defineScreenCollection({
-  Home: defineScreen({
-    title: 'Cycle Count',
-    component: CycleCountHome,
-  }),
+type Routes = {
+  Home: undefined;
+  PlanogramList: { cycleCountId: number };
+  Planogram: { cycleCountId: number; planogramId: string };
+};
 
-  PlanogramList: defineScreen<{ cycleCountId: number }>({
-    title: 'Select Location',
-    component: CycleCountPlanogramList,
-  }),
-
-  Planogram: defineScreen<{ cycleCountId: number; planogramId: string }>({
-    title: 'Cycle Count by Location',
-    component: CycleCountPlanogram,
-  }),
-});
-
-export type CycleCountRoutes = typeof CycleCountRoutes;
-
-export type CycleCountRouteNavigationType = SubNavigatorType<
-  RootRoutes,
-  CycleCountRoutes
->;
-
-const Stack =
-  createNativeStackNavigator<NavigatorRouteProps<CycleCountRoutes>>();
+const Stack = createNativeStackNavigator<Routes>();
 
 export function CycleCountNavigator() {
   return (
     <CycleCountStateProvider>
-      <NavigatorComponent navigator={Stack} routes={CycleCountRoutes} />
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={CycleCountHome} />
+
+        <Stack.Screen
+          name="PlanogramList"
+          component={CycleCountPlanogramList}
+        />
+
+        <Stack.Screen name="Planogram" component={CycleCountPlanogram} />
+      </Stack.Navigator>
     </CycleCountStateProvider>
   );
 }
+
+export type CycleCountScreenProps<K extends keyof Routes> =
+  CompositeScreenProps<
+    NativeStackScreenProps<Routes, K>,
+    RootScreenProps<'CycleCountHome'>
+  >;
+
+export type CycleCountNavigation = CompositeNavigationProp<
+  RootNavigation<'CycleCountHome'>,
+  NativeStackNavigationProp<Routes>
+>;

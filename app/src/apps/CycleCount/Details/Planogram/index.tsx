@@ -5,14 +5,13 @@ import { useCycleCountState } from '../state';
 import { useMemo } from 'react';
 import { uniqBy } from 'lodash-es';
 import { filterNotNull } from '@lib/array';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CycleCountRouteProps } from '@apps/CycleCount/navigator';
+import { CycleCountScreenProps } from '@apps/CycleCount/navigator';
 
 export function CycleCountPlanogram({
   route: {
     params: { cycleCountId, planogramId },
   },
-}: NativeStackScreenProps<CycleCountRouteProps, 'Planogram'>) {
+}: CycleCountScreenProps<'Planogram'>) {
   const { cycleCounts } = useCycleCountState();
 
   const cycleCount = useMemo(() => {

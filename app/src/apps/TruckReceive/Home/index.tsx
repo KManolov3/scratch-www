@@ -13,6 +13,7 @@ import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';
+import { RootNavigation } from '@apps/navigator';
 
 const QUERY = gql(`
   query truckScanApp {
@@ -65,7 +66,7 @@ export function TruckReceiveHome() {
 }
 
 function TruckScanListItem({ truckScan }: { truckScan: TruckScanFromQuery }) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootNavigation>();
 
   return (
     <TouchableOpacity

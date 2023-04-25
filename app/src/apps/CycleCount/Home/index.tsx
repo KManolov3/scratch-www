@@ -11,9 +11,9 @@ import { CycleCountCard } from './Components/Card';
 import { styles } from './styles';
 import { sortBy } from 'lodash-es';
 import { filterNotNull } from '@lib/array';
-import { CycleCountRouteNavigationType } from '../navigator';
 import { useNavigation } from '@react-navigation/native';
 import { useCycleCountState } from '../Details/state';
+import { CycleCountNavigation } from '../navigator';
 
 export function CycleCountHome() {
   const { cycleCounts: data, error, loading } = useCycleCountState();
@@ -27,7 +27,7 @@ export function CycleCountHome() {
     return sortBy(filterNotNull(data), _ => _?.dueDate);
   }, [data]);
 
-  const navigation = useNavigation<CycleCountRouteNavigationType>();
+  const navigation = useNavigation<CycleCountNavigation>();
 
   const renderItem = useCallback<ListRenderItem<(typeof cycleCounts)[number]>>(
     ({ item }) => (

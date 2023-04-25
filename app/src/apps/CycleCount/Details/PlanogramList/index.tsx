@@ -5,11 +5,10 @@ import { useCallback, useMemo } from 'react';
 import { filterNotNull } from '@lib/array';
 import { uniqBy } from 'lodash-es';
 import { Text } from '@components/Text';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import {
-  CycleCountRouteNavigationType,
-  CycleCountRouteProps,
+  CycleCountNavigation,
+  CycleCountScreenProps,
 } from '@apps/CycleCount/navigator';
 
 // TODO: Helper type for the prop types
@@ -17,7 +16,7 @@ export function CycleCountPlanogramList({
   route: {
     params: { cycleCountId },
   },
-}: NativeStackScreenProps<CycleCountRouteProps, 'PlanogramList'>) {
+}: CycleCountScreenProps<'PlanogramList'>) {
   // TODO: Single item state? Another hook?
   const { cycleCounts } = useCycleCountState();
 
@@ -37,7 +36,7 @@ export function CycleCountPlanogramList({
     return uniqBy(planograms, _ => _.planogramId);
   }, [cycleCounts, cycleCountId]);
 
-  const navigation = useNavigation<CycleCountRouteNavigationType>();
+  const navigation = useNavigation<CycleCountNavigation>();
 
   const renderItem = useCallback<ListRenderItem<(typeof planograms)[number]>>(
     ({ item: planogram }) => (
