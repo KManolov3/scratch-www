@@ -8,15 +8,15 @@ import { Container } from '@components/Container';
 export interface SearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
-  onSubmit?: (value: string) => void;
-  isSearchFocused: boolean;
+  onSubmit: (value: string) => void;
+  allowBarcodeScanning?: boolean;
 }
 
 export function SearchBar({
   onFocus,
   onBlur,
-  isSearchFocused,
   onSubmit,
+  allowBarcodeScanning = false,
 }: SearchBarProps) {
   return (
     <Container style={styles.container}>
@@ -29,7 +29,8 @@ export function SearchBar({
         onSubmit={onSubmit}
         clearable
       />
-      {isSearchFocused && (
+
+      {allowBarcodeScanning && (
         <Container style={styles.detailsContainer}>
           <BarcodeIcon height={iconHeight} width={iconWidth} />
           <Text style={styles.details}>
