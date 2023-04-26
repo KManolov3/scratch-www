@@ -1,6 +1,9 @@
+import { expectElementText, waitFor } from '../../methods/helpers.ts';
+
 describe('Truck Detail Scan', () => {
   it('#1', async () => {
-    await driver.pause(2 * 1000);
-    await expect($('.android.view.View')).toBeDisplayed();
+    const appTitleLocator = '[text=Truck Detail]';
+    await waitFor(appTitleLocator, 5000);
+    await expectElementText(appTitleLocator, 'Truck Detail');
   });
 });

@@ -12,7 +12,11 @@ const __dirname = path.dirname(__filePath);
 
 let reportAggregator: ReportAggregator;
 const screenshotPath = 'screenshots';
-const reportPath = join(__dirname, 'reports', `${process.env.APP_ACTIVITY}`);
+const reportPath = join(
+  __dirname,
+  'reports',
+  `${kebabCase(process.env.APP_ACTIVITY)}`
+);
 
 const green = '\x1b[32m';
 const red = '\x1b[31m';

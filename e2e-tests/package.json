@@ -7,16 +7,19 @@
     "e2e:cycle-count": "cd ./specs/cycle-count && ../../run-e2e.sh CycleCountActivity",
     "e2e:item-lookup": "cd ./specs/item-lookup && ../../run-e2e.sh ItemLookupActivity",
     "e2e:truck-detail-scan": "cd ./specs/truck-detail-scan && ../../run-e2e.sh TruckDetailScanActivity",
-    "e2e:multiple-apps": "./run-e2e-multiple-apps.sh"
+    "e2e:multiple-apps": "./run-e2e-multiple-apps.sh",
+    "eslint": "eslint ."
   },
   "dependencies": {
     "@types/fs-extra": "^11.0.1",
     "@types/lodash-es": "^4.17.7",
+    "@types/randomstring": "^1.1.8",
     "@typescript-eslint/parser": "^5.59.0",
     "appium": "^1.22.3",
     "chai": "^4.3.7",
     "fs-extra": "^11.1.1",
     "lodash-es": "^4.17.21",
+    "randomstring": "^1.2.3",
     "wdio-html-nice-reporter": "^8.1.0",
     "webdriverio": "^8.8.0"
   },
@@ -32,7 +35,7 @@
     "@wdio/selenium-standalone-service": "^8.8.0",
     "@wdio/spec-reporter": "^8.8.0",
     "@wdio/types": "^8.8.0",
-    "eslint": "^8.38.0",
+    "eslint": "^8.39.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
