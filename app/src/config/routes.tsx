@@ -2,6 +2,7 @@ import {
   NativeStackNavigationOptions,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+import { BatchCountHome } from 'src/apps/BatchCount/Home';
 import { CycleCountHome } from '../apps/CycleCount/Home';
 import { TruckReceiveHome } from '../apps/TruckReceive/Home';
 import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
@@ -11,6 +12,11 @@ export const Routes = {
   CycleCountHome: defineRoute({
     title: 'Cycle Count',
     component: CycleCountHome,
+  }),
+
+  BatchCountHome: defineRoute({
+    title: 'Batch Count',
+    component: BatchCountHome,
   }),
 
   TruckDetailHome: defineRoute({
