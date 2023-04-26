@@ -1,17 +1,19 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { AttentionIcon } from '@assets/icons';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 
-export function Error() {
+interface Props {
+  label?: string;
+}
+
+export function Error({ label = 'Oops, something went wrong!' }: Props) {
   return (
     <FixedLayout style={styles.container}>
-      <View style={styles.icon}>
-        <AttentionIcon width={iconSize} height={iconSize} />
-      </View>
-      <Text style={styles.text}>Oops, something went wrong!</Text>
+      <AttentionIcon style={styles.icon} width={iconSize} height={iconSize} />
+      <Text style={styles.text}>{label}</Text>
     </FixedLayout>
   );
 }
@@ -25,7 +27,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   icon: {
-    padding: 8,
+    margin: 8,
   },
   text: {
     color: Colors.advanceRed,

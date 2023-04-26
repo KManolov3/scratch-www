@@ -1,9 +1,9 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
-export default function useAppStateChange(
+export function useAppStateChange(
   targetStates: AppStateStatus[],
-  callback: (nextAppState: AppStateStatus) => unknown,
+  callback: (nextAppState: AppStateStatus) => void,
 ) {
   const appState = useRef(AppState.currentState);
 

@@ -33,9 +33,8 @@ class LaunchDarklyService {
     applicationName,
   }: Configuration): Promise<LDContext> {
     return {
-      key: userId ?? 'default',
+      key: userId,
       kind: 'user',
-      anonymous: !userId,
 
       applicationName,
       androidAPILevel: await DeviceInfo.getApiLevel(),
@@ -100,15 +99,17 @@ class LaunchDarklyService {
 
   private parseEvaluationResult<T extends LDFlagType>(
     result: LDEvaluationDetail<LDFlagType>,
-    _flagName: string,
+    flagName: string,
   ) {
     const { value, reason } = result;
     if (reason.kind === 'ERROR') {
-      // TODO: log error
-      // const errorMessage = `LaunchDarkly: Fallback value is being used for ${flagName} flag`;
+      // eslint-disable-next-line no-console
+      console.info(
+        `LaunchDarkly: Fallback value is being used for ${flagName} flag`,
+      );
     } else {
-      // TODO: log informative message
-      // const errorMessage = `LaunchDarkly: Retrieved ${flagName} flag value`;
+      // eslint-disable-next-line no-console
+      console.error(`LaunchDarkly: Retrieved ${flagName} flag value`);
     }
 
     return Promise.resolve(value) as Promise<T>;
@@ -130,8 +131,11 @@ class LaunchDarklyService {
     try {
       client = await this.ensureInitialisedClient();
     } catch (error) {
-      // TODO: log error
-      // const errorMessage = 'LaunchDarkly: Attempting to flush an uninitialised client';
+      // eslint-disable-next-line no-console
+      console.error(
+        'LaunchDarkly: Attempting to flush an uninitialised client',
+      );
+
       return;
     }
 
@@ -147,8 +151,10 @@ class LaunchDarklyService {
     try {
       client = await this.ensureInitialisedClient();
     } catch {
-      // TODO: log error
-      // const errorMessage = 'LaunchDarkly: Failed to ensure initialised client, returning fallback';
+      // eslint-disable-next-line no-console
+      console.error(
+        'LaunchDarkly: Failed to ensure initialised client, returning fallback',
+      );
       return Promise.resolve(fallback);
     }
 
@@ -174,11 +180,11 @@ class LaunchDarklyService {
     try {
       return await this.parseEvaluationResult<T>(result, name);
     } catch (error) {
-      // TODO: log error
-      // const errorMessage = 'LaunchDarkly: Error parsing evaluation result';
+      // eslint-disable-next-line no-console
+      console.error('LaunchDarkly: Error parsing evaluation result');
       return Promise.resolve(fallback);
     }
   }
 }
 
-export const cycleCountLDService = new LaunchDarklyService();
+export const launchDarklyService = new LaunchDarklyService();

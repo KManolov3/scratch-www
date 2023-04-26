@@ -9,7 +9,7 @@ Explanation of the semantics of each variable can be found below.
 
 ### Generic Variables
 
-- **BUILD** - A unique identifier of the build in the format `branch-environment-appVersion-commit-time`.
+- **BUILD** - A unique identifier of the build in the format `branch-environment-appVersion-commitTime`.
 
 - **VERSION** - A unique identifier of the app version. Its value is set to the value of the version property from package.json (e.g 1.0.0).
 
