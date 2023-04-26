@@ -4,6 +4,7 @@ import {
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from 'src/apps/BatchCount/Home';
 import { BatchCountItemLookup } from '@apps/BatchCount/ItemLookup';
+import { OutageHome } from '@apps/Outage/Home';
 import { CycleCountHome } from '../apps/CycleCount/Home';
 import { TruckReceiveHome } from '../apps/TruckReceive/Home';
 import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
@@ -42,6 +43,11 @@ export const Routes = {
   ItemLookupHome: defineRoute({
     title: 'Item Lookup',
     component: ItemLookupHome,
+  }),
+
+  OutageHome: defineRoute({
+    title: 'Outage',
+    component: OutageHome,
   }),
 } as const;
 export type Routes = typeof Routes;
