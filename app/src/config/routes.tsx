@@ -4,11 +4,16 @@ import {
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from 'src/apps/BatchCount/Home';
 import { BatchCountItemLookup } from '@apps/BatchCount/ItemLookup';
+import { OutageBatch } from '@apps/Outage/Batch';
 import { OutageHome } from '@apps/Outage/Home';
 import { CycleCountHome } from '../apps/CycleCount/Home';
 import { TruckReceiveHome } from '../apps/TruckReceive/Home';
 import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
 import { ItemLookupHome } from '../apps/ItemLookup/Home';
+
+type ItemSearch =
+  | { itemSku: string; itemUpc?: never }
+  | { itemSku?: never; itemUpc: string };
 
 export const Routes = {
   CycleCountHome: defineRoute({
@@ -21,9 +26,7 @@ export const Routes = {
     component: BatchCountHome,
   }),
 
-  BatchCountItemLookup: defineRoute<
-    { itemSku: string; itemUpc?: never } | { itemSku?: never; itemUpc: string }
-  >({
+  BatchCountItemLookup: defineRoute<ItemSearch>({
     // All "Batch Count" screens are titled as such
     // in the header.
     title: 'Batch Count',
@@ -48,6 +51,11 @@ export const Routes = {
   OutageHome: defineRoute({
     title: 'Outage',
     component: OutageHome,
+  }),
+
+  OutageBatch: defineRoute<ItemSearch>({
+    title: 'Outage Batch',
+    component: OutageBatch,
   }),
 } as const;
 export type Routes = typeof Routes;
