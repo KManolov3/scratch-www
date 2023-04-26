@@ -10,10 +10,13 @@ import { ScreenProps } from '@config/routes';
 import { ItemDetails } from '../components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 
+export type LookupType = 'UPC' | 'SKU';
+
 // TODO: extract those fields to fragments in subcomponents as needed
-const QUERY = gql(`
-  query manualItemLookup($itemSku: String!) {
-    itemBySku(sku: $itemSku, storeNumber: "0363") {
+// TODO: Move those below component?
+const ITEM_BY_SKU = gql(`
+  query manualItemLookup($sku: String!) {
+    itemBySku(sku: $sku, storeNumber: "0363") {
       mfrPartNum
       sku
       retailPrice
@@ -30,40 +33,82 @@ const QUERY = gql(`
   }
 `);
 
-type SelectedItemFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof QUERY>['itemBySku']>
+type SelectedSkuItemFromQuery = NonNullable<
+  NonNullable<DocumentType<typeof ITEM_BY_SKU>['itemBySku']>
+>;
+
+const ITEM_BY_UPC = gql(`
+  query automaticItemLookup($upc: String!) {
+    itemByUpc(upc: $upc, storeNumber: "0363") {
+      mfrPartNum
+      sku
+      retailPrice
+      onHand
+      planograms {
+        planogramId
+        seqNum
+      }
+      backStockSlots {
+        slotId
+        qty
+      }
+    },
+  }
+`);
+
+type SelectedUpcItemFromQuery = NonNullable<
+  NonNullable<DocumentType<typeof ITEM_BY_UPC>['itemByUpc']>
 >;
 
 export function BatchCountItemLookup({
-  route: { params },
+  route: {
+    params: { type, value },
+  },
 }: ScreenProps<'BatchCountItemLookup'>) {
-  const { loading, data, error } = useQuery(QUERY, {
-    // TODO: Handle the case where itemUpc is passed
-    // Ensure only one query is executed.
-    variables: { itemSku: params.itemSku ?? params.itemUpc },
+  const {
+    loading: isLoadingItemBySku,
+    data: lookupBySku,
+    error: errorBySku,
+  } = useQuery(ITEM_BY_SKU, {
+    variables: { sku: value },
+    skip: type !== 'SKU',
   });
 
-  const itemDetails = useMemo(
-    () =>
-      data?.itemBySku ? (data.itemBySku as SelectedItemFromQuery) : undefined,
-    [data?.itemBySku],
-  );
+  const {
+    loading: isLoadingItemByUpc,
+    data: lookupByUpc,
+    error: errorByUpc,
+  } = useQuery(ITEM_BY_UPC, {
+    variables: { upc: value },
+    skip: type !== 'UPC',
+  });
 
-  if (loading) {
+  const itemDetails = useMemo(() => {
+    if (lookupBySku) {
+      return lookupBySku.itemBySku as SelectedSkuItemFromQuery;
+    }
+
+    if (lookupByUpc) {
+      return lookupByUpc.itemByUpc as SelectedUpcItemFromQuery;
+    }
+  }, [lookupBySku, lookupByUpc]);
+
+  if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
   }
 
-  if (error) {
+  if (errorBySku || errorByUpc) {
     return (
       <View>
-        <Text>{error?.message ?? 'Unknown error'}</Text>
+        <Text>
+          {errorBySku?.message ?? errorByUpc?.message ?? 'Unknown error'}
+        </Text>
       </View>
     );
   }
 
-  console.log(itemDetails);
-  if (!data) {
-    return <NoResults />;
+  if (!itemDetails) {
+    return <NoResults lookupType={type} lookupId={value} />;
   }
 
   return <ItemDetails />;

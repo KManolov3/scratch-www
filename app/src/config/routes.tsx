@@ -3,7 +3,7 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from 'src/apps/BatchCount/Home';
-import { BatchCountItemLookup } from '@apps/BatchCount/ItemLookup';
+import { BatchCountItemLookup, LookupType } from '@apps/BatchCount/ItemLookup';
 import { CycleCountHome } from '../apps/CycleCount/Home';
 import { TruckReceiveHome } from '../apps/TruckReceive/Home';
 import { TruckReceiveScanDetails } from '../apps/TruckReceive/ScanDetails';
@@ -15,14 +15,12 @@ export const Routes = {
     component: CycleCountHome,
   }),
 
-  BatchCountHome: defineRoute({
+  BatchCountHome: defineRoute<{ shouldFocusSearch?: boolean }>({
     title: 'Batch Count',
     component: BatchCountHome,
   }),
 
-  BatchCountItemLookup: defineRoute<
-    { itemSku: string; itemUpc?: never } | { itemSku?: never; itemUpc: string }
-  >({
+  BatchCountItemLookup: defineRoute<{ type: LookupType; value: string }>({
     // All "Batch Count" screens are titled as such
     // in the header.
     title: 'Batch Count',

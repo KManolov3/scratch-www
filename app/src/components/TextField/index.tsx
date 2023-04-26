@@ -1,6 +1,6 @@
 import { ClearButton } from '@components/Button/Clear';
 import { ReactNode, useCallback, useState } from 'react';
-import { TextInput } from '@components/TextInput';
+import { TextInput, TextInputRef } from '@components/TextInput';
 import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
 import { FontWeight } from '@lib/font';
 import { buttonStyle } from '@lib/baseStyles';
@@ -17,6 +17,7 @@ export interface TextFieldProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onSubmit?: (value: string) => void;
+  inputRef?: React.RefObject<TextInputRef>;
 }
 
 export function TextField({
@@ -28,6 +29,7 @@ export function TextField({
   onFocus,
   onBlur,
   onSubmit = noop,
+  inputRef,
 }: TextFieldProps) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
@@ -47,6 +49,7 @@ export function TextField({
         onFocus={onFocus}
         onBlur={onBlur}
         onSubmitEditing={() => onSubmit(value)}
+        ref={inputRef}
       />
       {clearable && (
         <ClearButton
