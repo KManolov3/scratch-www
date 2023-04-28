@@ -15,21 +15,6 @@ const innerSchema = makeExecutableSchema({
   ]),
 });
 
-// See https://the-guild.dev/graphql/tools/docs/mocking for documentation
-const store = createMockStore({
-  schema: innerSchema,
-  typePolicies: {
-    BackStockSlot: { keyFieldName: "guid" },
-    CycleCount: { keyFieldName: "cycleCountId" },
-    Item: { keyFieldName: "sku" },
-    Planogram: { keyFieldName: "planogramId" },
-    Pog: { keyFieldName: "pogId" },
-    NewCycleCount: { keyFieldName: "id" },
-    TruckScan: { keyFieldName: "asnReferenceNumber" },
-    TruckScanItem: { keyFieldName: "sku" },
-  },
-});
-
 const storeNumberFaker = () => faker.random.numeric(4);
 const skuFaker = () => faker.random.numeric(8);
 const planogramIdFaker = () => faker.random.numeric(5);
@@ -95,6 +80,24 @@ const mocks: IMocks = {
   },
 };
 
+// See https://the-guild.dev/graphql/tools/docs/mocking for documentation
+const store = createMockStore({
+  mocks,
+  schema: innerSchema,
+  typePolicies: {
+    BackStockSlot: { keyFieldName: "guid" },
+    CycleCount: { keyFieldName: "cycleCountId" },
+    Item: { keyFieldName: "sku" },
+    Planogram: { keyFieldName: "planogramId" },
+    Pog: { keyFieldName: "pogId" },
+    NewCycleCount: { keyFieldName: "id" },
+    TruckScan: { keyFieldName: "asnReferenceNumber" },
+    TruckScanItem: { keyFieldName: "sku" },
+  },
+});
+
+export const schema = addMocksToSchema({ schema: innerSchema, store });
+
 function toDateISOString(date: Date) {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -102,5 +105,3 @@ function toDateISOString(date: Date) {
 
   return `${year}-${month}-${day}`;
 }
-
-export const schema = addMocksToSchema({ schema: innerSchema, store, mocks });
