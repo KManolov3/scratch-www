@@ -1,11 +1,11 @@
 import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { View } from 'react-native';
-import { useCycleCountState } from '../state';
 import { useMemo } from 'react';
 import { uniqBy } from 'lodash-es';
 import { filterNotNull } from '@lib/array';
 import { CycleCountScreenProps } from '@apps/CycleCount/navigator';
+import { useCycleCountState } from '../../state';
 
 export function CycleCountPlanogram({
   route: {
@@ -19,10 +19,8 @@ export function CycleCountPlanogram({
       return;
     }
 
-    const cycleCount = cycleCounts.find(_ => _?.cycleCountId === cycleCountId);
-
-    return cycleCount;
-  }, [cycleCounts]);
+    return cycleCounts.find(_ => _?.cycleCountId === cycleCountId);
+  }, [cycleCounts, cycleCountId]);
 
   const planogram = useMemo(() => {
     const planograms = uniqBy(
@@ -30,8 +28,8 @@ export function CycleCountPlanogram({
       _ => _?.planogramId,
     );
 
-    return planograms.find(planogram => planogram?.planogramId === planogramId);
-  }, [cycleCount]);
+    return planograms.find(_ => _?.planogramId === planogramId);
+  }, [cycleCount, planogramId]);
 
   const planogramItems = useMemo(() => {
     return filterNotNull(
@@ -43,7 +41,7 @@ export function CycleCountPlanogram({
         return itemIsPartOfPlanogram;
       }) ?? [],
     );
-  }, [cycleCount]);
+  }, [cycleCount, planogramId]);
 
   if (!planogram) {
     return null;
@@ -53,6 +51,7 @@ export function CycleCountPlanogram({
     <FixedLayout>
       <View>
         {planogramItems.map(item => (
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           <Text key={item.sku!}>{item.sku}</Text>
         ))}
       </View>

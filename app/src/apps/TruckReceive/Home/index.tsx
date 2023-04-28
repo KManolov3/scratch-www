@@ -11,9 +11,9 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
+import { RootNavigation } from '@apps/navigator';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';
-import { RootNavigation } from '@apps/navigator';
 
 const QUERY = gql(`
   query truckScanApp {

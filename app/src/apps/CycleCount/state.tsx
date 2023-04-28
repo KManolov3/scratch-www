@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { CycleCountContextQuery } from 'src/__generated__/graphql';
 
@@ -35,19 +35,15 @@ const QUERY = gql(`
   }
 `);
 
-// export class CycleCountController {
-//
-// }
-
 export function CycleCountStateProvider({ children }: { children: ReactNode }) {
   const { data, loading, error } = useQuery(QUERY);
 
-  return (
-    <Context.Provider
-      value={{ cycleCounts: data?.cycleCounts, loading, error }}>
-      {children}
-    </Context.Provider>
+  const value = useMemo(
+    () => ({ cycleCounts: data?.cycleCounts, loading, error }),
+    [data, loading, error],
   );
+
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
 export function useCycleCountState() {

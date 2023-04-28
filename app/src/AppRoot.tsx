@@ -4,9 +4,9 @@ import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { FontWeight } from '@lib/font';
+import { RootNavigator, RootRouteName } from '@apps/navigator';
 import { apolloClient } from './config/graphql';
 import { Colors } from './lib/colors';
-import { RootNavigator, RootRouteName } from '@apps/navigator';
 
 export function AppRoot({ initialRoute }: { initialRoute: RootRouteName }) {
   const screenOptions = useMemo<NativeStackNavigationOptions>(

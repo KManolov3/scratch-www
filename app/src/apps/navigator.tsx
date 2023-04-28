@@ -1,6 +1,3 @@
-import { TruckReceiveHome } from './TruckReceive/Home';
-import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
-import { ItemLookupHome } from './ItemLookup/Home';
 import {
   CycleCountNavigator,
   CycleCountNavigatorScreenParams,
@@ -11,6 +8,9 @@ import {
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
+import { TruckReceiveHome } from './TruckReceive/Home';
+import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
+import { ItemLookupHome } from './ItemLookup/Home';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;
@@ -63,7 +63,6 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    // interface RootParamList extends Routes {}
     interface RootParamList {}
   }
 }

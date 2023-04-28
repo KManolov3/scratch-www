@@ -1,6 +1,5 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { FlatList, ListRenderItem, Pressable, View } from 'react-native';
-import { useCycleCountState } from '../state';
+import { FlatList, ListRenderItem, Pressable } from 'react-native';
 import { useCallback, useMemo } from 'react';
 import { filterNotNull } from '@lib/array';
 import { uniqBy } from 'lodash-es';
@@ -10,8 +9,8 @@ import {
   CycleCountNavigation,
   CycleCountScreenProps,
 } from '@apps/CycleCount/navigator';
+import { useCycleCountState } from '../../state';
 
-// TODO: Helper type for the prop types
 export function CycleCountPlanogramList({
   route: {
     params: { cycleCountId },
@@ -30,10 +29,11 @@ export function CycleCountPlanogramList({
       return [];
     }
 
-    const planograms =
+    const results =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       filterNotNull(cycleCount.items!.flatMap(_ => _?.planograms)) ?? [];
 
-    return uniqBy(planograms, _ => _.planogramId);
+    return uniqBy(results, _ => _.planogramId);
   }, [cycleCounts, cycleCountId]);
 
   const navigation = useNavigation<CycleCountNavigation>();
@@ -43,6 +43,7 @@ export function CycleCountPlanogramList({
       <Pressable
         onPress={() =>
           navigation.navigate('Planogram', {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             planogramId: planogram.planogramId!,
             cycleCountId,
           })
@@ -52,7 +53,7 @@ export function CycleCountPlanogramList({
         </Text>
       </Pressable>
     ),
-    [],
+    [cycleCountId, navigation],
   );
 
   return (

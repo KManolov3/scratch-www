@@ -3,16 +3,16 @@ import {
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
-import { CycleCountStateProvider } from './Details/state';
-import { CycleCountHome } from './Home';
-import { CycleCountPlanogramList } from './Details/PlanogramList';
-import { CycleCountPlanogram } from './Details/Planogram';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import { CycleCountStateProvider } from './state';
+import { CycleCountHome } from './Home';
+import { CycleCountPlanogramList } from './Details/PlanogramList';
+import { CycleCountPlanogram } from './Details/Planogram';
 
 type Routes = {
   Home: undefined;

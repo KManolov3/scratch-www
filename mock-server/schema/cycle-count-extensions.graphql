@@ -1,0 +1,320 @@
+extend type Query {
+  # Is this feasible to add? If yes, this will allow us to fetch fewer fields (id, name, dueDate)
+  # for the `newCycleCounts` query and then get the more complete information using `cycleCountById`.
+  # This will improve loading times as long as it is not too inefficient for the backend to support `cycleCountById`.
+  #
+  # This should also be able to return batch counts and outage counts
+  cycleCountById(id: String!): NewCycleCount
+
+  newCycleCounts(storeNumber: String!, type: CycleCountType!, completed: Boolean = false): [NewCycleCount!]!
+}
+
+extend type Mutation {
+  # Used to create batch counts and outage counts
+  createCycleCount(input: CreateCycleCountInput!): CreateCycleCountResult!
+
+  # Server logic:
+  #
+  # 1. If status is PENDING => change it to IN_PROGRESS and assign the current user as an owner
+  # 2. If status is COMPLETED => return an error - we shouldn't be able to modify already completed cycle counts
+  # 3. If status is IN_PROGRESS and the cycle count owner is different from the current user => return an error
+  # 4. If status is VERIFY => update the
+  # 5. During update, do not replace all items or planograms, merge them - the client should not be able to
+  #    modify the list of items scheduled for a planogram, or the list of planograms.
+  updateCycleCount(id: String!, input: CycleCountUpdateInput!): UpdateCycleCountResult!
+
+  # Server logic:
+  #
+  # 1. This is only allowed to update batch counts and outages, otherwise throw an error
+  # 2. This replaces all items - any item/location combinations not part of `input` are deleted,
+  #    any new ones - added to the cycle count.
+  setCycleCountItems(id: String!, input: CycleCountSetItemsInput!): UpdateCycleCountResult!
+
+  # This is used to transfer ownership of a cycle count from one team member to the current one.
+  # If the current user is already an owner of the cycle count, this is a noop.
+  #
+  # Should result in an error if the cycle count is in status NOT_STARTED or COMPLETED.
+  takeOverCycleCount(id: String!): TakeOverCycleCountResult!
+
+  # QUESTION FOR CONFLUENCE PAGE: Should we have the VERIFY-COMPLETED difference?
+  # Set status to VERIFY, count must now be verified using `verifyCycleCount`
+  submitCycleCount(id: String!): SubmitCycleCountResult!
+
+  # Do we need a `verifyCycleCount(...)` if the user completing the cycle count is different from
+  # the one verifying it?
+  #
+  # Assuming this will be able to be done by a different user with manager permissions.
+  # It sets the cycle count status to COMPLETED.
+  verifyCycleCount(id: String!): VerifyCycleCountResult!
+}
+
+type TeamMember {
+  id: String!
+  name: String!
+}
+
+enum CycleCountType {
+  CYCLE_COUNT
+  BATCH_COUNT
+  OUTAGE
+}
+
+enum CycleCountReason {
+  SYSTEM_GENERATED
+  NEGATIVE_QUANTITY_ON_HAND
+  CONFIRM_COUNT
+  VERIFY_DUE_TO_SALE
+  CORE_COUNT
+  REFUND_COUNT
+  ORDER_QUANTITY_CHANGED
+  PENDING_ASN
+  SYSTEM_REQUEST
+  PHYSICAL_INVENTORY_VARIANCE
+}
+
+# Assuming that Cycle count statuses flow like PENDING -> IN_PROGRESS -> VERIFY -> COMPLETED.
+# Is this correct?
+enum CycleCountStatus {
+  # There is currently a NOT_STARTED in the existing model.
+  # Is that used and what is the difference with `PENDING`?
+
+  PENDING
+  IN_PROGRESS
+  VERIFY
+  COMPLETED
+}
+
+enum CycleCountLocationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+type NewCycleCount {
+  # Assuming the unique identifier for a cycle count is a String GUID, that's what is used as the `id` field
+  id: String!
+  storeNumber: String!
+
+  # TODO: What should be the name of an OUTAGE and BATCH count, and who should set it?
+  #       Should it be optional for them?
+  name: String
+
+  # The team member currently assigned to this cycle count. This will be used by the
+  # client apps to display a transfer message ("This cycle count is currently owned
+  # by team member <X>, do you want to take over?")
+  # It can be `null` when the cycle count is not yet in progress
+  owner: TeamMember
+
+  type: CycleCountType!
+  status: CycleCountStatus!
+
+  # Only available for cycle counts, `null` for batch counts or outage counts
+  reason: CycleCountReason
+
+  # Only available for cycle counts, `null` for batch counts or outage counts
+  locations: [CycleCountLocation!]
+
+  # Question: Should backstock slots be shown as part of the planograms?
+  #           Or maybe we need to name it `location` instead of `planogram`.
+
+  items: [CycleCountItem!]!
+
+  # Only available for cycle counts, `null` for batch counts or outage counts
+  dueDate: Date
+  createdDate: Date!
+}
+
+enum LocationType {
+  PLANOGRAM
+  BACK_STOCK_SLOT
+}
+
+type CycleCountLocation {
+  id: String!
+
+  # type: enum of BackStockSlot | Planogram
+  type: LocationType!
+
+  planogram: Planogram
+  backStockSlot: BackStockSlot
+
+  status: CycleCountLocationStatus!
+}
+
+type CycleCountItem {
+  item: Item!
+
+  # This may be `null` if the item is not part of a location (planogram or back stock slot).
+  # This will show in the `Other` section in the cycle count
+  locationId: String
+
+  # This is `null` if it was not yet set
+  quantityAtLocation: Int
+}
+
+# --- createCycleCount mutation
+
+enum CreateCycleCountType {
+  BATCH_COUNT
+  OUTAGE
+}
+
+input CreateCycleCountInput {
+  type: CreateCycleCountType!
+
+  items: [CreateCycleCountItemInput!]!
+}
+
+input CreateCycleCountItemInput {
+  itemSku: String!
+  quantity: Int
+}
+
+type CreateCycleCountResult {
+  cycleCount: NewCycleCount
+
+  error: CreateCycleCountError
+  errorMessage: String
+}
+
+enum CreateCycleCountError {
+  OTHER
+}
+
+# --- updateCycleCount mutation
+
+input CycleCountUpdateInput {
+  locations: [CycleCountUpdateLocationInput!]
+  items: [CycleCountUpdateItemInput!]
+}
+
+# Used to update the cycle count location status
+input CycleCountUpdateLocationInput {
+  locationId: String!
+  status: CycleCountLocationStatus!
+}
+
+# Used to update the cycle count item quantity per planogram
+input CycleCountUpdateItemInput {
+  itemSku: String!
+  locationId: String
+  quantityAtLocation: Int!
+}
+
+type UpdateCycleCountResult {
+  # If the operation is successful `cycleCount` is present
+  cycleCount: NewCycleCount
+
+  # If the operation failed, `cycleCount` is `null` and the following two fields are populated
+  error: UpdateCycleCountError
+  errorMessage: String
+}
+
+enum UpdateCycleCountError {
+  # Missing cycle count with this id
+  NOT_FOUND
+
+  # The items array contains items (planogramId-itemId combinations) that are not in the original cycle count
+  INVALID_ITEMS
+
+  # The cycle count has already been completed
+  ALREADY_COMPLETED
+
+  # The owner is different from the current user
+  DIFFERENT_OWNER
+
+  # Some other issue
+  OTHER
+}
+
+# --- setCycleCountItems mutation
+
+input CycleCountSetItemsInput {
+  items: [CycleCountUpdateItemInput!]
+}
+
+type CycleCountSetItemsResult {
+  # If the operation is successful `cycleCount` is present
+  cycleCount: NewCycleCount
+
+  # If the operation failed, `cycleCount` is `null` and the following two fields are populated
+  error: CycleCountSetItemsError
+  errorMessage: String
+}
+
+enum CycleCountSetItemsError {
+  # Missing cycle count with this id
+  NOT_FOUND
+
+  # The cycle count is not a batch or outage count, so it cannot be updated
+  CANNOT_UPDATE_CYCLE_COUNT
+
+  # The cycle count has already been completed
+  ALREADY_COMPLETED
+
+  # The owner is different from the current user
+  DIFFERENT_OWNER
+
+  # Some other issue
+  OTHER
+}
+
+# --- submitCycleCount mutation
+
+type SubmitCycleCountResult {
+  cycleCount: CycleCount
+
+  error: SubmitCycleCountError
+  errorMessage: String
+}
+
+enum SubmitCycleCountError {
+  # Missing cycle count with this id
+  NOT_FOUND
+
+  # The cycle count has already been submitted (is already in status VERIFY)
+  ALREADY_SUBMITTED
+
+  # The cycle count has already been completed
+  ALREADY_COMPLETED
+
+  # Some other issue
+  OTHER
+}
+
+# --- takeOverCycleCount mutation
+
+type TakeOverCycleCountResult {
+  cycleCount: CycleCount
+
+  error: TakeOverCycleCountError
+  errorMessage: String
+}
+
+enum TakeOverCycleCountError {
+  # The cycle count is not in progress
+  NOT_IN_PROGRESS
+
+  # Another error
+  OTHER
+}
+
+# --- verifyCycleCount mutation
+
+enum VerifyCycleCountError {
+  # Missing cycle count with this id
+  NOT_FOUND
+
+  # The cycle count has already been completed
+  ALREADY_COMPLETED
+
+  # Some other issue
+  OTHER
+}
+
+type VerifyCycleCountResult {
+  cycleCount: CycleCount
+
+  error: VerifyCycleCountError
+  errorMessage: String
+}

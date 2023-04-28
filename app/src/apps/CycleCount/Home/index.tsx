@@ -7,13 +7,13 @@ import {
 import { useCallback, useMemo } from 'react';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
-import { CycleCountCard } from './Components/Card';
-import { styles } from './styles';
 import { sortBy } from 'lodash-es';
 import { filterNotNull } from '@lib/array';
 import { useNavigation } from '@react-navigation/native';
-import { useCycleCountState } from '../Details/state';
+import { useCycleCountState } from '../state';
 import { CycleCountNavigation } from '../navigator';
+import { CycleCountCard } from './Components/Card';
+import { styles } from './styles';
 
 export function CycleCountHome() {
   const { cycleCounts: data, error, loading } = useCycleCountState();
@@ -35,12 +35,13 @@ export function CycleCountHome() {
         cycleCount={item}
         onPress={() =>
           navigation.navigate('PlanogramList', {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             cycleCountId: item.cycleCountId!,
           })
         }
       />
     ),
-    [],
+    [navigation],
   );
 
   if (loading) {
@@ -48,9 +49,12 @@ export function CycleCountHome() {
   }
 
   if (!cycleCounts || error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errorMessage = (error as any)?.message ?? 'Unknown error';
+
     return (
       <View>
-        <Text>{(error as any)?.message ?? 'Unknown error'}</Text>
+        <Text>{errorMessage}</Text>
       </View>
     );
   }
