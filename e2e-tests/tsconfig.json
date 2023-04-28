@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ESNext",
+    "outDir": "./.tsbuild/",
+    "paths": {
+      "*": ["./*"],
+      "src/*": ["./src/*"]
+    },
+    "types": [
+      "node",
+      "@wdio/mocha-framework",
+      "@wdio/globals/types",
+      "@types/mocha",
+      "webdriverio"
+    ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "exclude": ["./node_modules"]
+}

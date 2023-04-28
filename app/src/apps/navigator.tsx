@@ -11,9 +11,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/ty
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import { ItemLookupHome } from './ItemLookup/Home';
+import { BatchCountHome } from './BatchCount/Home';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;
+  BatchCountHome: undefined;
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: undefined;
@@ -46,6 +48,7 @@ export function RootNavigator({
         component={CycleCountNavigator}
       />
 
+      <Stack.Screen name="BatchCountHome" component={BatchCountHome} />
       <Stack.Screen name="TruckDetailHome" component={TruckReceiveHome} />
 
       <Stack.Screen
