@@ -11,7 +11,11 @@ const LD_CONFIGURE_TIMEOUT_MS = 4000;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LDFlagType = boolean | number | string | Record<string, any>;
 
-type ApplicationName = 'Cycle Count' | 'Item Lookup' | 'Truck Receive';
+export type ApplicationName =
+  | 'Batch Count'
+  | 'Cycle Count'
+  | 'Item Lookup'
+  | 'Truck Receive';
 
 interface Configuration {
   applicationName: ApplicationName;
