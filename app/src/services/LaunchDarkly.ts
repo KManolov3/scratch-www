@@ -23,10 +23,6 @@ interface Configuration {
   storeNumber: string;
 }
 
-export enum LaunchDarklyFlags {
-  MinVersion = 'configure-app-settings-min-version',
-}
-
 class LaunchDarklyService {
   private client: LDClient | undefined;
 
@@ -102,21 +98,30 @@ class LaunchDarklyService {
   }
 
   private parseEvaluationResult<T extends LDFlagType>(
-    result: LDEvaluationDetail<LDFlagType>,
+    // On some devices `result` can be undefined even though according
+    // to the specified types in the LD library this cannot happen
+    result: LDEvaluationDetail<LDFlagType> | undefined,
     flagName: string,
   ) {
+    if (!result) {
+      throw new Error(
+        `LaunchDarkly: No result is available for ${flagName} flag`,
+      );
+    }
+
     const { value, reason } = result;
+
     if (reason.kind === 'ERROR') {
       // eslint-disable-next-line no-console
-      console.info(
+      console.error(
         `LaunchDarkly: Fallback value is being used for ${flagName} flag`,
       );
     } else {
       // eslint-disable-next-line no-console
-      console.error(`LaunchDarkly: Retrieved ${flagName} flag value`);
+      console.info(`LaunchDarkly: Retrieved ${flagName} flag value`);
     }
 
-    return Promise.resolve(value) as Promise<T>;
+    return value as T;
   }
 
   async configure(configuration: Configuration) {
@@ -137,7 +142,9 @@ class LaunchDarklyService {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(
-        'LaunchDarkly: Attempting to flush an uninitialised client',
+        'LaunchDarkly: Flushing pending analytics events is not possible because ' +
+          'of failure to ensure an initialised client',
+        error,
       );
 
       return;
@@ -182,11 +189,11 @@ class LaunchDarklyService {
     }
 
     try {
-      return await this.parseEvaluationResult<T>(result, name);
+      return this.parseEvaluationResult<T>(result, name);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('LaunchDarkly: Error parsing evaluation result');
-      return Promise.resolve(fallback);
+      console.error('LaunchDarkly: Error parsing evaluation result', error);
+      return fallback;
     }
   }
 }

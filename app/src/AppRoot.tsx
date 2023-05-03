@@ -50,6 +50,8 @@ export function AppRoot({ applicationName, initialRoute }: AppRootProps) {
       });
       setIsInitialised(true);
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed initializing Launch Darkly', error);
       setHasErrorOccurred(true);
     }
   }, [applicationName]);
