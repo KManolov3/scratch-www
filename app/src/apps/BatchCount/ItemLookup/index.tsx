@@ -7,7 +7,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { Text } from '@components/Text';
 import { gql, DocumentType } from 'src/__generated__';
 import { ScreenProps } from '@config/routes';
-import { ItemDetails } from '../components/ItemDetails';
+import { ItemDetails } from '../../../components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -15,19 +15,15 @@ export type LookupType = 'UPC' | 'SKU';
 // TODO: extract those fields to fragments in subcomponents as needed
 // TODO: Move those below component?
 const ITEM_BY_SKU = gql(`
-  query manualItemLookup($sku: String!) {
+  query ManualItemLookup($sku: String!) {
     itemBySku(sku: $sku, storeNumber: "0363") {
-      mfrPartNum
-      sku
-      retailPrice
-      onHand
+      ...ItemInfoHeaderFields
       planograms {
         planogramId
         seqNum
       }
       backStockSlots {
         slotId
-        qty
       }
     },
   }
@@ -38,19 +34,15 @@ type SelectedSkuItemFromQuery = NonNullable<
 >;
 
 const ITEM_BY_UPC = gql(`
-  query automaticItemLookup($upc: String!) {
+  query AutomaticItemLookup($upc: String!) {
     itemByUpc(upc: $upc, storeNumber: "0363") {
-      mfrPartNum
-      sku
-      retailPrice
-      onHand
+      ...ItemInfoHeaderFields
       planograms {
         planogramId
         seqNum
       }
       backStockSlots {
         slotId
-        qty
       }
     },
   }
@@ -59,6 +51,9 @@ const ITEM_BY_UPC = gql(`
 type SelectedUpcItemFromQuery = NonNullable<
   NonNullable<DocumentType<typeof ITEM_BY_UPC>['itemByUpc']>
 >;
+
+// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
+// Front Tags Barcode Structure - 99{SKU}{PRICE}
 
 export function BatchCountItemLookup({
   route: {
@@ -111,5 +106,5 @@ export function BatchCountItemLookup({
     return <NoResults lookupType={type} lookupId={value} />;
   }
 
-  return <ItemDetails />;
+  return <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />;
 }

@@ -13,12 +13,13 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n  query manualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n": types.ManualItemLookupDocument,
-    "\n  query automaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n": types.AutomaticItemLookupDocument,
+    "\n  query ManualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n": types.ManualItemLookupDocument,
+    "\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n": types.AutomaticItemLookupDocument,
     "\n  fragment CycleCountCardFragment on CycleCount {\n    cycleCountId\n    cycleCountName\n    dueDate\n  }\n": types.CycleCountCardFragmentFragmentDoc,
     "\n  query cycleCountApp {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n      }\n    }\n  }\n": types.CycleCountAppDocument,
     "\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
     "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
+    "\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n": types.ItemInfoHeaderFieldsFragmentDoc,
 };
 
 /**
@@ -38,11 +39,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query manualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n"): (typeof documents)["\n  query manualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n"];
+export function gql(source: "\n  query ManualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n"): (typeof documents)["\n  query ManualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query automaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n"): (typeof documents)["\n  query automaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      mfrPartNum\n      sku\n      retailPrice\n      onHand\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n        qty\n      }\n    },\n  }\n"];
+export function gql(source: "\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n"): (typeof documents)["\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      planograms {\n        planogramId\n        seqNum\n      }\n      backStockSlots {\n        slotId\n      }\n    },\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -59,6 +60,10 @@ export function gql(source: "\n  query truckScanApp {\n    truckScansByStore(sto
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n"): (typeof documents)["\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n"): (typeof documents)["\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

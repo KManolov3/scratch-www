@@ -9,27 +9,9 @@ const quantityFaker = () => faker.datatype.number({min: 0, max: 50});
 const itemFakes = {
   sku: skuFaker,
   mfrPartNum: () => faker.random.alphaNumeric(5),
-  partDesc: () => faker.commerce.productDescription(),
+  partDesc: () => faker.commerce.product(),
   upc: () => faker.random.numeric(10),
 };
-
-// const getFakePlanogram = () => ({
-//   planogramId: () => faker.random.numeric(5),
-//   description: () => faker.commerce.productDescription(),
-//   seqNum: () => faker.datatype.number({ min: 0, max: 50 }),
-// });
-
-// const getFakeBackstockSlot = () => ({
-//   guid?: Maybe<Scalars['String']>;
-//   lastModified?: Maybe<Scalars['Date']>;
-//   qty?: Maybe<Scalars['Int']>;
-//   sectionsLotName?: Maybe<Scalars['String']>;
-//   sectionsLotNum?: Maybe<Scalars['String']>;
-//   slotDescription?: Maybe<Scalars['String']>;
-//   slotId?: Maybe<Scalars['Int']>;
-//   slotName?: Maybe<Scalars['String']>;
-//   storeNumber?: Maybe<Scalars['String']>;
-// })
 
 export const mocks: IMocks = {
   String: () => faker.random.words(),
@@ -46,8 +28,7 @@ export const mocks: IMocks = {
   Planogram: {
     planogramId: planogramIdFaker,
     description: () => faker.commerce.productDescription(),
-    // Does seqNum indicate quantity?
-    seqNum: quantityFaker,
+    seqNum: faker.datatype.number(),
   },
   
   BackStockSlot: {
