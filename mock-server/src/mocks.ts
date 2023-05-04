@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { IMocks, MockList } from "@graphql-tools/mock";
+import { MockList } from "@graphql-tools/mock";
 
 const storeNumberFaker = () => faker.random.numeric(4);
 const skuFaker = () => faker.random.numeric(8);
@@ -11,7 +11,7 @@ const itemFakes = {
   upc: () => faker.random.numeric(10),
 };
 
-export const mocks: IMocks = {
+export const mocks = {
   String: () => faker.random.words(),
   Date: () => toDateISOString(faker.date.future()),
 

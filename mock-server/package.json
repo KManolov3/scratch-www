@@ -7,6 +7,9 @@
   "scripts": {
     "start": "ts-node-esm src/index.ts"
   },
+  "engines": {
+    "node": ">=18.5.0"
+  },
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
