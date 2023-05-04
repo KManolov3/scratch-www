@@ -14,7 +14,7 @@ let reportAggregator: ReportAggregator;
 const screenshotPath = 'screenshots';
 const reportPath = join(
   __dirname,
-  'reports',
+  `${process.env.REPORT_PATH}`,
   `${kebabCase(process.env.APP_ACTIVITY)}`
 );
 
@@ -48,6 +48,8 @@ export const config: WebdriverIO.Config = {
 
       newCommandTimeout: 240,
       maxInstances: 1,
+      noReset: true,
+      dontStopAppOnReset: true,
     },
   ],
 

@@ -11,4 +11,8 @@ export APP_ACTIVITY=$1
 export TEST_SUITE="${2:-"*"}"
 export REPORT_PATH="${REPORT_PATH:-"./reports"}"
 
+source ../../start-servers.sh
+
 npm run e2e -- --spec "./specs/$WORK_DIR/$TEST_SUITE.ts"
+
+kill $(pgrep bash)
