@@ -121,7 +121,7 @@ with the app.
 
 1. Inside `app` folder run: `npm start` which will start React Native.
 2. Inside `mock-server` folder run: `npm start` which will start Apollo Server.
-3. Inside `e2e-tests` folder run: `npm appium` which will start Appium Server.
+3. Inside `e2e-tests` folder run: `npm run appium` which will start Appium Server.
 4. Open Android Studio and start the virtual device.
 
 ### Execution scripts
