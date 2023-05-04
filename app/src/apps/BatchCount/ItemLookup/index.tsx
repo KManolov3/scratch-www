@@ -12,19 +12,13 @@ import { NoResults } from '../components/NoResults';
 
 export type LookupType = 'UPC' | 'SKU';
 
-// TODO: extract those fields to fragments in subcomponents as needed
 // TODO: Move those below component?
 const ITEM_BY_SKU = gql(`
   query ManualItemLookup($sku: String!) {
     itemBySku(sku: $sku, storeNumber: "0363") {
       ...ItemInfoHeaderFields
-      planograms {
-        planogramId
-        seqNum
-      }
-      backStockSlots {
-        slotId
-      }
+      ...PlanogramFields
+      ...BackstockSlotFields
     },
   }
 `);
@@ -37,13 +31,8 @@ const ITEM_BY_UPC = gql(`
   query AutomaticItemLookup($upc: String!) {
     itemByUpc(upc: $upc, storeNumber: "0363") {
       ...ItemInfoHeaderFields
-      planograms {
-        planogramId
-        seqNum
-      }
-      backStockSlots {
-        slotId
-      }
+      ...PlanogramFields
+      ...BackstockSlotFields
     },
   }
 `);

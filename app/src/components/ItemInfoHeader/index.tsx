@@ -8,7 +8,7 @@ import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
 import { useState } from 'react';
 
-export const ITEM_INFO_HEADER_FIELDS = gql(`
+const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
     mfrPartNum
     sku
@@ -21,8 +21,12 @@ export const ITEM_INFO_HEADER_FIELDS = gql(`
   }
 `);
 
+export type ItemDetailsInfo = NonNullable<
+  DocumentType<typeof ITEM_INFO_HEADER_FIELDS>
+>;
+
 export interface ItemInfoHeaderProps {
-  itemDetails: NonNullable<DocumentType<typeof ITEM_INFO_HEADER_FIELDS>>;
+  itemDetails: ItemDetailsInfo;
   withQuantityAdjustment?: boolean;
 }
 
