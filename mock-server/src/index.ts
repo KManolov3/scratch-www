@@ -20,4 +20,5 @@ const { url } = await startStandaloneServer(server, {
   listen: { port: 1337 },
 });
 
+// eslint-disable-next-line no-console
 console.log(`🚀 Server ready at: ${url}`);

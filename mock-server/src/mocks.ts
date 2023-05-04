@@ -1,8 +1,16 @@
-import { faker } from "@faker-js/faker";
-import { MockList } from "@graphql-tools/mock";
+import { faker } from '@faker-js/faker';
+import { MockList } from '@graphql-tools/mock';
 
 const storeNumberFaker = () => faker.random.numeric(4);
 const skuFaker = () => faker.random.numeric(8);
+
+function toDateISOString(date: Date) {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 const itemFakes = {
   sku: skuFaker,
@@ -48,11 +56,3 @@ export const mocks = {
     lastModifiedDate: () => faker.date.past(),
   },
 };
-
-function toDateISOString(date: Date) {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
