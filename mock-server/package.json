@@ -8,7 +8,7 @@
     "start": "ts-node-esm src/index.ts"
   },
   "engines": {
-    "node": ">=18.5.0"
+    "node": ">=18.15.0"
   },
   "author": "",
   "license": "UNLICENSED",
