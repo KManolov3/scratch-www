@@ -1,5 +1,5 @@
 import { AppRoot } from '../../AppRoot';
 
 export function OutageApp() {
-  return <AppRoot initialRoute="OutageHome" />;
+  return <AppRoot applicationName="Outage" initialRoute="OutageHome" />;
 }

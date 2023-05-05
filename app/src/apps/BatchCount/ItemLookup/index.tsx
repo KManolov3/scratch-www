@@ -61,6 +61,7 @@ export function BatchCountItemLookup({
     );
   }
 
+  // eslint-disable-next-line no-console
   console.log(itemDetails);
   if (!data) {
     return <NoResults />;

@@ -13,6 +13,7 @@
 
         <activity
                 android:name=".activities.CycleCountActivity"
+                android:process=":cycleCount"
                 android:label="Cycle Count"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleInstancePerTask"
@@ -27,6 +28,7 @@
 
         <activity
                 android:name=".activities.BatchCountActivity"
+                android:process=":batchCount"
                 android:label="Batch Count"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleInstancePerTask"
@@ -55,6 +57,7 @@
 
         <activity
                 android:name=".activities.ItemLookupActivity"
+                android:process=":itemLookup"
                 android:label="Item Lookup"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleInstancePerTask"
@@ -69,6 +72,7 @@
 
         <activity
                 android:name=".activities.TruckDetailScanActivity"
+                android:process=":truckDetailScan"
                 android:label="Truck Detail Scan"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleInstancePerTask"
