@@ -14,6 +14,7 @@ export function List<T extends Record<string, string | number | null>>({
   labelInfo,
   data,
 }: ListProps<T>) {
+  // TODO: make this scrollable
   return (
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
