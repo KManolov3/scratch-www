@@ -6,7 +6,7 @@ import { FontWeight } from '@lib/font';
 import { buttonStyle } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 
 export interface TextFieldProps {
   placeholder: string;

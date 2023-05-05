@@ -17,7 +17,7 @@ function toDateISOString(date: Date) {
 const itemFakes = {
   sku: skuFaker,
   mfrPartNum: () => faker.random.alphaNumeric(5),
-  partDesc: () => faker.commerce.productDescription(),
+  partDesc: () => faker.commerce.product(),
   upc: () => faker.random.numeric(10),
 };
 

@@ -1,4 +1,5 @@
 import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 import { StyleSheet } from 'react-native';
 
 export const primaryColor = Colors.advanceVoid;
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-    padding: 16,
+    padding: 8,
     margin: 16,
     backgroundColor: Colors.advanceYellow,
     borderColor: Colors.advanceYellow,
@@ -28,6 +29,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: primaryColor,
+    fontWeight: FontWeight.Demi,
   },
   disabledText: {
     color: secondaryColor,
