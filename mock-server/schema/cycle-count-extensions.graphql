@@ -18,7 +18,7 @@ extend type Mutation {
   # 1. If status is PENDING => change it to IN_PROGRESS and assign the current user as an owner
   # 2. If status is COMPLETED => return an error - we shouldn't be able to modify already completed cycle counts
   # 3. If status is IN_PROGRESS and the cycle count owner is different from the current user => return an error
-  # 4. If status is VERIFY => update the
+  # 4. If status is VERIFY => update the quantities normally but switch the status back to IN_PROGRESS
   # 5. During update, do not replace all items or planograms, merge them - the client should not be able to
   #    modify the list of items scheduled for a planogram, or the list of planograms.
   updateCycleCount(id: String!, input: CycleCountUpdateInput!): UpdateCycleCountResult!
@@ -113,10 +113,6 @@ type NewCycleCount {
 
   # Only available for cycle counts, `null` for batch counts or outage counts
   locations: [CycleCountLocation!]
-
-  # Question: Should backstock slots be shown as part of the planograms?
-  #           Or maybe we need to name it `location` instead of `planogram`.
-
   items: [CycleCountItem!]!
 
   # Only available for cycle counts, `null` for batch counts or outage counts
@@ -271,6 +267,12 @@ type SubmitCycleCountResult {
 enum SubmitCycleCountError {
   # Missing cycle count with this id
   NOT_FOUND
+
+  # The cycle count is not in progress
+  NOT_STARTED
+
+  # The cycle count contains locations that are not yet completed
+  LOCATIONS_NOT_COMPLETED
 
   # The cycle count has already been submitted (is already in status VERIFY)
   ALREADY_SUBMITTED

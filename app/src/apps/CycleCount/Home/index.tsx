@@ -24,7 +24,7 @@ export function CycleCountHome() {
     }
 
     // TODO: Check if the actual API sorts them by dueDate or if we need to sort ourselves
-    return sortBy(filterNotNull(data), _ => _?.dueDate);
+    return sortBy(filterNotNull(data), _ => _.dueDate);
   }, [data]);
 
   const navigation = useNavigation<CycleCountNavigation>();
