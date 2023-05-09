@@ -1,5 +1,7 @@
 import { AppRoot } from '../../AppRoot';
 
 export function TruckReceiveApp() {
-  return <AppRoot initialRoute="TruckDetailHome" />;
+  return (
+    <AppRoot applicationName="Truck Receive" initialRoute="TruckDetailHome" />
+  );
 }
