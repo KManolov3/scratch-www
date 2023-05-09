@@ -1,5 +1,7 @@
 import { AppRoot } from '../../AppRoot';
 
 export function ItemLookupApp() {
-  return <AppRoot initialRoute="ItemLookupHome" />;
+  return (
+    <AppRoot applicationName="Item Lookup" initialRoute="ItemLookupHome" />
+  );
 }
