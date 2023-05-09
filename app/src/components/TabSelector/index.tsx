@@ -1,10 +1,10 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { Colors } from '@lib/colors';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 
-type DefinableStringArray = ReadonlyArray<string> | string[];
+type DefinableStringArray = ReadonlyArray<string>;
 
 export interface TabSelectorProps<T extends DefinableStringArray> {
   values: T;
@@ -12,25 +12,21 @@ export interface TabSelectorProps<T extends DefinableStringArray> {
   setSelected: (value: T[number]) => void;
 }
 
-export function TabSelector<T extends DefinableStringArray = string[]>({
+export function TabSelector<T extends DefinableStringArray>({
   values,
   selected,
   setSelected,
 }: TabSelectorProps<T>) {
-  const selectValue = useCallback(
-    (value: Parameters<typeof setSelected>[0]) => setSelected(value),
-    [setSelected],
-  );
   const tabs = useMemo(() => {
     return values.map(value => (
       <BlockButton
         label={value}
-        onPress={() => selectValue(value)}
+        onPress={() => setSelected(value)}
         style={[styles.pressable, value === selected ? styles.selectedTab : {}]}
         key={value}
       />
     ));
-  }, [values, selectValue, selected]);
+  }, [values, setSelected, selected]);
   return <Container style={styles.container}>{tabs}</Container>;
 }
 

@@ -55,7 +55,6 @@ function RootNavigator({
           options={{ headerTitle: route.title }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           component={route.component as any}
-          initialParams={{}}
         />
       ))}
     </Stack.Navigator>

@@ -8,10 +8,8 @@ import { noop } from 'lodash-es';
 
 export interface NumberInputProps {
   placeholder: string | number;
-  inputState: {
-    value: number;
-    setValue: (newValue: number) => void;
-  };
+  value: number;
+  setValue: (newValue: number) => void;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   onFocus?: () => void;
@@ -24,8 +22,8 @@ export function NumberInput({
   placeholder,
   containerStyle,
   inputStyle,
-  // Since we're destructuring, will those be different on every render?
-  inputState: { value, setValue },
+  value,
+  setValue,
   onFocus,
   onBlur,
   onSubmit = noop,
@@ -58,6 +56,7 @@ export function NumberInput({
         onFocus={onFocus}
         onBlur={onBlur}
         onSubmitEditing={onSubmitInput}
+        keyboardType="number-pad"
         ref={inputRef}
       />
     </Container>

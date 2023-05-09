@@ -33,6 +33,7 @@ export function TextField({
 }: TextFieldProps) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
+  const submitValue = useCallback(() => onSubmit(value), [onSubmit, value]);
   const onChangeText = useCallback(
     (text: string) => setValue(text),
     [setValue],
@@ -48,7 +49,7 @@ export function TextField({
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
-        onSubmitEditing={() => onSubmit(value)}
+        onSubmitEditing={submitValue}
         ref={inputRef}
       />
       {clearable && (

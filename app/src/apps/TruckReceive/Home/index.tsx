@@ -11,7 +11,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
-import { DocumentType, gql } from '../../../__generated__';
+import { DocumentType, gql } from 'src/__generated__';
 import { styles } from './styles';
 
 const QUERY = gql(`

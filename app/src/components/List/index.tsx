@@ -10,10 +10,9 @@ export interface ListProps<T> {
   data: T[];
 }
 
-export function List<T extends Record<string, string | number | null>>({
-  labelInfo,
-  data,
-}: ListProps<T>) {
+export function List<
+  T extends { [key: string]: string | number | null | undefined },
+>({ labelInfo, data }: ListProps<T>) {
   return (
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
@@ -22,11 +21,16 @@ export function List<T extends Record<string, string | number | null>>({
         ))}
       </View>
       <View style={styles.separator} />
-      {data.map(value => (
+      {data.map((value, index) => (
         <>
           <View style={styles.table}>
             {labelInfo.map(({ key }) => (
-              <Text style={styles.text}>{value[key] ?? ''}</Text>
+              <Text
+                // `key` should always be of String type anyway
+                accessibilityLabel={`${String(key)}${index}`}
+                style={styles.text}>
+                {value[key] ?? ''}
+              </Text>
             ))}
           </View>
           <View style={styles.separator} />

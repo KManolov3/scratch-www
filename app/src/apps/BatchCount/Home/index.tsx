@@ -8,7 +8,7 @@ import { Barcode } from '../components/Barcode';
 
 export function BatchCountHome({
   route: {
-    params: { shouldFocusSearch = false },
+    params: { shouldFocusSearch = false } = { shouldFocusSearch: false },
   },
 }: ScreenProps<'BatchCountHome'>) {
   const [isSearchFocused, setIsSearchFocused] = useState(shouldFocusSearch);

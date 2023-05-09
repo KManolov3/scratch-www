@@ -42,8 +42,7 @@ function getBackstockQuantity(
   return _.chain(backstockSlots)
     .compact()
     .map(({ qty }) => qty)
-    .compact()
-    .reduce((totalQty, currQty) => totalQty + currQty, 0)
+    .sum()
     .value();
 }
 
@@ -53,7 +52,7 @@ export function ItemInfoHeader({
 }: ItemInfoHeaderProps) {
   // TODO: Manage this through the app context. Requirements:
   // 1) It should be incremented whenever a UPC is scanned.
-  // 2) It should be able to be modifnewQuantityed through the QuantityAdjuster component
+  // 2) It should be able to be modified through the QuantityAdjuster component
   const [newQuantity, setNewQuantity] = useState(1);
 
   // TODO: Show a price discrepancy modal, in case a front tag is scanned,
@@ -69,7 +68,7 @@ export function ItemInfoHeader({
           <Row label="Price:" value={`$${itemDetails.retailPrice ?? 0}`} />
         </View>
         <View style={styles.separator} />
-        <View style={[styles.column]}>
+        <View style={styles.column}>
           <Row label="Current:" value={itemDetails.onHand ?? 0} />
           <Row
             label="Bk Stk:"

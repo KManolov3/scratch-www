@@ -7,15 +7,16 @@ import { PlanogramsInfo, PlanogramList } from './PlanogramList';
 import { BackstockSlotList, BackstockSlotsInfo } from './BackstockSlotList';
 
 const locationTypes = ['POG Locations', 'Slot Locations'] as const;
+type LocationTypes = (typeof locationTypes)[number];
 
 export interface LocationsProps {
   locationDetails: PlanogramsInfo & BackstockSlotsInfo;
 }
 
 export function Locations({ locationDetails }: LocationsProps) {
-  const [selectedValue, setSelectedValue] = useState<
-    (typeof locationTypes)[number]
-  >(locationTypes[0]);
+  const [selectedValue, setSelectedValue] = useState<LocationTypes>(
+    locationTypes[0],
+  );
   // TODO: Handle cases where either type of locations is empty (e.g. item does not exist in backstock)
   return (
     <View style={styles.container}>

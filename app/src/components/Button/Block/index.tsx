@@ -50,7 +50,7 @@ export function BlockButton({
         <Icon
           height={iconSize}
           width={iconSize}
-          style={label ? styles.iconMargin : {}}
+          style={label ? styles.iconMargin : undefined}
         />
       )}
 

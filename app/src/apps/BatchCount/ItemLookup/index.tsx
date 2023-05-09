@@ -5,9 +5,9 @@ import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Text } from '@components/Text';
-import { gql, DocumentType } from 'src/__generated__';
+import { gql } from 'src/__generated__';
 import { ScreenProps } from '@config/routes';
-import { ItemDetails } from '../../../components/ItemDetails';
+import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -23,10 +23,6 @@ const ITEM_BY_SKU = gql(`
   }
 `);
 
-type SelectedSkuItemFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof ITEM_BY_SKU>['itemBySku']>
->;
-
 const ITEM_BY_UPC = gql(`
   query AutomaticItemLookup($upc: String!) {
     itemByUpc(upc: $upc, storeNumber: "0363") {
@@ -36,10 +32,6 @@ const ITEM_BY_UPC = gql(`
     },
   }
 `);
-
-type SelectedUpcItemFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof ITEM_BY_UPC>['itemByUpc']>
->;
 
 // TODO: Expand this so that it supports scanning front tags, which will provide additional info.
 // Front Tags Barcode Structure - 99{SKU}{PRICE}
@@ -69,11 +61,11 @@ export function BatchCountItemLookup({
 
   const itemDetails = useMemo(() => {
     if (lookupBySku) {
-      return lookupBySku.itemBySku as SelectedSkuItemFromQuery;
+      return lookupBySku.itemBySku;
     }
 
     if (lookupByUpc) {
-      return lookupByUpc.itemByUpc as SelectedUpcItemFromQuery;
+      return lookupByUpc.itemByUpc;
     }
   }, [lookupBySku, lookupByUpc]);
 

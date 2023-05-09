@@ -21,7 +21,7 @@ export interface PlanogramListProps {
 }
 
 export function PlanogramList({ planograms }: PlanogramListProps) {
-  const labelInfo: { label: string; key: PlanogramKeys }[] = useMemo(
+  const labelInfo = useMemo<{ label: string; key: PlanogramKeys }[]>(
     () => [
       {
         label: 'POG Location',

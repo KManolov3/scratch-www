@@ -26,7 +26,7 @@ export interface BackstockSlotListProps {
 }
 
 export function BackstockSlotList({ backstockSlots }: BackstockSlotListProps) {
-  const labelInfo: { label: string; key: BackstockSlotKeys }[] = useMemo(
+  const labelInfo = useMemo<{ label: string; key: BackstockSlotKeys }[]>(
     () => [
       {
         label: 'Slot Location',

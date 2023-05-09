@@ -31,7 +31,8 @@ export function QuantityAdjuster({
         onPress={decreaseQuantity}
       />
       <NumberInput
-        inputState={{ value: quantity, setValue: setQuantity }}
+        value={quantity}
+        setValue={setQuantity}
         inputStyle={[styles.square, styles.inputContainer]}
         containerStyle={styles.inputContainer}
         placeholder={quantity.toString()}
