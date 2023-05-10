@@ -1,0 +1,35 @@
+{
+  "name": "rtn-in-store-apps",
+  "version": "1.0.0",
+  "description": "A React Native module for the native code of the in-store apps",
+  "react-native": "js/index",
+  "source": "js/index",
+  "main": "js/index.ts",
+  "scripts": {
+    "codegen": "cd ../../app/android; ./gradlew generateCodegenArtifactsFromSchema"
+  },
+  "files": [
+    "js",
+    "android",
+    "rtn-calculator.podspec",
+    "!android/build",
+    "!ios/build",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {},
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "codegenConfig": {
+    "name": "RTNInStoreAppsSpec",
+    "type": "modules",
+    "jsSrcsDir": "js",
+    "android": {
+      "javaPackageName": "com.advanceautoparts.rtninstoreapps"
+    }
+  }
+}
