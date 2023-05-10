@@ -60,16 +60,21 @@ export function ItemInfoHeader({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{itemDetails.partDesc}</Text>
+      <Text style={styles.title} accessibilityLabel="Product Title">
+        {itemDetails.partDesc}
+      </Text>
       <View style={styles.table}>
         <View style={styles.column}>
-          <Row label="P/N:" value={itemDetails.mfrPartNum ?? ''} />
-          <Row label="SKU:" value={itemDetails.sku ?? ''} />
-          <Row label="Price:" value={`$${itemDetails.retailPrice ?? 0}`} />
+          <Row label="P/N:" value={itemDetails.mfrPartNum ?? 'undefined'} />
+          <Row label="SKU:" value={itemDetails.sku ?? 'undefined'} />
+          <Row
+            label="Price:"
+            value={`$${itemDetails.retailPrice ?? 'undefined'}`}
+          />
         </View>
         <View style={styles.separator} />
         <View style={styles.column}>
-          <Row label="Current:" value={itemDetails.onHand ?? 0} />
+          <Row label="Current:" value={itemDetails.onHand ?? 'undefined'} />
           <Row
             label="Bk Stk:"
             value={getBackstockQuantity(itemDetails.backStockSlots)}

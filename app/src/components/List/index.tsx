@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { FlatList, ListRenderItemInfo, StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
+import { useCallback } from 'react';
 
 export interface ListProps<T> {
   labelInfo: {
@@ -13,6 +14,27 @@ export interface ListProps<T> {
 export function List<
   T extends { [key: string]: string | number | null | undefined },
 >({ labelInfo, data }: ListProps<T>) {
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<T>) => {
+      return (
+        <>
+          <View style={styles.table}>
+            {labelInfo.map(({ key }) => (
+              <Text
+                // `key` should always be of String type anyway
+                accessibilityLabel={`${String(key)}${index}`}
+                style={styles.text}>
+                {item[key] ?? ''}
+              </Text>
+            ))}
+          </View>
+          <View style={styles.separator} />
+        </>
+      );
+    },
+    [labelInfo],
+  );
+
   return (
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
@@ -21,21 +43,11 @@ export function List<
         ))}
       </View>
       <View style={styles.separator} />
-      {data.map((value, index) => (
-        <>
-          <View style={styles.table}>
-            {labelInfo.map(({ key }) => (
-              <Text
-                // `key` should always be of String type anyway
-                accessibilityLabel={`${String(key)}${index}`}
-                style={styles.text}>
-                {value[key] ?? ''}
-              </Text>
-            ))}
-          </View>
-          <View style={styles.separator} />
-        </>
-      ))}
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(_, index) => `ListItem${index}`}
+      />
     </View>
   );
 }
