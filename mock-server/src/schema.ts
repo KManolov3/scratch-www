@@ -23,7 +23,7 @@ const quantityFaker = () => faker.datatype.number({ min: 0, max: 50 });
 const itemFakes = {
   sku: skuFaker,
   mfrPartNum: () => faker.random.alphaNumeric(5),
-  partDesc: () => faker.commerce.productDescription(),
+  partDesc: () => faker.commerce.product(),
   upc: () => faker.random.numeric(10),
 };
 
@@ -69,6 +69,13 @@ const mocks: IMocks = {
 
   Planogram: {
     planogramId: planogramIdFaker,
+    description: () => faker.commerce.productDescription(),
+    seqNum: faker.datatype.number(),
+  },
+  
+  BackStockSlot: {
+    slotId: () => faker.datatype.number({ min: 0, max: 99999999 }),
+    qty: quantityFaker, 
   },
 
   Pog: {
