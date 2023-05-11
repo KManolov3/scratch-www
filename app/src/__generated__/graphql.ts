@@ -49,10 +49,36 @@ export type CreateCycleCount = {
   storeNumber: Scalars['String'];
 };
 
+export enum CreateCycleCountError {
+  Other = 'OTHER'
+}
+
+export type CreateCycleCountInput = {
+  items: Array<CreateCycleCountItemInput>;
+  type: CreateCycleCountType;
+};
+
+export type CreateCycleCountItemInput = {
+  itemSku: Scalars['String'];
+  quantity?: InputMaybe<Scalars['Int']>;
+};
+
 export type CreateCycleCountRequest = {
   cycleCount: CreateCycleCount;
   items: Array<CreateItemRequest>;
 };
+
+export type CreateCycleCountResult = {
+  __typename?: 'CreateCycleCountResult';
+  cycleCount?: Maybe<NewCycleCount>;
+  error?: Maybe<CreateCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export enum CreateCycleCountType {
+  BatchCount = 'BATCH_COUNT',
+  Outage = 'OUTAGE'
+}
 
 export type CreateItemRequest = {
   qty: Scalars['Int'];
@@ -95,6 +121,13 @@ export type CycleCountDetail = {
   vendor?: InputMaybe<Scalars['String']>;
 };
 
+export type CycleCountItem = {
+  __typename?: 'CycleCountItem';
+  item: Item;
+  locationId?: Maybe<Scalars['String']>;
+  quantityAtLocation?: Maybe<Scalars['Int']>;
+};
+
 export type CycleCountList = {
   count?: InputMaybe<Scalars['Int']>;
   cycleCounts: Array<KafkaCycleCount>;
@@ -104,10 +137,65 @@ export type CycleCountList = {
   updateType?: InputMaybe<Scalars['String']>;
 };
 
+export type CycleCountLocation = {
+  __typename?: 'CycleCountLocation';
+  backStockSlot?: Maybe<BackStockSlot>;
+  id: Scalars['String'];
+  planogram?: Maybe<Planogram>;
+  status: CycleCountLocationStatus;
+  type: LocationType;
+};
+
+export enum CycleCountLocationStatus {
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING'
+}
+
+export enum CycleCountReason {
+  ConfirmCount = 'CONFIRM_COUNT',
+  CoreCount = 'CORE_COUNT',
+  NegativeQuantityOnHand = 'NEGATIVE_QUANTITY_ON_HAND',
+  OrderQuantityChanged = 'ORDER_QUANTITY_CHANGED',
+  PendingAsn = 'PENDING_ASN',
+  PhysicalInventoryVariance = 'PHYSICAL_INVENTORY_VARIANCE',
+  RefundCount = 'REFUND_COUNT',
+  SystemGenerated = 'SYSTEM_GENERATED',
+  SystemRequest = 'SYSTEM_REQUEST',
+  VerifyDueToSale = 'VERIFY_DUE_TO_SALE'
+}
+
+export enum CycleCountSetItemsError {
+  AlreadyCompleted = 'ALREADY_COMPLETED',
+  CannotUpdateCycleCount = 'CANNOT_UPDATE_CYCLE_COUNT',
+  DifferentOwner = 'DIFFERENT_OWNER',
+  NotFound = 'NOT_FOUND',
+  Other = 'OTHER'
+}
+
+export type CycleCountSetItemsInput = {
+  items?: InputMaybe<Array<CycleCountUpdateItemInput>>;
+};
+
+export type CycleCountSetItemsResult = {
+  __typename?: 'CycleCountSetItemsResult';
+  cycleCount?: Maybe<NewCycleCount>;
+  error?: Maybe<CycleCountSetItemsError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export enum CycleCountStatus {
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING',
+  Verify = 'VERIFY'
+}
+
 export enum CycleCountType {
   BatchCount = 'BATCH_COUNT',
   ConfirmCount = 'CONFIRM_COUNT',
   CoreCount = 'CORE_COUNT',
+  CycleCount = 'CYCLE_COUNT',
   NegativeQuantityOnHand = 'NEGATIVE_QUANTITY_ON_HAND',
   OrderQuantityChanged = 'ORDER_QUANTITY_CHANGED',
   Outage = 'OUTAGE',
@@ -118,6 +206,22 @@ export enum CycleCountType {
   SystemRequest = 'SYSTEM_REQUEST',
   VerifyDueToSale = 'VERIFY_DUE_TO_SALE'
 }
+
+export type CycleCountUpdateInput = {
+  items?: InputMaybe<Array<CycleCountUpdateItemInput>>;
+  locations?: InputMaybe<Array<CycleCountUpdateLocationInput>>;
+};
+
+export type CycleCountUpdateItemInput = {
+  itemSku: Scalars['String'];
+  locationId?: InputMaybe<Scalars['String']>;
+  quantityAtLocation: Scalars['Int'];
+};
+
+export type CycleCountUpdateLocationInput = {
+  locationId: Scalars['String'];
+  status: CycleCountLocationStatus;
+};
 
 export enum ErrorDetail {
   DeadlineExceeded = 'DEADLINE_EXCEEDED',
@@ -192,12 +296,30 @@ export type KafkaPlanogram = {
   seqNum: Scalars['Int'];
 };
 
+export enum LocationType {
+  BackStockSlot = 'BACK_STOCK_SLOT',
+  Planogram = 'PLANOGRAM'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  completeTruckScan?: Maybe<TruckScan>;
   containerTagRequest?: Maybe<PrintRequestStatus>;
+  createCycleCount: CreateCycleCountResult;
   createTruckScan?: Maybe<TruckScan>;
   frontTagRequest?: Maybe<PrintRequestStatus>;
   sendCycleCountList?: Maybe<Scalars['Boolean']>;
+  setCycleCountItems: UpdateCycleCountResult;
+  submitCycleCount: SubmitCycleCountResult;
+  takeOverCycleCount: TakeOverCycleCountResult;
+  updateCycleCount: UpdateCycleCountResult;
+  updateTruckScanItem?: Maybe<TruckScanItem>;
+  verifyCycleCount: VerifyCycleCountResult;
+};
+
+
+export type MutationCompleteTruckScanArgs = {
+  truckScan: TruckScanInput;
 };
 
 
@@ -205,6 +327,11 @@ export type MutationContainerTagRequestArgs = {
   data?: InputMaybe<Array<InputMaybe<ContainerData>>>;
   printer?: Scalars['String'];
   storeNumber: Scalars['String'];
+};
+
+
+export type MutationCreateCycleCountArgs = {
+  input: CreateCycleCountInput;
 };
 
 
@@ -222,6 +349,56 @@ export type MutationFrontTagRequestArgs = {
 
 export type MutationSendCycleCountListArgs = {
   request: CycleCountList;
+};
+
+
+export type MutationSetCycleCountItemsArgs = {
+  id: Scalars['String'];
+  input: CycleCountSetItemsInput;
+};
+
+
+export type MutationSubmitCycleCountArgs = {
+  id: Scalars['String'];
+};
+
+
+export type MutationTakeOverCycleCountArgs = {
+  id: Scalars['String'];
+};
+
+
+export type MutationUpdateCycleCountArgs = {
+  id: Scalars['String'];
+  input: CycleCountUpdateInput;
+};
+
+
+export type MutationUpdateTruckScanItemArgs = {
+  asnReferenceNumber: Scalars['String'];
+  sku: Scalars['String'];
+  storeNumber: Scalars['String'];
+  updatedCount: Scalars['Int'];
+};
+
+
+export type MutationVerifyCycleCountArgs = {
+  id: Scalars['String'];
+};
+
+export type NewCycleCount = {
+  __typename?: 'NewCycleCount';
+  createdDate: Scalars['Date'];
+  dueDate?: Maybe<Scalars['Date']>;
+  id: Scalars['String'];
+  items: Array<CycleCountItem>;
+  locations?: Maybe<Array<CycleCountLocation>>;
+  name?: Maybe<Scalars['String']>;
+  owner?: Maybe<TeamMember>;
+  reason?: Maybe<CycleCountReason>;
+  status: CycleCountStatus;
+  storeNumber: Scalars['String'];
+  type: CycleCountType;
 };
 
 export type Planogram = {
@@ -250,10 +427,12 @@ export type Query = {
   __typename?: 'Query';
   _service?: Maybe<_Service>;
   batchCounts?: Maybe<Array<Maybe<CycleCount>>>;
+  cycleCountById?: Maybe<NewCycleCount>;
   cycleCounts?: Maybe<Array<Maybe<CycleCount>>>;
   itemBySku?: Maybe<Item>;
   itemByUpc?: Maybe<Item>;
   itemsBySkuList?: Maybe<Array<Maybe<Item>>>;
+  newCycleCounts: Array<NewCycleCount>;
   outageCounts?: Maybe<Array<Maybe<CycleCount>>>;
   planograms?: Maybe<Array<Maybe<Pog>>>;
   removeTruckScanItem?: Maybe<TruckScanItem>;
@@ -265,6 +444,11 @@ export type Query = {
 
 export type QueryBatchCountsArgs = {
   storeNumber: Scalars['String'];
+};
+
+
+export type QueryCycleCountByIdArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -289,6 +473,13 @@ export type QueryItemByUpcArgs = {
 export type QueryItemsBySkuListArgs = {
   skus: Array<Scalars['String']>;
   storeNumber: Scalars['String'];
+};
+
+
+export type QueryNewCycleCountsArgs = {
+  completed?: InputMaybe<Scalars['Boolean']>;
+  storeNumber: Scalars['String'];
+  type: CycleCountType;
 };
 
 
@@ -334,6 +525,38 @@ export enum Status {
   Verify = 'VERIFY'
 }
 
+export enum SubmitCycleCountError {
+  AlreadyCompleted = 'ALREADY_COMPLETED',
+  AlreadySubmitted = 'ALREADY_SUBMITTED',
+  NotFound = 'NOT_FOUND',
+  Other = 'OTHER'
+}
+
+export type SubmitCycleCountResult = {
+  __typename?: 'SubmitCycleCountResult';
+  cycleCount?: Maybe<CycleCount>;
+  error?: Maybe<SubmitCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export enum TakeOverCycleCountError {
+  NotInProgress = 'NOT_IN_PROGRESS',
+  Other = 'OTHER'
+}
+
+export type TakeOverCycleCountResult = {
+  __typename?: 'TakeOverCycleCountResult';
+  cycleCount?: Maybe<CycleCount>;
+  error?: Maybe<TakeOverCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export type TeamMember = {
+  __typename?: 'TeamMember';
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
+
 export type TruckScan = {
   __typename?: 'TruckScan';
   asnReferenceNumber?: Maybe<Scalars['String']>;
@@ -371,6 +594,14 @@ export enum TruckScanStatus {
   Open = 'OPEN'
 }
 
+export enum UpdateCycleCountError {
+  AlreadyCompleted = 'ALREADY_COMPLETED',
+  DifferentOwner = 'DIFFERENT_OWNER',
+  InvalidItems = 'INVALID_ITEMS',
+  NotFound = 'NOT_FOUND',
+  Other = 'OTHER'
+}
+
 export type UpdateCycleCountRequest = {
   cycleCountName: Scalars['String'];
   items?: InputMaybe<Array<InputMaybe<UpdateItemRequest>>>;
@@ -378,9 +609,29 @@ export type UpdateCycleCountRequest = {
   storeNumber: Scalars['String'];
 };
 
+export type UpdateCycleCountResult = {
+  __typename?: 'UpdateCycleCountResult';
+  cycleCount?: Maybe<NewCycleCount>;
+  error?: Maybe<UpdateCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
 export type UpdateItemRequest = {
   sku: Scalars['String'];
   totalCountQty: Scalars['Int'];
+};
+
+export enum VerifyCycleCountError {
+  AlreadyCompleted = 'ALREADY_COMPLETED',
+  NotFound = 'NOT_FOUND',
+  Other = 'OTHER'
+}
+
+export type VerifyCycleCountResult = {
+  __typename?: 'VerifyCycleCountResult';
+  cycleCount?: Maybe<CycleCount>;
+  error?: Maybe<VerifyCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
 };
 
 export type _Service = {
@@ -390,10 +641,10 @@ export type _Service = {
 
 export type CycleCountCardFragmentFragment = { __typename?: 'CycleCount', cycleCountId?: number | null, cycleCountName?: string | null, dueDate?: string | null };
 
-export type CycleCountAppQueryVariables = Exact<{ [key: string]: never; }>;
+export type CycleCountContextQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CycleCountAppQuery = { __typename?: 'Query', cycleCounts?: Array<{ __typename?: 'CycleCount', storeNumber?: string | null, cycleCountType?: CycleCountType | null, cycleCountId?: number | null, cycleCountName?: string | null, dueDate?: string | null, items?: Array<{ __typename?: 'Item', sku?: string | null, mfrPartNum?: string | null, partDesc?: string | null, retailPrice?: number | null } | null> | null } | null> | null };
+export type CycleCountContextQuery = { __typename?: 'Query', cycleCounts?: Array<{ __typename?: 'CycleCount', storeNumber?: string | null, cycleCountType?: CycleCountType | null, cycleCountId?: number | null, cycleCountName?: string | null, dueDate?: string | null, items?: Array<{ __typename?: 'Item', sku?: string | null, mfrPartNum?: string | null, partDesc?: string | null, retailPrice?: number | null, planograms?: Array<{ __typename?: 'Planogram', seqNum?: number | null, planogramId?: string | null, description?: string | null } | null> | null } | null> | null } | null> | null };
 
 export type TruckScanAppQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -408,6 +659,6 @@ export type TruckScanDetailsQueryVariables = Exact<{
 export type TruckScanDetailsQuery = { __typename?: 'Query', truckScanByASN?: { __typename?: 'TruckScan', asnReferenceNumber?: string | null, status?: TruckScanStatus | null, storeNumber?: string | null, items?: Array<{ __typename?: 'TruckScanItem', sku?: string | null, upc?: string | null, mfrPartNum?: string | null, partDesc?: string | null, expectedCount?: number | null, actualCount?: number | null } | null> | null } | null };
 
 export const CycleCountCardFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CycleCountCardFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CycleCount"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}}]}}]} as unknown as DocumentNode<CycleCountCardFragmentFragment, unknown>;
-export const CycleCountAppDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"cycleCountApp"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountType"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"CycleCountCardFragment"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CycleCountCardFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CycleCount"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}}]}}]} as unknown as DocumentNode<CycleCountAppQuery, CycleCountAppQueryVariables>;
+export const CycleCountContextDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CycleCountContext"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountType"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"CycleCountCardFragment"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"planograms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"seqNum"}},{"kind":"Field","name":{"kind":"Name","value":"planogramId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CycleCountCardFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CycleCount"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}}]}}]} as unknown as DocumentNode<CycleCountContextQuery, CycleCountContextQueryVariables>;
 export const TruckScanAppDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"truckScanApp"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"truckScansByStore"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asnReferenceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}}]}}]}}]} as unknown as DocumentNode<TruckScanAppQuery, TruckScanAppQueryVariables>;
 export const TruckScanDetailsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"truckScanDetails"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"asn"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"truckScanByASN"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"asnReferenceNumber"},"value":{"kind":"Variable","name":{"kind":"Name","value":"asn"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asnReferenceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"upc"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"expectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"actualCount"}}]}}]}}]}}]} as unknown as DocumentNode<TruckScanDetailsQuery, TruckScanDetailsQueryVariables>;

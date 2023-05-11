@@ -5,7 +5,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "ts-node-esm src/index.ts",
+    "start": "nodemon",
     "check": "npm run eslint && npm run tsc",
     "tsc": "tsc -p ./ --noEmit",
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.js"
@@ -26,6 +26,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "eslint": "^8.19.0",
     "eslint-config-airbnb": "~19.0.4",
+    "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.3"
   }
