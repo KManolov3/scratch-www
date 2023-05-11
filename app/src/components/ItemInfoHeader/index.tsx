@@ -1,12 +1,16 @@
+import Sound from 'react-native-sound';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { Row } from '@components/Row';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
+import { AttentionIcon } from '@assets/icons';
+import ding from '@assets/sounds/ding.mp3';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -27,6 +31,7 @@ export type ItemDetailsInfo = NonNullable<
 
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
+  frontTagPrice?: number;
   withQuantityAdjustment?: boolean;
 }
 
@@ -39,16 +44,13 @@ function getBackstockQuantity(
     return 0;
   }
 
-  return _.chain(backstockSlots)
-    .compact()
-    .map(({ qty }) => qty)
-    .sum()
-    .value();
+  return _.chain(backstockSlots).compact().sumBy('qty').value();
 }
 
 export function ItemInfoHeader({
   itemDetails,
   withQuantityAdjustment = false,
+  frontTagPrice,
 }: ItemInfoHeaderProps) {
   // TODO: Manage this through the app context. Requirements:
   // 1) It should be incremented whenever a UPC is scanned.
@@ -57,6 +59,34 @@ export function ItemInfoHeader({
 
   // TODO: Show a price discrepancy modal, in case a front tag is scanned,
   // whose assigned price doesn't match the system price (returned from item lookup queries)
+
+  const priceDiscrepancy =
+    !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice;
+
+  const [priceDiscrepancyModalVisible, setPriceDiscrepancyModalVisible] =
+    useState(false);
+
+  const toggleModal = () => {
+    setPriceDiscrepancyModalVisible(visible => !visible);
+  };
+
+  useEffect(() => {
+    const sound = new Sound(ding, error => {
+      if (error) {
+        return;
+      }
+
+      // Play the sound
+      if (priceDiscrepancy) {
+        sound.play();
+      }
+    });
+
+    // Clean up the sound when the component unmounts
+    return () => {
+      sound.release();
+    };
+  }, [priceDiscrepancy]);
 
   return (
     <View style={styles.container}>
@@ -67,10 +97,21 @@ export function ItemInfoHeader({
         <View style={styles.column}>
           <Row label="P/N:" value={itemDetails.mfrPartNum ?? 'undefined'} />
           <Row label="SKU:" value={itemDetails.sku ?? 'undefined'} />
-          <Row
-            label="Price:"
-            value={`$${itemDetails.retailPrice ?? 'undefined'}`}
-          />
+          {priceDiscrepancy ? (
+            <Row
+              label="Price:"
+              value={`$${frontTagPrice}`}
+              icon={
+                <AttentionIcon style={styles.icon} width={16} height={16} />
+              }
+              textStyle={{ color: Colors.advanceRed }}
+            />
+          ) : (
+            <Row
+              label="Price:"
+              value={`$${itemDetails.retailPrice ?? 'undefined'}`}
+            />
+          )}
         </View>
         <View style={styles.separator} />
         <View style={styles.column}>
@@ -85,6 +126,20 @@ export function ItemInfoHeader({
       {withQuantityAdjustment && (
         <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
       )}
+      {priceDiscrepancy && (
+        <Pressable onPress={toggleModal}>
+          <Text style={styles.priceDiscrepancy}>
+            Price Discrepancy Detected. SEE MORE
+          </Text>
+        </Pressable>
+      )}
+      <PriceDiscrepancyModal
+        scanned={frontTagPrice}
+        system={itemDetails.retailPrice}
+        isVisible={priceDiscrepancyModalVisible}
+        onCancel={toggleModal}
+        onConfirm={toggleModal}
+      />
     </View>
   );
 }
@@ -110,4 +165,9 @@ const styles = StyleSheet.create({
     width: 2,
     backgroundColor: Colors.darkGray,
   },
+  priceDiscrepancy: {
+    color: Colors.advanceRed,
+    fontWeight: FontWeight.Demi,
+  },
+  icon: { margin: 4 },
 });

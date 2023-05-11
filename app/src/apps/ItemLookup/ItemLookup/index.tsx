@@ -8,7 +8,7 @@ import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
-import { BatchCountScreenProps } from '../navigator';
+import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -36,11 +36,11 @@ const ITEM_BY_UPC = gql(`
 // TODO: Expand this so that it supports scanning front tags, which will provide additional info.
 // Front Tags Barcode Structure - 99{SKU}{PRICE}
 
-export function BatchCountItemLookup({
+export function ItemLookupItemLookup({
   route: {
-    params: { type, value },
+    params: { type, value, frontTagPrice },
   },
-}: BatchCountScreenProps<'ItemLookup'>) {
+}: ItemLookupScreenProps<'ItemLookup'>) {
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,
@@ -87,5 +87,7 @@ export function BatchCountItemLookup({
     return <NoResults lookupType={type} lookupId={value} />;
   }
 
-  return <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />;
+  return (
+    <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+  );
 }

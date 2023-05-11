@@ -2,8 +2,8 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TextInputRef } from '@components/TextInput';
-import { SearchBar } from '../components/SearchBar';
-import { Barcode } from '../components/Barcode';
+import { SearchBar } from '@components/SearchBar';
+import { Barcode } from '@components/Barcode';
 import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 
 export function BatchCountHome({
