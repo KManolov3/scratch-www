@@ -1,4 +1,5 @@
 import { LookupType } from '@apps/BatchCount/ItemLookup';
+import { RootNavigation } from '@apps/navigator';
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { Text } from '@components/Text';
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function NoResults({ lookupType, lookupId }: Props) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootNavigation>();
 
   return (
     <View style={styles.wrapper}>

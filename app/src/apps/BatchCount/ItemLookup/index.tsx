@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
-import { ScreenProps } from '@config/routes';
+import { RootScreenProps } from '@apps/navigator';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 
@@ -40,7 +40,7 @@ export function BatchCountItemLookup({
   route: {
     params: { type, value },
   },
-}: ScreenProps<'BatchCountItemLookup'>) {
+}: RootScreenProps<'BatchCountItemLookup'>) {
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,

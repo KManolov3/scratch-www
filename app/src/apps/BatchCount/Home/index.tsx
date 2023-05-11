@@ -1,7 +1,7 @@
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useRef, useState } from 'react';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { ScreenProps } from '@config/routes';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '../components/SearchBar';
 import { Barcode } from '../components/Barcode';
@@ -10,9 +10,9 @@ export function BatchCountHome({
   route: {
     params: { shouldFocusSearch = false } = { shouldFocusSearch: false },
   },
-}: ScreenProps<'BatchCountHome'>) {
+}: RootScreenProps<'BatchCountHome'>) {
   const [isSearchFocused, setIsSearchFocused] = useState(shouldFocusSearch);
-  const navigation = useNavigation();
+  const navigation = useNavigation<RootNavigation>();
   const inputRef = useRef<TextInputRef>(null);
 
   // If current route is focused, focus search field if necessary
