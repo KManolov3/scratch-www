@@ -2,6 +2,8 @@ import { BatchCountController } from '../../controllers/batch-count-controller.t
 import { waitAndClick, waitFor } from '../../methods/helpers.ts';
 import { Product } from '../../models/product-model.ts';
 
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+
 const products: Product[] = [
   {
     productName: 'Chicken',
@@ -41,6 +43,45 @@ const products: Product[] = [
 
 const batchCount = new BatchCountController(products);
 
+class TestDataController {
+  private cache = new InMemoryCache();
+  private graphqlClient = new ApolloClient({
+    // Provide required constructor fields
+    cache: this.cache,
+
+    // TODO: Environment config
+    uri: 'http://localhost:1337/',
+
+    // Provide some optional constructor fields
+    name: 'test-client',
+    queryDeduplication: false,
+    defaultOptions: {},
+  });
+
+  async setItem({ storeNumber, item }) {
+    return await this.graphqlClient.mutate({
+      mutation: gql(`
+        mutation TestSetItem($storeNumber: String!, $item: TestItemInput!) {
+          testSetItem(storeNumber: $storeNumber, item: $item) {
+            sku
+            retailPrice
+            onHand
+            mfrPartNum
+            partDesc
+            upc
+          }
+        }
+      `),
+      variables: {
+        storeNumber,
+        item,
+      },
+    });
+  }
+}
+
+const testData = new TestDataController();
+
 describe('Batch Count', () => {
   beforeEach(async () => {
     await waitFor(batchCount.pages.homePage.headerText, 10000);
@@ -52,6 +93,44 @@ describe('Batch Count', () => {
     //   await batchCount.expectProductInfo(product);
     //   await waitAndClick(batchCount.pages.itemLookupPage.backButton);
     // }
+
+    // await testData.setItem({
+    //   storeNumber: '0353',
+    //   item: {
+    //     sku: '1234',
+    //     retailPrice: 42.42,
+    //   },
+    // });
+
+    // await testData.setItem({
+    //   storeNumber: '0353',
+    //   item: {
+    //     sku: '1234',
+    //     retailPrice: 42.42,
+    //   },
+    // });
+
+    await testData.setData({
+      items: [
+        {
+          storeNumber: '0353',
+          item: {
+            sku: '1234',
+            retailPrice: 42.42,
+          },
+        },
+        {
+          storeNumber: '0353',
+          item: {
+            sku: '1234',
+            retailPrice: 42.42,
+          },
+        },
+      ],
+      cycleCounts: [
+        { ... }
+      ]
+    });
 
     await batchCount.searchForSku('asd');
     await batchCount.expectProductInfo(batchCount.products[0]);

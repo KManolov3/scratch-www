@@ -1,0 +1,19 @@
+extend type Mutation {
+  testSetItem(storeNumber: String!, item: TestItemInput!): Item!
+  testSetData(data: TestDataInput!): Item!
+}
+
+input TestItemInput {
+  mfrPartNum: String
+  partDesc: String
+  sku: String
+  upc: String
+  retailPrice: Float
+  onHand: Int
+}
+
+input TestDataInput {
+  storeNumber: String!
+  items: [TestItemInput!]
+  # cycleCounts: [TestCycleCountInput!]
+}

@@ -12,6 +12,7 @@ const innerSchema = makeExecutableSchema({
   typeDefs: await Promise.all([
     readFile('schema/base-schema.graphql', 'utf-8'),
     readFile('schema/cycle-count-extensions.graphql', 'utf-8'),
+    readFile('schema/test-only-schema.graphql', 'utf-8'),
   ]),
 });
 
@@ -87,7 +88,7 @@ const store = createMockStore({
   typePolicies: {
     BackStockSlot: { keyFieldName: 'guid' },
     CycleCount: { keyFieldName: 'cycleCountId' },
-    Item: { keyFieldName: 'sku' },
+    Item: { keyFieldName: 'id' },
     Planogram: { keyFieldName: 'planogramId' },
     Pog: { keyFieldName: 'pogId' },
     NewCycleCount: { keyFieldName: 'id' },
@@ -96,7 +97,40 @@ const store = createMockStore({
   },
 });
 
-export const schema = addMocksToSchema({ schema: innerSchema, store });
+export const schema = addMocksToSchema({
+  schema: innerSchema,
+  store,
+  resolvers: store => ({
+    Query: {
+      itemBySku(_, { sku, storeNumber }) {
+        return store.get('Item', `${storeNumber}-${sku}`);
+      },
+    },
+
+    Mutation: {
+      // TODO: testClear, store.reset()
+
+      // TODO: single mutation or not?
+      //
+      // testSetData(_, { testData, storeNumber }) {
+      //   const id = `${storeNumber}-${item.sku}`;
+      //
+      //   testData.for
+      //   store.set('Item', id, item);
+      //
+      //   return store.get('Item', id);
+      // },
+
+      testSetItem(_, { item, storeNumber }) {
+        const id = `${storeNumber}-${item.sku}`;
+
+        store.set('Item', id, item);
+
+        return store.get('Item', id);
+      },
+    },
+  }),
+});
 
 function toDateISOString(date: Date) {
   const year = date.getFullYear();
