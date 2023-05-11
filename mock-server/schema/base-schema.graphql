@@ -198,6 +198,13 @@ type Mutation {
     data: [ContainerData]
   ): PrintRequestStatus
   sendCycleCountList(request: CycleCountList!): Boolean
+  updateTruckScanItem(
+    asnReferenceNumber: String!
+    storeNumber: String!
+    sku: String!
+    updatedCount: Int!
+  ): TruckScanItem
+  completeTruckScan(truckScan: TruckScanInput!): TruckScan
 }
 
 type Planogram {
@@ -299,3 +306,4 @@ input UpdateItemRequest {
   sku: String!
   totalCountQty: Int!
 }
+

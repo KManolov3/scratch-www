@@ -12,7 +12,7 @@ import { SvgType } from '*.svg';
 import { styles, iconSize, primaryColor, secondaryColor } from './styles';
 
 interface Props extends PressableProps {
-  label: string | ReactElement;
+  label?: string | ReactElement;
   Icon?: SvgType;
   onPress: () => void;
   isLoading?: boolean;
@@ -47,7 +47,11 @@ export function BlockButton({
       disabled={disabled}
       {...rest}>
       {!!Icon && (
-        <Icon height={iconSize} width={iconSize} style={styles.icon} />
+        <Icon
+          height={iconSize}
+          width={iconSize}
+          style={label ? styles.iconMargin : undefined}
+        />
       )}
 
       {typeof label === 'string' ? (

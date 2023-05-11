@@ -15,11 +15,12 @@ export const CycleCountCardFragment = gql(`
   }
 `);
 
-export interface Props {
+export interface CycleCountCardProps {
   cycleCount: DocumentType<typeof CycleCountCardFragment>;
+  onPress: () => void;
 }
 
-export function CycleCountCard({ cycleCount }: Props) {
+export function CycleCountCard({ cycleCount, onPress }: CycleCountCardProps) {
   // TODO: Need to check if this is always present
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const dueDate = useDateTime(cycleCount.dueDate!);
@@ -34,25 +35,60 @@ export function CycleCountCard({ cycleCount }: Props) {
   const critical = daysLeft <= 3;
 
   return (
-    <Pressable style={[styles.card, critical && styles.critical]}>
-      {critical && (
-        <View style={styles.criticalContainer}>
-          <Text style={styles.criticalDays}>{daysLeft}</Text>
-          <Text style={styles.criticalLabel}>
-            {pluralizeLabel(daysLeft, 'day', 'days')}
-          </Text>
-        </View>
-      )}
+    <Pressable
+      onPress={onPress}
+      style={[styles.card, critical && styles.critical]}>
+      {critical && <CriticalLabel daysLeft={daysLeft} />}
 
       <View style={styles.content}>
         <Text style={styles.title}>
           {cycleCount.cycleCountId} - {cycleCount.cycleCountName}
         </Text>
         <Text>
-          Due in {pluralize(daysLeft, 'day', 'days')} (
+          <DueDateLabel daysLeft={daysLeft} /> (
           {dueDate.toLocaleString(DateTime.DATE_SHORT)})
         </Text>
       </View>
     </Pressable>
   );
+}
+
+function CriticalLabel({ daysLeft }: { daysLeft: number }) {
+  if (daysLeft === 0) {
+    return (
+      <View style={styles.criticalContainer}>
+        <Text style={styles.criticalDays}>Today</Text>
+      </View>
+    );
+  }
+
+  if (daysLeft < 0) {
+    return (
+      <View style={styles.criticalContainer}>
+        <Text style={styles.criticalDays}>Overdue</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.criticalContainer}>
+      <Text style={styles.criticalDays}>{daysLeft}</Text>
+
+      <Text style={styles.criticalLabel}>
+        {pluralizeLabel(daysLeft, 'day', 'days')}
+      </Text>
+    </View>
+  );
+}
+
+function DueDateLabel({ daysLeft }: { daysLeft: number }) {
+  if (daysLeft === 0) {
+    return <>Due today</>;
+  }
+
+  if (daysLeft < 0) {
+    return <>Past due date</>;
+  }
+
+  return <>Due in {pluralize(daysLeft, 'day', 'days')}</>;
 }

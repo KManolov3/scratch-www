@@ -1,0 +1,5 @@
+{
+  "watch": ["src", "schema"],
+  "ext": "ts,json,graphql",
+  "exec": "ts-node-esm src/index.ts"
+}

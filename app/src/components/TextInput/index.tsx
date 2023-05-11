@@ -11,7 +11,7 @@ import {
 import { getFontFamily } from 'src/lib/font';
 import { styles, placeholderColor } from './styles';
 
-export type TextInputRef = React.RefObject<RNTextInput>;
+export type TextInputRef = RNTextInput;
 
 const getReturnKeyType = (keyboardType: KeyboardTypeOptions) => {
   switch (keyboardType) {
@@ -25,7 +25,7 @@ const getReturnKeyType = (keyboardType: KeyboardTypeOptions) => {
   }
 };
 
-export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
+export const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
   (
     {
       style,

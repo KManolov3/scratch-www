@@ -4,17 +4,22 @@ import { Colors } from '@lib/colors';
 import { Text } from '@components/Text';
 import { TextField } from '@components/TextField';
 import { Container } from '@components/Container';
+import { TextInputRef } from '@components/TextInput';
 
 export interface SearchBarProps {
-  onFocus: () => void;
-  onBlur: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onSubmit?: (value: string) => void;
   isSearchFocused: boolean;
+  inputRef?: React.RefObject<TextInputRef>;
 }
 
 export function SearchBar({
   onFocus,
   onBlur,
   isSearchFocused,
+  onSubmit,
+  inputRef,
 }: SearchBarProps) {
   return (
     <Container style={styles.container}>
@@ -24,6 +29,8 @@ export function SearchBar({
         inputStyle={styles.input}
         onFocus={onFocus}
         onBlur={onBlur}
+        onSubmit={onSubmit}
+        inputRef={inputRef}
         clearable
       />
       {isSearchFocused && (
