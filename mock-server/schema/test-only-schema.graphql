@@ -1,12 +1,12 @@
 extend type Mutation {
-  testSetItem(storeNumber: String!, item: TestItemInput!): Item!
-  testSetData(data: TestDataInput!): Item!
+  testSetData(input: TestDataInput!): TestSetDataResult!
+  # TOOD: testClearData()
 }
 
 input TestItemInput {
   mfrPartNum: String
   partDesc: String
-  sku: String
+  sku: String!
   upc: String
   retailPrice: Float
   onHand: Int
@@ -16,4 +16,10 @@ input TestDataInput {
   storeNumber: String!
   items: [TestItemInput!]
   # cycleCounts: [TestCycleCountInput!]
+}
+
+type TestSetDataResult {
+  storeNumber: String!
+  items: [Item!]
+  # cycleCounts: [CycleCount!]
 }

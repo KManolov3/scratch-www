@@ -108,26 +108,20 @@ export const schema = addMocksToSchema({
     },
 
     Mutation: {
-      // TODO: testClear, store.reset()
+      testSetData(_, { input }) {
+        const items = input.items.map((item: any) => {
+          const id = `${input.storeNumber}-${item.sku}`;
+          store.set('Item', id, item);
 
-      // TODO: single mutation or not?
-      //
-      // testSetData(_, { testData, storeNumber }) {
-      //   const id = `${storeNumber}-${item.sku}`;
-      //
-      //   testData.for
-      //   store.set('Item', id, item);
-      //
-      //   return store.get('Item', id);
-      // },
+          return store.get('Item', id);
+        });
 
-      testSetItem(_, { item, storeNumber }) {
-        const id = `${storeNumber}-${item.sku}`;
-
-        store.set('Item', id, item);
-
-        return store.get('Item', id);
+        return { items };
       },
+      // TODO:
+      // testClearData() {
+      //   store.reset();
+      // },
     },
   }),
 });
