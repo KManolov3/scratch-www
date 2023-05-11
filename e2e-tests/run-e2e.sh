@@ -11,4 +11,8 @@ export APP_ACTIVITY=$1
 export TEST_SUITE="${2:-"*"}"
 export REPORT_PATH="${REPORT_PATH:-"./reports"}"
 
+cd ../../../app && npm run adb:reverse
+
+cd ../e2e-tests
+
 npm run e2e -- --spec "./specs/$WORK_DIR/$TEST_SUITE.ts"

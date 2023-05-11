@@ -22,9 +22,10 @@ export class BatchCountController {
     };
   }
 
-  async searchForSku(sku: string) {
+  async searchForSku(product: Product) {
+    await waitFor(this.pages.homePage.headerText, 10000);
     await waitAndClick(this.pages.homePage.searchForSkuInput);
-    await setValue(this.pages.homePage.searchForSkuInput, sku);
+    await setValue(this.pages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
     await waitFor(this.pages.itemLookupPage.sku);
   }
@@ -32,47 +33,45 @@ export class BatchCountController {
   async expectProductInfo(product: Product) {
     await expectElementText(
       this.pages.itemLookupPage.productName,
-      product.productName
+      product.partDesc
     );
 
     await expectElementText(
       this.pages.itemLookupPage.partNumber,
-      product.partNumber
+      product.mfrPartNum
     );
     await expectElementText(this.pages.itemLookupPage.sku, product.sku);
 
-    await expectElementText(this.pages.itemLookupPage.price, product.price);
-
     await expectElementText(
-      this.pages.itemLookupPage.currentQuantity,
-      `${product.currentQuantity}`
+      this.pages.itemLookupPage.price,
+      `$${product.retailPrice}`
     );
 
     await expectElementText(
-      this.pages.itemLookupPage.backstockQuantity,
-      `${product.backstockQuantity}`
+      this.pages.itemLookupPage.currentQuantity,
+      `${product.onHand}`
     );
 
     await expectElementText(
       this.pages.itemLookupPage.planogramInfoByRowNumber(1).locationId,
-      product.planogramLocations[0].locationId
+      product.planograms[0].planogramId
     );
 
     await expectElementText(
       this.pages.itemLookupPage.planogramInfoByRowNumber(1).seqNumber,
-      product.planogramLocations[0].sequenceNumber
+      `${product.planograms[0].seqNum}`
     );
 
     await waitAndClick(this.pages.itemLookupPage.slotLocationsButton);
 
     await expectElementText(
       this.pages.itemLookupPage.slotInfoByRowNumber(1).locationId,
-      product.slotLocations[0].locationId
+      `${product.backStockSlots[0].slotId}`
     );
 
     await expectElementText(
       this.pages.itemLookupPage.slotInfoByRowNumber(1).quantity,
-      `${product.slotLocations[0].quantity}`
+      `${product.backStockSlots[0].qty}`
     );
   }
 }

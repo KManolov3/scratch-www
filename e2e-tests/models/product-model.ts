@@ -1,21 +1,28 @@
 export interface Product {
-  productName: string;
-  partNumber: string;
+  mfrPartNum?: string;
+  partDesc?: string;
   sku: string;
-  price: string;
-  currentQuantity: number;
-  backstockQuantity: number;
-  newQuantity: number;
-  planogramLocations: Planogram[];
-  slotLocations: Slot[];
+  upc?: string;
+  retailPrice?: number;
+  onHand?: number;
+  planograms?: Planogram[];
+  backStockSlots?: BackStockSlot[];
 }
 
 export interface Planogram {
-  locationId: string;
-  sequenceNumber: string;
+  planogramId: string;
+  description: string;
+  seqNum: number;
 }
 
-export interface Slot {
-  locationId: string;
-  quantity: number;
+export interface BackStockSlot {
+  guid: string;
+  storeNumber: string;
+  slotId: number;
+  slotName: string;
+  slotDescription: string;
+  sectionsLotName: string;
+  sectionsLotNum: string;
+  lastModified: Date;
+  qty: number;
 }

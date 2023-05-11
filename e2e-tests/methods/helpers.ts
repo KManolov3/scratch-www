@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { generate } from 'randomstring';
 
 const WAIT_FOR_TIMEOUT = 3000;
@@ -65,7 +65,7 @@ export async function expectElementValue(selector: string, expected: string) {
   const displayed = await $(selector).getValue();
   expect(
     expected === displayed,
-    `Displayed value ${displayed} does not match expected ${expected}`
+    `Element ${selector} has value ${displayed} instead of expected ${expected}`
   );
 }
 
@@ -74,15 +74,11 @@ export async function expectElementText(
   expected: string,
   timeout = WAIT_FOR_TIMEOUT
 ) {
-  await browser.waitUntil(
-    async () => {
-      const displayed = await $(selector).getText();
-      console.log(`Expecting element ${selector} to have text ${expected}`);
-      return displayed === expected;
-    },
-    {
-      timeout: timeout,
-      timeoutMsg: `Displayed text does not match expected ${expected}`,
-    }
+  await waitFor(selector, timeout);
+  const displayed = await $(selector).getText();
+  console.log(`Expecting element ${selector} to have text ${expected}`);
+  assert(
+    displayed === expected,
+    `Element ${selector} has text ${displayed} instead of expected ${expected}`
   );
 }
