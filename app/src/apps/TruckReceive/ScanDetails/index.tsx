@@ -1,9 +1,9 @@
 import { ActivityIndicator, View } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { ScreenProps } from '@config/routes';
 import { Text } from '@components/Text';
-import { gql } from 'src/__generated__';
+import { RootScreenProps } from '@apps/navigator';
+import { gql } from '../../../__generated__';
 import { styles } from './styles';
 
 export interface TruckScanDetailsProps {
@@ -23,7 +23,7 @@ const QUERY = gql(`
 
 export function TruckReceiveScanDetails({
   route,
-}: ScreenProps<'TruckScanDetails'>) {
+}: RootScreenProps<'TruckScanDetails'>) {
   const { loading, data, error } = useQuery(QUERY, {
     variables: { asn: route.params.asn },
   });

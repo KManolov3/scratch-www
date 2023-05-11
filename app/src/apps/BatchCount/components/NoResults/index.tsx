@@ -1,4 +1,5 @@
 import { LookupType } from '@apps/BatchCount/ItemLookup';
+import { BatchCountNavigation } from '@apps/BatchCount/navigator';
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { Text } from '@components/Text';
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function NoResults({ lookupType, lookupId }: Props) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<BatchCountNavigation>();
 
   return (
     <View style={styles.wrapper}>
@@ -22,7 +23,7 @@ export function NoResults({ lookupType, lookupId }: Props) {
         <BlockButton
           label="Search again"
           onPress={() =>
-            navigation.navigate('BatchCountHome', {
+            navigation.navigate('Home', {
               shouldFocusSearch: lookupType === 'SKU',
             })
           }

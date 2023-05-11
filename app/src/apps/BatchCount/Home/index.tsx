@@ -1,18 +1,18 @@
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { ScreenProps } from '@config/routes';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '../components/SearchBar';
 import { Barcode } from '../components/Barcode';
+import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 
 export function BatchCountHome({
   route: {
     params: { shouldFocusSearch = false } = { shouldFocusSearch: false },
   },
-}: ScreenProps<'BatchCountHome'>) {
+}: BatchCountScreenProps<'Home'>) {
   const [isSearchFocused, setIsSearchFocused] = useState(shouldFocusSearch);
-  const navigation = useNavigation();
+  const navigation = useNavigation<BatchCountNavigation>();
   const inputRef = useRef<TextInputRef>(null);
 
   // If current route is focused, focus search field if necessary
@@ -28,7 +28,7 @@ export function BatchCountHome({
       const timeout = setTimeout(() => {
         if (inputRef.current?.isFocused() === false) {
           inputRef.current.focus();
-          navigation.setParams({ shouldFocusSearch: false });
+          navigation.setParams({ params: { shouldFocusSearch: false } });
         }
       }, 100);
 
@@ -45,7 +45,7 @@ export function BatchCountHome({
   const onSubmit = useCallback(
     (value: string) => {
       if (value) {
-        navigation.navigate('BatchCountItemLookup', {
+        navigation.navigate('ItemLookup', {
           type: 'SKU',
           value,
         });
