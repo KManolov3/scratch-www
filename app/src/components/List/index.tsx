@@ -23,6 +23,7 @@ export function List<
               <Text
                 // `key` should always be of String type anyway
                 accessibilityLabel={`${String(key)}${index}`}
+                key={`${String(key)}${index}`}
                 style={styles.text}>
                 {item[key] ?? ''}
               </Text>
@@ -39,7 +40,9 @@ export function List<
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
         {labelInfo.map(({ label }) => (
-          <Text style={styles.text}>{label}</Text>
+          <Text key={label} style={styles.text}>
+            {label}
+          </Text>
         ))}
       </View>
       <View style={styles.separator} />

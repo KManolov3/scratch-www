@@ -51,7 +51,11 @@ export function RootNavigator({
         component={CycleCountNavigator}
       />
 
-      <Stack.Screen name="BatchCountHome" component={BatchCountNavigator} />
+      <Stack.Screen
+        name="BatchCountHome"
+        options={{ headerShown: false }}
+        component={BatchCountNavigator}
+      />
       <Stack.Screen name="TruckDetailHome" component={TruckReceiveHome} />
 
       <Stack.Screen
