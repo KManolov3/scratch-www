@@ -11,7 +11,7 @@
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.js"
   },
   "engines": {
-    "node": ">=18.15.0"
+    "node": ">=16.15.0"
   },
   "author": "",
   "license": "UNLICENSED",
