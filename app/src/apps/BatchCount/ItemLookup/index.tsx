@@ -11,6 +11,7 @@ import { noop } from 'lodash-es';
 import { ItemDetails } from '../../../components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 import { BatchCountScreenProps } from '../navigator';
+import { useBatchCountState } from '../state';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -43,6 +44,8 @@ export function BatchCountItemLookup({
     params: { type, value },
   },
 }: BatchCountScreenProps<'ItemLookup'>) {
+  const { submit: submitBatchCount } = useBatchCountState();
+
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,
@@ -75,14 +78,14 @@ export function BatchCountItemLookup({
     () => [
       {
         label: 'FAST ACCEPT',
-        onPress: noop,
+        onPress: submitBatchCount,
       },
       {
         label: 'VERIFY',
         onPress: noop,
       },
     ],
-    [],
+    [submitBatchCount],
   );
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {

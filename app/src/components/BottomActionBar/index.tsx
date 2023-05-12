@@ -18,6 +18,7 @@ export function BottomActionBar({ actions }: BottomActionBarProps) {
     <Container style={styles.container}>
       {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
         <BlockButton
+          key={label}
           label={label}
           onPress={onPress}
           id={label}
