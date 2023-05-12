@@ -11,13 +11,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/ty
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import { ItemLookupHome } from './ItemLookup/Home';
-import { BatchCountHome } from './BatchCount/Home';
-import { BatchCountItemLookup, LookupType } from './BatchCount/ItemLookup';
+import {
+  BatchCountNavigator,
+  BatchCountNavigatorScreenParams,
+} from './BatchCount/navigator';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;
-  BatchCountHome: { shouldFocusSearch?: boolean };
-  BatchCountItemLookup: { type: LookupType; value: string };
+  BatchCountHome: BatchCountNavigatorScreenParams;
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: undefined;
@@ -50,12 +51,11 @@ export function RootNavigator({
         component={CycleCountNavigator}
       />
 
-      <Stack.Screen name="BatchCountHome" component={BatchCountHome} />
       <Stack.Screen
-        name="BatchCountItemLookup"
-        component={BatchCountItemLookup}
+        name="BatchCountHome"
+        options={{ headerShown: false }}
+        component={BatchCountNavigator}
       />
-
       <Stack.Screen name="TruckDetailHome" component={TruckReceiveHome} />
 
       <Stack.Screen

@@ -10,7 +10,7 @@ export interface RowProps {
 
 export function Row({ label, value, containerStyle }: RowProps) {
   return (
-    <View accessibilityLabel={label} style={[styles.row, containerStyle]}>
+    <View style={[styles.row, containerStyle]}>
       <Text style={styles.fieldName} accessibilityLabel={`${label} label`}>
         {label}
       </Text>

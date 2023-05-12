@@ -2,8 +2,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
-import { gql } from 'src/__generated__';
 import { RootScreenProps } from '@apps/navigator';
+import { gql } from '../../../__generated__';
 import { styles } from './styles';
 
 export interface TruckScanDetailsProps {
