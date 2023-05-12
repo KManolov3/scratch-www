@@ -43,7 +43,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     backgroundColor: Colors.backdropVoid,
     flex: 1,
   },
