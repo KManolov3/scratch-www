@@ -5,67 +5,87 @@ import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Text } from '@components/Text';
-import { gql, DocumentType } from 'src/__generated__';
-import { ScreenProps } from '@config/routes';
-import { ItemDetails } from '../components/ItemDetails';
+import { gql } from 'src/__generated__';
+import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '../components/NoResults';
+import { BatchCountScreenProps } from '../navigator';
 
-// TODO: extract those fields to fragments in subcomponents as needed
-const QUERY = gql(`
-  query manualItemLookup($itemSku: String!) {
-    itemBySku(sku: $itemSku, storeNumber: "0363") {
-      mfrPartNum
-      sku
-      retailPrice
-      onHand
-      planograms {
-        planogramId
-        seqNum
-      }
-      backStockSlots {
-        slotId
-        qty
-      }
+export type LookupType = 'UPC' | 'SKU';
+
+// TODO: Move those below component?
+const ITEM_BY_SKU = gql(`
+  query ManualItemLookup($sku: String!) {
+    itemBySku(sku: $sku, storeNumber: "0363") {
+      ...ItemInfoHeaderFields
+      ...PlanogramFields
+      ...BackstockSlotFields
     },
   }
 `);
 
-type SelectedItemFromQuery = NonNullable<
-  NonNullable<DocumentType<typeof QUERY>['itemBySku']>
->;
+const ITEM_BY_UPC = gql(`
+  query AutomaticItemLookup($upc: String!) {
+    itemByUpc(upc: $upc, storeNumber: "0363") {
+      ...ItemInfoHeaderFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
+// Front Tags Barcode Structure - 99{SKU}{PRICE}
 
 export function BatchCountItemLookup({
-  route: { params },
-}: ScreenProps<'BatchCountItemLookup'>) {
-  const { loading, data, error } = useQuery(QUERY, {
-    // TODO: Handle the case where itemUpc is passed
-    // Ensure only one query is executed.
-    variables: { itemSku: params.itemSku ?? params.itemUpc },
+  route: {
+    params: { type, value },
+  },
+}: BatchCountScreenProps<'ItemLookup'>) {
+  const {
+    loading: isLoadingItemBySku,
+    data: lookupBySku,
+    error: errorBySku,
+  } = useQuery(ITEM_BY_SKU, {
+    variables: { sku: value },
+    skip: type !== 'SKU',
   });
 
-  const itemDetails = useMemo(
-    () =>
-      data?.itemBySku ? (data.itemBySku as SelectedItemFromQuery) : undefined,
-    [data?.itemBySku],
-  );
+  const {
+    loading: isLoadingItemByUpc,
+    data: lookupByUpc,
+    error: errorByUpc,
+  } = useQuery(ITEM_BY_UPC, {
+    variables: { upc: value },
+    skip: type !== 'UPC',
+  });
 
-  if (loading) {
+  const itemDetails = useMemo(() => {
+    if (lookupBySku) {
+      return lookupBySku.itemBySku;
+    }
+
+    if (lookupByUpc) {
+      return lookupByUpc.itemByUpc;
+    }
+  }, [lookupBySku, lookupByUpc]);
+
+  if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
   }
 
-  if (error) {
+  if (errorBySku || errorByUpc) {
     return (
       <View>
-        <Text>{error?.message ?? 'Unknown error'}</Text>
+        <Text>
+          {errorBySku?.message ?? errorByUpc?.message ?? 'Unknown error'}
+        </Text>
       </View>
     );
   }
 
-  // eslint-disable-next-line no-console
-  console.log(itemDetails);
-  if (!data) {
-    return <NoResults />;
+  if (!itemDetails) {
+    return <NoResults lookupType={type} lookupId={value} />;
   }
 
-  return <ItemDetails />;
+  return <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />;
 }

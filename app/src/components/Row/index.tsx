@@ -18,8 +18,14 @@ export interface RowProps {
 export function Row({ label, value, containerStyle, valueStyle }: RowProps) {
   return (
     <View style={[styles.row, containerStyle]}>
-      <Text style={styles.fieldName}>{label} </Text>
-      <Text style={[styles.fieldValue, valueStyle]}>{value ?? 'Unknown'}</Text>
+      <Text style={styles.fieldName} accessibilityLabel={`${label} label`}>
+        {label}
+      </Text>
+      <Text
+        style={[styles.fieldValue, valueStyle]}
+        accessibilityLabel={`${label} value`}>
+        {value ?? 'Unknown'}
+      </Text>
     </View>
   );
 }

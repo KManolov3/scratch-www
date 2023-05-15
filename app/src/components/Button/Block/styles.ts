@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 export const primaryColor = Colors.advanceVoid;
 export const secondaryColor = Colors.lightVoid;
 
-export const iconSize = 16;
+export const iconSize = 24;
 
 export const styles = StyleSheet.create({
   button: {
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   disabledText: {
     color: secondaryColor,
   },
-  icon: {
+  iconMargin: {
     marginRight: 12,
   },
   spinner: {

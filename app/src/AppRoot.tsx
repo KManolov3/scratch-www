@@ -2,11 +2,9 @@ import { useMemo, useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  NativeStackNavigationOptions,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { FontWeight } from '@lib/font';
+import { RootNavigator, RootRouteName } from '@apps/navigator';
 import {
   ApplicationName,
   launchDarklyService,
@@ -14,12 +12,11 @@ import {
 import { Error } from '@components/Error';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { apolloClient } from './config/graphql';
-import { RoutePropTypes, Routes } from './config/routes';
 import { Colors } from './lib/colors';
 
 interface AppRootProps {
   applicationName: ApplicationName;
-  initialRoute: keyof Routes;
+  initialRoute: RootRouteName;
 }
 
 export function AppRoot({ applicationName, initialRoute }: AppRootProps) {
@@ -78,32 +75,6 @@ export function AppRoot({ applicationName, initialRoute }: AppRootProps) {
       </NavigationContainer>
     </ApolloProvider>
   ) : null;
-}
-
-const Stack = createNativeStackNavigator<RoutePropTypes>();
-
-function RootNavigator({
-  initialRoute,
-  screenOptions,
-}: {
-  initialRoute: keyof Routes;
-  screenOptions?: NativeStackNavigationOptions;
-}) {
-  return (
-    <Stack.Navigator
-      initialRouteName={initialRoute}
-      screenOptions={screenOptions}>
-      {Object.entries(Routes).map(([key, route]) => (
-        <Stack.Screen
-          key={key}
-          name={key as keyof Routes}
-          options={{ headerTitle: route.title }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          component={route.component as any}
-        />
-      ))}
-    </Stack.Navigator>
-  );
 }
 
 const styles = StyleSheet.create({
