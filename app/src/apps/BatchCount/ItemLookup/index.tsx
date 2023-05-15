@@ -3,12 +3,15 @@
 
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
-import { ItemDetails } from '@components/ItemDetails';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { noop } from 'lodash-es';
+import { ItemDetails } from '../../../components/ItemDetails';
 import { NoResults } from '../components/NoResults';
 import { BatchCountScreenProps } from '../navigator';
+import { useBatchCountState } from '../state';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -41,6 +44,8 @@ export function BatchCountItemLookup({
     params: { type, value },
   },
 }: BatchCountScreenProps<'ItemLookup'>) {
+  const { submit: submitBatchCount } = useBatchCountState();
+
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,
@@ -69,6 +74,20 @@ export function BatchCountItemLookup({
     }
   }, [lookupBySku, lookupByUpc]);
 
+  const bottomBarActions: Action[] = useMemo(
+    () => [
+      {
+        label: 'FAST ACCEPT',
+        onPress: submitBatchCount,
+      },
+      {
+        label: 'VERIFY',
+        onPress: noop,
+      },
+    ],
+    [submitBatchCount],
+  );
+
   if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
   }
@@ -87,5 +106,16 @@ export function BatchCountItemLookup({
     return <NoResults lookupType={type} lookupId={value} />;
   }
 
-  return <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />;
+  return (
+    <View style={styles.container}>
+      <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />
+      <BottomActionBar actions={bottomBarActions} />
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

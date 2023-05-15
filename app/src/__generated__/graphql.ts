@@ -2,9 +2,15 @@
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -21,7 +27,7 @@ export enum Action {
   Delete = 'DELETE',
   Read = 'READ',
   Refresh = 'REFRESH',
-  Update = 'UPDATE'
+  Update = 'UPDATE',
 }
 
 export type BackStockSlot = {
@@ -116,7 +122,7 @@ export enum CycleCountType {
   RefundCount = 'REFUND_COUNT',
   SystemGenerated = 'SYSTEM_GENERATED',
   SystemRequest = 'SYSTEM_REQUEST',
-  VerifyDueToSale = 'VERIFY_DUE_TO_SALE'
+  VerifyDueToSale = 'VERIFY_DUE_TO_SALE',
 }
 
 export enum ErrorDetail {
@@ -131,7 +137,7 @@ export enum ErrorDetail {
   ThrottledConcurrency = 'THROTTLED_CONCURRENCY',
   ThrottledCpu = 'THROTTLED_CPU',
   Unimplemented = 'UNIMPLEMENTED',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
 }
 
 export enum ErrorType {
@@ -142,7 +148,7 @@ export enum ErrorType {
   PermissionDenied = 'PERMISSION_DENIED',
   Unauthenticated = 'UNAUTHENTICATED',
   Unavailable = 'UNAVAILABLE',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
 }
 
 export type FrontTagItem = {
@@ -200,25 +206,21 @@ export type Mutation = {
   sendCycleCountList?: Maybe<Scalars['Boolean']>;
 };
 
-
 export type MutationContainerTagRequestArgs = {
   data?: InputMaybe<Array<InputMaybe<ContainerData>>>;
   printer?: Scalars['String'];
   storeNumber: Scalars['String'];
 };
 
-
 export type MutationCreateTruckScanArgs = {
   truckScan: TruckScanInput;
 };
-
 
 export type MutationFrontTagRequestArgs = {
   data?: InputMaybe<Array<InputMaybe<FrontTagItem>>>;
   printer?: Scalars['String'];
   storeNumber: Scalars['String'];
 };
-
 
 export type MutationSendCycleCountListArgs = {
   request: CycleCountList;
@@ -243,7 +245,7 @@ export type Pog = {
 
 export enum PrintRequestStatus {
   Accepted = 'ACCEPTED',
-  Error = 'ERROR'
+  Error = 'ERROR',
 }
 
 export type Query = {
@@ -262,46 +264,38 @@ export type Query = {
   truckScansByStore?: Maybe<Array<Maybe<TruckScan>>>;
 };
 
-
 export type QueryBatchCountsArgs = {
   storeNumber: Scalars['String'];
 };
-
 
 export type QueryCycleCountsArgs = {
   completed?: InputMaybe<Scalars['Boolean']>;
   storeNumber: Scalars['String'];
 };
 
-
 export type QueryItemBySkuArgs = {
   sku: Scalars['String'];
   storeNumber: Scalars['String'];
 };
-
 
 export type QueryItemByUpcArgs = {
   storeNumber: Scalars['String'];
   upc: Scalars['String'];
 };
 
-
 export type QueryItemsBySkuListArgs = {
   skus: Array<Scalars['String']>;
   storeNumber: Scalars['String'];
 };
 
-
 export type QueryOutageCountsArgs = {
   storeNumber: Scalars['String'];
 };
-
 
 export type QueryPlanogramsArgs = {
   skuNumber: Scalars['String'];
   storeNumber: Scalars['String'];
 };
-
 
 export type QueryRemoveTruckScanItemArgs = {
   asnReferenceNumber: Scalars['String'];
@@ -309,17 +303,14 @@ export type QueryRemoveTruckScanItemArgs = {
   storeNumber: Scalars['String'];
 };
 
-
 export type QueryTruckScanByAsnArgs = {
   asnReferenceNumber: Scalars['String'];
 };
-
 
 export type QueryTruckScansByStatusArgs = {
   status?: InputMaybe<TruckScanStatus>;
   storeNumber: Scalars['String'];
 };
-
 
 export type QueryTruckScansByStoreArgs = {
   status?: InputMaybe<TruckScanStatus>;
@@ -331,8 +322,42 @@ export enum Status {
   InProgress = 'IN_PROGRESS',
   NotStarted = 'NOT_STARTED',
   Pending = 'PENDING',
-  Verify = 'VERIFY'
+  Verify = 'VERIFY',
 }
+
+export enum SubmitCycleCountError {
+  AlreadyCompleted = 'ALREADY_COMPLETED',
+  AlreadySubmitted = 'ALREADY_SUBMITTED',
+  LocationsNotCompleted = 'LOCATIONS_NOT_COMPLETED',
+  NotFound = 'NOT_FOUND',
+  NotStarted = 'NOT_STARTED',
+  Other = 'OTHER',
+}
+
+export type SubmitCycleCountResult = {
+  __typename?: 'SubmitCycleCountResult';
+  cycleCount?: Maybe<CycleCount>;
+  error?: Maybe<SubmitCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export enum TakeOverCycleCountError {
+  NotInProgress = 'NOT_IN_PROGRESS',
+  Other = 'OTHER',
+}
+
+export type TakeOverCycleCountResult = {
+  __typename?: 'TakeOverCycleCountResult';
+  cycleCount?: Maybe<CycleCount>;
+  error?: Maybe<TakeOverCycleCountError>;
+  errorMessage?: Maybe<Scalars['String']>;
+};
+
+export type TeamMember = {
+  __typename?: 'TeamMember';
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
 
 export type TruckScan = {
   __typename?: 'TruckScan';
@@ -368,7 +393,7 @@ export type TruckScanItemInput = {
 
 export enum TruckScanStatus {
   Closed = 'CLOSED',
-  Open = 'OPEN'
+  Open = 'OPEN',
 }
 
 export type UpdateCycleCountRequest = {
@@ -392,47 +417,828 @@ export type ManualItemLookupQueryVariables = Exact<{
   sku: Scalars['String'];
 }>;
 
-
-export type ManualItemLookupQuery = { __typename?: 'Query', itemBySku?: { __typename?: 'Item', mfrPartNum?: string | null, sku?: string | null, retailPrice?: number | null, onHand?: number | null, partDesc?: string | null, backStockSlots?: Array<{ __typename?: 'BackStockSlot', qty?: number | null, slotId?: number | null } | null> | null, planograms?: Array<{ __typename?: 'Planogram', planogramId?: string | null, seqNum?: number | null } | null> | null } | null };
+export type ManualItemLookupQuery = {
+  __typename?: 'Query';
+  itemBySku?: {
+    __typename?: 'Item';
+    mfrPartNum?: string | null;
+    sku?: string | null;
+    retailPrice?: number | null;
+    onHand?: number | null;
+    partDesc?: string | null;
+    backStockSlots?: Array<{
+      __typename?: 'BackStockSlot';
+      qty?: number | null;
+      slotId?: number | null;
+    } | null> | null;
+    planograms?: Array<{
+      __typename?: 'Planogram';
+      planogramId?: string | null;
+      seqNum?: number | null;
+    } | null> | null;
+  } | null;
+};
 
 export type AutomaticItemLookupQueryVariables = Exact<{
   upc: Scalars['String'];
 }>;
 
+export type AutomaticItemLookupQuery = {
+  __typename?: 'Query';
+  itemByUpc?: {
+    __typename?: 'Item';
+    mfrPartNum?: string | null;
+    sku?: string | null;
+    retailPrice?: number | null;
+    onHand?: number | null;
+    partDesc?: string | null;
+    backStockSlots?: Array<{
+      __typename?: 'BackStockSlot';
+      qty?: number | null;
+      slotId?: number | null;
+    } | null> | null;
+    planograms?: Array<{
+      __typename?: 'Planogram';
+      planogramId?: string | null;
+      seqNum?: number | null;
+    } | null> | null;
+  } | null;
+};
 
-export type AutomaticItemLookupQuery = { __typename?: 'Query', itemByUpc?: { __typename?: 'Item', mfrPartNum?: string | null, sku?: string | null, retailPrice?: number | null, onHand?: number | null, partDesc?: string | null, backStockSlots?: Array<{ __typename?: 'BackStockSlot', qty?: number | null, slotId?: number | null } | null> | null, planograms?: Array<{ __typename?: 'Planogram', planogramId?: string | null, seqNum?: number | null } | null> | null } | null };
+export type SubmitBatchCountMutationVariables = Exact<{
+  request: CycleCountList;
+}>;
 
-export type CycleCountCardFragmentFragment = { __typename?: 'CycleCount', cycleCountId?: number | null, cycleCountName?: string | null, dueDate?: string | null };
+export type SubmitBatchCountMutation = {
+  __typename?: 'Mutation';
+  sendCycleCountList?: boolean | null;
+};
 
-export type CycleCountContextQueryVariables = Exact<{ [key: string]: never; }>;
+export type CycleCountCardFragmentFragment = {
+  __typename?: 'CycleCount';
+  cycleCountId?: number | null;
+  cycleCountName?: string | null;
+  dueDate?: string | null;
+};
 
+export type CycleCountContextQueryVariables = Exact<{ [key: string]: never }>;
 
-export type CycleCountContextQuery = { __typename?: 'Query', cycleCounts?: Array<{ __typename?: 'CycleCount', storeNumber?: string | null, cycleCountType?: CycleCountType | null, cycleCountId?: number | null, cycleCountName?: string | null, dueDate?: string | null, items?: Array<{ __typename?: 'Item', sku?: string | null, mfrPartNum?: string | null, partDesc?: string | null, retailPrice?: number | null, planograms?: Array<{ __typename?: 'Planogram', seqNum?: number | null, planogramId?: string | null, description?: string | null } | null> | null } | null> | null } | null> | null };
+export type CycleCountContextQuery = {
+  __typename?: 'Query';
+  cycleCounts?: Array<{
+    __typename?: 'CycleCount';
+    storeNumber?: string | null;
+    cycleCountType?: CycleCountType | null;
+    cycleCountId?: number | null;
+    cycleCountName?: string | null;
+    dueDate?: string | null;
+    items?: Array<{
+      __typename?: 'Item';
+      sku?: string | null;
+      mfrPartNum?: string | null;
+      partDesc?: string | null;
+      retailPrice?: number | null;
+      planograms?: Array<{
+        __typename?: 'Planogram';
+        seqNum?: number | null;
+        planogramId?: string | null;
+        description?: string | null;
+      } | null> | null;
+    } | null> | null;
+  } | null> | null;
+};
 
-export type TruckScanAppQueryVariables = Exact<{ [key: string]: never; }>;
+export type TruckScanAppQueryVariables = Exact<{ [key: string]: never }>;
 
-
-export type TruckScanAppQuery = { __typename?: 'Query', truckScansByStore?: Array<{ __typename?: 'TruckScan', asnReferenceNumber?: string | null, status?: TruckScanStatus | null, storeNumber?: string | null } | null> | null };
+export type TruckScanAppQuery = {
+  __typename?: 'Query';
+  truckScansByStore?: Array<{
+    __typename?: 'TruckScan';
+    asnReferenceNumber?: string | null;
+    status?: TruckScanStatus | null;
+    storeNumber?: string | null;
+  } | null> | null;
+};
 
 export type TruckScanDetailsQueryVariables = Exact<{
   asn: Scalars['String'];
 }>;
 
+export type TruckScanDetailsQuery = {
+  __typename?: 'Query';
+  truckScanByASN?: {
+    __typename?: 'TruckScan';
+    asnReferenceNumber?: string | null;
+    status?: TruckScanStatus | null;
+    storeNumber?: string | null;
+    items?: Array<{
+      __typename?: 'TruckScanItem';
+      sku?: string | null;
+      upc?: string | null;
+      mfrPartNum?: string | null;
+      partDesc?: string | null;
+      expectedCount?: number | null;
+      actualCount?: number | null;
+    } | null> | null;
+  } | null;
+};
 
-export type TruckScanDetailsQuery = { __typename?: 'Query', truckScanByASN?: { __typename?: 'TruckScan', asnReferenceNumber?: string | null, status?: TruckScanStatus | null, storeNumber?: string | null, items?: Array<{ __typename?: 'TruckScanItem', sku?: string | null, upc?: string | null, mfrPartNum?: string | null, partDesc?: string | null, expectedCount?: number | null, actualCount?: number | null } | null> | null } | null };
+export type ItemInfoHeaderFieldsFragment = {
+  __typename?: 'Item';
+  mfrPartNum?: string | null;
+  sku?: string | null;
+  retailPrice?: number | null;
+  onHand?: number | null;
+  partDesc?: string | null;
+  backStockSlots?: Array<{
+    __typename?: 'BackStockSlot';
+    qty?: number | null;
+  } | null> | null;
+};
 
-export type ItemInfoHeaderFieldsFragment = { __typename?: 'Item', mfrPartNum?: string | null, sku?: string | null, retailPrice?: number | null, onHand?: number | null, partDesc?: string | null, backStockSlots?: Array<{ __typename?: 'BackStockSlot', qty?: number | null } | null> | null };
+export type BackstockSlotFieldsFragment = {
+  __typename?: 'Item';
+  backStockSlots?: Array<{
+    __typename?: 'BackStockSlot';
+    slotId?: number | null;
+    qty?: number | null;
+  } | null> | null;
+};
 
-export type BackstockSlotFieldsFragment = { __typename?: 'Item', backStockSlots?: Array<{ __typename?: 'BackStockSlot', slotId?: number | null, qty?: number | null } | null> | null };
+export type PlanogramFieldsFragment = {
+  __typename?: 'Item';
+  planograms?: Array<{
+    __typename?: 'Planogram';
+    planogramId?: string | null;
+    seqNum?: number | null;
+  } | null> | null;
+};
 
-export type PlanogramFieldsFragment = { __typename?: 'Item', planograms?: Array<{ __typename?: 'Planogram', planogramId?: string | null, seqNum?: number | null } | null> | null };
-
-export const CycleCountCardFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CycleCountCardFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CycleCount"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}}]}}]} as unknown as DocumentNode<CycleCountCardFragmentFragment, unknown>;
-export const ItemInfoHeaderFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ItemInfoHeaderFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"onHand"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}}]} as unknown as DocumentNode<ItemInfoHeaderFieldsFragment, unknown>;
-export const BackstockSlotFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BackstockSlotFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slotId"}},{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}}]} as unknown as DocumentNode<BackstockSlotFieldsFragment, unknown>;
-export const PlanogramFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PlanogramFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planograms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planogramId"}},{"kind":"Field","name":{"kind":"Name","value":"seqNum"}}]}}]}}]} as unknown as DocumentNode<PlanogramFieldsFragment, unknown>;
-export const ManualItemLookupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ManualItemLookup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sku"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemBySku"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"sku"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sku"}}},{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ItemInfoHeaderFields"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"PlanogramFields"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"BackstockSlotFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ItemInfoHeaderFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"onHand"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PlanogramFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planograms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planogramId"}},{"kind":"Field","name":{"kind":"Name","value":"seqNum"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BackstockSlotFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slotId"}},{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}}]} as unknown as DocumentNode<ManualItemLookupQuery, ManualItemLookupQueryVariables>;
-export const AutomaticItemLookupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AutomaticItemLookup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"upc"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemByUpc"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"upc"},"value":{"kind":"Variable","name":{"kind":"Name","value":"upc"}}},{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ItemInfoHeaderFields"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"PlanogramFields"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"BackstockSlotFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ItemInfoHeaderFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"onHand"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PlanogramFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planograms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"planogramId"}},{"kind":"Field","name":{"kind":"Name","value":"seqNum"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BackstockSlotFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Item"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"backStockSlots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slotId"}},{"kind":"Field","name":{"kind":"Name","value":"qty"}}]}}]}}]} as unknown as DocumentNode<AutomaticItemLookupQuery, AutomaticItemLookupQueryVariables>;
-export const CycleCountContextDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CycleCountContext"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountType"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"CycleCountCardFragment"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"planograms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"seqNum"}},{"kind":"Field","name":{"kind":"Name","value":"planogramId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CycleCountCardFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CycleCount"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cycleCountId"}},{"kind":"Field","name":{"kind":"Name","value":"cycleCountName"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}}]}}]} as unknown as DocumentNode<CycleCountContextQuery, CycleCountContextQueryVariables>;
-export const TruckScanAppDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"truckScanApp"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"truckScansByStore"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"storeNumber"},"value":{"kind":"StringValue","value":"0363","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asnReferenceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}}]}}]}}]} as unknown as DocumentNode<TruckScanAppQuery, TruckScanAppQueryVariables>;
-export const TruckScanDetailsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"truckScanDetails"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"asn"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"truckScanByASN"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"asnReferenceNumber"},"value":{"kind":"Variable","name":{"kind":"Name","value":"asn"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"asnReferenceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"storeNumber"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"upc"}},{"kind":"Field","name":{"kind":"Name","value":"mfrPartNum"}},{"kind":"Field","name":{"kind":"Name","value":"partDesc"}},{"kind":"Field","name":{"kind":"Name","value":"expectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"actualCount"}}]}}]}}]}}]} as unknown as DocumentNode<TruckScanDetailsQuery, TruckScanDetailsQueryVariables>;
+export const CycleCountCardFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CycleCountCardFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CycleCount' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'cycleCountId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cycleCountName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'dueDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CycleCountCardFragmentFragment, unknown>;
+export const ItemInfoHeaderFieldsFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ItemInfoHeaderFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'mfrPartNum' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sku' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'retailPrice' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'onHand' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'partDesc' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ItemInfoHeaderFieldsFragment, unknown>;
+export const BackstockSlotFieldsFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BackstockSlotFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'slotId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<BackstockSlotFieldsFragment, unknown>;
+export const PlanogramFieldsFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'PlanogramFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'planograms' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'planogramId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'seqNum' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PlanogramFieldsFragment, unknown>;
+export const ManualItemLookupDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ManualItemLookup' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sku' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'itemBySku' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sku' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'sku' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'storeNumber' },
+                value: { kind: 'StringValue', value: '0363', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'ItemInfoHeaderFields' },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'PlanogramFields' },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'BackstockSlotFields' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ItemInfoHeaderFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'mfrPartNum' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sku' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'retailPrice' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'onHand' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'partDesc' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'PlanogramFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'planograms' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'planogramId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'seqNum' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BackstockSlotFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'slotId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ManualItemLookupQuery,
+  ManualItemLookupQueryVariables
+>;
+export const AutomaticItemLookupDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'AutomaticItemLookup' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'upc' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'itemByUpc' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'upc' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'upc' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'storeNumber' },
+                value: { kind: 'StringValue', value: '0363', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'ItemInfoHeaderFields' },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'PlanogramFields' },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'BackstockSlotFields' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ItemInfoHeaderFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'mfrPartNum' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'sku' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'retailPrice' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'onHand' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'partDesc' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'PlanogramFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'planograms' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'planogramId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'seqNum' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'BackstockSlotFields' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'Item' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'backStockSlots' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'slotId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'qty' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AutomaticItemLookupQuery,
+  AutomaticItemLookupQueryVariables
+>;
+export const SubmitBatchCountDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SubmitBatchCount' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'request' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CycleCountList' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sendCycleCountList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'request' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'request' },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  SubmitBatchCountMutation,
+  SubmitBatchCountMutationVariables
+>;
+export const CycleCountContextDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CycleCountContext' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cycleCounts' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'storeNumber' },
+                value: { kind: 'StringValue', value: '0363', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'storeNumber' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cycleCountType' },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'CycleCountCardFragment' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'sku' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'mfrPartNum' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'partDesc' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'retailPrice' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'planograms' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'seqNum' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'planogramId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'description' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CycleCountCardFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'CycleCount' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'cycleCountId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'cycleCountName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'dueDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CycleCountContextQuery,
+  CycleCountContextQueryVariables
+>;
+export const TruckScanAppDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'truckScanApp' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'truckScansByStore' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'storeNumber' },
+                value: { kind: 'StringValue', value: '0363', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'asnReferenceNumber' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'storeNumber' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TruckScanAppQuery, TruckScanAppQueryVariables>;
+export const TruckScanDetailsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'truckScanDetails' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'asn' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'truckScanByASN' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'asnReferenceNumber' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'asn' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'asnReferenceNumber' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'storeNumber' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'sku' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'upc' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'mfrPartNum' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'partDesc' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'expectedCount' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'actualCount' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  TruckScanDetailsQuery,
+  TruckScanDetailsQueryVariables
+>;

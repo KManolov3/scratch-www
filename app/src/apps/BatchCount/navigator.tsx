@@ -11,6 +11,7 @@ import {
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from './Home';
 import { BatchCountItemLookup, LookupType } from './ItemLookup';
+import { BatchCountStateProvider } from './state';
 
 type Routes = {
   Home: { shouldFocusSearch?: boolean };
@@ -21,11 +22,13 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export function BatchCountNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={BatchCountHome} />
+    <BatchCountStateProvider>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={BatchCountHome} />
 
-      <Stack.Screen name="ItemLookup" component={BatchCountItemLookup} />
-    </Stack.Navigator>
+        <Stack.Screen name="ItemLookup" component={BatchCountItemLookup} />
+      </Stack.Navigator>
+    </BatchCountStateProvider>
   );
 }
 
