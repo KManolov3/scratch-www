@@ -1,4 +1,8 @@
 export class BatchCountItemLookupPage {
+  get headerText() {
+    return '[text=ItemLookup]';
+  }
+
   get backButton() {
     return '[content-desc=Navigate up]';
   }

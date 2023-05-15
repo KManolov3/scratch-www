@@ -21,6 +21,9 @@ fi
 echo -e "${GREEN}> Launching app: $APP_ACTIVITY${WHITE}"
 echo  -e "${GREEN}> Used device: $DEVICE_NAME${WHITE}"
 
+# waiting the emulator to start adb reverse
+sleep 2
+
 cd ../../../app && npm run adb:reverse
 
 cd ../e2e-tests

@@ -48,8 +48,6 @@ export const config: WebdriverIO.Config = {
 
       newCommandTimeout: 240,
       maxInstances: 1,
-      noReset: true,
-      dontStopAppOnReset: true,
     },
   ],
 

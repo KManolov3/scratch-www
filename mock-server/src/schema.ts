@@ -73,10 +73,10 @@ const mocks: IMocks = {
     description: () => faker.commerce.productDescription(),
     seqNum: faker.datatype.number(),
   },
-  
+
   BackStockSlot: {
     slotId: () => faker.datatype.number({ min: 0, max: 99999999 }),
-    qty: quantityFaker, 
+    qty: quantityFaker,
   },
 
   Pog: {
@@ -116,6 +116,8 @@ export const schema = addMocksToSchema({
 
     Mutation: {
       testSetData(_, { input }) {
+        // TODO:
+        // use generated type from graphql for the "item" parameter
         const items = input.items.map((item: any) => {
           const id = `${input.storeNumber}-${item.sku}`;
           store.set('Item', id, item);
@@ -125,10 +127,9 @@ export const schema = addMocksToSchema({
 
         return { items };
       },
-      // TODO:
-      // testClearData() {
-      //   store.reset();
-      // },
+      testClearData() {
+        store.reset();
+      },
     },
   }),
 });

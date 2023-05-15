@@ -23,7 +23,7 @@ export class BatchCountController {
   }
 
   async searchForSku(product: Product) {
-    await waitFor(this.pages.homePage.headerText, 10000);
+    await waitFor(this.pages.homePage.searchForSkuInput, 15000);
     await waitAndClick(this.pages.homePage.searchForSkuInput);
     await setValue(this.pages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
@@ -31,47 +31,60 @@ export class BatchCountController {
   }
 
   async expectProductInfo(product: Product) {
-    await expectElementText(
-      this.pages.itemLookupPage.productName,
-      product.partDesc
-    );
+    if (product.partDesc) {
+      await expectElementText(
+        this.pages.itemLookupPage.productName,
+        product.partDesc
+      );
+    }
 
-    await expectElementText(
-      this.pages.itemLookupPage.partNumber,
-      product.mfrPartNum
-    );
+    if (product.mfrPartNum) {
+      await expectElementText(
+        this.pages.itemLookupPage.partNumber,
+        product.mfrPartNum
+      );
+    }
+
     await expectElementText(this.pages.itemLookupPage.sku, product.sku);
 
-    await expectElementText(
-      this.pages.itemLookupPage.price,
-      `$${product.retailPrice}`
-    );
+    if (product.retailPrice) {
+      await expectElementText(
+        this.pages.itemLookupPage.price,
+        `$${product.retailPrice}`
+      );
+    }
 
-    await expectElementText(
-      this.pages.itemLookupPage.currentQuantity,
-      `${product.onHand}`
-    );
+    if (product.onHand) {
+      await expectElementText(
+        this.pages.itemLookupPage.currentQuantity,
+        `${product.onHand}`
+      );
+    }
 
-    await expectElementText(
-      this.pages.itemLookupPage.planogramInfoByRowNumber(1).locationId,
-      product.planograms[0].planogramId
-    );
+    if (product.planograms) {
+      await expectElementText(
+        this.pages.itemLookupPage.planogramInfoByRowNumber(1).locationId,
+        product.planograms[0].planogramId
+      );
 
-    await expectElementText(
-      this.pages.itemLookupPage.planogramInfoByRowNumber(1).seqNumber,
-      `${product.planograms[0].seqNum}`
-    );
+      await expectElementText(
+        this.pages.itemLookupPage.planogramInfoByRowNumber(1).seqNumber,
+        `${product.planograms[0].seqNum}`
+      );
+    }
 
-    await waitAndClick(this.pages.itemLookupPage.slotLocationsButton);
+    if (product.backStockSlots) {
+      await waitAndClick(this.pages.itemLookupPage.slotLocationsButton);
 
-    await expectElementText(
-      this.pages.itemLookupPage.slotInfoByRowNumber(1).locationId,
-      `${product.backStockSlots[0].slotId}`
-    );
+      await expectElementText(
+        this.pages.itemLookupPage.slotInfoByRowNumber(1).locationId,
+        `${product.backStockSlots[0].slotId}`
+      );
 
-    await expectElementText(
-      this.pages.itemLookupPage.slotInfoByRowNumber(1).quantity,
-      `${product.backStockSlots[0].qty}`
-    );
+      await expectElementText(
+        this.pages.itemLookupPage.slotInfoByRowNumber(1).quantity,
+        `${product.backStockSlots[0].qty}`
+      );
+    }
   }
 }

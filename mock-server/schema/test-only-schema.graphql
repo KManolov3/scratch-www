@@ -1,6 +1,6 @@
 extend type Mutation {
   testSetData(input: TestDataInput!): TestSetDataResult!
-  # TOOD: testClearData()
+  testClearData: String
 }
 
 input TestItemInput {

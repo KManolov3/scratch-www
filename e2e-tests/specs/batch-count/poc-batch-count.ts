@@ -1,14 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
-import { expectElementText, waitAndClick } from '../../methods/helpers.ts';
+import { waitAndClick } from '../../methods/helpers.ts';
 import { Product } from '../../models/product-model.ts';
 
 const testData = new TestDataController();
 
 describe('Batch Count', () => {
+  afterEach(async () => {
+    await driver.reloadSession();
+    await testData.clearData();
+  });
+
   it('manually entering a SKU should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
     const products: Product[] = [
       {
@@ -37,26 +39,7 @@ describe('Batch Count', () => {
 
     for (const [index, product] of batchCount.products.entries()) {
       await batchCount.searchForSku(product);
-      await expectElementText(
-        batchCount.pages.itemLookupPage.productName,
-        product.partDesc
-      );
-
-      await expectElementText(
-        batchCount.pages.itemLookupPage.partNumber,
-        product.mfrPartNum
-      );
-      await expectElementText(batchCount.pages.itemLookupPage.sku, product.sku);
-
-      await expectElementText(
-        batchCount.pages.itemLookupPage.price,
-        `$${product.retailPrice}`
-      );
-
-      await expectElementText(
-        batchCount.pages.itemLookupPage.currentQuantity,
-        `${product.onHand}`
-      );
+      await batchCount.expectProductInfo(product);
 
       if (index !== batchCount.products.length - 1) {
         await waitAndClick(batchCount.pages.itemLookupPage.backButton);

@@ -1,6 +1,6 @@
 export class BatchCountHomePage {
   get headerText() {
-    return '[text=BatchCountHome]';
+    return '[text=Home]';
   }
 
   get searchForSkuInput() {

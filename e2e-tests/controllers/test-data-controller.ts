@@ -1,5 +1,8 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client/core/index.js';
 import { Product } from '../models/product-model.ts';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export class TestDataController {
   private cache = new InMemoryCache();
@@ -15,6 +18,8 @@ export class TestDataController {
     defaultOptions: {},
   });
 
+  // TODO:
+  // use generated type from graphql for the "input" parameter
   async setData(input: { items: Product[]; storeNumber: string }) {
     return await this.graphqlClient.mutate({
       mutation: gql(`
@@ -29,6 +34,15 @@ export class TestDataController {
         }
       `),
       variables: { input },
+    });
+  }
+
+  async clearData() {
+    return await this.graphqlClient.mutate({
+      mutation: gql(`mutation Mutation {
+        testClearData
+      }
+      `),
     });
   }
 }
