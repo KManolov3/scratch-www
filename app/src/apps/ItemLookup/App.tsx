@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
+import { InStoreAppsNative } from 'rtn-in-store-apps/js/index';
 import { AppRoot } from '../../AppRoot';
-import { InStoreAppsNative } from 'rtn-in-store-apps';
 
 export function ItemLookupApp() {
   useEffect(() => {
-    InStoreAppsNative?.add(1, 41).then(result => console.log(result));
+    setInterval(() => {
+      // eslint-disable-next-line no-console
+      InStoreAppsNative?.add(1, 41).then(result => console.log(result));
+    }, 2000);
   }, []);
 
   return (
