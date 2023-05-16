@@ -3,11 +3,13 @@
 
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
+import { noop } from 'lodash-es';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -69,6 +71,16 @@ export function ItemLookupItemLookup({
     }
   }, [lookupBySku, lookupByUpc]);
 
+  const bottomBarActions = useMemo<Action[]>(
+    () => [
+      {
+        label: 'Print Front Tag',
+        onPress: noop,
+      },
+    ],
+    [],
+  );
+
   if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
   }
@@ -88,6 +100,15 @@ export function ItemLookupItemLookup({
   }
 
   return (
-    <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+    <View style={styles.container}>
+      <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+      <BottomActionBar actions={bottomBarActions} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
