@@ -1,27 +1,38 @@
+#!/bin/sh
+
+if [[ $# != 1 ]]; then
+    echo "Usage: $0 <barcode>"
+    exit -1
+fi
+
+BARCODE="$1"
+
 # Example output: "    mResumedActivity: ActivityRecord{b365d00 u0 com.advanceautoparts.instoreapps/.activities.ItemLookupActivity t60}"
 CURRENT_ACTIVITY="$(adb shell dumpsys activity activities | grep mResumedActivity)"
 
 case "$CURRENT_ACTIVITY" in
     *ItemLookupActivity*)
-        INTENT="com.advanceautoparts.instoreapps.itemlookup.datawedge.SCAN"
+        CATEGORY="com.advanceautoparts.instoreapps.itemlookup.SCANNER"
         ;;
     *CycleCountActivity*)
-        INTENT="com.advanceautoparts.instoreapps.cyclecount.datawedge.SCAN"
+        CATEGORY="com.advanceautoparts.instoreapps.cyclecount.SCANNER"
         ;;
     *BatchCountActivity*)
-        INTENT="com.advanceautoparts.instoreapps.batchcount.datawedge.SCAN"
+        CATEGORY="com.advanceautoparts.instoreapps.batchcount.SCANNER"
         ;;
     *TruckDetailScanActivity*)
-        INTENT="com.advanceautoparts.instoreapps.truckscan.datawedge.SCAN"
+        CATEGORY="com.advanceautoparts.instoreapps.truckscan.SCANNER"
         ;;
     *)
         echo "Unknown activity is in the foreground"
-        exit -1
+        exit 1
         ;;
 esac
 
 adb shell \
     am start \
-        -a "$INTENT" \
-        -c android.intent.category.DEFAULT \
+        -a "com.advanceautoparts.instoreapps.SCAN" \
+        -c "$CATEGORY" \
+        --es com.symbol.datawedge.label_type "LABEL-TYPE-CODE128" \
+        --es com.symbol.datawedge.data_string "$BARCODE" \
         --activity-single-top

@@ -26,8 +26,9 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.cyclecount.datawedge.SCAN" />
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.cyclecount.SCANNER" />
             </intent-filter>
         </activity>
 
@@ -46,8 +47,9 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.batchcount.datawedge.SCAN" />
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.batchcount.SCANNER" />
             </intent-filter>
         </activity>
 
@@ -66,8 +68,9 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.itemlookup.datawedge.SCAN" />
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.itemlookup.SCANNER" />
             </intent-filter>
         </activity>
 
@@ -86,8 +89,9 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.truckscan.datawedge.SCAN" />
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.truckscan.SCANNER" />
             </intent-filter>
         </activity>
 
