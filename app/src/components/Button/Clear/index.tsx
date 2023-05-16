@@ -15,9 +15,9 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export type ClearButtonRef = React.RefObject<TouchableOpacity>;
+export type ClearButtonRef = TouchableOpacity;
 
-export const ClearButton = React.forwardRef<TouchableOpacity, Props>(
+export const ClearButton = React.forwardRef<ClearButtonRef, Props>(
   ({ onClear, setValue, value, style }, ref) => {
     if (value.length === 0) {
       return null;
