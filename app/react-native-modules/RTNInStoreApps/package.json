@@ -6,7 +6,7 @@
   "source": "js/index",
   "main": "js/index.ts",
   "scripts": {
-    "codegen": "cd ../../app/android; ./gradlew generateCodegenArtifactsFromSchema"
+    "codegen": "cd ../../android; ./gradlew generateCodegenArtifactsFromSchema"
   },
   "files": [
     "js",

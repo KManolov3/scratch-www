@@ -1,3 +1,2 @@
-import InStoreAppsNative from './NativeInStoreApps';
-
-export { InStoreAppsNative };
+export { default as InStoreAppsNative } from './NativeInStoreApps';
+export * from './NativeInStoreApps';
