@@ -114,6 +114,7 @@ type NewCycleCount {
   # Only available for cycle counts, `null` for batch counts or outage counts
   locations: [CycleCountLocation!]
   items: [CycleCountItem!]!
+  itemQuantities: [CycleCountItemQuantity!]!
 
   # Only available for cycle counts, `null` for batch counts or outage counts
   dueDate: Date
@@ -138,7 +139,13 @@ type CycleCountLocation {
 }
 
 type CycleCountItem {
+  sku: String!
   item: Item!
+  flagged: Boolean!
+}
+
+type CycleCountItemQuantity {
+  sku: String!
 
   # This may be `null` if the item is not part of a location (planogram or back stock slot).
   # This will show in the `Other` section in the cycle count
@@ -182,6 +189,12 @@ enum CreateCycleCountError {
 input CycleCountUpdateInput {
   locations: [CycleCountUpdateLocationInput!]
   items: [CycleCountUpdateItemInput!]
+  quantities: [CycleCountUpdateItemQuantityInput!]
+}
+
+input CycleCountUpdateItemInput {
+  sku: String!
+  flagged: Boolean!
 }
 
 # Used to update the cycle count location status
@@ -190,9 +203,9 @@ input CycleCountUpdateLocationInput {
   status: CycleCountLocationStatus!
 }
 
-# Used to update the cycle count item quantity per planogram
-input CycleCountUpdateItemInput {
-  itemSku: String!
+# Used to update the cycle count item quantity per location
+input CycleCountUpdateItemQuantityInput {
+  sku: String!
   locationId: String
   quantityAtLocation: Int!
 }
