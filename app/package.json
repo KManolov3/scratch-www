@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
+    "android": "export $(cat .env) && react-native run-android --main-activity .activities.$START_ACTIVITY",
     "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337; adb reverse tcp:8097 tcp:8097",
     "check": "npm run eslint && npm run tsc",
     "tsc": "tsc -p ./ --noEmit",
