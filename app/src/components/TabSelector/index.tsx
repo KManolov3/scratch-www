@@ -23,6 +23,7 @@ export function TabSelector<T extends DefinableStringArray>({
         label={value}
         onPress={() => setSelected(value)}
         style={[styles.pressable, value === selected ? styles.selectedTab : {}]}
+        textStyle={value === selected ? { color: Colors.pure } : {}}
         key={value}
       />
     ));
@@ -32,17 +33,22 @@ export function TabSelector<T extends DefinableStringArray>({
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 0,
+    margin: 13,
+    shadowColor: Colors.advanceVoid,
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 8,
   },
   selectedTab: {
-    backgroundColor: Colors.advanceYellow,
+    backgroundColor: Colors.advanceBlack,
   },
   pressable: {
     flex: 1,
     margin: 0,
     padding: 0,
     borderWidth: 0,
-    borderRadius: 0,
+    borderRadius: 8,
     backgroundColor: Colors.pure,
   },
 });

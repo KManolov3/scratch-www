@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { TabSelector } from '@components/TabSelector';
 import { StyleSheet, View } from 'react-native';
-import { Colors } from '@lib/colors';
 import { compact } from 'lodash-es';
 import { PlanogramsInfo, PlanogramList } from './PlanogramList';
 import { BackstockSlotList, BackstockSlotsInfo } from './BackstockSlotList';
@@ -43,8 +42,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationContainer: {
-    paddingHorizontal: 16,
-    backgroundColor: Colors.backdropVoid,
     flex: 1,
   },
 });

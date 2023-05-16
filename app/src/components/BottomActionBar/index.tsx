@@ -37,12 +37,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    backgroundColor: Colors.pure,
 
     shadowColor: Colors.advanceVoid,
     shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: -2 },
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 8,
   },
   actionStyle: {
     flex: 1,

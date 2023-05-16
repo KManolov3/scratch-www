@@ -63,7 +63,7 @@ export function ItemInfoHeader({
     !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice;
 
   const [priceDiscrepancyModalVisible, setPriceDiscrepancyModalVisible] =
-    useState(false);
+    useState(priceDiscrepancy);
 
   const toggleModal = () => {
     setPriceDiscrepancyModalVisible(visible => !visible);
