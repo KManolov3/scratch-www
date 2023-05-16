@@ -40,9 +40,10 @@ export function TextField({
   );
   return (
     <Container style={containerStyle}>
+      {/* TODO: center icon */}
       <Container style={styles.icon}>{icon}</Container>
       <TextInput
-        style={[styles.input, inputStyle, !!icon && styles.iconIntersection]}
+        style={[styles.input, inputStyle]}
         placeholder={placeholder}
         placeholderTextColor={Colors.lightVoid}
         value={value}
@@ -71,7 +72,6 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 48,
-    marginVertical: 8,
 
     borderWidth: 1,
     borderRadius: 8,
@@ -80,13 +80,13 @@ const styles = StyleSheet.create({
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Medium,
     fontSize: 14,
+
+    paddingLeft: 24,
   },
   icon: {
-    left: 18,
+    right: 18,
     position: 'absolute',
+    alignSelf: 'center',
     zIndex: 1,
-  },
-  iconIntersection: {
-    paddingLeft: 54,
   },
 });

@@ -13,7 +13,7 @@ import { ItemLookupHome } from './Home';
 import { ItemLookupItemLookup, LookupType } from './ItemLookup';
 
 type Routes = {
-  Home: { shouldFocusSearch?: boolean };
+  Home: undefined;
   ItemLookup: { type: LookupType; value: string; frontTagPrice?: number };
 };
 

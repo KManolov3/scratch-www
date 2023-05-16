@@ -60,7 +60,6 @@ export function BatchCountHome({
         onFocus={onFocus}
         onBlur={onBlur}
         onSubmit={onSubmit}
-        isSearchFocused={isSearchFocused}
         inputRef={inputRef}
       />
       {!isSearchFocused && <Barcode />}

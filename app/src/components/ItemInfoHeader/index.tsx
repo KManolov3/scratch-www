@@ -3,13 +3,12 @@ import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
-import { Row } from '@components/Row';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
 import { useEffect, useState } from 'react';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
-import { AttentionIcon } from '@assets/icons';
+// import { AttentionIcon } from '@assets/icons';
 import ding from '@assets/sounds/ding.mp3';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
@@ -93,36 +92,42 @@ export function ItemInfoHeader({
       <Text style={styles.title} accessibilityLabel="Product Title">
         {itemDetails.partDesc}
       </Text>
-      <View style={styles.table}>
-        <View style={styles.column}>
-          <Row label="P/N:" value={itemDetails.mfrPartNum ?? 'undefined'} />
-          <Row label="SKU:" value={itemDetails.sku ?? 'undefined'} />
-          {priceDiscrepancy ? (
-            <Row
-              label="Price:"
-              value={`$${frontTagPrice}`}
-              icon={
-                <AttentionIcon style={styles.icon} width={16} height={16} />
-              }
-              textStyle={{ color: Colors.advanceRed }}
-            />
-          ) : (
-            <Row
-              label="Price:"
-              value={`$${itemDetails.retailPrice ?? 'undefined'}`}
-            />
-          )}
+
+      <View style={styles.rowContainer}>
+        <View style={styles.rowItem}>
+          <Text>SKU</Text>
+          <Text style={styles.header}>{itemDetails.sku}</Text>
         </View>
-        <View style={styles.separator} />
-        <View style={styles.column}>
-          <Row label="Current:" value={itemDetails.onHand ?? 'undefined'} />
-          <Row
-            label="Bk Stk:"
-            value={getBackstockQuantity(itemDetails.backStockSlots)}
-          />
-          {withQuantityAdjustment && <Row label="New" value={newQuantity} />}
+        <View style={styles.rowItem}>
+          <Text>Price</Text>
+          <Text style={styles.header}>${itemDetails.retailPrice}</Text>
         </View>
       </View>
+
+      <View style={styles.rowContainer}>
+        <View style={styles.rowItem}>
+          <Text>Part Number</Text>
+          <Text style={styles.header}>{itemDetails.mfrPartNum}</Text>
+        </View>
+      </View>
+
+      <View style={styles.rowContainer}>
+        <View style={styles.rowItem}>
+          <Text>QOH</Text>
+          <Text style={styles.header}>{itemDetails.onHand}</Text>
+        </View>
+        <View style={styles.rowItem}>
+          <Text>Back Stock</Text>
+          <Text style={styles.header}>
+            {getBackstockQuantity(itemDetails.backStockSlots)}
+          </Text>
+        </View>
+        <View style={styles.rowItem}>
+          <Text>Maxi</Text>
+          <Text style={styles.header}>0</Text>
+        </View>
+      </View>
+
       {withQuantityAdjustment && (
         <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
       )}
@@ -147,27 +152,39 @@ export function ItemInfoHeader({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    gap: 8,
   },
+  header: { fontWeight: FontWeight.Bold, fontSize: 20 },
   title: {
     paddingHorizontal: 16,
     paddingTop: 10,
     fontSize: 20,
-    fontWeight: FontWeight.Demi,
-  },
-  table: {
-    flexDirection: 'row',
-  },
-  column: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  separator: {
-    width: 2,
-    backgroundColor: Colors.darkGray,
+    fontWeight: FontWeight.Bold,
+    marginBottom: 12,
   },
   priceDiscrepancy: {
     color: Colors.advanceRed,
     fontWeight: FontWeight.Demi,
   },
   icon: { margin: 4 },
+  rowContainer: {
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+    gap: 10,
+    marginHorizontal: 8,
+  },
+  rowItem: {
+    flexDirection: 'column',
+    padding: 16,
+    flex: 1,
+    justifyContent: 'flex-start',
+    backgroundColor: Colors.pure,
+    borderRadius: 8,
+
+    shadowColor: Colors.advanceVoid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    shadowOpacity: 0.16,
+    elevation: 8,
+  },
 });
