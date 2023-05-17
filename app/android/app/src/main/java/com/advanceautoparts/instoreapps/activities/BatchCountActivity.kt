@@ -2,8 +2,6 @@ package com.advanceautoparts.instoreapps.activities
 
 import com.advanceautoparts.instoreapps.InStoreAppActivity
 
-class BatchCountActivity: InStoreAppActivity(
-    "com.advanceautoparts.instoreapps.batchcount.SCANNER"
-) {
+class BatchCountActivity: InStoreAppActivity() {
     override fun getMainComponentName() = "BatchCountApp"
 }

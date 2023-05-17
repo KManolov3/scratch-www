@@ -1,47 +1,54 @@
 package com.advanceautoparts.rtninstoreapps
 
-import android.app.Activity
-import android.content.Intent
 import android.util.Log
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.advanceautoparts.rtninstoreapps.NativeInStoreAppsSpec
-import com.facebook.react.bridge.ActivityEventListener
-import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 
-class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInStoreAppsSpec(reactContext), ActivityEventListener {
+class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInStoreAppsSpec(reactContext) {
   companion object {
     const val NAME = "RTNInStoreApps"
   }
 
   override fun getName() = NAME
 
-  private var scanListener: (() -> Int?)? = null
+  private val eventEmitter = reactContext
+    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
-  init {
-      reactContext.addActivityEventListener(this)
-  }
+  private var dataWedge: DataWedge? = null
 
-  override fun initializeScanner(promise: Promise) {
-    Log.d("InStoreAppsModule", "initializeScanner")
+  override fun configureScanner(config: ReadableMap) {
+    Log.d("InStoreAppsModule", "Configuring DataWedge scanner")
 
-    promise.resolve(null)
-  }
+    this.dataWedge?.unsubscribe()
 
-  override fun setScanListener(callback: Callback?) {
-    Log.d("InStoreAppsModule", "setScanListener")
-  }
+    val dataWedge = DataWedge(
+      reactContext = reactContext,
+      appConfig = AppConfig(
+        dataWedgeProfileName = config.getString("profileName")!!,
+        packageName = reactContext.packageName,
+        activityList = listOf(reactContext.currentActivity!!.javaClass.name)
+      ),
+      intentConfig = IntentConfig(
+        action = "com.advanceautoparts.instoreapps.SCAN",
+        category = config.getString("scanIntentCategory")!!
+      )
+    )
+    this.dataWedge = dataWedge
 
-  override fun onActivityResult(activity: Activity?, startCode: Int, resultCode: Int, intent: Intent?) {
-    // Nothing to do here, needs to be implemented because of ActivityEventListener
-  }
+    dataWedge.configureProfile()
+    dataWedge.subscribeForScans {
+      Log.d("InStoreAppsModule", "Received DataWedge scan")
 
-  override fun onNewIntent(intent: Intent) {
-    if (intent.action == "com.advanceautoparts.instoreapps.SCAN") {
-      Log.d("InStoreAppsModule", "Received datawedge scan intent")
+      eventEmitter.emit("scan", it.toJSObject())
     }
   }
 
-  // TODO: We don't need it currently, should we keep it for later or remove it and recreate if needed?
-  private fun inStoreAppsContext() = (reactContext.currentActivity as ActivityWithInStoreAppsContext).inStoreAppsContext
+  override fun addListener(event: String) {
+    // Nothing to do here, this is just a way for the NativeEventEmitter to notify us if we want to handle the subscription event
+  }
+
+  override fun removeListeners(count: Double) {
+    // Nothing to do here, this is just a way for the NativeEventEmitter to notify us if we want to handle the unsubscription events
+  }
 }

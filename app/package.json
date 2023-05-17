@@ -12,7 +12,8 @@
     "test": "jest",
     "graphql:compile": "graphql-codegen",
     "graphql:watch": "graphql-codegen -w",
-    "prepare": "cd .. && husky install ./app/.husky && cd ./app"
+    "prepare": "cd .. && husky install ./app/.husky && cd ./app",
+    "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",

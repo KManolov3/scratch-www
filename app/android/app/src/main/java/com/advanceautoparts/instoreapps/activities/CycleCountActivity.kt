@@ -2,8 +2,6 @@ package com.advanceautoparts.instoreapps.activities
 
 import com.advanceautoparts.instoreapps.InStoreAppActivity
 
-class CycleCountActivity: InStoreAppActivity(
-    "com.advanceautoparts.instoreapps.cyclecount.SCANNER"
-) {
+class CycleCountActivity: InStoreAppActivity() {
     override fun getMainComponentName() = "CycleCountApp"
 }

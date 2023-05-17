@@ -5,9 +5,6 @@
   "react-native": "js/index",
   "source": "js/index",
   "main": "js/index.ts",
-  "scripts": {
-    "codegen": "cd ../../android; ./gradlew generateCodegenArtifactsFromSchema"
-  },
   "files": [
     "js",
     "android",

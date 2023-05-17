@@ -2,8 +2,6 @@ package com.advanceautoparts.instoreapps.activities
 
 import com.advanceautoparts.instoreapps.InStoreAppActivity
 
-class TruckDetailScanActivity: InStoreAppActivity(
-    "com.advanceautoparts.instoreapps.truckscan.SCANNER"
-) {
+class TruckDetailScanActivity: InStoreAppActivity() {
     override fun getMainComponentName() = "TruckDetailScanApp"
 }
