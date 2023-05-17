@@ -90,6 +90,6 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.pure,
   },
 });

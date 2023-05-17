@@ -10,6 +10,9 @@ import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
 import { noop } from 'lodash-es';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { AttentionIcon } from '@assets/icons';
+import { FontWeight } from '@lib/font';
+import { Colors } from '@lib/colors';
 import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -34,6 +37,17 @@ const ITEM_BY_UPC = gql(`
     },
   }
 `);
+
+function PriceDiscrepancyAttention() {
+  return (
+    <View style={styles.priceDiscrepancyAttention}>
+      <AttentionIcon />
+      <Text style={styles.priceDiscrepancyText}>
+        Must Print New System Price
+      </Text>
+    </View>
+  );
+}
 
 // TODO: Expand this so that it supports scanning front tags, which will provide additional info.
 // Front Tags Barcode Structure - 99{SKU}{PRICE}
@@ -76,10 +90,14 @@ export function ItemLookupItemLookup({
       {
         label: 'Print Front Tag',
         onPress: noop,
+        textStyle: styles.bottomBarActionText,
       },
     ],
     [],
   );
+
+  const priceDiscrepancy =
+    !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
@@ -102,7 +120,10 @@ export function ItemLookupItemLookup({
   return (
     <View style={styles.container}>
       <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
-      <BottomActionBar actions={bottomBarActions} />
+      <BottomActionBar
+        actions={bottomBarActions}
+        topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
+      />
     </View>
   );
 }
@@ -110,5 +131,19 @@ export function ItemLookupItemLookup({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  priceDiscrepancyAttention: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  priceDiscrepancyText: {
+    fontWeight: FontWeight.Bold,
+    marginLeft: 8,
+  },
+  bottomBarActionText: {
+    color: Colors.advanceBlack,
+    fontWeight: FontWeight.Bold,
   },
 });

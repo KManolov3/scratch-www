@@ -1,14 +1,14 @@
 import Sound from 'react-native-sound';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
 import { useEffect, useState } from 'react';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
-// import { AttentionIcon } from '@assets/icons';
+import { AttentionIcon } from '@assets/icons';
 import ding from '@assets/sounds/ding.mp3';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
@@ -99,6 +99,7 @@ export function ItemInfoHeader({
           <Text style={styles.header}>{itemDetails.sku}</Text>
         </View>
         <View style={styles.rowItem}>
+          {priceDiscrepancy && <AttentionIcon style={styles.attentionIcon} />}
           <Text>Price</Text>
           <Text style={styles.header}>${itemDetails.retailPrice}</Text>
         </View>
@@ -131,13 +132,6 @@ export function ItemInfoHeader({
       {withQuantityAdjustment && (
         <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
       )}
-      {priceDiscrepancy && (
-        <Pressable onPress={toggleModal}>
-          <Text style={styles.priceDiscrepancy}>
-            Price Discrepancy Detected. SEE MORE
-          </Text>
-        </Pressable>
-      )}
       <PriceDiscrepancyModal
         scanned={frontTagPrice}
         system={itemDetails.retailPrice}
@@ -162,10 +156,6 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.Bold,
     marginBottom: 12,
   },
-  priceDiscrepancy: {
-    color: Colors.advanceRed,
-    fontWeight: FontWeight.Demi,
-  },
   icon: { margin: 4 },
   rowContainer: {
     justifyContent: 'space-around',
@@ -187,4 +177,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.16,
     elevation: 8,
   },
+  attentionIcon: { position: 'absolute', right: 23, top: 21 },
 });

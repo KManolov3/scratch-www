@@ -1,8 +1,14 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
-import { StyleProp, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { ReactNode } from 'react';
+import {
+  StyleProp,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  View,
+} from 'react-native';
 
 export interface Action {
   label: string;
@@ -12,29 +18,36 @@ export interface Action {
 }
 
 export interface BottomActionBarProps {
+  topComponent?: ReactNode;
   actions: Action[];
 }
 
-export function BottomActionBar({ actions }: BottomActionBarProps) {
+export function BottomActionBar({
+  actions,
+  topComponent,
+}: BottomActionBarProps) {
   return (
-    <Container style={styles.container}>
-      {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
-        <BlockButton
-          key={label}
-          label={label}
-          onPress={onPress}
-          id={label}
-          style={[styles.actionStyle, buttonStyle]}
-          textStyle={textStyle}
-        />
-      ))}
-    </Container>
+    <View style={styles.container}>
+      {topComponent}
+      <Container style={styles.actionsContainer}>
+        {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
+          <BlockButton
+            key={label}
+            label={label}
+            onPress={onPress}
+            id={label}
+            style={[styles.actionStyle, buttonStyle]}
+            textStyle={textStyle}
+          />
+        ))}
+      </Container>
+    </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
     marginBottom: 48,
-    justifyContent: 'space-evenly',
+
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     backgroundColor: Colors.pure,
@@ -45,13 +58,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  actionsContainer: { justifyContent: 'space-evenly' },
   actionStyle: {
     flex: 1,
     marginTop: 16,
     // Part of the button is hidden by the phone action bar
     marginBottom: 24,
     borderRadius: 8,
-    color: Colors.advanceBlack,
-    fontWeight: FontWeight.Bold,
   },
 });

@@ -3,7 +3,7 @@ import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { Row } from '@components/Row';
+import { AttentionIcon } from '@assets/icons';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
@@ -27,12 +27,21 @@ export function PriceDiscrepancyModal({
   return (
     <Modal isVisible={isVisible} onBackdropPress={onCancel}>
       <>
+        <View style={styles.attention}>
+          <AttentionIcon height={40} width={40} />
+        </View>
         <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
-        <Text style={styles.informationText}>
-          Press &quot;Print&quot; to get updated front tags.
-        </Text>
-        <Row containerStyle={styles.row} label="Scanned" value={scanned} />
-        <Row containerStyle={styles.row} label="System" value={system} />
+        <Text style={styles.informationText}>Print updated front tag</Text>
+        <View style={styles.buttons}>
+          <View style={styles.rowItem}>
+            <Text>Scanned</Text>
+            <Text style={styles.header}>${scanned}</Text>
+          </View>
+          <View style={styles.rowItem}>
+            <Text>System</Text>
+            <Text style={styles.header}>${system}</Text>
+          </View>
+        </View>
         <View style={styles.buttons}>
           <Pressable onPress={onCancel} style={styles.button}>
             <Text style={styles.buttonText}>Close </Text>
@@ -40,7 +49,7 @@ export function PriceDiscrepancyModal({
           <Pressable
             onPress={onConfirm}
             style={[styles.button, styles.confirmationButton]}>
-            <Text style={styles.buttonText}>Print</Text>
+            <Text style={styles.buttonText}>Print Front Tag</Text>
           </Pressable>
         </View>
       </>
@@ -49,26 +58,33 @@ export function PriceDiscrepancyModal({
 }
 const styles = StyleSheet.create({
   confirmationText: {
-    fontWeight: FontWeight.Demi,
-    marginTop: 10,
-    marginBottom: 10,
+    fontWeight: FontWeight.Bold,
+    marginTop: 12,
+    fontSize: 20,
+    textAlign: 'center',
   },
-  productInformation: {
-    fontWeight: FontWeight.Demi,
-    color: Colors.advanceRed,
+  informationText: {
+    color: Colors.black,
+    textAlign: 'center',
+    lineHeight: 24,
+    fontSize: 16,
+    fontWeight: FontWeight.Book,
   },
   buttons: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
     marginTop: 16,
+    gap: 8,
   },
   button: {
     flex: 1,
     borderRadius: 4,
-    padding: 8,
+    padding: 12,
+    fontSize: 16,
+    fontWeight: FontWeight.Bold,
     backgroundColor: Colors.lightGray,
   },
   confirmationButton: {
-    marginLeft: 16,
     backgroundColor: Colors.advanceYellow,
   },
   buttonText: {
@@ -76,7 +92,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   row: { paddingLeft: 40, paddingRight: 40 },
-  informationText: {
-    color: Colors.lightVoid,
+  attention: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
   },
+  rowItem: {
+    flexDirection: 'column',
+    padding: 16,
+    flex: 1,
+    justifyContent: 'flex-start',
+    backgroundColor: Colors.pure,
+    borderRadius: 8,
+
+    shadowColor: Colors.advanceVoid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    shadowOpacity: 0.16,
+    elevation: 8,
+  },
+  header: { fontWeight: FontWeight.Bold, fontSize: 20 },
 });
