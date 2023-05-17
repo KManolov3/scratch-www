@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { AttentionIcon } from '@assets/icons';
 import ding from '@assets/sounds/ding.mp3';
+import { InformationDisplay } from '@components/InformationDisplay';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -94,39 +95,32 @@ export function ItemInfoHeader({
       </Text>
 
       <View style={styles.rowContainer}>
-        <View style={styles.rowItem}>
-          <Text>SKU</Text>
-          <Text style={styles.header}>{itemDetails.sku}</Text>
-        </View>
-        <View style={styles.rowItem}>
-          {priceDiscrepancy && <AttentionIcon style={styles.attentionIcon} />}
-          <Text>Price</Text>
-          <Text style={styles.header}>${itemDetails.retailPrice}</Text>
-        </View>
+        <InformationDisplay label="SKU" header={itemDetails.sku} />
+        <InformationDisplay
+          label="Price"
+          header={`${itemDetails.retailPrice}`}
+          icon={
+            priceDiscrepancy ? (
+              <AttentionIcon style={styles.attentionIcon} />
+            ) : undefined
+          }
+        />
       </View>
 
       <View style={styles.rowContainer}>
-        <View style={styles.rowItem}>
-          <Text>Part Number</Text>
-          <Text style={styles.header}>{itemDetails.mfrPartNum}</Text>
-        </View>
+        <InformationDisplay
+          label="Part Number"
+          header={itemDetails.mfrPartNum}
+        />
       </View>
 
       <View style={styles.rowContainer}>
-        <View style={styles.rowItem}>
-          <Text>QOH</Text>
-          <Text style={styles.header}>{itemDetails.onHand}</Text>
-        </View>
-        <View style={styles.rowItem}>
-          <Text>Back Stock</Text>
-          <Text style={styles.header}>
-            {getBackstockQuantity(itemDetails.backStockSlots)}
-          </Text>
-        </View>
-        <View style={styles.rowItem}>
-          <Text>Maxi</Text>
-          <Text style={styles.header}>0</Text>
-        </View>
+        <InformationDisplay label="QOH" header={itemDetails.mfrPartNum} />
+        <InformationDisplay
+          label="Back Stock"
+          header={getBackstockQuantity(itemDetails.backStockSlots)}
+        />
+        <InformationDisplay label="Maxi" header={0} />
       </View>
 
       {withQuantityAdjustment && (

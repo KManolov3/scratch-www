@@ -4,6 +4,7 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { AttentionIcon } from '@assets/icons';
+import { InformationDisplay } from '@components/InformationDisplay';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
@@ -33,14 +34,8 @@ export function PriceDiscrepancyModal({
         <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
         <Text style={styles.informationText}>Print updated front tag</Text>
         <View style={styles.buttons}>
-          <View style={styles.rowItem}>
-            <Text>Scanned</Text>
-            <Text style={styles.header}>${scanned}</Text>
-          </View>
-          <View style={styles.rowItem}>
-            <Text>System</Text>
-            <Text style={styles.header}>${system}</Text>
-          </View>
+          <InformationDisplay label="Scanned" header={`${scanned}`} />
+          <InformationDisplay label="System" header={`${system}`} />
         </View>
         <View style={styles.buttons}>
           <Pressable onPress={onCancel} style={styles.button}>
@@ -91,25 +86,9 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.Demi,
     textAlign: 'center',
   },
-  row: { paddingLeft: 40, paddingRight: 40 },
   attention: {
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 30,
   },
-  rowItem: {
-    flexDirection: 'column',
-    padding: 16,
-    flex: 1,
-    justifyContent: 'flex-start',
-    backgroundColor: Colors.pure,
-    borderRadius: 8,
-
-    shadowColor: Colors.advanceVoid,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    shadowOpacity: 0.16,
-    elevation: 8,
-  },
-  header: { fontWeight: FontWeight.Bold, fontSize: 20 },
 });
