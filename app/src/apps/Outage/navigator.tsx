@@ -11,6 +11,7 @@ import {
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import { OutageHome } from './Home';
 import { OutageBatch } from './Batch';
+import { OutageBatchStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
@@ -21,11 +22,13 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export function OutageNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={OutageHome} />
+    <OutageBatchStateProvider>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={OutageHome} />
 
-      <Stack.Screen name="OutageBatch" component={OutageBatch} />
-    </Stack.Navigator>
+        <Stack.Screen name="OutageBatch" component={OutageBatch} />
+      </Stack.Navigator>
+    </OutageBatchStateProvider>
   );
 }
 

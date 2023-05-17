@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import { FixedLayout } from '@layouts/FixedLayout';
 import {
   ActivityIndicator,
@@ -9,42 +8,23 @@ import {
 } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { filterNotNull } from '@lib/array';
-import { gql } from 'src/__generated__';
 import { noop } from 'lodash-es';
 import { BlockButton } from '@components/Button/Block';
 import { Error } from '@components/Error';
 import { OutageItemCard } from '../components/ItemCard';
 import { RemoveItemModal } from './components/RemoveItemModal';
-
-// TODO: Replace storeNumber with an appropriate value
-// instead of using a hardcoded one once we have access to it
-const QUERY = gql(`#graphql
-  query outageBatch {
-    outageCounts(storeNumber: "0363") {
-      cycleCountId
-      cycleCountName
-      cycleCountType
-      groupId
-      groupName
-      items {
-        ...OutageItemCardFragment
-      }
-    }
-  }
-`);
+import { useOutageBatchState } from '../state';
 
 export function OutageBatch() {
-  const { data, loading, error } = useQuery(QUERY);
+  const { outageBatch, error, loading } = useOutageBatchState();
 
   const outageCountItems = useMemo(() => {
-    if (!data || !data.outageCounts) {
+    if (!outageBatch) {
       return [];
     }
 
-    const outageCount = filterNotNull(data.outageCounts)[0];
-
-    return filterNotNull(outageCount?.items ?? []);
-  }, [data]);
+    return filterNotNull(outageBatch.items ?? []);
+  }, [outageBatch]);
 
   const [activeItem, setActiveItem] =
     useState<(typeof outageCountItems)[number]>();
@@ -76,7 +56,8 @@ export function OutageBatch() {
   }
 
   if (error || !outageCountItems) {
-    return <Error message={error?.message} />;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return <Error message={(error as any)?.message} />;
   }
 
   return (
