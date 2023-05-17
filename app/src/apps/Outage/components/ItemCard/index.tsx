@@ -35,12 +35,12 @@ export function OutageItemCard({
 
       <View style={styles.content}>
         <View style={styles.productInformation}>
-          <Row label="P/N:" value={mfrPartNum} />
+          <Row label="P/N:" value={mfrPartNum ?? 'undefined'} />
           {active ? (
             <>
-              <Row label="SKU:" value={sku} />
-              <Row label="Price:" value={retailPrice} />
-              <Row label="Current:" value={onHand} />
+              <Row label="SKU:" value={sku ?? 'undefined'} />
+              <Row label="Price:" value={retailPrice ?? 'undefined'} />
+              <Row label="Current:" value={onHand ?? 'undefined'} />
               {/* <Row label="Maxi:" value={mfrPartNum} /> */}
             </>
           ) : null}
@@ -49,7 +49,7 @@ export function OutageItemCard({
           <View style={styles.quantityInformation}>
             <Row
               label="Current:"
-              value={onHand}
+              value={onHand ?? 'undefined'}
               containerStyle={styles.rowItem}
             />
             <Row label="New:" value={0} valueStyle={styles.zero} />

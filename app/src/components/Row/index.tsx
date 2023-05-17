@@ -10,7 +10,7 @@ import { Text } from '@components/Text';
 
 export interface RowProps {
   label: string;
-  value: string | number | null | undefined;
+  value: string | number;
   containerStyle?: StyleProp<ViewStyle>;
   valueStyle?: StyleProp<TextStyle>;
 }
@@ -24,7 +24,7 @@ export function Row({ label, value, containerStyle, valueStyle }: RowProps) {
       <Text
         style={[styles.fieldValue, valueStyle]}
         accessibilityLabel={`${label} value`}>
-        {value ?? 'Unknown'}
+        {value}
       </Text>
     </View>
   );

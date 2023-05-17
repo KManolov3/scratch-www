@@ -3,9 +3,10 @@ import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { SearchBar } from '@components/SearchBar';
 import { Barcode } from '@components/Barcode';
+import { OutageNavigation } from '../navigator';
 
 export function OutageHome() {
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation<OutageNavigation>();
 
   const onSubmit = useCallback(
     (value: string) =>
