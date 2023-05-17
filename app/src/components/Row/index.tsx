@@ -19,7 +19,7 @@ export function Row({ label, value, containerStyle, valueStyle }: RowProps) {
   return (
     <View style={[styles.row, containerStyle]}>
       <Text style={styles.fieldName} accessibilityLabel={`${label} label`}>
-        {label}
+        {label}{' '}
       </Text>
       <Text
         style={[styles.fieldValue, valueStyle]}
