@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "appium": "appium",
     "start-all-servers": "./start-servers.sh",
     "stop-all-servers": "./stop-servers.sh",
     "e2e": "wdio run wdio.conf.ts",

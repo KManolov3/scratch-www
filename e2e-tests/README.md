@@ -2,18 +2,19 @@
 
 **Table of Contents**
 
-- [Overview](#overview)
-- [Getting started](#getting-started)
-  - [NodeJS](#NodeJS)
-  - [Java OpenJDK](#Java-OpenJDK)
-  - [Android Studio](#android-studio)
-  - [Environment variables ANDROID_HOME and JAVA_HOME](#Environment-variables-ANDROID_HOME-and-JAVA_HOME)
-  - [Appium Inspector](#appium-inspector)
-- [Automation tests setup](#automation-tests-setup)
-- [Execution of e2e tests](#execution-of-e2e-tests)
-  - [Pre-conditions before running tests](#pre-conditions-before-running-tests)
-  - [Execution scripts](#execution-scripts)
-- [Test Reporting](#test-reporting)
+- [In-store apps end-to-end tests](#in-store-apps-end-to-end-tests)
+  - [Overview](#overview)
+  - [Getting started](#getting-started)
+    - [NodeJS](#nodejs)
+    - [Java OpenJDK](#java-openjdk)
+    - [Android Studio](#android-studio)
+    - [Environment variables ANDROID\_HOME and JAVA\_HOME](#environment-variables-android_home-and-java_home)
+    - [Appium Inspector](#appium-inspector)
+  - [Automation tests setup](#automation-tests-setup)
+  - [Execution of e2e tests](#execution-of-e2e-tests)
+    - [Pre-conditions before running tests](#pre-conditions-before-running-tests)
+    - [Execution scripts](#execution-scripts)
+  - [Test Reporting](#test-reporting)
 
 ## Overview
 
@@ -120,7 +121,7 @@ with the app.
 
 1. Inside `app` folder run: `npm start` which will start React Native.
 2. Inside `mock-server` folder run: `npm start` which will start Apollo Server.
-3. Inside `e2e-tests` folder run: `appium` which will start Appium Server.
+3. Inside `e2e-tests` folder run: `npm run appium` which will start Appium Server.
 4. Open Android Studio and start the virtual device.
 
 ### Execution scripts
@@ -136,7 +137,8 @@ should be executed inside `e2e-tests` folder):
    `e2e:<app-name>`. To execute a script use for example
    `npm run e2e:cycle-count` which will run all spec files in `cycle-count`
    directory. If you want to execute only one spec file pass it as an argument
-   to the script - `npm run e2e:cycle-count <file-name>`.
+   to the script - `npm run e2e:cycle-count <file-name>`. 
+   **Note:** here we need exact file name without the `.ts` extension
 
 2. Run the tests for multiple/all applications: again there is a script defined
    in `package.json` file `e2e:multiple-apps`. Running
