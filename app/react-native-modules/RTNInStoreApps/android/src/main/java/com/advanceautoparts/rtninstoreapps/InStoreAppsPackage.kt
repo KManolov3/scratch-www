@@ -20,7 +20,7 @@ class InStoreAppsPackage : TurboReactPackage() {
         InStoreAppsModule.NAME,
         InStoreAppsModule.NAME,
         false, // canOverrideExistingModule
-        true, // needsEagerInit
+        false, // needsEagerInit
         true, // hasConstants
         false, // isCxxModule
         true // isTurboModule
