@@ -1,8 +1,9 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
+import { shadow } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 type DefinableStringArray = ReadonlyArray<string>;
 
@@ -10,12 +11,14 @@ export interface TabSelectorProps<T extends DefinableStringArray> {
   values: T;
   selected: T[number];
   setSelected: (value: T[number]) => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function TabSelector<T extends DefinableStringArray>({
   values,
   selected,
   setSelected,
+  style,
 }: TabSelectorProps<T>) {
   const tabs = useMemo(() => {
     return values.map(value => (
@@ -28,18 +31,10 @@ export function TabSelector<T extends DefinableStringArray>({
       />
     ));
   }, [values, setSelected, selected]);
-  return <Container style={styles.container}>{tabs}</Container>;
+  return <Container style={[shadow, style]}>{tabs}</Container>;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    margin: 13,
-    shadowColor: Colors.advanceVoid,
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 8,
-  },
   selectedTab: {
     backgroundColor: Colors.advanceBlack,
   },

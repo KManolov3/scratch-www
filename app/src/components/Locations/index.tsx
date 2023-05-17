@@ -23,6 +23,7 @@ export function Locations({ locationDetails }: LocationsProps) {
         values={locationTypes}
         selected={selectedValue}
         setSelected={setSelectedValue}
+        style={styles.tabSelector}
       />
       <View style={styles.locationContainer}>
         {selectedValue === 'POG Locations' ? (
@@ -44,4 +45,5 @@ const styles = StyleSheet.create({
   locationContainer: {
     flex: 1,
   },
+  tabSelector: { margin: 13 },
 });

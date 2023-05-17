@@ -1,16 +1,15 @@
-import Sound from 'react-native-sound';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
-import { Colors } from '@lib/colors';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { AttentionIcon } from '@assets/icons';
-import ding from '@assets/sounds/ding.mp3';
-import { InformationDisplay } from '@components/InformationDisplay';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { soundService } from 'src/services/SoundService';
+import { formatPrice } from '@lib/formatPrice';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -71,22 +70,15 @@ export function ItemInfoHeader({
   };
 
   useEffect(() => {
-    const sound = new Sound(ding, error => {
-      if (error) {
-        return;
-      }
-
-      // Play the sound
-      if (priceDiscrepancy) {
-        sound.play();
-      }
-    });
-
-    // Clean up the sound when the component unmounts
-    return () => {
-      sound.release();
-    };
+    if (priceDiscrepancy) {
+      soundService.ding();
+    }
   }, [priceDiscrepancy]);
+
+  const backstockSlots = useMemo(
+    () => getBackstockQuantity(itemDetails.backStockSlots),
+    [itemDetails.backStockSlots],
+  );
 
   return (
     <View style={styles.container}>
@@ -94,52 +86,74 @@ export function ItemInfoHeader({
         {itemDetails.partDesc}
       </Text>
 
-      <View style={styles.rowContainer}>
-        <InformationDisplay label="SKU" header={itemDetails.sku} />
-        <InformationDisplay
+      <View style={styles.row}>
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="SKU"
+          value={itemDetails.sku}
+        />
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
           label="Price"
-          header={`${itemDetails.retailPrice}`}
+          value={
+            itemDetails.retailPrice
+              ? formatPrice(itemDetails.retailPrice)
+              : 'undefined'
+          }
           icon={
             priceDiscrepancy ? (
-              <AttentionIcon style={styles.attentionIcon} />
+              <Pressable onPress={toggleModal}>
+                <AttentionIcon />
+              </Pressable>
             ) : undefined
           }
         />
       </View>
 
-      <View style={styles.rowContainer}>
-        <InformationDisplay
+      <View style={styles.row}>
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
           label="Part Number"
-          header={itemDetails.mfrPartNum}
+          value={itemDetails.mfrPartNum}
         />
       </View>
 
-      <View style={styles.rowContainer}>
-        <InformationDisplay label="QOH" header={itemDetails.mfrPartNum} />
-        <InformationDisplay
-          label="Back Stock"
-          header={getBackstockQuantity(itemDetails.backStockSlots)}
+      <View style={styles.row}>
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="QOH"
+          value={itemDetails.mfrPartNum}
         />
-        <InformationDisplay label="Maxi" header={0} />
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="Back Stock"
+          value={backstockSlots}
+        />
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="Maxi"
+          value={0}
+        />
       </View>
 
       {withQuantityAdjustment && (
         <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
       )}
-      <PriceDiscrepancyModal
-        scanned={frontTagPrice}
-        system={itemDetails.retailPrice}
-        isVisible={priceDiscrepancyModalVisible}
-        onCancel={toggleModal}
-        onConfirm={toggleModal}
-      />
+      {frontTagPrice && itemDetails.retailPrice && (
+        <PriceDiscrepancyModal
+          scanned={frontTagPrice}
+          system={itemDetails.retailPrice}
+          isVisible={priceDiscrepancyModalVisible}
+          onCancel={toggleModal}
+          onConfirm={toggleModal}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     gap: 8,
   },
   header: { fontWeight: FontWeight.Bold, fontSize: 20 },
@@ -151,25 +165,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   icon: { margin: 4 },
-  rowContainer: {
+  row: {
     justifyContent: 'space-around',
     flexDirection: 'row',
     gap: 10,
     marginHorizontal: 8,
   },
-  rowItem: {
-    flexDirection: 'column',
-    padding: 16,
-    flex: 1,
-    justifyContent: 'flex-start',
-    backgroundColor: Colors.pure,
-    borderRadius: 8,
-
-    shadowColor: Colors.advanceVoid,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    shadowOpacity: 0.16,
-    elevation: 8,
-  },
-  attentionIcon: { position: 'absolute', right: 23, top: 21 },
+  itemProperties: { flex: 1 },
 });

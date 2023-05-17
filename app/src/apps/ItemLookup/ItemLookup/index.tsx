@@ -13,6 +13,7 @@ import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { AttentionIcon } from '@assets/icons';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -52,7 +53,7 @@ function PriceDiscrepancyAttention() {
 // TODO: Expand this so that it supports scanning front tags, which will provide additional info.
 // Front Tags Barcode Structure - 99{SKU}{PRICE}
 
-export function ItemLookupItemLookup({
+export function ItemLookupScreen({
   route: {
     params: { type, value, frontTagPrice },
   },
@@ -118,13 +119,13 @@ export function ItemLookupItemLookup({
   }
 
   return (
-    <View style={styles.container}>
+    <FixedLayout style={styles.container}>
       <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
       <BottomActionBar
         actions={bottomBarActions}
         topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
       />
-    </View>
+    </FixedLayout>
   );
 }
 

@@ -10,7 +10,7 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { ItemLookupHome } from './Home';
-import { ItemLookupItemLookup, LookupType } from './ItemLookup';
+import { ItemLookupScreen, LookupType } from './ItemLookup';
 
 type Routes = {
   Home: undefined;
@@ -24,7 +24,7 @@ export function ItemLookupNavigator() {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={ItemLookupHome} />
 
-      <Stack.Screen name="ItemLookup" component={ItemLookupItemLookup} />
+      <Stack.Screen name="ItemLookup" component={ItemLookupScreen} />
     </Stack.Navigator>
   );
 }

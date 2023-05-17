@@ -3,7 +3,8 @@ import { useCallback, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '@components/SearchBar';
-import { Barcode } from '@components/Barcode';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { StyleSheet } from 'react-native';
 import { ItemLookupNavigation } from '../navigator';
 
 export function ItemLookupHome() {
@@ -32,7 +33,14 @@ export function ItemLookupHome() {
   return (
     <FixedLayout>
       <SearchBar onSubmit={onSubmit} inputRef={inputRef} />
-      <Barcode />
+      <ScanBarcodeLabel style={styles.scanBarcode} />
     </FixedLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  scanBarcode: {
+    margin: 20,
+    marginTop: 88,
+  },
+});

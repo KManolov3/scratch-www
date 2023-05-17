@@ -4,12 +4,13 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { AttentionIcon } from '@assets/icons';
-import { InformationDisplay } from '@components/InformationDisplay';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { formatPrice } from '@lib/formatPrice';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
-  scanned?: number;
-  system?: number | null;
+  scanned: number;
+  system: number;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -21,33 +22,35 @@ export function PriceDiscrepancyModal({
   onConfirm,
   onCancel,
 }: PriceDiscrepancyModalModalProps) {
-  if (!scanned || !system) {
-    return null;
-  }
-
   return (
     <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <>
-        <View style={styles.attention}>
-          <AttentionIcon height={40} width={40} />
-        </View>
-        <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
-        <Text style={styles.informationText}>Print updated front tag</Text>
-        <View style={styles.buttons}>
-          <InformationDisplay label="Scanned" header={`${scanned}`} />
-          <InformationDisplay label="System" header={`${system}`} />
-        </View>
-        <View style={styles.buttons}>
-          <Pressable onPress={onCancel} style={styles.button}>
-            <Text style={styles.buttonText}>Close </Text>
-          </Pressable>
-          <Pressable
-            onPress={onConfirm}
-            style={[styles.button, styles.confirmationButton]}>
-            <Text style={styles.buttonText}>Print Front Tag</Text>
-          </Pressable>
-        </View>
-      </>
+      <View style={styles.attention}>
+        <AttentionIcon height={40} width={40} />
+      </View>
+      <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
+      <Text style={styles.informationText}>Print updated front tag</Text>
+      <View style={styles.container}>
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="Scanned"
+          value={formatPrice(scanned)}
+        />
+        <ItemPropertyDisplay
+          style={styles.itemProperties}
+          label="System"
+          value={formatPrice(system)}
+        />
+      </View>
+      <View style={styles.container}>
+        <Pressable onPress={onCancel} style={styles.button}>
+          <Text style={styles.buttonText}>Close</Text>
+        </Pressable>
+        <Pressable
+          onPress={onConfirm}
+          style={[styles.button, styles.confirmationButton]}>
+          <Text style={styles.buttonText}>Print Front Tag</Text>
+        </Pressable>
+      </View>
     </Modal>
   );
 }
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: FontWeight.Book,
   },
-  buttons: {
+  container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 16,
@@ -90,5 +93,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 30,
+  },
+  itemProperties: {
+    flex: 1,
   },
 });
