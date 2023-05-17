@@ -9,16 +9,16 @@ import { TextInputRef } from '@components/TextInput';
 export interface SearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
-  onSubmit: (value: string) => void;
-  allowBarcodeScanning?: boolean;
+  onSubmit?: (value: string) => void;
+  showInformativeMessage?: boolean;
   inputRef?: React.RefObject<TextInputRef>;
 }
 
 export function SearchBar({
   onFocus,
   onBlur,
+  showInformativeMessage = false,
   onSubmit,
-  allowBarcodeScanning = false,
   inputRef,
 }: SearchBarProps) {
   return (
@@ -33,8 +33,7 @@ export function SearchBar({
         inputRef={inputRef}
         clearable
       />
-
-      {allowBarcodeScanning && (
+      {showInformativeMessage && (
         <Container style={styles.detailsContainer}>
           <BarcodeIcon height={iconHeight} width={iconWidth} />
           <Text style={styles.details}>

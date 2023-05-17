@@ -11,11 +11,7 @@ export function BatchCountHome({
     params: { shouldFocusSearch = false } = { shouldFocusSearch: false },
   },
 }: BatchCountScreenProps<'Home'>) {
-  const [showBarcode, setShowBarcode] = useState(true);
-
-  const onFocus = useCallback(() => setShowBarcode(false), [setShowBarcode]);
-  const onBlur = useCallback(() => setShowBarcode(true), [setShowBarcode]);
-
+  const [isSearchFocused, setIsSearchFocused] = useState(shouldFocusSearch);
   const navigation = useNavigation<BatchCountNavigation>();
   const inputRef = useRef<TextInputRef>(null);
 
@@ -26,7 +22,7 @@ export function BatchCountHome({
         return;
       }
 
-      setShowBarcode(false);
+      setIsSearchFocused(true);
       // If this timeout isn't set, the screen blurs at some point
       // shortly after it finishes rendering.
       const timeout = setTimeout(() => {
@@ -39,6 +35,12 @@ export function BatchCountHome({
       return () => clearTimeout(timeout);
     }, [navigation, shouldFocusSearch]),
   );
+  const onFocus = useCallback(() => {
+    setIsSearchFocused(true);
+  }, [setIsSearchFocused]);
+  const onBlur = useCallback(() => {
+    setIsSearchFocused(false);
+  }, [setIsSearchFocused]);
 
   const onSubmit = useCallback(
     (value: string) => {
@@ -58,10 +60,10 @@ export function BatchCountHome({
         onFocus={onFocus}
         onBlur={onBlur}
         onSubmit={onSubmit}
-        allowBarcodeScanning={!showBarcode}
+        showInformativeMessage={isSearchFocused}
         inputRef={inputRef}
       />
-      {showBarcode && <Barcode />}
+      {!isSearchFocused && <Barcode />}
     </FixedLayout>
   );
 }
