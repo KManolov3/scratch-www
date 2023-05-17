@@ -6,36 +6,41 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { filterNotNull } from '@lib/array';
-import { noop } from 'lodash-es';
+import { useCallback, useEffect, useState } from 'react';
 import { BlockButton } from '@components/Button/Block';
-import { Error } from '@components/Error';
+import { useNavigation } from '@react-navigation/native';
 import { OutageItemCard } from '../components/ItemCard';
 import { RemoveItemModal } from './components/RemoveItemModal';
 import { useOutageBatchState } from '../state';
+import { OutageNavigation } from '../navigator';
 
 export function OutageBatch() {
-  const { outageBatch, error, loading } = useOutageBatchState();
+  const { navigate } = useNavigation<OutageNavigation>();
 
-  const outageCountItems = useMemo(() => {
-    if (!outageBatch) {
-      return [];
-    }
-
-    return filterNotNull(outageBatch.items ?? []);
-  }, [outageBatch]);
+  const {
+    outageBatch: outageCountItems,
+    removeItem,
+    submit: submitOutage,
+    submitLoading,
+  } = useOutageBatchState();
 
   const [activeItem, setActiveItem] =
     useState<(typeof outageCountItems)[number]>();
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isRemoveItemModalVisible, setIsRemoveItemModalVisible] =
+    useState(false);
 
   useEffect(() => {
     if (outageCountItems.length > 0) {
       setActiveItem(outageCountItems[outageCountItems.length - 1]);
     }
   }, [outageCountItems]);
+
+  const removeOutageItem = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    removeItem(activeItem?.sku!);
+    setIsRemoveItemModalVisible(false);
+  }, [activeItem?.sku, removeItem]);
 
   const renderItem = useCallback<
     ListRenderItem<(typeof outageCountItems)[number]>
@@ -45,19 +50,19 @@ export function OutageBatch() {
         outageItem={item}
         active={activeItem?.sku === item.sku}
         onPress={() => setActiveItem(item)}
-        removeItem={() => setIsModalVisible(true)}
+        removeItem={() => setIsRemoveItemModalVisible(true)}
       />
     ),
-    [activeItem],
+    [activeItem?.sku],
   );
 
-  if (loading) {
-    return <ActivityIndicator size="large" style={styles.loading} />;
-  }
+  const submitOutageBatch = useCallback(() => {
+    submitOutage();
+    navigate('Home');
+  }, [navigate, submitOutage]);
 
-  if (error || !outageCountItems) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return <Error message={(error as any)?.message} />;
+  if (submitLoading) {
+    return <ActivityIndicator size="large" style={styles.loading} />;
   }
 
   return (
@@ -77,19 +82,18 @@ export function OutageBatch() {
            * KeyboardAvoidingView's styles; fix button position
            * to bottom of screen
            */}
-          <BlockButton label="Complete Outage Count" onPress={noop} />
+          <BlockButton
+            label="Complete Outage Count"
+            onPress={submitOutageBatch}
+          />
         </View>
       </FixedLayout>
 
       <RemoveItemModal
-        isVisible={isModalVisible}
+        isVisible={isRemoveItemModalVisible}
         activeItem={activeItem}
-        /*
-         * TODO: apply a mutation or update local state
-         * to remove item from outage batch
-         */
-        onConfirm={() => setIsModalVisible(false)}
-        onCancel={() => setIsModalVisible(false)}
+        onConfirm={removeOutageItem}
+        onCancel={() => setIsRemoveItemModalVisible(false)}
       />
     </>
   );

@@ -15,7 +15,7 @@ import { OutageBatchStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
-  OutageBatch: { itemSku: string };
+  OutageBatch: undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
