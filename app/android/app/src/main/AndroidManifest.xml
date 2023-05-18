@@ -24,6 +24,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.cyclecount.SCANNER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -38,6 +44,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.batchcount.SCANNER" />
             </intent-filter>
         </activity>
 
@@ -68,6 +80,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.itemlookup.SCANNER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -82,6 +100,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.truckscan.SCANNER" />
             </intent-filter>
         </activity>
 
