@@ -1,12 +1,12 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Modal } from '@components/Modal';
-import { Text } from '@components/Text';
+import { StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { Row } from '@components/Row';
-import { useCallback } from 'react';
+import { DollarSignPosition, convertCurrencyToString } from '@lib/currency';
+import { ActionModal } from '@components/ActionModal';
+import { Text } from '@components/Text';
 
-export interface RemoveItemModalProps {
+export interface ShrinkageOverageModalProps {
   isVisible: boolean;
   shrinkage: number;
   overage: number;
@@ -20,33 +20,34 @@ export function ShrinkageOverageModal({
   overage,
   onConfirm,
   onCancel,
-}: RemoveItemModalProps) {
-  const formatPrice = useCallback((price: number) => `$${price}`, []);
-
+}: ShrinkageOverageModalProps) {
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <>
-        <Text style={[styles.text, styles.bold]}>
-          Outage Shrinkage / Overage
-        </Text>
-        <Text style={styles.text}>
-          This Outage will result in a change at retail of:
-        </Text>
-        <Row label="Shrinkage Dollars" value={formatPrice(shrinkage)} />
-        <Row label="Overage Dollars" value={formatPrice(overage)} />
-        <Row label="Net Dollars" value={`-$${Math.abs(overage - shrinkage)}`} />
-        <View style={styles.buttons}>
-          <Pressable onPress={onCancel} style={styles.button}>
-            <Text style={styles.buttonText}>No</Text>
-          </Pressable>
-          <Pressable
-            onPress={onConfirm}
-            style={[styles.button, styles.confirmationButton]}>
-            <Text style={styles.buttonText}>Yes</Text>
-          </Pressable>
-        </View>
-      </>
-    </Modal>
+    <ActionModal
+      isVisible={isVisible}
+      title="Outage Shrinkage / Overage"
+      onConfirm={onConfirm}
+      onCancel={onCancel}>
+      <Text style={styles.text}>
+        This Outage will result in a change at retail of:
+      </Text>
+
+      <Row
+        label="Shrinkage Dollars"
+        value={convertCurrencyToString(shrinkage)}
+      />
+      <Row label="Overage Dollars" value={convertCurrencyToString(overage)} />
+
+      <View style={styles.divider} />
+
+      <Row
+        label="Net Dollars"
+        value={convertCurrencyToString(
+          overage - shrinkage,
+          DollarSignPosition.INFIX,
+        )}
+        valueStyle={styles.bold}
+      />
+    </ActionModal>
   );
 }
 
@@ -57,22 +58,9 @@ const styles = StyleSheet.create({
   bold: {
     fontWeight: FontWeight.Demi,
   },
-  buttons: {
-    flexDirection: 'row',
-    marginTop: 16,
-  },
-  button: {
-    flex: 1,
-    borderRadius: 4,
-    padding: 8,
-    backgroundColor: Colors.lightGray,
-  },
-  confirmationButton: {
-    marginLeft: 16,
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontWeight: FontWeight.Demi,
-    textAlign: 'center',
+  divider: {
+    height: 1,
+    backgroundColor: Colors.darkGray,
+    marginVertical: 8,
   },
 });
