@@ -1,7 +1,7 @@
+import { TestDataInput } from '__generated__/graphql.ts';
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitAndClick } from '../../methods/helpers.ts';
-import { Product } from '../../models/product-model.ts';
 
 const testData = new TestDataController();
 
@@ -12,7 +12,7 @@ describe('Batch Count', () => {
   });
 
   it('manually entering a SKU should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
-    const products: Product[] = [
+    const items: TestDataInput['items'] = [
       {
         mfrPartNum: '44899',
         partDesc: 'Mobil 1 5W-30 Motor Oil',
@@ -32,16 +32,16 @@ describe('Batch Count', () => {
     await testData.setData({
       // storeNumber must be exactly '0363' because for now it is hardcoded in the app
       storeNumber: '0363',
-      items: products,
+      items: items,
     });
 
-    const batchCount = new BatchCountController(products);
+    const batchCount = new BatchCountController();
 
-    for (const [index, product] of batchCount.products.entries()) {
+    for (const [index, product] of items.entries()) {
       await batchCount.searchForSku(product);
       await batchCount.expectProductInfo(product);
 
-      if (index !== batchCount.products.length - 1) {
+      if (index !== items.length - 1) {
         await waitAndClick(batchCount.pages.itemLookupPage.backButton);
         await waitAndClick(batchCount.pages.homePage.clearSearchField);
       }

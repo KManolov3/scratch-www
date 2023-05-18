@@ -1,8 +1,21 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client/core/index.js';
-import { Product } from '../models/product-model.ts';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core/index.js';
 import * as dotenv from 'dotenv';
+import { gql } from '__generated__/gql.ts';
+import { TestDataInput } from '__generated__/graphql.ts';
 
 dotenv.config();
+
+const SET_DATA_MUTATION = gql(`
+  mutation TestSetData($input: TestDataInput!) {
+    testSetData(input: $input) {
+      items {
+        sku
+        retailPrice
+        onHand
+      }
+    }
+  }
+`);
 
 export class TestDataController {
   private cache = new InMemoryCache();
@@ -18,31 +31,19 @@ export class TestDataController {
     defaultOptions: {},
   });
 
-  // TODO:
-  // use generated type from graphql for the "input" parameter
-  async setData(input: { items: Product[]; storeNumber: string }) {
+  async setData(input: TestDataInput) {
     return await this.graphqlClient.mutate({
-      mutation: gql(`
-        mutation TestSetData($input: TestDataInput!) {
-          testSetData(input: $input) {
-            items {
-              sku
-              retailPrice
-              onHand
-            }
-          }
-        }
-      `),
+      mutation: SET_DATA_MUTATION,
       variables: { input },
     });
   }
 
   async clearData() {
-    return await this.graphqlClient.mutate({
-      mutation: gql(`mutation Mutation {
-        testClearData
-      }
-      `),
-    });
+    // return await this.graphqlClient.mutate({
+    //   mutation: gql(`mutation Mutation {
+    //     testClearData
+    //   }
+    //   `),
+    // });
   }
 }
