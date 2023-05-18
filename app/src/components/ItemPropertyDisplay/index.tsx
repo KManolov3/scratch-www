@@ -3,9 +3,9 @@ import { Text } from '@components/Text';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
-import { shadow } from '@lib/baseStyles';
+import { BaseStyles } from '@lib/baseStyles';
 
-interface ItemProprtDisplayProps {
+interface ItemPropertyDisplayProps {
   label: string;
   value?: string | number | null;
   icon?: ReactNode;
@@ -17,9 +17,9 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
-}: ItemProprtDisplayProps) {
+}: ItemPropertyDisplayProps) {
   return (
-    <View style={[styles.root, shadow, style]}>
+    <View style={[styles.root, BaseStyles.shadow, style]}>
       <View>
         <Text>{label}</Text>
         <Text style={styles.bold}>{value}</Text>

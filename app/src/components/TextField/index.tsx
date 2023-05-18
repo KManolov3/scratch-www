@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { FontWeight } from '@lib/font';
-import { buttonStyle } from '@lib/baseStyles';
+import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
@@ -72,7 +72,7 @@ export function TextField({
 
 const styles = StyleSheet.create({
   clearButton: {
-    ...buttonStyle,
+    ...BaseStyles.button,
     right: 12,
   },
   input: {

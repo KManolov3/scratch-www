@@ -1,6 +1,6 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
-import { shadow } from '@lib/baseStyles';
+import { BaseStyles } from '@lib/baseStyles';
 import { ReactNode } from 'react';
 import {
   StyleProp,
@@ -29,7 +29,7 @@ export function BottomActionBar({
   style,
 }: BottomActionBarProps) {
   return (
-    <View style={[shadow, styles.container, style]}>
+    <View style={[BaseStyles.shadow, styles.container, style]}>
       {topComponent}
       <Container style={styles.actionsContainer}>
         {actions.map(({ label, onPress, buttonStyle, textStyle }) => (

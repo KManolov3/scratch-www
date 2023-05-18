@@ -130,11 +130,15 @@ export function ItemInfoHeader({
           label="Back Stock"
           value={backstockSlots}
         />
-        <ItemPropertyDisplay
+        {/* TODO: Right now the api does not return maxi
+            so we decided to hide it. Add it back when
+            any progress is made
+        */}
+        {/* <ItemPropertyDisplay
           style={styles.itemProperties}
           label="Maxi"
           value={0}
-        />
+        /> */}
       </View>
 
       {withQuantityAdjustment && (

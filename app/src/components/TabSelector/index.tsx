@@ -1,6 +1,6 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
-import { shadow } from '@lib/baseStyles';
+import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { useMemo } from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
@@ -31,7 +31,7 @@ export function TabSelector<T extends DefinableStringArray>({
       />
     ));
   }, [values, setSelected, selected]);
-  return <Container style={[shadow, style]}>{tabs}</Container>;
+  return <Container style={[BaseStyles.shadow, style]}>{tabs}</Container>;
 }
 
 const styles = StyleSheet.create({
