@@ -10,10 +10,10 @@ import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
 import { noop } from 'lodash-es';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { AttentionIcon } from '@assets/icons';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
@@ -38,20 +38,6 @@ const ITEM_BY_UPC = gql(`
     },
   }
 `);
-
-function PriceDiscrepancyAttention() {
-  return (
-    <View style={styles.priceDiscrepancyAttention}>
-      <AttentionIcon />
-      <Text style={styles.priceDiscrepancyText}>
-        Must Print New System Price
-      </Text>
-    </View>
-  );
-}
-
-// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
-// Front Tags Barcode Structure - 99{SKU}{PRICE}
 
 export function ItemLookupScreen({
   route: {
@@ -97,8 +83,10 @@ export function ItemLookupScreen({
     [],
   );
 
-  const priceDiscrepancy =
-    !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
+  const priceDiscrepancy = useMemo(
+    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
+    [frontTagPrice, itemDetails?.retailPrice],
+  );
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
@@ -124,27 +112,19 @@ export function ItemLookupScreen({
       <BottomActionBar
         actions={bottomBarActions}
         topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
+        style={styles.bottomActionBar}
       />
     </FixedLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  priceDiscrepancyAttention: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  priceDiscrepancyText: {
-    fontWeight: FontWeight.Bold,
-    marginLeft: 8,
-  },
+  container: { backgroundColor: Colors.pure },
   bottomBarActionText: {
     color: Colors.advanceBlack,
     fontWeight: FontWeight.Bold,
+  },
+  bottomActionBar: {
+    paddingTop: 8,
   },
 });

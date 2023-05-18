@@ -1,7 +1,6 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { shadow } from '@lib/baseStyles';
-import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 import {
   StyleProp,
@@ -30,7 +29,7 @@ export function BottomActionBar({
   style,
 }: BottomActionBarProps) {
   return (
-    <View style={[styles.container, shadow, style]}>
+    <View style={[shadow, styles.container, style]}>
       {topComponent}
       <Container style={styles.actionsContainer}>
         {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
@@ -49,18 +48,23 @@ export function BottomActionBar({
 }
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 48,
-
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    backgroundColor: Colors.pure,
+    /*
+    This margin is needed because the bottom action bar goes below the android action bar.
+    Even if we use SafeAreaView the problem still persists. We narrowed it down to the header
+    from react-native/navigation. Using a custom component solves the issue.
+    TODO: delete this margin when we implement a custom header.
+    */
+    marginBottom: 48,
+
+    shadowOffset: { width: 0, height: -2 },
+    elevation: 1,
   },
   actionsContainer: { justifyContent: 'space-evenly' },
   actionStyle: {
     flex: 1,
     marginTop: 16,
-    // Part of the button is hidden by the phone action bar
-    marginBottom: 24,
     borderRadius: 8,
   },
 });

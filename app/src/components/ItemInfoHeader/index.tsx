@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
@@ -58,20 +58,21 @@ export function ItemInfoHeader({
 
   // TODO: Show a price discrepancy modal, in case a front tag is scanned,
   // whose assigned price doesn't match the system price (returned from item lookup queries)
-
-  const priceDiscrepancy =
-    !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice;
-
+  const priceDiscrepancy = useMemo(
+    () => !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice,
+    [frontTagPrice, itemDetails.retailPrice],
+  );
   const [priceDiscrepancyModalVisible, setPriceDiscrepancyModalVisible] =
     useState(priceDiscrepancy);
 
-  const toggleModal = () => {
-    setPriceDiscrepancyModalVisible(visible => !visible);
-  };
+  const toggleModal = useCallback(
+    () => setPriceDiscrepancyModalVisible(visible => !visible),
+    [],
+  );
 
   useEffect(() => {
     if (priceDiscrepancy) {
-      soundService.ding();
+      soundService.playErrorSound();
     }
   }, [priceDiscrepancy]);
 

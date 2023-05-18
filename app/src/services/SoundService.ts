@@ -1,5 +1,5 @@
 import Sound from 'react-native-sound';
-import ding from '@assets/sounds/ding.mp3';
+import errorSound from '@assets/sounds/error.mp3';
 
 class SoundService {
   private playSoundOnce(mp3: string) {
@@ -16,8 +16,8 @@ class SoundService {
     sound.release();
   }
 
-  ding() {
-    this.playSoundOnce(ding);
+  playErrorSound() {
+    this.playSoundOnce(errorSound);
   }
 }
 

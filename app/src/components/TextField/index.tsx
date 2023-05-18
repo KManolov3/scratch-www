@@ -1,7 +1,13 @@
 import { ClearButton } from '@components/Button/Clear';
 import { ReactNode, useCallback, useState } from 'react';
 import { TextInput, TextInputRef } from '@components/TextInput';
-import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { FontWeight } from '@lib/font';
 import { buttonStyle } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
@@ -40,8 +46,7 @@ export function TextField({
   );
   return (
     <Container style={containerStyle}>
-      {/* TODO: center icon */}
-      <Container style={styles.icon}>{icon}</Container>
+      <View style={styles.icon}>{icon}</View>
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholder}
@@ -71,8 +76,6 @@ const styles = StyleSheet.create({
     right: 12,
   },
   input: {
-    height: 48,
-
     borderWidth: 1,
     borderRadius: 8,
     borderColor: Colors.gray,
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
   icon: {
     right: 18,
     position: 'absolute',
-    alignSelf: 'center',
+    alignContent: 'center',
     zIndex: 1,
   },
 });
