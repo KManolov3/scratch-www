@@ -4,10 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { useScanListener } from '@hooks/useScanListener';
 import { StyleSheet } from 'react-native';
 import { ItemLookupNavigation } from '../navigator';
 
 export function ItemLookupHome() {
+  useScanListener(scan => {
+    // Keeping this to test for now
+    // eslint-disable-next-line no-console
+    console.log('useScanListener', scan);
+  });
+
   const navigation = useNavigation<ItemLookupNavigation>();
   const inputRef = useRef<TextInputRef>(null);
 
