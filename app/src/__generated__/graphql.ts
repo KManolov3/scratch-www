@@ -123,9 +123,16 @@ export type CycleCountDetail = {
 
 export type CycleCountItem = {
   __typename?: 'CycleCountItem';
+  flagged: Scalars['Boolean'];
   item: Item;
+  sku: Scalars['String'];
+};
+
+export type CycleCountItemQuantity = {
+  __typename?: 'CycleCountItemQuantity';
   locationId?: Maybe<Scalars['String']>;
   quantityAtLocation?: Maybe<Scalars['Int']>;
+  sku: Scalars['String'];
 };
 
 export type CycleCountList = {
@@ -210,12 +217,18 @@ export enum CycleCountType {
 export type CycleCountUpdateInput = {
   items?: InputMaybe<Array<CycleCountUpdateItemInput>>;
   locations?: InputMaybe<Array<CycleCountUpdateLocationInput>>;
+  quantities?: InputMaybe<Array<CycleCountUpdateItemQuantityInput>>;
 };
 
 export type CycleCountUpdateItemInput = {
-  itemSku: Scalars['String'];
+  flagged: Scalars['Boolean'];
+  sku: Scalars['String'];
+};
+
+export type CycleCountUpdateItemQuantityInput = {
   locationId?: InputMaybe<Scalars['String']>;
   quantityAtLocation: Scalars['Int'];
+  sku: Scalars['String'];
 };
 
 export type CycleCountUpdateLocationInput = {
@@ -391,6 +404,7 @@ export type NewCycleCount = {
   createdDate: Scalars['Date'];
   dueDate?: Maybe<Scalars['Date']>;
   id: Scalars['String'];
+  itemQuantities: Array<CycleCountItemQuantity>;
   items: Array<CycleCountItem>;
   locations?: Maybe<Array<CycleCountLocation>>;
   name?: Maybe<Scalars['String']>;
@@ -528,7 +542,9 @@ export enum Status {
 export enum SubmitCycleCountError {
   AlreadyCompleted = 'ALREADY_COMPLETED',
   AlreadySubmitted = 'ALREADY_SUBMITTED',
+  LocationsNotCompleted = 'LOCATIONS_NOT_COMPLETED',
   NotFound = 'NOT_FOUND',
+  NotStarted = 'NOT_STARTED',
   Other = 'OTHER'
 }
 
