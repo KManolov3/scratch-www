@@ -2,10 +2,11 @@ import { Pressable, View } from 'react-native';
 import { Text } from '@components/Text';
 import { DocumentType, gql } from 'src/__generated__';
 import { Row } from '@components/Row';
+import { convertCurrencyToString } from '@lib/currency';
 import { styles } from './styles';
 
 export const OutageItemCardFragment = gql(`
-  fragment OutageItemCardFragment on Item {
+  fragment OutageItemCard on Item {
     partDesc
     mfrPartNum
     sku
@@ -39,9 +40,15 @@ export function OutageItemCard({
           {active ? (
             <>
               <Row label="SKU:" value={sku ?? 'undefined'} />
-              <Row label="Price:" value={retailPrice ?? 'undefined'} />
+              <Row
+                label="Price:"
+                value={
+                  retailPrice
+                    ? convertCurrencyToString(retailPrice)
+                    : 'undefined'
+                }
+              />
               <Row label="Current:" value={onHand ?? 'undefined'} />
-              {/* <Row label="Maxi:" value={mfrPartNum} /> */}
             </>
           ) : null}
         </View>

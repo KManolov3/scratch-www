@@ -32,6 +32,7 @@ export function CycleCountHome() {
   const renderItem = useCallback<ListRenderItem<(typeof cycleCounts)[number]>>(
     ({ item }) => (
       <CycleCountCard
+        key={item.cycleCountId?.toString()}
         cycleCount={item}
         onPress={() =>
           navigation.navigate('PlanogramList', {
@@ -64,8 +65,6 @@ export function CycleCountHome() {
       <FlatList
         data={cycleCounts}
         renderItem={renderItem}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        keyExtractor={({ cycleCountId }) => cycleCountId?.toString()!}
         style={styles.cycleCounts}
       />
     </FixedLayout>

@@ -17,7 +17,7 @@ export function List<
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<T>) => {
       return (
-        <>
+        <View key={`ListItem${index}`}>
           <View style={styles.table}>
             {labelInfo.map(({ key }) => (
               <Text
@@ -30,7 +30,7 @@ export function List<
             ))}
           </View>
           <View style={styles.separator} />
-        </>
+        </View>
       );
     },
     [labelInfo],
@@ -46,11 +46,7 @@ export function List<
         ))}
       </View>
       <View style={styles.separator} />
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(_, index) => `ListItem${index}`}
-      />
+      <FlatList data={data} renderItem={renderItem} />
     </View>
   );
 }

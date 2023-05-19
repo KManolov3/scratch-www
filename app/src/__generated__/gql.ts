@@ -18,7 +18,7 @@ const documents = {
     "\n  fragment CycleCountCardFragment on CycleCount {\n    cycleCountId\n    cycleCountName\n    dueDate\n  }\n": types.CycleCountCardFragmentFragmentDoc,
     "\n  query CycleCountContext {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n": types.CycleCountContextDocument,
     "\n  query ItemLookupBySku($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n    },\n  }\n": types.ItemLookupBySkuDocument,
-    "\n  fragment OutageItemCardFragment on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n": types.OutageItemCardFragmentFragmentDoc,
+    "\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n": types.OutageItemCardFragmentDoc,
     "\n  mutation SubmitOutageCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n": types.SubmitOutageCountDocument,
     "\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
     "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
@@ -64,7 +64,7 @@ export function gql(source: "\n  query ItemLookupBySku($sku: String!) {\n    ite
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment OutageItemCardFragment on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n"): (typeof documents)["\n  fragment OutageItemCardFragment on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n"];
+export function gql(source: "\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n"): (typeof documents)["\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

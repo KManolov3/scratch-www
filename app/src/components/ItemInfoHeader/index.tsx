@@ -7,6 +7,7 @@ import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
 import { useState } from 'react';
+import { convertCurrencyToString } from '@lib/currency';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -69,7 +70,11 @@ export function ItemInfoHeader({
           <Row label="SKU:" value={itemDetails.sku ?? 'undefined'} />
           <Row
             label="Price:"
-            value={`$${itemDetails.retailPrice ?? 'undefined'}`}
+            value={
+              itemDetails.retailPrice
+                ? convertCurrencyToString(itemDetails.retailPrice)
+                : 'undefined'
+            }
           />
         </View>
         <View style={styles.separator} />

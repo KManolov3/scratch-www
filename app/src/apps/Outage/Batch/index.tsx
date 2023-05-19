@@ -43,8 +43,9 @@ export function OutageBatch() {
   }, [outageCountItems]);
 
   const removeOutageItem = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    removeItem(activeItem?.sku!);
+    if (activeItem?.sku) {
+      removeItem(activeItem.sku);
+    }
     setIsRemoveItemModalVisible(false);
   }, [activeItem?.sku, removeItem]);
 
@@ -53,6 +54,7 @@ export function OutageBatch() {
   >(
     ({ item }) => (
       <OutageItemCard
+        key={item.sku}
         outageItem={item}
         active={activeItem?.sku === item.sku}
         onPress={() => setActiveItem(item)}
@@ -79,8 +81,6 @@ export function OutageBatch() {
           <FlatList
             data={outageCountItems}
             renderItem={renderItem}
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            keyExtractor={({ sku }) => sku!}
             style={styles.outageBatch}
           />
 
@@ -91,12 +91,14 @@ export function OutageBatch() {
         </View>
       </FixedLayout>
 
-      <RemoveItemModal
-        isVisible={isRemoveItemModalVisible}
-        activeItem={activeItem}
-        onConfirm={removeOutageItem}
-        onCancel={() => setIsRemoveItemModalVisible(false)}
-      />
+      {activeItem ? (
+        <RemoveItemModal
+          isVisible={isRemoveItemModalVisible}
+          activeItem={activeItem}
+          onConfirm={removeOutageItem}
+          onCancel={() => setIsRemoveItemModalVisible(false)}
+        />
+      ) : null}
 
       <ShrinkageOverageModal
         isVisible={isShrinkageModalVisible}

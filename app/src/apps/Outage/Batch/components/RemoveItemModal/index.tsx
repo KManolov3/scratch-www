@@ -3,13 +3,11 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { ActionModal } from '@components/ActionModal';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 
 export interface RemoveItemModalProps {
   isVisible: boolean;
-  activeItem?: {
-    partDesc?: string | null;
-    mfrPartNum?: string | null;
-  };
+  activeItem: ItemDetailsInfo;
   onConfirm: () => void;
   onCancel: () => void;
 }
