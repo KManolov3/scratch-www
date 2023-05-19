@@ -20,7 +20,7 @@ const SUBMIT_OUTAGE_COUNT = gql(`
 `);
 
 interface ContextValue {
-  outageBatch: ItemDetailsInfo[];
+  outageCountItems: ItemDetailsInfo[];
   addItem: (item: ItemDetailsInfo) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
@@ -62,55 +62,53 @@ function buildOutageCount(items: ItemDetailsInfo[]) {
   };
 }
 
-export function OutageBatchStateProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [outageBatch, setOutageBatch] = useState<ItemDetailsInfo[]>([]);
+export function OutageStateProvider({ children }: { children: ReactNode }) {
+  const [outageCountItems, setOutageCountItems] = useState<ItemDetailsInfo[]>(
+    [],
+  );
 
   // TODO: show a toast with an error message
   const [submitOutageCount, { loading }] = useMutation(SUBMIT_OUTAGE_COUNT);
 
   const addItem = useCallback((item: ItemDetailsInfo) => {
-    setOutageBatch(currentBatch => [
-      ...currentBatch.filter(({ sku }) => sku !== item.sku),
+    setOutageCountItems(currentItems => [
+      ...currentItems.filter(({ sku }) => sku !== item.sku),
       item,
     ]);
   }, []);
 
   const removeItem = useCallback((sku: string) => {
-    setOutageBatch(currentBatch =>
-      currentBatch.filter(item => item.sku !== sku),
+    setOutageCountItems(currentItems =>
+      currentItems.filter(item => item.sku !== sku),
     );
   }, []);
 
   const submit = useCallback(() => {
     submitOutageCount({
-      variables: { request: buildOutageCount(outageBatch) },
+      variables: { request: buildOutageCount(outageCountItems) },
     });
-    setOutageBatch([]);
-  }, [outageBatch, submitOutageCount]);
+    setOutageCountItems([]);
+  }, [outageCountItems, submitOutageCount]);
 
   const value = useMemo(
     () => ({
-      outageBatch,
+      outageCountItems,
       addItem,
       removeItem,
       submit,
       submitLoading: loading,
     }),
-    [outageBatch, addItem, removeItem, submit, loading],
+    [outageCountItems, addItem, removeItem, submit, loading],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
-export function useOutageBatchState() {
+export function useOutageState() {
   const context = useContext(Context);
   if (!context) {
     throw new Error(
-      'Cannot use `useOutageBatchState` without <OutageBatchStateProvider>',
+      'Cannot use `useOutageState` without <OutageStateProvider>',
     );
   }
 

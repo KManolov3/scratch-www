@@ -13,22 +13,22 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { sumBy } from 'lodash-es';
 import { OutageItemCard } from '../components/ItemCard';
-import { RemoveItemModal } from './components/RemoveItemModal';
-import { useOutageBatchState } from '../state';
+import { RemoveItemModal } from '../components/RemoveItemModal';
+import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
 
 const calculateShrinkage = (items: ItemDetailsInfo[]) =>
   sumBy(items, item => (item.onHand ?? 0) * (item.retailPrice ?? 0));
 
-export function OutageBatch() {
+export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
 
   const {
-    outageBatch: outageCountItems,
+    outageCountItems,
     removeItem,
     submit: submitOutage,
     submitLoading,
-  } = useOutageBatchState();
+  } = useOutageState();
 
   const [activeItem, setActiveItem] = useState<ItemDetailsInfo>();
 
@@ -64,7 +64,7 @@ export function OutageBatch() {
     [activeItem?.sku],
   );
 
-  const submitOutageBatch = useCallback(() => {
+  const submitOutageCount = useCallback(() => {
     setIsShrinkageModalVisible(false);
     submitOutage();
     navigate('Home');
@@ -81,7 +81,7 @@ export function OutageBatch() {
           <FlatList
             data={outageCountItems}
             renderItem={renderItem}
-            style={styles.outageBatch}
+            style={styles.list}
           />
 
           <BlockButton
@@ -104,7 +104,7 @@ export function OutageBatch() {
         isVisible={isShrinkageModalVisible}
         shrinkage={calculateShrinkage(outageCountItems)}
         overage={0}
-        onConfirm={submitOutageBatch}
+        onConfirm={submitOutageCount}
         onCancel={() => setIsShrinkageModalVisible(false)}
       />
     </>
@@ -112,7 +112,7 @@ export function OutageBatch() {
 }
 
 const styles = StyleSheet.create({
-  outageBatch: {
+  list: {
     marginVertical: 8,
   },
   loading: {

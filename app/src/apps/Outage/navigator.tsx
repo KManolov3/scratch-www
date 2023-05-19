@@ -10,25 +10,25 @@ import {
 } from '@react-navigation/native';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import { OutageHome } from './Home';
-import { OutageBatch } from './Batch';
-import { OutageBatchStateProvider } from './state';
+import { OutageItemList } from './ItemList';
+import { OutageStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
-  OutageBatch: undefined;
+  ItemList: undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
 
 export function OutageNavigator() {
   return (
-    <OutageBatchStateProvider>
+    <OutageStateProvider>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={OutageHome} />
 
-        <Stack.Screen name="OutageBatch" component={OutageBatch} />
+        <Stack.Screen name="ItemList" component={OutageItemList} />
       </Stack.Navigator>
-    </OutageBatchStateProvider>
+    </OutageStateProvider>
   );
 }
 

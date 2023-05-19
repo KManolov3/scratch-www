@@ -6,7 +6,7 @@ import { Barcode } from '@components/Barcode';
 import { useLazyQuery } from '@apollo/client';
 import { gql } from 'src/__generated__';
 import { OutageNavigation } from '../navigator';
-import { useOutageBatchState } from '../state';
+import { useOutageState } from '../state';
 
 const ITEM_BY_SKU_QUERY = gql(`
   query ItemLookupBySku($sku: String!) {
@@ -18,14 +18,14 @@ const ITEM_BY_SKU_QUERY = gql(`
 
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
-  const { addItem } = useOutageBatchState();
+  const { addItem } = useOutageState();
 
   // TODO: use loading state to display a loading indicator
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
       if (item?.itemBySku) {
         addItem(item.itemBySku);
-        navigate('OutageBatch');
+        navigate('ItemList');
       }
     },
   });
