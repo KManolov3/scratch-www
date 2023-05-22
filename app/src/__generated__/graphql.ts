@@ -580,18 +580,38 @@ export type TeamMember = {
   name: Scalars['String'];
 };
 
+export type TestBackStockSlotInput = {
+  guid?: InputMaybe<Scalars['String']>;
+  lastModified?: InputMaybe<Scalars['Date']>;
+  qty?: InputMaybe<Scalars['Int']>;
+  sectionsLotName?: InputMaybe<Scalars['String']>;
+  sectionsLotNum?: InputMaybe<Scalars['String']>;
+  slotDescription?: InputMaybe<Scalars['String']>;
+  slotId?: InputMaybe<Scalars['Int']>;
+  slotName?: InputMaybe<Scalars['String']>;
+  storeNumber?: InputMaybe<Scalars['String']>;
+};
+
 export type TestDataInput = {
   items?: InputMaybe<Array<TestItemInput>>;
   storeNumber: Scalars['String'];
 };
 
 export type TestItemInput = {
+  backStockSlots?: InputMaybe<Array<InputMaybe<TestBackStockSlotInput>>>;
   mfrPartNum?: InputMaybe<Scalars['String']>;
   onHand?: InputMaybe<Scalars['Int']>;
   partDesc?: InputMaybe<Scalars['String']>;
+  planograms?: InputMaybe<Array<InputMaybe<TestPlanogramInput>>>;
   retailPrice?: InputMaybe<Scalars['Float']>;
   sku: Scalars['String'];
   upc?: InputMaybe<Scalars['String']>;
+};
+
+export type TestPlanogramInput = {
+  description?: InputMaybe<Scalars['String']>;
+  planogramId?: InputMaybe<Scalars['String']>;
+  seqNum?: InputMaybe<Scalars['Int']>;
 };
 
 export type TestSetDataResult = {

@@ -7,6 +7,7 @@ import {
 } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFile } from 'fs/promises';
+import { TestItemInput } from '../../app/src/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
   typeDefs: await Promise.all([
@@ -107,6 +108,7 @@ const store = createMockStore({
 export const schema = addMocksToSchema({
   schema: innerSchema,
   store,
+  // eslint-disable-next-line no-shadow, arrow-parens
   resolvers: store => ({
     Query: {
       itemBySku(_, { sku, storeNumber }) {
@@ -116,9 +118,7 @@ export const schema = addMocksToSchema({
 
     Mutation: {
       testSetData(_, { input }) {
-        // TODO:
-        // use generated type from graphql for the "item" parameter
-        const items = input.items.map((item: any) => {
+        const items = input.items.map((item: TestItemInput) => {
           const id = `${input.storeNumber}-${item.sku}`;
           store.set('Item', id, item);
 

@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client/core/index.js';
-import { Product } from '../models/product-model.ts';
+import { TestDataInput } from '../../app/src/__generated__/graphql.ts';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -18,13 +18,12 @@ export class TestDataController {
     defaultOptions: {},
   });
 
-  // TODO:
-  // use generated type from graphql for the "input" parameter
-  async setData(input: { items: Product[]; storeNumber: string }) {
+  async setData(input: TestDataInput) {
     return await this.graphqlClient.mutate({
       mutation: gql(`
         mutation TestSetData($input: TestDataInput!) {
           testSetData(input: $input) {
+            storeNumber
             items {
               sku
               retailPrice

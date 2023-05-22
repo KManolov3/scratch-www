@@ -1,7 +1,7 @@
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitAndClick } from '../../methods/helpers.ts';
-import { Product } from '../../models/product-model.ts';
+import { TestItemInput } from '../../../app/src/__generated__/graphql.ts';
 
 const testData = new TestDataController();
 
@@ -12,7 +12,7 @@ describe('Batch Count', () => {
   });
 
   it('manually entering a SKU should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
-    const products: Product[] = [
+    const products: TestItemInput[] = [
       {
         mfrPartNum: '44899',
         partDesc: 'Mobil 1 5W-30 Motor Oil',

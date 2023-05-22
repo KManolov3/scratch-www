@@ -10,6 +10,26 @@ input TestItemInput {
   upc: String
   retailPrice: Float
   onHand: Int
+  planograms: [TestPlanogramInput]
+  backStockSlots: [TestBackStockSlotInput]
+}
+
+input TestPlanogramInput {
+  planogramId: String
+  description: String
+  seqNum: Int
+}
+
+input TestBackStockSlotInput {
+  guid: String
+  storeNumber: String
+  slotId: Int
+  slotName: String
+  slotDescription: String
+  sectionsLotName: String
+  sectionsLotNum: String
+  lastModified: Date
+  qty: Int
 }
 
 input TestDataInput {
