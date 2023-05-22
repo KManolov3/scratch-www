@@ -1,23 +1,32 @@
 import Sound from 'react-native-sound';
 import errorSound from '@assets/sounds/error.mp3';
 
+const sounds = { error: errorSound };
+export type SoundKey = keyof typeof sounds;
+
 class SoundService {
-  private playSoundOnce(mp3: string) {
-    const sound = new Sound(mp3, error => {
-      if (error) {
-        return;
-      }
+  private soundInstances: Map<SoundKey, Promise<Sound>> = new Map();
 
-      // Play the sound
-      sound.play();
+  private loadSound(soundKey: SoundKey): Promise<Sound> {
+    return new Promise((resolve, reject) => {
+      const sound = new Sound(sounds[soundKey], error => {
+        if (error) {
+          reject(error);
+        }
+        resolve(sound);
+      });
     });
-
-    // Clean up the sound when the component unmounts
-    sound.release();
   }
 
-  playErrorSound() {
-    this.playSoundOnce(errorSound);
+  async playSound(soundKey: SoundKey) {
+    if (!this.soundInstances.has(soundKey)) {
+      this.soundInstances.set(soundKey, this.loadSound(soundKey));
+    }
+    const sound = await this.soundInstances.get(soundKey);
+
+    if (sound) {
+      sound.play();
+    }
   }
 }
 

@@ -83,7 +83,10 @@ export function ItemLookupScreen({
 
   useEffect(() => {
     if (priceDiscrepancy) {
-      soundService.playErrorSound();
+      soundService
+        .playSound('error')
+        // eslint-disable-next-line no-console
+        .catch(error => console.log('Error playing sound.', error));
     }
   }, [priceDiscrepancy]);
 
