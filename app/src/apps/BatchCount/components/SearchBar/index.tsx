@@ -9,8 +9,8 @@ import { TextInputRef } from '@components/TextInput';
 export interface SearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
-  onSubmit?: (value: string) => void;
-  isSearchFocused: boolean;
+  onSubmit: (value: string) => void;
+  isSearchFocused?: boolean;
   inputRef?: React.RefObject<TextInputRef>;
 }
 

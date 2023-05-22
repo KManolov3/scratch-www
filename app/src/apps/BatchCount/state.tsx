@@ -9,27 +9,33 @@ import {
   useState,
 } from 'react';
 import { gql } from 'src/__generated__';
-import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
+import {
+  Action,
+  CycleCountType,
+  Item,
+  Status,
+} from 'src/__generated__/graphql';
+import { merge } from 'lodash-es';
 import 'react-native-get-random-values';
 import { v4 as uuid } from 'uuid';
+import { useNavigation } from '@react-navigation/native';
 import { SubmitBatchCountGql } from './external-types';
+import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItems;
-  updateItem: (item: BatchCountItem) => void;
+  addItem: (item: BatchCountItem) => void;
+  updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   submit: () => void;
 }
 
-interface BatchCountItem {
-  sku: string;
-  onHand: number;
+export interface BatchCountItem {
+  item: Item & { sku: NonNullable<Item['sku']> };
   newQty: number;
+  isFlagged?: boolean;
 }
 
-type BatchCountItems = Record<
-  BatchCountItem['sku'],
-  Omit<BatchCountItem, 'sku'>
->;
+type BatchCountItems = Record<BatchCountItem['item']['sku'], BatchCountItem>;
 
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
@@ -67,7 +73,7 @@ function buildBatchCountRequest(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             onhandAtCountQty: batchCountItems[sku]!.newQty.toString(),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            freezeQty: batchCountItems[sku]!.onHand.toString(),
+            freezeQty: batchCountItems[sku]!.item.onHand!.toString(),
           };
         }),
       },
@@ -81,33 +87,54 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItems>({});
   // TODO: Show loading indicator while submitting?
   const [submitBatchCount, { error }] = useMutation(SUBMIT_BATCH_COUNT);
+  const navigation = useNavigation<BatchCountNavigation>();
 
   if (error) {
     // eslint-disable-next-line no-console
     console.error(error);
   }
 
-  const updateItem = useCallback(
-    ({ sku, ...rest }: BatchCountItem) =>
+  const addItem = useCallback(
+    (newItem: BatchCountItem) =>
       setBatchCountItems({
         ...batchCountItems,
-        [sku]: rest,
+        [newItem.item.sku]: newItem,
       }),
+    [batchCountItems, setBatchCountItems],
+  );
+
+  const updateItem = useCallback(
+    (sku: string, updatedItem: Partial<BatchCountItem>) => {
+      const itemInState = batchCountItems[sku];
+
+      if (!itemInState) {
+        // TODO: Should this be an error? It will break the application, but then again,
+        // if the item does not exist in state that definitely means something is wrong.
+        throw new Error('Attempting to update an item not existing in state');
+      }
+
+      setBatchCountItems({
+        ...batchCountItems,
+        [sku]: merge(batchCountItems[sku], updatedItem),
+      });
+    },
     [batchCountItems, setBatchCountItems],
   );
   const submit = useCallback(() => {
     const batchCountRequest = buildBatchCountRequest(batchCountItems);
     submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
-  }, [setBatchCountItems, submitBatchCount, batchCountItems]);
+    navigation.navigate('Home');
+  }, [batchCountItems, submitBatchCount, navigation]);
 
   const value = useMemo(
     () => ({
       batchCountItems,
+      addItem,
       updateItem,
       submit,
     }),
-    [batchCountItems, updateItem, submit],
+    [batchCountItems, addItem, updateItem, submit],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

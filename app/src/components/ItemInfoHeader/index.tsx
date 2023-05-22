@@ -6,7 +6,6 @@ import { Row } from '@components/Row';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { Colors } from '@lib/colors';
-import { useState } from 'react';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -27,7 +26,10 @@ export type ItemDetailsInfo = NonNullable<
 
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
-  withQuantityAdjustment?: boolean;
+  quantityAdjustment?: {
+    quantity: number;
+    setNewQuantity: (newQty: number) => void;
+  };
 }
 
 function getBackstockQuantity(
@@ -48,13 +50,8 @@ function getBackstockQuantity(
 
 export function ItemInfoHeader({
   itemDetails,
-  withQuantityAdjustment = false,
+  quantityAdjustment,
 }: ItemInfoHeaderProps) {
-  // TODO: Manage this through the app context. Requirements:
-  // 1) It should be incremented whenever a UPC is scanned.
-  // 2) It should be able to be modified through the QuantityAdjuster component
-  const [newQuantity, setNewQuantity] = useState(1);
-
   // TODO: Show a price discrepancy modal, in case a front tag is scanned,
   // whose assigned price doesn't match the system price (returned from item lookup queries)
 
@@ -79,11 +76,16 @@ export function ItemInfoHeader({
             label="Bk Stk:"
             value={getBackstockQuantity(itemDetails.backStockSlots)}
           />
-          {withQuantityAdjustment && <Row label="New" value={newQuantity} />}
+          {quantityAdjustment && (
+            <Row label="New" value={quantityAdjustment.quantity} />
+          )}
         </View>
       </View>
-      {withQuantityAdjustment && (
-        <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
+      {quantityAdjustment && (
+        <QuantityAdjuster
+          quantity={quantityAdjustment.quantity}
+          setQuantity={quantityAdjustment.setNewQuantity}
+        />
       )}
     </View>
   );
