@@ -2,19 +2,23 @@
 // token to the app, containing the current active store.
 
 import { useQuery } from '@apollo/client';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
-import { noop } from 'lodash-es';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
+import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
+import { useBooleanState } from '@hooks/useBooleanState';
+import { noop } from 'lodash-es';
+import { soundService } from 'src/services/SoundService';
 import { ItemLookupScreenProps } from '../navigator';
+import { PrintModal } from '../components/PrintModal';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -72,20 +76,37 @@ export function ItemLookupScreen({
     }
   }, [lookupBySku, lookupByUpc]);
 
+  const priceDiscrepancy = useMemo(
+    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
+    [frontTagPrice, itemDetails?.retailPrice],
+  );
+
+  useEffect(() => {
+    if (priceDiscrepancy) {
+      soundService.playErrorSound();
+    }
+  }, [priceDiscrepancy]);
+
+  const { state: printModalVisible, toggleState: togglePrintModal } =
+    useBooleanState();
+
+  const { state: priceDiscrepancyModalVisible, toggleState: toggleModal } =
+    useBooleanState(priceDiscrepancy);
+
+  const onConfirm = useCallback(() => {
+    toggleModal();
+    togglePrintModal();
+  }, [toggleModal, togglePrintModal]);
+
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tag',
-        onPress: noop,
+        onPress: togglePrintModal,
         textStyle: styles.bottomBarActionText,
       },
     ],
-    [],
-  );
-
-  const priceDiscrepancy = useMemo(
-    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
-    [frontTagPrice, itemDetails?.retailPrice],
+    [togglePrintModal],
   );
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {
@@ -108,12 +129,30 @@ export function ItemLookupScreen({
 
   return (
     <FixedLayout style={styles.container}>
-      <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+      <ItemDetails
+        itemDetails={itemDetails}
+        priceDiscrepancy={priceDiscrepancy}
+        togglePriceDiscrepancyModal={toggleModal}
+      />
       <BottomActionBar
         actions={bottomBarActions}
         topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
         style={styles.bottomActionBar}
       />
+      <PrintModal
+        isVisible={printModalVisible}
+        onCancel={togglePrintModal}
+        onConfirm={noop}
+      />
+      {frontTagPrice && itemDetails.retailPrice && (
+        <PriceDiscrepancyModal
+          scanned={frontTagPrice}
+          system={itemDetails.retailPrice}
+          isVisible={priceDiscrepancyModalVisible}
+          onCancel={toggleModal}
+          onConfirm={onConfirm}
+        />
+      )}
     </FixedLayout>
   );
 }
