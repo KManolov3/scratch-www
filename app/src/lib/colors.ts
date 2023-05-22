@@ -17,4 +17,4 @@ export const Colors = {
   mediumVoid: '#666666',
   advanceVoid: '#373737',
   advanceBlack: '#1e1e1e',
-};
+} as const;

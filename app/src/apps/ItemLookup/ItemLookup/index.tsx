@@ -3,12 +3,18 @@
 
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
-import { BatchCountScreenProps } from '../navigator';
+import { noop } from 'lodash-es';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { FontWeight } from '@lib/font';
+import { Colors } from '@lib/colors';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
+import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -33,14 +39,11 @@ const ITEM_BY_UPC = gql(`
   }
 `);
 
-// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
-// Front Tags Barcode Structure - 99{SKU}{PRICE}
-
-export function BatchCountItemLookup({
+export function ItemLookupScreen({
   route: {
-    params: { type, value },
+    params: { type, value, frontTagPrice },
   },
-}: BatchCountScreenProps<'ItemLookup'>) {
+}: ItemLookupScreenProps<'ItemLookup'>) {
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,
@@ -69,6 +72,22 @@ export function BatchCountItemLookup({
     }
   }, [lookupBySku, lookupByUpc]);
 
+  const bottomBarActions = useMemo<Action[]>(
+    () => [
+      {
+        label: 'Print Front Tag',
+        onPress: noop,
+        textStyle: styles.bottomBarActionText,
+      },
+    ],
+    [],
+  );
+
+  const priceDiscrepancy = useMemo(
+    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
+    [frontTagPrice, itemDetails?.retailPrice],
+  );
+
   if (isLoadingItemBySku || isLoadingItemByUpc) {
     return <ActivityIndicator size="large" />;
   }
@@ -87,5 +106,25 @@ export function BatchCountItemLookup({
     return <NoResults lookupType={type} lookupId={value} />;
   }
 
-  return <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />;
+  return (
+    <FixedLayout style={styles.container}>
+      <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+      <BottomActionBar
+        actions={bottomBarActions}
+        topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
+        style={styles.bottomActionBar}
+      />
+    </FixedLayout>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: { backgroundColor: Colors.pure },
+  bottomBarActionText: {
+    color: Colors.advanceBlack,
+    fontWeight: FontWeight.Bold,
+  },
+  bottomActionBar: {
+    paddingTop: 8,
+  },
+});
