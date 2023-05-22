@@ -1,24 +1,32 @@
 import Sound from 'react-native-sound';
 import errorSound from '@assets/sounds/error.mp3';
 
+const sounds = { error: errorSound };
+export type SoundKey = keyof typeof sounds;
+
 class SoundService {
-  private playSoundOnce(mp3: string) {
-    const sound = new Sound(mp3, error => {
+  private soundInstances: Map<SoundKey, Sound> = new Map();
+
+  private loadSound = (soundKey: SoundKey) => {
+    const sound = new Sound(sounds[soundKey], error => {
       if (error) {
-        return;
+        // eslint-disable-next-line no-console
+        console.log(`Error loading sound '${soundKey}':`, error);
       }
-
-      // Play the sound
-      sound.play();
     });
+    this.soundInstances.set(soundKey, sound);
+  };
 
-    // Clean up the sound when the component unmounts
-    sound.release();
-  }
+  playSound = (soundKey: SoundKey) => {
+    if (!this.soundInstances.has(soundKey)) {
+      this.loadSound(soundKey);
+    }
+    const sound = this.soundInstances.get(soundKey);
 
-  playErrorSound() {
-    this.playSoundOnce(errorSound);
-  }
+    if (sound) {
+      sound.play();
+    }
+  };
 }
 
 export const soundService = new SoundService();

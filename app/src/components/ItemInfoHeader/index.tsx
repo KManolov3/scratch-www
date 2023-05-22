@@ -72,7 +72,7 @@ export function ItemInfoHeader({
 
   useEffect(() => {
     if (priceDiscrepancy) {
-      soundService.playErrorSound();
+      soundService.playSound('error');
     }
   }, [priceDiscrepancy]);
 
