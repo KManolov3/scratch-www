@@ -1,6 +1,14 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
-import { StyleProp, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { BaseStyles } from '@lib/baseStyles';
+import { ReactNode } from 'react';
+import {
+  StyleProp,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  View,
+} from 'react-native';
 
 export interface Action {
   label: string;
@@ -10,35 +18,53 @@ export interface Action {
 }
 
 export interface BottomActionBarProps {
+  topComponent?: ReactNode;
   actions: Action[];
+  style?: StyleProp<ViewStyle>;
 }
 
-export function BottomActionBar({ actions }: BottomActionBarProps) {
+export function BottomActionBar({
+  actions,
+  topComponent,
+  style,
+}: BottomActionBarProps) {
   return (
-    <Container style={styles.container}>
-      {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
-        <BlockButton
-          key={label}
-          label={label}
-          onPress={onPress}
-          id={label}
-          style={[styles.actionStyle, buttonStyle]}
-          textStyle={textStyle}
-        />
-      ))}
-    </Container>
+    <View style={[BaseStyles.shadow, styles.container, style]}>
+      {topComponent}
+      <Container style={styles.actionsContainer}>
+        {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
+          <BlockButton
+            key={label}
+            label={label}
+            onPress={onPress}
+            id={label}
+            style={[styles.actionStyle, buttonStyle]}
+            textStyle={textStyle}
+          />
+        ))}
+      </Container>
+    </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    /*
+    This margin is needed because the bottom action bar goes below the android action bar.
+    Even if we use SafeAreaView the problem still persists. We narrowed it down to the header
+    from react-native/navigation. Using a custom component solves the issue.
+    TODO: delete this margin when we implement a custom header.
+    */
     marginBottom: 48,
-    justifyContent: 'space-evenly',
+
+    shadowOffset: { width: 0, height: -2 },
+    elevation: 1,
   },
+  actionsContainer: { justifyContent: 'space-evenly' },
   actionStyle: {
     flex: 1,
-    marginTop: 10,
-    // Part of the button is hidden by the phone action bar
-    marginBottom: 16,
+    marginTop: 16,
+    borderRadius: 8,
   },
 });

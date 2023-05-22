@@ -8,10 +8,13 @@ import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { noop } from 'lodash-es';
-import { BatchCountScreenProps } from '../navigator';
-import { useBatchCountState } from '../state';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { FontWeight } from '@lib/font';
+import { Colors } from '@lib/colors';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
+import { ItemLookupScreenProps } from '../navigator';
 
 export type LookupType = 'UPC' | 'SKU';
 
@@ -36,16 +39,11 @@ const ITEM_BY_UPC = gql(`
   }
 `);
 
-// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
-// Front Tags Barcode Structure - 99{SKU}{PRICE}
-
-export function BatchCountItemLookup({
+export function ItemLookupScreen({
   route: {
-    params: { type, value },
+    params: { type, value, frontTagPrice },
   },
-}: BatchCountScreenProps<'ItemLookup'>) {
-  const { submit: submitBatchCount } = useBatchCountState();
-
+}: ItemLookupScreenProps<'ItemLookup'>) {
   const {
     loading: isLoadingItemBySku,
     data: lookupBySku,
@@ -74,18 +72,20 @@ export function BatchCountItemLookup({
     }
   }, [lookupBySku, lookupByUpc]);
 
-  const bottomBarActions: Action[] = useMemo(
+  const bottomBarActions = useMemo<Action[]>(
     () => [
       {
-        label: 'FAST ACCEPT',
-        onPress: submitBatchCount,
-      },
-      {
-        label: 'VERIFY',
+        label: 'Print Front Tag',
         onPress: noop,
+        textStyle: styles.bottomBarActionText,
       },
     ],
-    [submitBatchCount],
+    [],
+  );
+
+  const priceDiscrepancy = useMemo(
+    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
+    [frontTagPrice, itemDetails?.retailPrice],
   );
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {
@@ -107,15 +107,24 @@ export function BatchCountItemLookup({
   }
 
   return (
-    <View style={styles.container}>
-      <ItemDetails itemDetails={itemDetails} withQuantityAdjustment />
-      <BottomActionBar actions={bottomBarActions} />
-    </View>
+    <FixedLayout style={styles.container}>
+      <ItemDetails itemDetails={itemDetails} frontTagPrice={frontTagPrice} />
+      <BottomActionBar
+        actions={bottomBarActions}
+        topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
+        style={styles.bottomActionBar}
+      />
+    </FixedLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { backgroundColor: Colors.pure },
+  bottomBarActionText: {
+    color: Colors.advanceBlack,
+    fontWeight: FontWeight.Bold,
+  },
+  bottomActionBar: {
+    paddingTop: 8,
   },
 });

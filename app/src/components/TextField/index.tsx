@@ -1,9 +1,15 @@
 import { ClearButton } from '@components/Button/Clear';
 import { ReactNode, useCallback, useState } from 'react';
 import { TextInput, TextInputRef } from '@components/TextInput';
-import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { FontWeight } from '@lib/font';
-import { buttonStyle } from '@lib/baseStyles';
+import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
@@ -40,9 +46,9 @@ export function TextField({
   );
   return (
     <Container style={containerStyle}>
-      <Container style={styles.icon}>{icon}</Container>
+      <View style={styles.icon}>{icon}</View>
       <TextInput
-        style={[styles.input, inputStyle, !!icon && styles.iconIntersection]}
+        style={[styles.input, inputStyle]}
         placeholder={placeholder}
         placeholderTextColor={Colors.lightVoid}
         value={value}
@@ -66,13 +72,10 @@ export function TextField({
 
 const styles = StyleSheet.create({
   clearButton: {
-    ...buttonStyle,
+    ...BaseStyles.button,
     right: 12,
   },
   input: {
-    height: 48,
-    marginVertical: 8,
-
     borderWidth: 1,
     borderRadius: 8,
     borderColor: Colors.gray,
@@ -80,13 +83,13 @@ const styles = StyleSheet.create({
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Medium,
     fontSize: 14,
+
+    paddingLeft: 24,
   },
   icon: {
-    left: 18,
+    right: 18,
     position: 'absolute',
+    alignContent: 'center',
     zIndex: 1,
-  },
-  iconIntersection: {
-    paddingLeft: 54,
   },
 });
