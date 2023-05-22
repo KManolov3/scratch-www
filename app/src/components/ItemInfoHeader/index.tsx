@@ -72,8 +72,10 @@ export function ItemInfoHeader({
 
   useEffect(() => {
     if (priceDiscrepancy) {
-      // eslint-disable-next-line no-console
-      soundService.playSound('error').catch(console.log);
+      soundService
+        .playSound('error')
+        // eslint-disable-next-line no-console
+        .catch(error => console.log('Error playing sound.', error));
     }
   }, [priceDiscrepancy]);
 
