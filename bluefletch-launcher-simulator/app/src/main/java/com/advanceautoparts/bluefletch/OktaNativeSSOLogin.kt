@@ -1,53 +1,59 @@
 package com.advanceautoparts.bluefletch
 
 import android.app.Activity
-import android.content.Intent
-import com.okta.oidc.AuthorizationStatus
-import com.okta.oidc.OIDCConfig
-import com.okta.oidc.Okta
-import com.okta.oidc.ResultCallback
-import com.okta.oidc.storage.SharedPreferenceStorage
-import com.okta.oidc.util.AuthorizationException
+import com.okta.authfoundation.AuthFoundationDefaults
+import com.okta.authfoundation.client.OidcClient
+import com.okta.authfoundation.client.OidcConfiguration
+import com.okta.authfoundation.client.SharedPreferencesCache
+import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
+import com.okta.authfoundation.credential.Token
+import com.okta.authfoundationbootstrap.CredentialBootstrap
+import com.okta.webauthenticationui.WebAuthenticationClient
+import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class OktaNativeSSOLogin(private val activity: Activity) {
-    private val config = OIDCConfig.Builder()
-        .clientId("0oayqvdqu0LnsoRWl0h7")
-        .redirectUri("com.bluefletch.launcher:/callback")
-        .endSessionRedirectUri("com.bluefletch.launcher:/logout")
-        .scopes("openid", "device_sso", "offline_access")
-        .discoveryUri("https://advanceauto.oktapreview.com/oauth2/aus1lqs5cuniao55d0h8")
-        .create()
+    private val oidcClient: OidcClient
+    private val webClient: WebAuthenticationClient
 
-    private val webClient = Okta.WebAuthBuilder()
-        .withConfig(config)
-        .withContext(activity.applicationContext)
-        .withStorage(SharedPreferenceStorage(activity))
-        .setRequireHardwareBackedKeyStore(false)
-        .create()
+    init {
+        AuthFoundationDefaults.cache = SharedPreferencesCache.create(activity.applicationContext)
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        webClient.handleActivityResult(requestCode, resultCode, data)
+        oidcClient = OidcClient.createFromDiscoveryUrl(
+            OidcConfiguration(
+                clientId = "0oayqvdqu0LnsoRWl0h7",
+                defaultScope = "openid device_sso offline_access"
+            ),
+            "https://advanceauto.oktapreview.com/oauth2/aus1lqs5cuniao55d0h8/.well-known/openid-configuration".toHttpUrl()
+        )
+
+        CredentialBootstrap.initialize(oidcClient.createCredentialDataSource(activity.applicationContext))
+
+        webClient = CredentialBootstrap.oidcClient.createWebAuthenticationClient()
     }
 
-    fun registerCallback(callback: ResultCallback<AuthorizationStatus, AuthorizationException>) {
-        webClient.registerCallback(callback, activity)
+    suspend fun isAuthenticated() = defaultCredential().token != null
+
+    suspend fun login(): Token {
+        val token = webClient.login(activity, "com.bluefletch.launcher:/callback").getOrThrow()
+
+        defaultCredential().storeToken(token)
+
+        return token
     }
 
-    fun isAuthenticated() = webClient.sessionClient.isAuthenticated
-    fun tokens() = webClient.sessionClient.tokens
+    suspend fun logout(clearBrowserLogin: Boolean) {
+        val credential = defaultCredential()
+        val idToken = credential.token?.idToken
 
-    fun unregisterCallback() {
-        webClient.unregisterCallback()
+        if (clearBrowserLogin && idToken != null) {
+            webClient.logoutOfBrowser(activity, "com.bluefletch.launcher:/logout", idToken)
+        } else {
+            credential.revokeAllTokens().getOrThrow()
+        }
+
+        credential.delete()
     }
 
-    fun login() {
-        webClient.signIn(activity, null)
-    }
-
-    fun logout() {
-        // TODO: Sign out of Okta
-        // TODO: Revoke tokens
-
-        webClient.sessionClient.clear()
-    }
+    private suspend fun defaultCredential() = CredentialBootstrap.defaultCredential()
 }

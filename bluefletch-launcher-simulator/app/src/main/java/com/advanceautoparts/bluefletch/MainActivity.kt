@@ -1,101 +1,81 @@
 package com.advanceautoparts.bluefletch
 
+import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager.ApplicationInfoFlags
+import android.content.pm.PackageManager.ResolveInfoFlags
+import android.content.pm.ResolveInfo
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.advanceautoparts.bluefletch.ui.theme.BlueFletchLauncherSimulatorTheme
-import com.okta.oidc.AuthorizationStatus
-import com.okta.oidc.ResultCallback
-import com.okta.oidc.util.AuthorizationException
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var okta: OktaNativeSSOLogin
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        okta = OktaNativeSSOLogin(this)
 
         setContent {
             BlueFletchLauncherSimulatorTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
-//                    Greeting("Android")
-
-                    Navigator(okta)
+                    Navigator(this)
                 }
             }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        okta.onActivityResult(requestCode, resultCode, data)
-
-        super.onActivityResult(requestCode, resultCode, data)
     }
 }
 
 @Composable
-fun Navigator(okta: OktaNativeSSOLogin) {
+fun Navigator(activity: Activity) {
     val controller = rememberNavController()
-    val context = rememberUpdatedState(LocalContext.current)
+    val okta = remember { OktaNativeSSOLogin(activity) }
 
-    DisposableEffect(okta) {
-        okta.registerCallback(object : ResultCallback<AuthorizationStatus, AuthorizationException> {
-            override fun onSuccess(result: AuthorizationStatus) {
-                // TODO: Use scaffold for this?
-                Toast.makeText(context.value, "Logged in", Toast.LENGTH_SHORT).show()
-
-                controller.navigate("home")
-            }
-
-            override fun onCancel() {
-                Toast.makeText(context.value, "Cancelled logging in", Toast.LENGTH_SHORT).show()
-
-                controller.navigate("require-login")
-            }
-
-            override fun onError(message: String?, exception: AuthorizationException?) {
-                Toast.makeText(context.value, "Error logging in: $message", Toast.LENGTH_SHORT).show()
-
-                controller.navigate("require-login")
-            }
-        })
-
-        onDispose { okta.unregisterCallback() }
+    LaunchedEffect(null) {
+        if (okta.isAuthenticated()) controller.navigate("home")
     }
 
-    val initialRoute =
-        if (okta.isAuthenticated()) "home"
-        else "require-login"
+    val scope = rememberCoroutineScope()
 
-    NavHost(navController = controller, startDestination = initialRoute, modifier = Modifier.fillMaxSize()) {
+    val logout = { clearBrowser: Boolean ->
+        scope.launch {
+            okta.logout(clearBrowserLogin = clearBrowser)
+            controller.navigate("require-login")
+        }
+    }
+
+    NavHost(navController = controller, startDestination = "require-login", modifier = Modifier.fillMaxSize()) {
         composable("require-login") {
-            LoginScreen { okta.login() }
+            LoginScreen {
+                scope.launch {
+                    okta.login()
+                    controller.navigate("home")
+                }
+            }
         }
 
         composable("home") {
             HomeScreen(
-                onLogout = {
-                    okta.logout()
-                    controller.navigate("require-login")
-                }
+                onLogout = { logout(false) },
+                onLogoutClearingBrowser = { logout(true) }
             )
         }
     }
@@ -110,17 +90,81 @@ fun LoginScreen(onLogin: () -> Unit) {
     }
 }
 
+data class LauncherActivity(
+    val label: String,
+    val resolveInfo: ResolveInfo
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onLogout: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text("Hello, World!")
+fun HomeScreen(
+    onLogout: () -> Unit,
+    onLogoutClearingBrowser: () -> Unit,
+) {
+    val context = LocalContext.current
+    var activities by remember { mutableStateOf(emptyList<LauncherActivity>()) }
 
-        Spacer(modifier = Modifier.weight(1f))
+    LaunchedEffect(null) {
+        val mainActivities = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
 
-        Button(onClick = onLogout) {
-            Text("Logout")
+        val queriedActivities = context.packageManager.queryIntentActivities(mainActivities, 0)
+        activities = queriedActivities.map {
+            val label = it.loadLabel(context.packageManager).toString()
+
+            LauncherActivity(label, it)
         }
     }
+
+    val launchActivity = { activity: LauncherActivity ->
+        val componentName = ComponentName(
+            activity.resolveInfo.activityInfo.packageName,
+            activity.resolveInfo.activityInfo.name
+        )
+
+        context.startActivity(Intent(Intent.ACTION_MAIN).also {
+            it.addCategory(Intent.CATEGORY_LAUNCHER)
+            it.component = componentName
+//            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        })
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Hello, World!")
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(activities) { activity ->
+                Card(
+                    modifier = Modifier
+                        .padding(vertical = 4.dp, horizontal = 8.dp)
+                        .clickable { launchActivity(activity) }
+                ) {
+                    Row(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
+                        Text(activity.label)
+                    }
+                }
+            }
+        }
+
+        Row(modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Button(onClick = onLogout) {
+                Text("Logout")
+            }
+
+            Button(onClick = onLogoutClearingBrowser) {
+                Text("Logout (with browser)")
+            }
+        }
+    }
+}
+
+fun Context.getActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
 }
 
 //@Preview(showBackground = true)
