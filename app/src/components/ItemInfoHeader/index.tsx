@@ -124,13 +124,21 @@ export function ItemInfoHeader({
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="QOH"
-          value={itemDetails.mfrPartNum}
+          value={itemDetails.onHand}
         />
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="Back Stock"
           value={backstockSlots}
         />
+
+        {quantityAdjustment && (
+          <ItemPropertyDisplay
+            style={styles.itemProperties}
+            label="New Qty"
+            value={quantityAdjustment.quantity}
+          />
+        )}
         {/* TODO: Right now the api does not return maxi
             so we decided to hide it. Add it back when
             any progress is made

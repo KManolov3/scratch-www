@@ -1,6 +1,6 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { useCallback } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLazyQuery } from '@apollo/client';
 import { Text } from '@components/Text';
@@ -40,7 +40,6 @@ const ITEM_BY_UPC = gql(`
 // TODO: Add option to navigate here with SKU
 export function BatchCountHome() {
   const navigation = useNavigation<BatchCountNavigation>();
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { batchCountItems, updateItem, addItem } = useBatchCountState();
 
   const onLookupCompleted = useCallback(
@@ -87,13 +86,6 @@ export function BatchCountHome() {
       onCompleted: onLookupCompleted,
     });
 
-  const onFocus = useCallback(() => {
-    setIsSearchFocused(true);
-  }, [setIsSearchFocused]);
-  const onBlur = useCallback(() => {
-    setIsSearchFocused(false);
-  }, [setIsSearchFocused]);
-
   const onSubmit = useCallback(
     (value: string) => {
       if (value) {
@@ -119,8 +111,15 @@ export function BatchCountHome() {
 
   return (
     <FixedLayout>
-      <SearchBar onFocus={onFocus} onBlur={onBlur} onSubmit={onSubmit} />
-      {!isSearchFocused && <ScanBarcodeLabel />}
+      <SearchBar onSubmit={onSubmit} />
+      <ScanBarcodeLabel style={styles.scanBarcode} />
     </FixedLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  scanBarcode: {
+    margin: 20,
+    marginTop: 88,
+  },
+});
