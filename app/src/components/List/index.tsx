@@ -16,7 +16,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<T>) => {
       return (
-        <>
+        <View key={`ListItem${index}`}>
           <View style={styles.table}>
             {itemInfo.map(({ label, getValue }) => (
               <Text
@@ -29,7 +29,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
             ))}
           </View>
           <View style={styles.separator} />
-        </>
+        </View>
       );
     },
     [itemInfo],

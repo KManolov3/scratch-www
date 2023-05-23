@@ -9,7 +9,7 @@ import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { soundService } from 'src/services/SoundService';
-import { formatPrice } from '@lib/formatPrice';
+import { convertCurrencyToString } from '@lib/currency';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -99,7 +99,7 @@ export function ItemInfoHeader({
           label="Price"
           value={
             itemDetails.retailPrice
-              ? formatPrice(itemDetails.retailPrice)
+              ? convertCurrencyToString(itemDetails.retailPrice)
               : 'undefined'
           }
           icon={

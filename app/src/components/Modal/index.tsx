@@ -6,7 +6,8 @@ import { Colors } from '@lib/colors';
 
 export type ModalProps = Partial<
   Omit<ReactNativeModalProps, 'backdropOpacity' | 'backdropColor'>
->;
+> &
+  Pick<ReactNativeModalProps, 'children' | 'isVisible'>;
 
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (

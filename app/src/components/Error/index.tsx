@@ -6,14 +6,14 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 
 interface Props {
-  label?: string;
+  message?: string;
 }
 
-export function Error({ label = 'Oops, something went wrong!' }: Props) {
+export function Error({ message = 'Oops, something went wrong!' }: Props) {
   return (
     <FixedLayout style={styles.container}>
       <AttentionIcon style={styles.icon} width={iconSize} height={iconSize} />
-      <Text style={styles.text}>{label}</Text>
+      <Text style={styles.text}>{message}</Text>
     </FixedLayout>
   );
 }

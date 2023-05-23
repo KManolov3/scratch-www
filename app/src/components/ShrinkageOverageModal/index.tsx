@@ -1,73 +1,66 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Modal } from '@components/Modal';
-import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { convertCurrencyToString } from '@lib/currency';
+import { Text } from '@components/Text';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { convertCurrencyToString } from '@lib/currency';
 
-export interface PriceDiscrepancyModalModalProps {
+export interface ShrinkageOverageModalProps {
   isVisible: boolean;
-  scanned: number;
-  system: number;
+  shrinkage: number;
+  overage: number;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export function PriceDiscrepancyModal({
+// TODO: Extract a common action modal component
+export function ShrinkageOverageModal({
   isVisible,
-  scanned,
-  system,
+  shrinkage,
+  overage,
   onConfirm,
   onCancel,
-}: PriceDiscrepancyModalModalProps) {
+}: ShrinkageOverageModalProps) {
   return (
     <Modal isVisible={isVisible} onBackdropPress={onCancel}>
       <View style={styles.attention}>
         <AttentionIcon height={40} width={40} />
       </View>
-      <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
-      <Text style={styles.informationText}>Print updated front tag</Text>
+      <Text style={styles.confirmationText}>Shrinkage & Outage</Text>
+      <Text style={styles.informationText}>
+        This outage will result in a change at retail of:
+      </Text>
       <View style={styles.container}>
         <ItemPropertyDisplay
           style={styles.itemProperties}
-          label="Scanned"
-          value={convertCurrencyToString(scanned)}
+          label="Shrinkage"
+          value={convertCurrencyToString(shrinkage)}
         />
         <ItemPropertyDisplay
           style={styles.itemProperties}
-          label="System"
-          value={convertCurrencyToString(system)}
+          label="Net Dollars"
+          value={convertCurrencyToString(overage)}
         />
       </View>
       <View style={styles.container}>
         <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
+          <Text style={styles.buttonText}>Cancel</Text>
         </Pressable>
         <Pressable
           onPress={onConfirm}
           style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Print Front Tag</Text>
+          <Text style={styles.buttonText}>Accept</Text>
         </Pressable>
       </View>
     </Modal>
   );
 }
+
 const styles = StyleSheet.create({
   confirmationText: {
     fontWeight: FontWeight.Bold,
-    text: {
-      marginVertical: 8,
-    },
-    bold: {
-      fontWeight: FontWeight.Demi,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: Colors.darkGray,
-      marginVertical: 8,
-    },
     marginTop: 12,
     fontSize: 20,
     textAlign: 'center',
