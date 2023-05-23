@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useEffect, useState } from 'react';
+import { RootSiblingParent } from 'react-native-root-siblings';
 import { StyleSheet } from 'react-native';
 import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { ApolloProvider } from '@apollo/client';
@@ -97,12 +98,14 @@ export function AppRoot({
 
   return isInitialised ? (
     <ApolloProvider client={apolloClient}>
-      <NavigationContainer>
-        <RootNavigator
-          initialRoute={initialRoute}
-          screenOptions={screenOptions}
-        />
-      </NavigationContainer>
+      <RootSiblingParent>
+        <NavigationContainer>
+          <RootNavigator
+            initialRoute={initialRoute}
+            screenOptions={screenOptions}
+          />
+        </NavigationContainer>
+      </RootSiblingParent>
     </ApolloProvider>
   ) : null;
 }

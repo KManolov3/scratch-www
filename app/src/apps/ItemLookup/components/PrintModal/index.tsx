@@ -4,15 +4,17 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { PrinterIcon } from '@assets/icons';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { RadioButton } from '@components/Button/Radio';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
+import { PrintConfirmationModal } from '../PrintConfirmationModal';
 
+const TRIGGER_CONFIRMATION_QUANTITY = 11;
 export interface PrintModalProps {
   isVisible: boolean;
-  onConfirm: () => void;
+  onConfirm: (printer: PrinterOptions) => void;
   onCancel: () => void;
 }
 
@@ -24,55 +26,80 @@ export function PrintModal({
   const [quantity, setQuantity] = useState(1);
   const { defaultPrinterOption } = useDefaultSettings();
   const [printer, setPrinter] = useState(defaultPrinterOption);
-  const { state: showPrinterOptions, toggleState: toggleShowPrinterOptions } =
-    useBooleanState();
+  const [showPrinterOptions, toggleShowPrinterOptions] = useBooleanState();
+  const [confirmationModalOpen, toggleConfirmationModal] = useBooleanState();
+  const print = useCallback(() => {
+    if (quantity >= TRIGGER_CONFIRMATION_QUANTITY) {
+      return toggleConfirmationModal();
+    }
+    onConfirm(printer);
+  }, [onConfirm, printer, quantity, toggleConfirmationModal]);
+  const onConfirmCallback = useCallback(() => {
+    onConfirm(printer);
+    toggleConfirmationModal();
+  }, [onConfirm, printer, toggleConfirmationModal]);
+
+  const printerValues = useMemo(
+    () =>
+      (Object.values(PrinterOptions) as Array<PrinterOptions>).map(item => (
+        <RadioButton
+          key={item}
+          checked={item === printer}
+          onPress={() => setPrinter(item)}>
+          <Text>{item}</Text>
+        </RadioButton>
+      )),
+    [printer],
+  );
 
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <View style={styles.printerSvg}>
-        <PrinterIcon height={48} width={40} />
-      </View>
-      <Text style={styles.header}>Print Front Tag</Text>
-      <View style={styles.printerInformation}>
-        <Text style={styles.text}>
-          Print to <Text style={styles.bold}>{printer}</Text>
-        </Text>
-        <Pressable onPress={toggleShowPrinterOptions}>
-          <Text style={[styles.viewOptions, styles.bold]}>
-            {showPrinterOptions ? 'Hide' : 'View'} Options
-          </Text>
-        </Pressable>
-      </View>
-      {showPrinterOptions && (
-        // TODO: center them
-        <View style={styles.radioButtons}>
-          {(Object.values(PrinterOptions) as Array<PrinterOptions>).map(
-            item => (
-              <RadioButton
-                key={item}
-                checked={item === printer}
-                onPress={() => setPrinter(item)}>
-                <Text>{item}</Text>
-              </RadioButton>
-            ),
-          )}
+    <>
+      <Modal isVisible={isVisible} onBackdropPress={onCancel}>
+        <View style={styles.printerSvg}>
+          <PrinterIcon height={48} width={40} />
         </View>
-      )}
-      <View style={styles.quantityAdjuster}>
-        <Text style={styles.bold}>Qty:</Text>
-        <QuantityAdjuster quantity={quantity} setQuantity={setQuantity} />
-      </View>
-      <View style={styles.container}>
-        <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
-        </Pressable>
-        <Pressable
-          onPress={onConfirm}
-          style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Print Front Tag</Text>
-        </Pressable>
-      </View>
-    </Modal>
+        <Text style={styles.header}>Print Front Tag</Text>
+        <View style={styles.printerInformation}>
+          <Text style={styles.text}>
+            Print to <Text style={styles.bold}>{printer}</Text>
+          </Text>
+          <Pressable onPress={toggleShowPrinterOptions}>
+            <Text style={[styles.viewOptions, styles.bold]}>
+              {showPrinterOptions ? 'Hide' : 'View'} Options
+            </Text>
+          </Pressable>
+        </View>
+        {showPrinterOptions && (
+          <View style={styles.radioButtons}>
+            <View>{printerValues}</View>
+          </View>
+        )}
+        <View style={styles.quantityAdjuster}>
+          <Text style={[styles.bold, styles.qty]}>Qty:</Text>
+          <QuantityAdjuster
+            minimum={1}
+            quantity={quantity}
+            setQuantity={setQuantity}
+          />
+        </View>
+        <View style={styles.container}>
+          <Pressable onPress={onCancel} style={styles.button}>
+            <Text style={styles.buttonText}>Close</Text>
+          </Pressable>
+          <Pressable
+            onPress={print}
+            style={[styles.button, styles.confirmationButton]}>
+            <Text style={styles.buttonText}>Print Front Tag</Text>
+          </Pressable>
+        </View>
+      </Modal>
+      <PrintConfirmationModal
+        isVisible={confirmationModalOpen}
+        onCancel={toggleConfirmationModal}
+        onConfirm={onConfirmCallback}
+        quantity={quantity}
+      />
+    </>
   );
 }
 const styles = StyleSheet.create({
@@ -129,4 +156,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  qty: { marginRight: 12 },
 });

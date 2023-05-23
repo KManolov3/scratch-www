@@ -15,8 +15,9 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { noop } from 'lodash-es';
+import { PrinterOptions } from '@hooks/useDefaultSettings';
 import { soundService } from 'src/services/SoundService';
+import { toastService } from 'src/services/ToastService';
 import { ItemLookupScreenProps } from '../navigator';
 import { PrintModal } from '../components/PrintModal';
 
@@ -90,16 +91,25 @@ export function ItemLookupScreen({
     }
   }, [priceDiscrepancy]);
 
-  const { state: printModalVisible, toggleState: togglePrintModal } =
-    useBooleanState();
+  const [printModalVisible, togglePrintModal] = useBooleanState();
 
-  const { state: priceDiscrepancyModalVisible, toggleState: toggleModal } =
+  const [priceDiscrepancyModalVisible, toggleModal] =
     useBooleanState(priceDiscrepancy);
 
-  const onConfirm = useCallback(() => {
+  const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
     togglePrintModal();
   }, [toggleModal, togglePrintModal]);
+
+  const onPrintConfirm = useCallback(
+    (printer: PrinterOptions) => {
+      toastService.showToast(`Front tag send to ${printer}`, {
+        containerStyle: styles.toast,
+      });
+      togglePrintModal();
+    },
+    [togglePrintModal],
+  );
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
@@ -145,7 +155,7 @@ export function ItemLookupScreen({
       <PrintModal
         isVisible={printModalVisible}
         onCancel={togglePrintModal}
-        onConfirm={noop}
+        onConfirm={onPrintConfirm}
       />
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
@@ -153,7 +163,7 @@ export function ItemLookupScreen({
           system={itemDetails.retailPrice}
           isVisible={priceDiscrepancyModalVisible}
           onCancel={toggleModal}
-          onConfirm={onConfirm}
+          onConfirm={onPriceDiscrepancyConfirm}
         />
       )}
     </FixedLayout>
@@ -168,5 +178,11 @@ const styles = StyleSheet.create({
   },
   bottomActionBar: {
     paddingTop: 8,
+  },
+  toast: {
+    marginBottom: '25%',
+    marginHorizontal: 12,
+    width: '95%',
+    padding: 16,
   },
 });
