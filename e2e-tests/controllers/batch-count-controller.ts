@@ -4,11 +4,12 @@ import {
   setValue,
   waitAndClick,
 } from '../methods/helpers.ts';
-import { Product } from '../models/product-model.ts';
 import { BatchCountPages } from './page-access.ts';
 import { waitFor } from '../methods/helpers.ts';
 import { BatchCountHomePage } from '../page-objects/batch-count/home-page.ts';
 import { BatchCountItemLookupPage } from '../page-objects/batch-count/item-lookup-page.ts';
+import { BatchCountConfirmPage } from '../page-objects/batch-count/batch-confirm-page.ts';
+import { TestItemInput } from '../../app/src/__generated__/graphql.js';
 
 export class BatchCountController {
   pages: BatchCountPages;
@@ -17,10 +18,11 @@ export class BatchCountController {
     this.pages = {
       homePage: new BatchCountHomePage(),
       itemLookupPage: new BatchCountItemLookupPage(),
+      confirmPage: new BatchCountConfirmPage(),
     };
   }
 
-  async searchForSku(product: Product) {
+  async searchForSku(product: TestItemInput) {
     await waitFor(this.pages.homePage.searchForSkuInput, 15000);
     await waitAndClick(this.pages.homePage.searchForSkuInput);
     await setValue(this.pages.homePage.searchForSkuInput, product.sku);
@@ -28,7 +30,7 @@ export class BatchCountController {
     await waitFor(this.pages.itemLookupPage.sku);
   }
 
-  async expectProductInfo(product: Product) {
+  async expectProductInfo(product: TestItemInput) {
     if (product.partDesc) {
       await expectElementText(
         this.pages.itemLookupPage.productName,
@@ -62,7 +64,7 @@ export class BatchCountController {
     if (product.planograms) {
       await expectElementText(
         this.pages.itemLookupPage.planogramInfoByRowNumber(1).locationId,
-        product.planograms[0].planogramId
+        `${product.planograms[0].planogramId}`
       );
 
       await expectElementText(

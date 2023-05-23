@@ -62,10 +62,17 @@ export class BatchCountItemLookupPage {
   }
 
   get fastAcceptButton() {
-    return '[text=Fast Accept]';
+    return '[text=FAST ACCEPT]';
   }
 
   get verifyButton() {
-    return '[text=Verify]';
+    return '[text=VERIFY]';
+  }
+
+  get shrinkageOverageModal() {
+    return {
+      cancelButton: '[text=CANCEL]',
+      acceptButton: '[text=ACCEPT]',
+    };
   }
 }

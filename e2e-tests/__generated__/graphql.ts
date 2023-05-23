@@ -325,7 +325,7 @@ export type Mutation = {
   setCycleCountItems: UpdateCycleCountResult;
   submitCycleCount: SubmitCycleCountResult;
   takeOverCycleCount: TakeOverCycleCountResult;
-  testClearData?: Maybe<Scalars['String']>;
+  testClearData?: Maybe<Scalars['Boolean']>;
   testSetData: TestSetDataResult;
   updateCycleCount: UpdateCycleCountResult;
   updateTruckScanItem?: Maybe<TruckScanItem>;
@@ -580,23 +580,45 @@ export type TeamMember = {
   name: Scalars['String'];
 };
 
+export type TestBackStockSlotInput = {
+  guid?: InputMaybe<Scalars['String']>;
+  lastModified?: InputMaybe<Scalars['Date']>;
+  qty?: InputMaybe<Scalars['Int']>;
+  sectionsLotName?: InputMaybe<Scalars['String']>;
+  sectionsLotNum?: InputMaybe<Scalars['String']>;
+  slotDescription?: InputMaybe<Scalars['String']>;
+  slotId?: InputMaybe<Scalars['Int']>;
+  slotName?: InputMaybe<Scalars['String']>;
+  storeNumber?: InputMaybe<Scalars['String']>;
+};
+
 export type TestDataInput = {
   items?: InputMaybe<Array<TestItemInput>>;
+  missingItemSkus?: InputMaybe<Array<Scalars['String']>>;
   storeNumber: Scalars['String'];
 };
 
 export type TestItemInput = {
+  backStockSlots?: InputMaybe<Array<InputMaybe<TestBackStockSlotInput>>>;
   mfrPartNum?: InputMaybe<Scalars['String']>;
   onHand?: InputMaybe<Scalars['Int']>;
   partDesc?: InputMaybe<Scalars['String']>;
+  planograms?: InputMaybe<Array<InputMaybe<TestPlanogramInput>>>;
   retailPrice?: InputMaybe<Scalars['Float']>;
   sku: Scalars['String'];
   upc?: InputMaybe<Scalars['String']>;
 };
 
+export type TestPlanogramInput = {
+  description?: InputMaybe<Scalars['String']>;
+  planogramId?: InputMaybe<Scalars['String']>;
+  seqNum?: InputMaybe<Scalars['Int']>;
+};
+
 export type TestSetDataResult = {
   __typename?: 'TestSetDataResult';
   items?: Maybe<Array<Item>>;
+  missingItemSkus?: Maybe<Array<Scalars['String']>>;
   storeNumber: Scalars['String'];
 };
 
@@ -689,5 +711,11 @@ export type TestSetDataMutationVariables = Exact<{
 
 export type TestSetDataMutation = { __typename?: 'Mutation', testSetData: { __typename?: 'TestSetDataResult', items?: Array<{ __typename?: 'Item', sku?: string | null, retailPrice?: number | null, onHand?: number | null }> | null } };
 
+export type TestClearDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestClearDataMutation = { __typename?: 'Mutation', testClearData?: boolean | null };
+
 
 export const TestSetDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TestSetData"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TestDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"testSetData"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"retailPrice"}},{"kind":"Field","name":{"kind":"Name","value":"onHand"}}]}}]}}]}}]} as unknown as DocumentNode<TestSetDataMutation, TestSetDataMutationVariables>;
+export const TestClearDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TestClearData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"testClearData"}}]}}]} as unknown as DocumentNode<TestClearDataMutation, TestClearDataMutationVariables>;

@@ -17,6 +17,11 @@ const SET_DATA_MUTATION = gql(`
   }
 `);
 
+const CLEAR_DATA_MUTATION = gql(`mutation TestClearData {
+        testClearData
+      }
+      `);
+
 export class TestDataController {
   private cache = new InMemoryCache();
   private graphqlClient = new ApolloClient({
@@ -39,11 +44,8 @@ export class TestDataController {
   }
 
   async clearData() {
-    // return await this.graphqlClient.mutate({
-    //   mutation: gql(`mutation Mutation {
-    //     testClearData
-    //   }
-    //   `),
-    // });
+    return await this.graphqlClient.mutate({
+      mutation: CLEAR_DATA_MUTATION,
+    });
   }
 }

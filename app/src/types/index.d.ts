@@ -5,3 +5,5 @@ declare module '*.svg' {
   export type SvgType = typeof Svg;
   export type SvgProps = SvgProps;
 }
+
+declare module '*.mp3';

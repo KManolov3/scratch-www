@@ -7,6 +7,7 @@ import {
 } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFile } from 'fs/promises';
+import { TestItemInput } from '../../app/src/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
   typeDefs: await Promise.all([
@@ -95,7 +96,6 @@ const store = createMockStore({
   typePolicies: {
     BackStockSlot: { keyFieldName: 'guid' },
     CycleCount: { keyFieldName: 'cycleCountId' },
-    Item: { keyFieldName: 'id' },
     Planogram: { keyFieldName: 'planogramId' },
     Pog: { keyFieldName: 'pogId' },
     NewCycleCount: { keyFieldName: 'id' },
@@ -107,28 +107,48 @@ const store = createMockStore({
 export const schema = addMocksToSchema({
   schema: innerSchema,
   store,
+  // eslint-disable-next-line no-shadow, arrow-parens
   resolvers: store => ({
-    Query: {
-      itemBySku(_, { sku, storeNumber }) {
-        return store.get('Item', `${storeNumber}-${sku}`);
-      },
-    },
-
     Mutation: {
       testSetData(_, { input }) {
-        // TODO:
-        // use generated type from graphql for the "item" parameter
-        const items = input.items.map((item: any) => {
-          const id = `${input.storeNumber}-${item.sku}`;
-          store.set('Item', id, item);
+        const items = input.items.map((item: TestItemInput) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: { sku: item.sku, storeNumber: input.storeNumber },
+            value: {
+              mfrPartNum: item.mfrPartNum,
+              partDesc: item.partDesc,
+              sku: item.sku,
+              upc: item.upc,
+              retailPrice: item.retailPrice,
+              onHand: item.onHand,
+            },
+          });
 
-          return store.get('Item', id);
+          return item;
         });
 
-        return { items };
+        input.missingItemSkus.forEach((itemSku: string) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: {
+              sku: itemSku,
+              storeNumber: input.storeNumber,
+            },
+            value: null,
+          });
+        });
+
+        return { items, missingItemSkus: input.missingItemSkus };
       },
+
       testClearData() {
         store.reset();
+        return true;
       },
     },
   }),
