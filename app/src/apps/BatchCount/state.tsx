@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { gql } from 'src/__generated__';
 import { Error as ErrorCard } from '@components/Error';
-import { ActivityIndicator } from 'react-native/types';
+import { ActivityIndicator } from 'react-native';
 import {
   Action,
   CycleCountType,
