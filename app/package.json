@@ -10,7 +10,7 @@
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.tsx,.js,.jsx",
     "start": "react-native start",
     "test": "jest",
-    "graphql:compile": "graphql-codegen",
+    "graphql:codegen": "graphql-codegen",
     "graphql:watch": "graphql-codegen -w",
     "prepare": "cd .. && husky install ./app/.husky && cd ./app",
     "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema"

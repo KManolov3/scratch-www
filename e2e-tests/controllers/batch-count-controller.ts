@@ -9,14 +9,12 @@ import { waitFor } from '../methods/helpers.ts';
 import { BatchCountHomePage } from '../page-objects/batch-count/home-page.ts';
 import { BatchCountItemLookupPage } from '../page-objects/batch-count/item-lookup-page.ts';
 import { BatchCountConfirmPage } from '../page-objects/batch-count/batch-confirm-page.ts';
-import { TestItemInput } from '../../app/src/__generated__/graphql.js';
+import { TestItemInput } from '../__generated__/graphql.ts';
 
 export class BatchCountController {
-  products: TestItemInput[];
   pages: BatchCountPages;
 
-  constructor(model: TestItemInput[]) {
-    this.products = model;
+  constructor() {
     this.pages = {
       homePage: new BatchCountHomePage(),
       itemLookupPage: new BatchCountItemLookupPage(),

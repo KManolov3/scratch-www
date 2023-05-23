@@ -7,7 +7,7 @@ import {
 } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFile } from 'fs/promises';
-import { TestItemInput } from '../../app/src/__generated__/graphql.js';
+import { TestItemInput } from '../../e2e-tests/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
   typeDefs: await Promise.all([

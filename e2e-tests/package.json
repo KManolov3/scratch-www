@@ -12,7 +12,9 @@
     "e2e:item-lookup": "cd ./specs/item-lookup && ../../run-e2e.sh ItemLookupActivity",
     "e2e:truck-detail-scan": "cd ./specs/truck-detail-scan && ../../run-e2e.sh TruckDetailScanActivity",
     "e2e:multiple-apps": "./run-e2e-multiple-apps.sh",
-    "eslint": "eslint ."
+    "eslint": "eslint .",
+    "graphql:codegen": "graphql-codegen",
+    "graphql:watch": "graphql-codegen -w"
   },
   "dependencies": {
     "@apollo/client": "^3.7.14",
@@ -22,7 +24,6 @@
     "@typescript-eslint/parser": "^5.59.0",
     "appium": "^1.22.3",
     "chai": "^4.3.7",
-    "dotenv": "^16.0.3",
     "dotenv-cli": "^7.2.1",
     "fs-extra": "^11.1.1",
     "lodash-es": "^4.17.21",
@@ -33,6 +34,8 @@
     "wttab": "^1.2.2"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^3.3.1",
+    "@graphql-codegen/client-preset": "^3.0.1",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.11",
@@ -44,6 +47,7 @@
     "@wdio/selenium-standalone-service": "^8.8.0",
     "@wdio/spec-reporter": "^8.8.0",
     "@wdio/types": "^8.8.0",
+    "dotenv": "^16.0.3",
     "eslint": "^8.39.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
