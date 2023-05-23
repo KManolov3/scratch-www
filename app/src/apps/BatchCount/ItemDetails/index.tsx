@@ -2,7 +2,7 @@
 // token to the app, containing the current active store.
 
 import { useCallback, useEffect, useMemo } from 'react';
-import { ToastAndroid } from 'react-native';
+import { StyleSheet, ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -88,7 +88,16 @@ export function BatchCountItemDetails({
         itemDetails={selectedItem.item}
         quantityAdjustment={quantityAdjustmentDetails}
       />
-      <BottomActionBar actions={bottomBarActions} />
+      <BottomActionBar
+        style={styles.bottomActionBar}
+        actions={bottomBarActions}
+      />
     </FixedLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  bottomActionBar: {
+    paddingTop: 8,
+  },
+});

@@ -1,59 +1,39 @@
 import { StyleSheet } from 'react-native';
-import { BarcodeIcon, SearchIcon } from '@assets/icons';
+import { SearchIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
-import { Text } from '@components/Text';
 import { TextField } from '@components/TextField';
-import { Container } from '@components/Container';
-import { TextInputRef } from '@components/TextInput';
 
 export interface SearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onSubmit?: (value: string) => void;
-  showInformativeMessage?: boolean;
-  inputRef?: React.RefObject<TextInputRef>;
 }
 
-export function SearchBar({
-  onFocus,
-  onBlur,
-  showInformativeMessage = false,
-  onSubmit,
-  inputRef,
-}: SearchBarProps) {
+export function SearchBar({ onFocus, onBlur, onSubmit }: SearchBarProps) {
   return (
-    <Container style={styles.container}>
-      <TextField
-        placeholder="Search for a SKU"
-        icon={<SearchIcon height={iconHeight} width={iconWidth} />}
-        inputStyle={styles.input}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onSubmit={onSubmit}
-        inputRef={inputRef}
-        clearable
-      />
-      {showInformativeMessage && (
-        <Container style={styles.detailsContainer}>
-          <BarcodeIcon height={iconHeight} width={iconWidth} />
-          <Text style={styles.details}>
-            Scan a front tag or UPC for details
-          </Text>
-        </Container>
-      )}
-    </Container>
+    <TextField
+      placeholder="Search for a SKU"
+      icon={
+        <SearchIcon style={styles.icon} height={iconSize} width={iconSize} />
+      }
+      inputStyle={styles.input}
+      containerStyle={styles.container}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onSubmit={onSubmit}
+    />
   );
 }
 
-const iconHeight = 36;
-const iconWidth = 22;
+const iconSize = 18;
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    margin: 20,
-    padding: 8,
+    backgroundColor: Colors.lightGray,
+    alignItems: 'center',
+  },
+  icon: {
+    marginTop: 6,
   },
   detailsContainer: {
     flexDirection: 'row',
@@ -68,5 +48,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     color: Colors.advanceBlack,
+    backgroundColor: Colors.pure,
+
+    margin: 8,
+    padding: 15,
+    marginTop: 16,
   },
 });
