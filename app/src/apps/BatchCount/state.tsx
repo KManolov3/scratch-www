@@ -9,6 +9,8 @@ import {
   useState,
 } from 'react';
 import { gql } from 'src/__generated__';
+import { Error as ErrorCard } from '@components/Error';
+import { ActivityIndicator } from 'react-native/types';
 import {
   Action,
   CycleCountType,
@@ -56,13 +58,14 @@ function buildBatchCountRequest(
       {
         action: Action.Create,
         status: Status.Completed,
-        // This should always be parsеable to ISO
+        // This should always be serializable to ISO
         dueDate: DateTime.now().toISO() as string,
         createDate: DateTime.now().toISO() as string,
         cycleCountName: uuid(),
         cycleCountType: CycleCountType.BatchCount,
         items: Object.keys(batchCountItems).map(sku => {
-          if (batchCountItems[sku] === undefined) {
+          const batchCountItem = batchCountItems[sku];
+          if (batchCountItem === undefined) {
             throw new Error(
               `Could not find item indexed by sku ${sku}. This should never happen`,
             );
@@ -70,10 +73,9 @@ function buildBatchCountRequest(
 
           return {
             sku,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            onhandAtCountQty: batchCountItems[sku]!.newQty.toString(),
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            freezeQty: batchCountItems[sku]!.item.onHand!.toString(),
+            onhandAtCountQty: batchCountItem.newQty.toString(),
+            // Should we change the model and just not pass anything here if `onHand` is missing?
+            freezeQty: batchCountItem.item.onHand?.toString() ?? 'undefined',
           };
         }),
       },
@@ -85,14 +87,9 @@ function buildBatchCountRequest(
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItems>({});
-  // TODO: Show loading indicator while submitting?
-  const [submitBatchCount, { error }] = useMutation(SUBMIT_BATCH_COUNT);
+  const [submitBatchCount, { error, loading }] =
+    useMutation(SUBMIT_BATCH_COUNT);
   const navigation = useNavigation<BatchCountNavigation>();
-
-  if (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-  }
 
   const addItem = useCallback(
     (newItem: BatchCountItem) =>
@@ -136,6 +133,15 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     }),
     [batchCountItems, addItem, updateItem, submit],
   );
+
+  if (loading) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  if (error) {
+    // TODO: Show error toast instead
+    <ErrorCard label={error.message} />;
+  }
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
