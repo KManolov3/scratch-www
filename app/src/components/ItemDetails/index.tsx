@@ -11,17 +11,20 @@ export interface ItemDetailsProps {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
   };
+  frontTagPrice?: number;
 }
 
 export function ItemDetails({
   itemDetails,
   quantityAdjustment,
+  frontTagPrice,
 }: ItemDetailsProps) {
   return (
     <View style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
         quantityAdjustment={quantityAdjustment}
+        frontTagPrice={frontTagPrice}
       />
       <Locations locationDetails={itemDetails} />
     </View>

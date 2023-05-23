@@ -2,6 +2,7 @@ import { FlatList, ListRenderItemInfo, StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { useCallback } from 'react';
+import { FontWeight } from '@lib/font';
 
 export interface ListProps<T> {
   itemInfo: {
@@ -43,7 +44,6 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
           </Text>
         ))}
       </View>
-      <View style={styles.separator} />
       <FlatList
         data={data}
         renderItem={renderItem}
@@ -67,6 +67,9 @@ const styles = StyleSheet.create({
   },
   headers: {
     padding: 6,
+    backgroundColor: Colors.lightGray,
+    borderRadius: 8,
+    fontWeight: FontWeight.Demi,
   },
   text: {
     fontSize: 16,

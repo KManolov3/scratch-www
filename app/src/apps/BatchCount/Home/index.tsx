@@ -6,8 +6,8 @@ import { useLazyQuery } from '@apollo/client';
 import { Text } from '@components/Text';
 import { ManualItemLookupQuery } from 'src/__generated__/graphql';
 import { gql } from 'src/__generated__';
-import { SearchBar } from '../components/SearchBar';
-import { Barcode } from '../components/Barcode';
+import { SearchBar } from '@components/SearchBar';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
 
@@ -119,13 +119,8 @@ export function BatchCountHome() {
 
   return (
     <FixedLayout>
-      <SearchBar
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onSubmit={onSubmit}
-        isSearchFocused={isSearchFocused}
-      />
-      {!isSearchFocused && <Barcode />}
+      <SearchBar onFocus={onFocus} onBlur={onBlur} onSubmit={onSubmit} />
+      {!isSearchFocused && <ScanBarcodeLabel />}
     </FixedLayout>
   );
 }

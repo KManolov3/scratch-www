@@ -1,5 +1,6 @@
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -14,12 +15,41 @@ import { useAppStateChange } from '@hooks/useAppStateChange';
 import { apolloClient } from './config/graphql';
 import { Colors } from './lib/colors';
 
-interface AppRootProps {
+export type AppRootProps = {
   applicationName: ApplicationName;
   initialRoute: RootRouteName;
-}
+} & (
+  | { scanProfileName?: undefined; scanIntentCategory?: undefined }
+  | {
+      /**
+       * Used for the DataWedge profile name.
+       */
+      scanProfileName: string;
 
-export function AppRoot({ applicationName, initialRoute }: AppRootProps) {
+      /**
+       * Must be the same as in the <intent-filter> for the current app.
+       */
+      scanIntentCategory: string;
+    }
+);
+
+export function AppRoot({
+  applicationName,
+  initialRoute,
+  scanProfileName,
+  scanIntentCategory,
+}: AppRootProps) {
+  useEffect(() => {
+    if (!scanProfileName || !scanIntentCategory) {
+      return;
+    }
+
+    InStoreAppsNative.configureScanner({
+      profileName: scanProfileName,
+      scanIntentCategory,
+    });
+  }, [scanProfileName, scanIntentCategory]);
+
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({
       headerStyle: styles.header,
@@ -90,6 +120,6 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.pure,
   },
 });
