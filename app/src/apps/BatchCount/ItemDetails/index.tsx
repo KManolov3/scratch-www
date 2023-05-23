@@ -1,8 +1,8 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useCallback, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useCallback, useEffect, useMemo } from 'react';
+import { View, StyleSheet, ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
 import { ItemDetails } from '../../../components/ItemDetails';
@@ -20,6 +20,7 @@ export function BatchCountItemDetails({
   const {
     batchCountItems,
     submit: submitBatchCount,
+    submitError,
     updateItem,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
@@ -70,6 +71,15 @@ export function BatchCountItemDetails({
     ],
     [submitBatchCount, onVerify],
   );
+
+  useEffect(() => {
+    if (submitError) {
+      // TODO: Switch with the toast library we decide to use
+      ToastAndroid.show(submitError.message, ToastAndroid.LONG);
+    }
+  }, [submitError]);
+
+  // TODO: Show loading indicator on submit
 
   return (
     <View style={styles.container}>

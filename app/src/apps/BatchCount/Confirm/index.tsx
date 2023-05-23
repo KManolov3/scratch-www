@@ -1,15 +1,19 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { View, StyleSheet, ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { toPairs } from 'lodash-es';
 import { List } from '@components/List';
 import { BatchCountItem, useBatchCountState } from '../state';
 
 export function BatchCountConfirm() {
-  const { submit: submitBatchCount, batchCountItems } = useBatchCountState();
+  const {
+    submit: submitBatchCount,
+    submitError,
+    batchCountItems,
+  } = useBatchCountState();
 
   const batchCountItemArr: BatchCountItem[] = useMemo(
     () => toPairs(batchCountItems).map(([sku, item]) => ({ sku, ...item })),
@@ -44,6 +48,15 @@ export function BatchCountConfirm() {
     ],
     [],
   );
+
+  useEffect(() => {
+    if (submitError) {
+      // TODO: Switch with the toast library we decide to use
+      ToastAndroid.show(submitError.message, ToastAndroid.LONG);
+    }
+  }, [submitError]);
+
+  // TODO: Show loading indicator on submit
 
   return (
     <View style={styles.container}>

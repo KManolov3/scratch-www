@@ -46,13 +46,12 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 48,
     fontSize: 18,
     color: Colors.advanceBlack,
     backgroundColor: Colors.pure,
 
     margin: 8,
-    padding: 8,
+    padding: 15,
     marginTop: 16,
   },
 });

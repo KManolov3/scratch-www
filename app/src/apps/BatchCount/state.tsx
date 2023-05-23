@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import { DateTime } from 'luxon';
 import {
   createContext,
@@ -9,8 +9,6 @@ import {
   useState,
 } from 'react';
 import { gql } from 'src/__generated__';
-import { Error as ErrorCard } from '@components/Error';
-import { ActivityIndicator } from 'react-native';
 import {
   Action,
   CycleCountType,
@@ -29,6 +27,8 @@ interface ContextValue {
   addItem: (item: BatchCountItem) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   submit: () => void;
+  submitLoading?: boolean;
+  submitError?: ApolloError;
 }
 
 export interface BatchCountItem {
@@ -59,8 +59,10 @@ function buildBatchCountRequest(
         action: Action.Create,
         status: Status.Completed,
         // This should always be serializable to ISO
-        dueDate: DateTime.now().toISO() as string,
-        createDate: DateTime.now().toISO() as string,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        dueDate: DateTime.now().toISO()!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        createDate: DateTime.now().toISO()!,
         cycleCountName: uuid(),
         cycleCountType: CycleCountType.BatchCount,
         items: Object.keys(batchCountItems).map(sku => {
@@ -130,18 +132,11 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       addItem,
       updateItem,
       submit,
+      submitLoading: loading,
+      submitError: error,
     }),
-    [batchCountItems, addItem, updateItem, submit],
+    [batchCountItems, addItem, updateItem, submit, loading, error],
   );
-
-  if (loading) {
-    return <ActivityIndicator size="large" />;
-  }
-
-  if (error) {
-    // TODO: Show error toast instead
-    <ErrorCard label={error.message} />;
-  }
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
