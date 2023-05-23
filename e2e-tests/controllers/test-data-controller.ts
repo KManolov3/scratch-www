@@ -38,7 +38,7 @@ export class TestDataController {
 
   async clearData() {
     return await this.graphqlClient.mutate({
-      mutation: gql(`mutation Mutation {
+      mutation: gql(`mutation TestClearData {
         testClearData
       }
       `),

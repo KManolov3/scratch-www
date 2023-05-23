@@ -325,7 +325,7 @@ export type Mutation = {
   setCycleCountItems: UpdateCycleCountResult;
   submitCycleCount: SubmitCycleCountResult;
   takeOverCycleCount: TakeOverCycleCountResult;
-  testClearData?: Maybe<Scalars['String']>;
+  testClearData?: Maybe<Scalars['Boolean']>;
   testSetData: TestSetDataResult;
   updateCycleCount: UpdateCycleCountResult;
   updateTruckScanItem?: Maybe<TruckScanItem>;
@@ -594,6 +594,7 @@ export type TestBackStockSlotInput = {
 
 export type TestDataInput = {
   items?: InputMaybe<Array<TestItemInput>>;
+  missingItemSkus?: InputMaybe<Array<Scalars['String']>>;
   storeNumber: Scalars['String'];
 };
 
@@ -617,6 +618,7 @@ export type TestPlanogramInput = {
 export type TestSetDataResult = {
   __typename?: 'TestSetDataResult';
   items?: Maybe<Array<Item>>;
+  missingItemSkus?: Maybe<Array<Scalars['String']>>;
   storeNumber: Scalars['String'];
 };
 

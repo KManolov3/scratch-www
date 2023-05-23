@@ -96,7 +96,6 @@ const store = createMockStore({
   typePolicies: {
     BackStockSlot: { keyFieldName: 'guid' },
     CycleCount: { keyFieldName: 'cycleCountId' },
-    Item: { keyFieldName: 'id' },
     Planogram: { keyFieldName: 'planogramId' },
     Pog: { keyFieldName: 'pogId' },
     NewCycleCount: { keyFieldName: 'id' },
@@ -110,25 +109,46 @@ export const schema = addMocksToSchema({
   store,
   // eslint-disable-next-line no-shadow, arrow-parens
   resolvers: store => ({
-    Query: {
-      itemBySku(_, { sku, storeNumber }) {
-        return store.get('Item', `${storeNumber}-${sku}`);
-      },
-    },
-
     Mutation: {
       testSetData(_, { input }) {
         const items = input.items.map((item: TestItemInput) => {
-          const id = `${input.storeNumber}-${item.sku}`;
-          store.set('Item', id, item);
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: { sku: item.sku, storeNumber: input.storeNumber },
+            value: {
+              mfrPartNum: item.mfrPartNum,
+              partDesc: item.partDesc,
+              sku: item.sku,
+              upc: item.upc,
+              retailPrice: item.retailPrice,
+              onHand: item.onHand,
+            },
+          });
 
-          return store.get('Item', id);
+          return item;
         });
 
-        return { items };
+        input.missingItemSkus.forEach((itemSku: string) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: {
+              sku: itemSku,
+              storeNumber: input.storeNumber,
+            },
+            value: null,
+          });
+        });
+
+        return { items, missingItemSkus: input.missingItemSkus };
       },
+
       testClearData() {
         store.reset();
+        return true;
       },
     },
   }),

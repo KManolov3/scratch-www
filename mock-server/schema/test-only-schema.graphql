@@ -1,6 +1,6 @@
 extend type Mutation {
   testSetData(input: TestDataInput!): TestSetDataResult!
-  testClearData: String
+  testClearData: Boolean
 }
 
 input TestItemInput {
@@ -35,11 +35,13 @@ input TestBackStockSlotInput {
 input TestDataInput {
   storeNumber: String!
   items: [TestItemInput!]
+  missingItemSkus: [String!]
   # cycleCounts: [TestCycleCountInput!]
 }
 
 type TestSetDataResult {
   storeNumber: String!
   items: [Item!]
+  missingItemSkus: [String!]
   # cycleCounts: [CycleCount!]
 }
