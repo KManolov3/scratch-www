@@ -119,9 +119,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
     [batchCountItems, setBatchCountItems],
   );
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const batchCountRequest = buildBatchCountRequest(batchCountItems);
-    submitBatchCount({ variables: { request: batchCountRequest } });
+    await submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
     navigation.navigate('Home');
   }, [batchCountItems, submitBatchCount, navigation]);

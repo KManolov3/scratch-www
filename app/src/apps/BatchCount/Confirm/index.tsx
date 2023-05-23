@@ -2,10 +2,11 @@
 // token to the app, containing the current active store.
 
 import { useEffect, useMemo } from 'react';
-import { View, StyleSheet, ToastAndroid } from 'react-native';
+import { ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { toPairs } from 'lodash-es';
 import { List } from '@components/List';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { BatchCountItem, useBatchCountState } from '../state';
 
 export function BatchCountConfirm() {
@@ -59,15 +60,9 @@ export function BatchCountConfirm() {
   // TODO: Show loading indicator on submit
 
   return (
-    <View style={styles.container}>
+    <FixedLayout>
       <List itemInfo={listItemInfo} data={batchCountItemArr} />
       <BottomActionBar actions={bottomBarActions} />
-    </View>
+    </FixedLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
