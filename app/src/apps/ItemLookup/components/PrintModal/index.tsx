@@ -14,7 +14,7 @@ import { PrintConfirmationModal } from '../PrintConfirmationModal';
 const TRIGGER_CONFIRMATION_QUANTITY = 11;
 export interface PrintModalProps {
   isVisible: boolean;
-  onConfirm: (printer: PrinterOptions) => void;
+  onConfirm: (printer: PrinterOptions, quantity: number) => void;
   onCancel: () => void;
 }
 
@@ -32,12 +32,13 @@ export function PrintModal({
     if (quantity >= TRIGGER_CONFIRMATION_QUANTITY) {
       return toggleConfirmationModal();
     }
-    onConfirm(printer);
+    onConfirm(printer, quantity);
   }, [onConfirm, printer, quantity, toggleConfirmationModal]);
+
   const onConfirmCallback = useCallback(() => {
-    onConfirm(printer);
+    onConfirm(printer, quantity);
     toggleConfirmationModal();
-  }, [onConfirm, printer, toggleConfirmationModal]);
+  }, [onConfirm, printer, quantity, toggleConfirmationModal]);
 
   const printerValues = useMemo(
     () =>

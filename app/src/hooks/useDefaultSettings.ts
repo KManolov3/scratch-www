@@ -7,8 +7,13 @@ export enum PrinterOptions {
 
 export interface DefaultSettings {
   defaultPrinterOption: PrinterOptions;
+  storeNumber: string;
 }
 
 export function useDefaultSettings(): DefaultSettings {
-  return { defaultPrinterOption: PrinterOptions.Counter1 };
+  return {
+    // TODO: hardcoded for now, change when we implement the launcher
+    defaultPrinterOption: PrinterOptions.Counter1,
+    storeNumber: '0363',
+  };
 }

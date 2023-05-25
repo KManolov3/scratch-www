@@ -17,6 +17,7 @@ const documents = {
     "\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.AutomaticItemLookupDocument,
     "\n  fragment CycleCountCardFragment on CycleCount {\n    cycleCountId\n    cycleCountName\n    dueDate\n  }\n": types.CycleCountCardFragmentFragmentDoc,
     "\n  query CycleCountContext {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n": types.CycleCountContextDocument,
+    "\n  mutation PrintFrontTag(\n    $storeNumber: String!\n    $printer: String! = \"1\"\n    $data: [FrontTagItem]\n  ) {\n    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)\n  }\n": types.PrintFrontTagDocument,
     "\n  query truckScanApp {\n    truckScansByStore(storeNumber: \"0363\") {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
     "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
     "\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n": types.ItemInfoHeaderFieldsFragmentDoc,
@@ -54,6 +55,10 @@ export function gql(source: "\n  fragment CycleCountCardFragment on CycleCount {
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query CycleCountContext {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query CycleCountContext {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation PrintFrontTag(\n    $storeNumber: String!\n    $printer: String! = \"1\"\n    $data: [FrontTagItem]\n  ) {\n    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)\n  }\n"): (typeof documents)["\n  mutation PrintFrontTag(\n    $storeNumber: String!\n    $printer: String! = \"1\"\n    $data: [FrontTagItem]\n  ) {\n    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

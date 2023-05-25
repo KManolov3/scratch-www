@@ -1,7 +1,7 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useCallback, useEffect, useMemo } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
@@ -15,7 +15,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { soundService } from 'src/services/SoundService';
 import { toastService } from 'src/services/ToastService';
 import { ItemLookupScreenProps } from '../navigator';
@@ -44,6 +44,16 @@ const ITEM_BY_UPC = gql(`
   }
 `);
 
+const PRINT_FRONT_TAG = gql(`
+  mutation PrintFrontTag(
+    $storeNumber: String!
+    $printer: String! = "1"
+    $data: [FrontTagItem]
+  ) {
+    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)
+  }
+`);
+
 export function ItemLookupScreen({
   route: {
     params: { type, value, frontTagPrice },
@@ -67,6 +77,8 @@ export function ItemLookupScreen({
     skip: type !== 'UPC',
   });
 
+  const [printFrontTag, { loading }] = useMutation(PRINT_FRONT_TAG);
+
   const itemDetails = useMemo(() => {
     if (lookupBySku) {
       return lookupBySku.itemBySku;
@@ -87,7 +99,7 @@ export function ItemLookupScreen({
       soundService
         .playSound('error')
         // eslint-disable-next-line no-console
-        .catch(error => console.log('Error playing sound.', error));
+        .catch(soundError => console.log('Error playing sound.', soundError));
     }
   }, [priceDiscrepancy]);
 
@@ -101,14 +113,27 @@ export function ItemLookupScreen({
     togglePrintModal();
   }, [toggleModal, togglePrintModal]);
 
+  const { storeNumber } = useDefaultSettings();
+
   const onPrintConfirm = useCallback(
-    (printer: PrinterOptions) => {
+    async (printer: PrinterOptions, qty: number) => {
+      await printFrontTag({
+        variables: {
+          storeNumber,
+          data: {
+            planogramId: '??',
+            sequence: 1,
+            sku: itemDetails?.sku,
+            count: qty,
+          },
+        },
+      });
       toastService.showToast(`Front tag send to ${printer}`, {
         containerStyle: styles.toast,
       });
       togglePrintModal();
     },
-    [togglePrintModal],
+    [itemDetails?.sku, printFrontTag, storeNumber, togglePrintModal],
   );
 
   const bottomBarActions = useMemo<Action[]>(
@@ -116,10 +141,11 @@ export function ItemLookupScreen({
       {
         label: 'Print Front Tag',
         onPress: togglePrintModal,
+        isLoading: loading,
         textStyle: styles.bottomBarActionText,
       },
     ],
-    [togglePrintModal],
+    [loading, togglePrintModal],
   );
 
   if (isLoadingItemBySku || isLoadingItemByUpc) {

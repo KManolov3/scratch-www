@@ -19,7 +19,7 @@ export function PrintConfirmationModal({
   quantity,
 }: PrintConfirmationModalProps) {
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel} backdropOpacity={0}>
+    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
       <View style={styles.headerSvg}>
         <BlackAttentionIcon height={40} width={40} />
       </View>

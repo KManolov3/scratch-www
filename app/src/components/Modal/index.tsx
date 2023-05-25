@@ -4,7 +4,9 @@ import ReactNativeModal, {
 import { StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 
-export type ModalProps = Partial<Omit<ReactNativeModalProps, 'backdropColor'>>;
+export type ModalProps = Partial<
+  Omit<ReactNativeModalProps, 'backdropOpacity' | 'backdropColor'>
+>;
 
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (
