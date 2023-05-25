@@ -18,7 +18,6 @@ type BackstockSlot = NonNullable<
     DocumentType<typeof BACKSTOCK_SLOT_FIELDS>['backStockSlots']
   >[number]
 >;
-type BackstockSlotKeys = keyof BackstockSlot;
 
 export interface BackstockSlotListProps {
   // TODO: define fragment
@@ -26,20 +25,20 @@ export interface BackstockSlotListProps {
 }
 
 export function BackstockSlotList({ backstockSlots }: BackstockSlotListProps) {
-  const labelInfo = useMemo<{ label: string; key: BackstockSlotKeys }[]>(
+  const listItemInfo = useMemo(
     () => [
       {
         label: 'Slot Location',
         // TODO: Check if slotId is the field that should be used here -
         // can cross-reference with the code of BlueFletch apps
-        key: 'slotId',
+        getValue: (item: BackstockSlot) => item.slotId ?? 'undefined',
       },
       {
         label: 'Qty',
-        key: 'qty',
+        getValue: (item: BackstockSlot) => item.qty ?? -1,
       },
     ],
     [],
   );
-  return <List labelInfo={labelInfo} data={backstockSlots} />;
+  return <List itemInfo={listItemInfo} data={backstockSlots} />;
 }
