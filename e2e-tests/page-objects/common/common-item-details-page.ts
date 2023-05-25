@@ -1,4 +1,4 @@
-export class BatchCountItemLookupPage {
+export class CommonItemDetailsPage {
   get headerText() {
     return '[text=ItemDetails]';
   }
@@ -23,20 +23,12 @@ export class BatchCountItemLookupPage {
     return '~P/N: value';
   }
 
-  get currentQuantity() {
+  get qunantityOnHand() {
     return '~Current: value';
   }
 
   get backstockQuantity() {
     return '~Bk Stk: value';
-  }
-
-  get newQuantity() {
-    return '~New value';
-  }
-
-  get changeQuantityInput() {
-    return '[text=1]';
   }
 
   get pogLocationsButton() {
@@ -58,21 +50,6 @@ export class BatchCountItemLookupPage {
     return {
       locationId: `~Slot Location${row - 1}`,
       quantity: `~Qty${row - 1}`,
-    };
-  }
-
-  get fastAcceptButton() {
-    return '[text=FAST ACCEPT]';
-  }
-
-  get verifyButton() {
-    return '[text=VERIFY]';
-  }
-
-  get shrinkageOverageModal() {
-    return {
-      cancelButton: '[text=CANCEL]',
-      acceptButton: '[text=ACCEPT]',
     };
   }
 }
