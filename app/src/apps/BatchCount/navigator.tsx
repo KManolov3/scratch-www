@@ -9,8 +9,9 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+import { LookupType } from 'src/types/ItemLookup';
 import { BatchCountHome } from './Home';
-import { BatchCountItemLookup, LookupType } from './ItemLookup';
+import { BatchCountItemLookup } from './ItemLookup';
 
 type Routes = {
   Home: { shouldFocusSearch?: boolean };

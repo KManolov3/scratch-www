@@ -10,8 +10,6 @@ import { ItemDetails } from '@components/ItemDetails';
 import { NoResults } from '@components/NoResults';
 import { BatchCountScreenProps } from '../navigator';
 
-export type LookupType = 'UPC' | 'SKU';
-
 // TODO: Move those below component?
 const ITEM_BY_SKU = gql(`
   query ManualItemLookup($sku: String!) {

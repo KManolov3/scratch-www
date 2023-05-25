@@ -21,8 +21,6 @@ import { toastService } from 'src/services/ToastService';
 import { ItemLookupScreenProps } from '../navigator';
 import { PrintModal } from '../components/PrintModal';
 
-export type LookupType = 'UPC' | 'SKU';
-
 // TODO: Move those below component?
 const ITEM_BY_SKU = gql(`
   query ManualItemLookup($sku: String!) {

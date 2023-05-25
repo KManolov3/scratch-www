@@ -9,8 +9,9 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
+import { LookupType } from 'src/types/ItemLookup';
 import { ItemLookupHome } from './Home';
-import { ItemLookupScreen, LookupType } from './ItemLookup';
+import { ItemLookupScreen } from './ItemLookup';
 
 type Routes = {
   Home: undefined;

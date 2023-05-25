@@ -1,3 +1,4 @@
+import { scanCodeService } from 'src/services/ScanCode';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +14,19 @@ export function ItemLookupHome() {
     // Keeping this to test for now
     // eslint-disable-next-line no-console
     console.log('useScanListener', scan);
+
+    const scanCode = scanCodeService.read(scan);
+    if (scanCode.type === 'SKU') {
+      return navigation.navigate('ItemLookup', {
+        type: 'SKU',
+        value: scanCode.sku,
+        frontTagPrice: scanCode.frontTagPrice,
+      });
+    }
+    return navigation.navigate('ItemLookup', {
+      type: 'UPC',
+      value: scanCode.upc,
+    });
   });
 
   const navigation = useNavigation<ItemLookupNavigation>();
@@ -20,15 +34,6 @@ export function ItemLookupHome() {
 
   const onSubmit = useCallback(
     (value: string) => {
-      const frontTag = value.match(/^99(\D+)(\d+)$/);
-      if (frontTag && frontTag[1] && frontTag[2]) {
-        // TODO: hardcoded for now for testing
-        return navigation.navigate('ItemLookup', {
-          type: 'UPC',
-          value: frontTag[1],
-          frontTagPrice: parseInt(frontTag[2], 10) / 100,
-        });
-      }
       return navigation.navigate('ItemLookup', {
         type: 'SKU',
         value,

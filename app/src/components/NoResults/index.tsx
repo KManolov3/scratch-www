@@ -1,10 +1,10 @@
-import { LookupType } from '@apps/BatchCount/ItemLookup';
 import { BatchCountNavigation } from '@apps/BatchCount/navigator';
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { Text } from '@components/Text';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
+import { LookupType } from 'src/types/ItemLookup';
 
 interface Props {
   lookupType: LookupType;
