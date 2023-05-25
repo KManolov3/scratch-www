@@ -54,6 +54,7 @@ export function PriceDiscrepancyModal({
     </Modal>
   );
 }
+
 const styles = StyleSheet.create({
   confirmationText: {
     fontWeight: FontWeight.Bold,
@@ -62,11 +63,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   informationText: {
-    color: Colors.black,
     textAlign: 'center',
     lineHeight: 24,
     fontSize: 16,
-    fontWeight: FontWeight.Book,
   },
   container: {
     flexDirection: 'row',

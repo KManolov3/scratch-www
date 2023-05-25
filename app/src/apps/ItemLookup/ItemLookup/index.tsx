@@ -126,8 +126,8 @@ export function ItemLookupScreen({
           },
         },
       });
-      toastService.showToast(`Front tag send to ${printer}`, {
-        containerStyle: styles.toast,
+      toastService.showInfoToast(`Front tag send to ${printer}`, {
+        props: { containerStyle: styles.toast },
       });
       togglePrintModal();
     },
@@ -204,9 +204,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   toast: {
-    marginBottom: '25%',
-    marginHorizontal: 12,
-    width: '95%',
-    padding: 16,
+    marginBottom: '20%',
   },
 });

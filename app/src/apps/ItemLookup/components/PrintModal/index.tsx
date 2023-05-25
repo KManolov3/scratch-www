@@ -26,19 +26,29 @@ export function PrintModal({
   const [quantity, setQuantity] = useState(1);
   const { defaultPrinterOption } = useDefaultSettings();
   const [printer, setPrinter] = useState(defaultPrinterOption);
-  const [showPrinterOptions, toggleShowPrinterOptions] = useBooleanState();
+  const [showPrinterOptions, toggleShowPrinterOptions, hidePrinterOptions] =
+    useBooleanState();
   const [confirmationModalOpen, toggleConfirmationModal] = useBooleanState();
+
+  const resetState = useCallback(() => {
+    setQuantity(1);
+    setPrinter(defaultPrinterOption);
+    hidePrinterOptions();
+  }, [defaultPrinterOption, hidePrinterOptions]);
+
   const print = useCallback(() => {
     if (quantity >= TRIGGER_CONFIRMATION_QUANTITY) {
       return toggleConfirmationModal();
     }
     onConfirm(printer, quantity);
-  }, [onConfirm, printer, quantity, toggleConfirmationModal]);
+    resetState();
+  }, [onConfirm, printer, quantity, resetState, toggleConfirmationModal]);
 
   const onConfirmCallback = useCallback(() => {
     onConfirm(printer, quantity);
+    resetState();
     toggleConfirmationModal();
-  }, [onConfirm, printer, quantity, toggleConfirmationModal]);
+  }, [onConfirm, printer, quantity, resetState, toggleConfirmationModal]);
 
   const printerValues = useMemo(
     () =>
@@ -103,6 +113,7 @@ export function PrintModal({
     </>
   );
 }
+
 const styles = StyleSheet.create({
   header: {
     fontWeight: FontWeight.Bold,
