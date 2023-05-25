@@ -7,10 +7,6 @@ export class BatchCountHomePage {
     return '[text=Search for a SKU]';
   }
 
-  get clearSearchField() {
-    return '(//*[@class="com.horcrux.svg.PathView"])[2]';
-  }
-
   get noResultsFoundModal() {
     return {
       scanAgainButton: '[text=Scan Again]',

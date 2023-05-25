@@ -1,6 +1,6 @@
 export class BatchCountItemLookupPage {
   get headerText() {
-    return '[text=ItemLookup]';
+    return '[text=ItemDetails]';
   }
 
   get backButton() {
@@ -11,16 +11,16 @@ export class BatchCountItemLookupPage {
     return '~Product Title';
   }
 
-  get partNumber() {
-    return '~P/N: value';
-  }
-
   get sku() {
     return '~SKU: value';
   }
 
   get price() {
     return '~Price: value';
+  }
+
+  get partNumber() {
+    return '~P/N: value';
   }
 
   get currentQuantity() {
@@ -43,10 +43,10 @@ export class BatchCountItemLookupPage {
     return '[text=POG Locations]';
   }
 
-  planogramInfoByRowNumber(row: number) {
+  getPlanogramInfoTableRow(row: number) {
     return {
-      locationId: `~planogramId${row - 1}`,
-      seqNumber: `~seqNum${row - 1}`,
+      locationId: `~POG Location${row - 1}`,
+      seqNumber: `~POG Seq${row - 1}`,
     };
   }
 
@@ -54,10 +54,10 @@ export class BatchCountItemLookupPage {
     return '[text=Slot Locations]';
   }
 
-  slotInfoByRowNumber(row: number) {
+  getSlotInfoTableRow(row: number) {
     return {
-      locationId: `~slotId${row - 1}`,
-      quantity: `~qty${row - 1}`,
+      locationId: `~Slot Location${row - 1}`,
+      quantity: `~Qty${row - 1}`,
     };
   }
 
