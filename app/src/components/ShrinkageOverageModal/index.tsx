@@ -4,8 +4,9 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { convertCurrencyToString } from '@lib/currency';
 import { Text } from '@components/Text';
-import { AttentionIcon } from '@assets/icons';
+import { BlackAttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { BaseStyles } from '@lib/baseStyles';
 
 export interface ShrinkageOverageModalProps {
   isVisible: boolean;
@@ -16,6 +17,7 @@ export interface ShrinkageOverageModalProps {
 }
 
 // TODO: Extract a common action modal component
+// TODO: Shrinkage/overage calculation logic should likely reside inside this modal
 export function ShrinkageOverageModal({
   isVisible,
   shrinkage,
@@ -26,20 +28,23 @@ export function ShrinkageOverageModal({
   return (
     <Modal isVisible={isVisible} onBackdropPress={onCancel}>
       <View style={styles.attention}>
-        <AttentionIcon height={40} width={40} />
+        <BlackAttentionIcon height={40} width={40} />
       </View>
-      <Text style={styles.confirmationText}>Shrinkage & Outage</Text>
-      <Text style={styles.informationText}>
-        This outage will result in a change at retail of:
+      <Text style={styles.confirmationText}>Shrinkage & Overage</Text>
+      <Text
+        style={styles.informationText}
+        // TODO: Parametrise the below text
+      >
+        This batch count will result in a change at retail of:
       </Text>
       <View style={styles.container}>
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, BaseStyles.shadow]}
           label="Shrinkage"
           value={convertCurrencyToString(shrinkage)}
         />
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, BaseStyles.shadow]}
           label="Net Dollars"
           value={convertCurrencyToString(overage)}
         />
@@ -68,9 +73,17 @@ const styles = StyleSheet.create({
   informationText: {
     color: Colors.black,
     textAlign: 'center',
+    maxWidth: 250,
+    alignSelf: 'center',
     lineHeight: 24,
     fontSize: 16,
     fontWeight: FontWeight.Book,
+  },
+  itemDetails: {
+    ...BaseStyles.shadow,
+    borderRadius: 8,
+    padding: 8,
+    paddingHorizontal: 12,
   },
   container: {
     flexDirection: 'row',
@@ -100,5 +113,9 @@ const styles = StyleSheet.create({
   },
   itemProperties: {
     flex: 1,
+    ...BaseStyles.shadow,
+    borderRadius: 8,
+    padding: 8,
+    paddingHorizontal: 12,
   },
 });

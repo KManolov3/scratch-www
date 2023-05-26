@@ -26,6 +26,7 @@ interface ContextValue {
   batchCountItems: BatchCountItems;
   addItem: (item: BatchCountItem) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
+  removeItem: (sku: string) => void;
   submit: () => void;
   submitLoading?: boolean;
   submitError?: ApolloError;
@@ -119,6 +120,16 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
     [batchCountItems, setBatchCountItems],
   );
+
+  const removeItem = useCallback(
+    (sku: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [sku]: itemToRemove, ...rest } = batchCountItems;
+      setBatchCountItems(rest);
+    },
+    [batchCountItems],
+  );
+
   const submit = useCallback(async () => {
     const batchCountRequest = buildBatchCountRequest(batchCountItems);
     await submitBatchCount({ variables: { request: batchCountRequest } });
@@ -131,11 +142,12 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       batchCountItems,
       addItem,
       updateItem,
+      removeItem,
       submit,
       submitLoading: loading,
       submitError: error,
     }),
-    [batchCountItems, addItem, updateItem, submit, loading, error],
+    [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
