@@ -1,3 +1,3 @@
 import { CommonHomePage } from '../common/common-home-page.ts';
 
-export class BatchCountHomePage extends CommonHomePage {}
+export class ItemLookupHomePage extends CommonHomePage {}
