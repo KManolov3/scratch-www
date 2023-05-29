@@ -1,11 +1,9 @@
 import { useCallback, useState } from 'react';
 
-export function useBooleanState(
-  defaultStateValue = false,
-): [boolean, () => void, () => void, () => void] {
+export function useBooleanState(defaultStateValue = false) {
   const [state, setState] = useState(defaultStateValue);
-  const toggleState = useCallback(() => setState(prevState => !prevState), []);
-  const setToFalse = useCallback(() => setState(false), []);
-  const setToTrue = useCallback(() => setState(true), []);
-  return [state, toggleState, setToFalse, setToTrue];
+  const toggle = useCallback(() => setState(prevState => !prevState), []);
+  const disable = useCallback(() => setState(false), []);
+  const enable = useCallback(() => setState(true), []);
+  return { state, toggle, disable, enable };
 }

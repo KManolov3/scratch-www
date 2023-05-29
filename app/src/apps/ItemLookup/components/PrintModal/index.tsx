@@ -26,9 +26,16 @@ export function PrintModal({
   const [quantity, setQuantity] = useState(1);
   const { defaultPrinterOption } = useDefaultSettings();
   const [printer, setPrinter] = useState(defaultPrinterOption);
-  const [showPrinterOptions, toggleShowPrinterOptions, hidePrinterOptions] =
-    useBooleanState();
-  const [confirmationModalOpen, toggleConfirmationModal] = useBooleanState();
+  const {
+    state: showPrinterOptions,
+    toggle: toggleShowPrinterOptions,
+    disable: hidePrinterOptions,
+  } = useBooleanState();
+  const {
+    state: confirmationModalOpen,
+    enable: showConfirmationModal,
+    disable: hideConfirmationModal,
+  } = useBooleanState();
 
   const resetState = useCallback(() => {
     setQuantity(1);
@@ -38,17 +45,25 @@ export function PrintModal({
 
   const print = useCallback(() => {
     if (quantity >= TRIGGER_CONFIRMATION_QUANTITY) {
-      return toggleConfirmationModal();
+      hidePrinterOptions();
+      return showConfirmationModal();
     }
     onConfirm(printer, quantity);
     resetState();
-  }, [onConfirm, printer, quantity, resetState, toggleConfirmationModal]);
+  }, [
+    hidePrinterOptions,
+    onConfirm,
+    printer,
+    quantity,
+    resetState,
+    showConfirmationModal,
+  ]);
 
   const onConfirmCallback = useCallback(() => {
     onConfirm(printer, quantity);
     resetState();
-    toggleConfirmationModal();
-  }, [onConfirm, printer, quantity, resetState, toggleConfirmationModal]);
+    hideConfirmationModal();
+  }, [hideConfirmationModal, onConfirm, printer, quantity, resetState]);
 
   const printerValues = useMemo(
     () =>
@@ -106,7 +121,7 @@ export function PrintModal({
       </Modal>
       <PrintConfirmationModal
         isVisible={confirmationModalOpen}
-        onCancel={toggleConfirmationModal}
+        onCancel={showConfirmationModal}
         onConfirm={onConfirmCallback}
         quantity={quantity}
       />

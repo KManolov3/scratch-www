@@ -27,8 +27,6 @@ export function PrintConfirmationModal({
       <View style={styles.confirmationText}>
         <View style={styles.tagsInformation}>
           <Text style={styles.text}>Are you sure you want to print</Text>
-        </View>
-        <View style={styles.tagsInformation}>
           <Text style={styles.bold}>{quantity} front tags?</Text>
         </View>
       </View>
@@ -62,7 +60,6 @@ const styles = StyleSheet.create({
   },
   tagsInformation: {
     gap: 10,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },

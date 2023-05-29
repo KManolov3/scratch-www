@@ -2,7 +2,7 @@
 // token to the app, containing the current active store.
 
 import { useMutation, useQuery } from '@apollo/client';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
@@ -87,9 +87,8 @@ export function ItemLookupScreen({
     }
   }, [lookupBySku, lookupByUpc]);
 
-  const priceDiscrepancy = useMemo(
-    () => !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
-    [frontTagPrice, itemDetails?.retailPrice],
+  const [priceDiscrepancy, setPriceDiscrepancy] = useState(
+    !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
 
   useEffect(() => {
@@ -101,9 +100,16 @@ export function ItemLookupScreen({
     }
   }, [priceDiscrepancy]);
 
-  const [printModalVisible, togglePrintModal] = useBooleanState();
+  useEffect(() => {
+    setPriceDiscrepancy(
+      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
+    );
+  }, [frontTagPrice, itemDetails?.retailPrice]);
 
-  const [priceDiscrepancyModalVisible, toggleModal] =
+  const { state: printModalVisible, toggle: togglePrintModal } =
+    useBooleanState();
+
+  const { state: priceDiscrepancyModalVisible, toggle: toggleModal } =
     useBooleanState(priceDiscrepancy);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
@@ -115,23 +121,38 @@ export function ItemLookupScreen({
 
   const onPrintConfirm = useCallback(
     async (printer: PrinterOptions, qty: number) => {
-      await printFrontTag({
-        variables: {
-          storeNumber,
-          data: {
-            planogramId: '??',
-            sequence: 1,
-            sku: itemDetails?.sku,
-            count: qty,
-          },
-        },
-      });
+      if (!itemDetails?.planograms) {
+        return;
+      }
+      await Promise.all(
+        itemDetails?.planograms?.map(planogram => {
+          return printFrontTag({
+            variables: {
+              storeNumber,
+              data: {
+                planogramId: planogram?.planogramId,
+                sequence: planogram?.seqNum,
+                sku: itemDetails?.sku,
+                count: qty,
+              },
+            },
+          });
+        }),
+      );
+
       toastService.showInfoToast(`Front tag send to ${printer}`, {
         props: { containerStyle: styles.toast },
       });
       togglePrintModal();
+      setPriceDiscrepancy(false);
     },
-    [itemDetails?.sku, printFrontTag, storeNumber, togglePrintModal],
+    [
+      itemDetails?.planograms,
+      itemDetails?.sku,
+      printFrontTag,
+      storeNumber,
+      togglePrintModal,
+    ],
   );
 
   const bottomBarActions = useMemo<Action[]>(
