@@ -9,6 +9,7 @@ import { waitFor } from '../methods/helpers.ts';
 import { TestItemInput } from '../__generated__/graphql.ts';
 import { CommonHomePage } from '../page-objects/common/common-home-page.ts';
 import { CommonItemDetailsPage } from '../page-objects/common/common-item-details-page.ts';
+import { exec } from 'child_process';
 
 export class BaseCountController {
   commonPages: CommonPages;
@@ -77,5 +78,18 @@ export class BaseCountController {
         `${product.backStockSlots[0].qty}`
       );
     }
+  }
+
+  sendBarcodeScanIntent(barcode: string) {
+    exec(
+      `cd ../app/scripts/ && bash send-intent.sh ${barcode}`,
+      (err, output) => {
+        if (err) {
+          console.log('Failed executing command: ', err);
+          return;
+        }
+        console.log(output);
+      }
+    );
   }
 }

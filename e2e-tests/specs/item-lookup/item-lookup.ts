@@ -1,7 +1,7 @@
-import { TestDataInput } from '__generated__/graphql.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitAndClick } from '../../methods/helpers.ts';
 import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
+import { TestDataInput } from '../../__generated__/graphql.ts';
 
 const testData = new TestDataController();
 
@@ -47,5 +47,19 @@ describe('Item Lookup', () => {
         );
       }
     }
+  });
+
+  it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
+    const itemLookup = new ItemLookupController();
+
+    const barcodeWithPriceDiscrepancy = '99ajds31413';
+    itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
+
+    await expect(
+      $(
+        itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
+          .warningText
+      )
+    ).toBeDisplayed();
   });
 });

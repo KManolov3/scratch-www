@@ -1,4 +1,4 @@
-import { TestDataInput } from '__generated__/graphql.ts';
+import { TestDataInput } from '../../__generated__/graphql.ts';
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitAndClick } from '../../methods/helpers.ts';
