@@ -1,6 +1,12 @@
 import { FontWeight } from '@lib/font';
 import { Text } from '@components/Text';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import {
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 import { BaseStyles } from '@lib/baseStyles';
@@ -10,6 +16,7 @@ interface ItemPropertyDisplayProps {
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  valueStyle?: StyleProp<TextStyle>;
 }
 
 export function ItemPropertyDisplay({
@@ -17,12 +24,13 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
+  valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
     <View style={[styles.root, BaseStyles.shadow, style]}>
       <View>
         <Text>{label}</Text>
-        <Text style={styles.bold}>{value}</Text>
+        <Text style={[styles.bold, valueStyle]}>{value}</Text>
       </View>
       <View style={styles.icon}>{icon}</View>
     </View>

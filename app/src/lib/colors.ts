@@ -18,5 +18,6 @@ export const Colors = {
   advanceVoid: '#373737',
   advanceBlack: '#1e1e1e',
 
-  blue: '#266FAE',
+  // blues
+  blue: '#0774bf',
 } as const;

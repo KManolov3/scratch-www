@@ -41,6 +41,7 @@ export function CycleCountPlanogramList({
   const renderItem = useCallback<ListRenderItem<(typeof planograms)[number]>>(
     ({ item: planogram }) => (
       <Pressable
+        key={planogram.planogramId}
         onPress={() =>
           navigation.navigate('Planogram', {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -58,12 +59,7 @@ export function CycleCountPlanogramList({
 
   return (
     <FixedLayout>
-      <FlatList
-        data={planograms}
-        renderItem={renderItem}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        keyExtractor={({ planogramId }) => planogramId!}
-      />
+      <FlatList data={planograms} renderItem={renderItem} />
     </FixedLayout>
   );
 }

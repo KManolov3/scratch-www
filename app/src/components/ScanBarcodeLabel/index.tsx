@@ -5,13 +5,14 @@ import { Container } from '@components/Container';
 import { Colors } from '@lib/colors';
 
 interface ScanBarcodeLabelProps {
+  label: string;
   style?: StyleProp<ViewStyle>;
 }
 
-export function ScanBarcodeLabel({ style }: ScanBarcodeLabelProps) {
+export function ScanBarcodeLabel({ label, style }: ScanBarcodeLabelProps) {
   return (
     <Container style={[styles.container, style]}>
-      <Text style={styles.text}>Scan Barcode</Text>
+      <Text style={styles.text}>{label}</Text>
       <BarcodeIcon height={152} width={132} />
     </Container>
   );

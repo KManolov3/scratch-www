@@ -53,7 +53,7 @@ export function ItemLookupHome() {
       {isLoadingItemBySku ? (
         <ActivityIndicator />
       ) : (
-        <ScanBarcodeLabel style={styles.scanBarcode} />
+        <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
       )}
     </FixedLayout>
   );
