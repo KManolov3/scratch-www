@@ -14,6 +14,7 @@ type LDFlagType = boolean | number | string | Record<string, any>;
 export type ApplicationName =
   | 'Batch Count'
   | 'Cycle Count'
+  | 'Outage'
   | 'Item Lookup'
   | 'Truck Receive';
 
