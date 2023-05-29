@@ -7,14 +7,17 @@ import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
-  withQuantityAdjustment?: boolean;
+  quantityAdjustment?: {
+    quantity: number;
+    setNewQuantity: (newQty: number) => void;
+  };
   priceDiscrepancy?: boolean;
   togglePriceDiscrepancyModal?: () => void;
 }
 
 export function ItemDetails({
   itemDetails,
-  withQuantityAdjustment = false,
+  quantityAdjustment,
   priceDiscrepancy,
   togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
@@ -22,7 +25,7 @@ export function ItemDetails({
     <View style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
-        withQuantityAdjustment={withQuantityAdjustment}
+        quantityAdjustment={quantityAdjustment}
         priceDiscrepancy={priceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
       />

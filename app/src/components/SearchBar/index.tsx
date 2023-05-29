@@ -2,31 +2,25 @@ import { StyleSheet } from 'react-native';
 import { SearchIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
 import { TextField } from '@components/TextField';
-import { TextInputRef } from '@components/TextInput';
 
 export interface SearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onSubmit?: (value: string) => void;
-  inputRef?: React.RefObject<TextInputRef>;
 }
 
-export function SearchBar({
-  onFocus,
-  onBlur,
-  onSubmit,
-  inputRef,
-}: SearchBarProps) {
+export function SearchBar({ onFocus, onBlur, onSubmit }: SearchBarProps) {
   return (
     <TextField
       placeholder="Search for a SKU"
-      icon={<SearchIcon height={iconSize} width={iconSize} />}
+      icon={
+        <SearchIcon style={styles.icon} height={iconSize} width={iconSize} />
+      }
       inputStyle={styles.input}
       containerStyle={styles.container}
       onFocus={onFocus}
       onBlur={onBlur}
       onSubmit={onSubmit}
-      inputRef={inputRef}
     />
   );
 }
@@ -37,6 +31,9 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.lightGray,
     alignItems: 'center',
+  },
+  icon: {
+    marginTop: 6,
   },
   detailsContainer: {
     flexDirection: 'row',
@@ -54,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
 
     margin: 8,
-    padding: 8,
+    padding: 15,
     marginTop: 16,
   },
 });

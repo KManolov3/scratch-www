@@ -9,24 +9,28 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { LookupType } from 'src/types/ItemLookup';
 import { BatchCountHome } from './Home';
-import { BatchCountItemLookup } from './ItemLookup';
+import { BatchCountConfirm } from './Confirm';
+import { BatchCountItemDetails } from './ItemDetails';
+import { BatchCountStateProvider } from './state';
 
 type Routes = {
-  Home: { shouldFocusSearch?: boolean };
-  ItemLookup: { type: LookupType; value: string };
+  Home: undefined;
+  ItemDetails: { selectedItemSku: string };
+  Confirm: undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
 
 export function BatchCountNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={BatchCountHome} />
-
-      <Stack.Screen name="ItemLookup" component={BatchCountItemLookup} />
-    </Stack.Navigator>
+    <BatchCountStateProvider>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={BatchCountHome} />
+        <Stack.Screen name="ItemDetails" component={BatchCountItemDetails} />
+        <Stack.Screen name="Confirm" component={BatchCountConfirm} />
+      </Stack.Navigator>
+    </BatchCountStateProvider>
   );
 }
 

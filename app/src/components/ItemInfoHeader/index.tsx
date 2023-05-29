@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { formatPrice } from '@lib/formatPrice';
@@ -30,7 +30,10 @@ export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
   priceDiscrepancy?: boolean;
   togglePriceDiscrepancyModal?: () => void;
-  withQuantityAdjustment?: boolean;
+  quantityAdjustment?: {
+    quantity: number;
+    setNewQuantity: (newQty: number) => void;
+  };
 }
 
 function getBackstockQuantity(
@@ -47,15 +50,10 @@ function getBackstockQuantity(
 
 export function ItemInfoHeader({
   itemDetails,
-  withQuantityAdjustment = false,
+  quantityAdjustment,
   priceDiscrepancy,
   togglePriceDiscrepancyModal,
 }: ItemInfoHeaderProps) {
-  // TODO: Manage this through the app context. Requirements:
-  // 1) It should be incremented whenever a UPC is scanned.
-  // 2) It should be able to be modified through the QuantityAdjuster component
-  const [newQuantity, setNewQuantity] = useState(1);
-
   const backstockSlots = useMemo(
     () => getBackstockQuantity(itemDetails.backStockSlots),
     [itemDetails.backStockSlots],
@@ -103,13 +101,21 @@ export function ItemInfoHeader({
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="QOH"
-          value={itemDetails.mfrPartNum}
+          value={itemDetails.onHand}
         />
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="Back Stock"
           value={backstockSlots}
         />
+
+        {quantityAdjustment && (
+          <ItemPropertyDisplay
+            style={styles.itemProperties}
+            label="New Qty"
+            value={quantityAdjustment.quantity}
+          />
+        )}
         {/* TODO: Right now the api does not return maxi
             so we decided to hide it. Add it back when
             any progress is made
@@ -120,9 +126,11 @@ export function ItemInfoHeader({
           value={0}
         /> */}
       </View>
-
-      {withQuantityAdjustment && (
-        <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
+      {quantityAdjustment && (
+        <QuantityAdjuster
+          quantity={quantityAdjustment.quantity}
+          setQuantity={quantityAdjustment.setNewQuantity}
+        />
       )}
     </View>
   );
