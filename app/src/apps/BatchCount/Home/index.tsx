@@ -112,7 +112,7 @@ export function BatchCountHome() {
   return (
     <FixedLayout>
       <SearchBar onSubmit={onSubmit} />
-      <ScanBarcodeLabel style={styles.scanBarcode} />
+      <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>
   );
 }
