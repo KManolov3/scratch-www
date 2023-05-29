@@ -28,7 +28,7 @@ export type ItemDetailsInfo = NonNullable<
 
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
-  priceDiscrepancy?: boolean;
+  hasPriceDiscrepancy?: boolean;
   togglePriceDiscrepancyModal?: () => void;
   quantityAdjustment?: {
     quantity: number;
@@ -51,7 +51,7 @@ function getBackstockQuantity(
 export function ItemInfoHeader({
   itemDetails,
   quantityAdjustment,
-  priceDiscrepancy,
+  hasPriceDiscrepancy,
   togglePriceDiscrepancyModal,
 }: ItemInfoHeaderProps) {
   const backstockSlots = useMemo(
@@ -80,7 +80,7 @@ export function ItemInfoHeader({
               : 'undefined'
           }
           icon={
-            priceDiscrepancy ? (
+            hasPriceDiscrepancy ? (
               <Pressable onPress={togglePriceDiscrepancyModal}>
                 <AttentionIcon />
               </Pressable>

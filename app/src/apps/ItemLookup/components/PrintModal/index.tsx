@@ -67,7 +67,7 @@ export function PrintModal({
 
   const printerValues = useMemo(
     () =>
-      (Object.values(PrinterOptions) as Array<PrinterOptions>).map(item => (
+      Array.from(Object.values(PrinterOptions)).map(item => (
         <RadioButton
           key={item}
           checked={item === printer}

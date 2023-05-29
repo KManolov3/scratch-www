@@ -11,14 +11,14 @@ export interface ItemDetailsProps {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
   };
-  priceDiscrepancy?: boolean;
+  hasPriceDiscrepancy?: boolean;
   togglePriceDiscrepancyModal?: () => void;
 }
 
 export function ItemDetails({
   itemDetails,
   quantityAdjustment,
-  priceDiscrepancy,
+  hasPriceDiscrepancy,
   togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
   return (
@@ -26,7 +26,7 @@ export function ItemDetails({
       <ItemInfoHeader
         itemDetails={itemDetails}
         quantityAdjustment={quantityAdjustment}
-        priceDiscrepancy={priceDiscrepancy}
+        hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
       />
       <Locations locationDetails={itemDetails} />

@@ -8,10 +8,10 @@ type ScannedCode =
     }
   | { type: 'UPC'; upc: string };
 
-const frontTagRegex = /^99(\D+)(\d+)$/;
+const frontTagRegex = /^99(\w+)(\d{5})$/;
 
 class ScanCode {
-  read({ code }: ScanInfo): ScannedCode {
+  parse({ code }: ScanInfo): ScannedCode {
     const frontTag = code.match(frontTagRegex);
     if (frontTag && frontTag[1] && frontTag[2]) {
       return {

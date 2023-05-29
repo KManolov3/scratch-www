@@ -14,7 +14,6 @@ export function InfoToast({ text1, props }: ToastProps) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 56,
     backgroundColor: 'black',
     marginHorizontal: 12,
     width: '95%',

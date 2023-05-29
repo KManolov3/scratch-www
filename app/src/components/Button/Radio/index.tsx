@@ -9,7 +9,6 @@ interface Props {
   children?: ReactNode;
   buttonStyle?: StyleProp<ViewStyle>;
   checkedButtonStyle?: StyleProp<ViewStyle>;
-  withoutIcon?: boolean;
   iconSize?: number;
 }
 
@@ -27,14 +26,9 @@ export function RadioButton({
   children,
   buttonStyle,
   checkedButtonStyle,
-  withoutIcon = false,
   iconSize: customIconSize,
 }: Props) {
   const RadioIconComponent = useMemo(() => {
-    if (withoutIcon) {
-      return null;
-    }
-
     const RadioIcon = getRadioIcon(checked);
 
     return (
@@ -44,7 +38,7 @@ export function RadioButton({
         style={styles.checkbox}
       />
     );
-  }, [checked, customIconSize, withoutIcon]);
+  }, [checked, customIconSize]);
 
   return (
     <Pressable

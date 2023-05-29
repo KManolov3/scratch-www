@@ -1,13 +1,11 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { Text } from '@components/Text';
+import { StyleSheet } from 'react-native';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from '@components/ItemDetails';
-import { NoResults } from '@components/NoResults';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
@@ -16,31 +14,12 @@ import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { indexOfEnumValue } from '@lib/array';
 import { soundService } from 'src/services/SoundService';
 import { toastService } from 'src/services/ToastService';
+import { countBy } from 'lodash-es';
 import { ItemLookupScreenProps } from '../navigator';
 import { PrintModal } from '../components/PrintModal';
-
-// TODO: Move those below component?
-const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
-      ...ItemInfoHeaderFields
-      ...PlanogramFields
-      ...BackstockSlotFields
-    },
-  }
-`);
-
-const ITEM_BY_UPC = gql(`
-  query AutomaticItemLookup($upc: String!) {
-    itemByUpc(upc: $upc, storeNumber: "0363") {
-      ...ItemInfoHeaderFields
-      ...PlanogramFields
-      ...BackstockSlotFields
-    },
-  }
-`);
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -54,63 +33,44 @@ const PRINT_FRONT_TAG = gql(`
 
 export function ItemLookupScreen({
   route: {
-    params: { type, value, frontTagPrice },
+    params: { itemDetails, frontTagPrice },
   },
 }: ItemLookupScreenProps<'ItemLookup'>) {
-  const {
-    loading: isLoadingItemBySku,
-    data: lookupBySku,
-    error: errorBySku,
-  } = useQuery(ITEM_BY_SKU, {
-    variables: { sku: value },
-    skip: type !== 'SKU',
-  });
-
-  const {
-    loading: isLoadingItemByUpc,
-    data: lookupByUpc,
-    error: errorByUpc,
-  } = useQuery(ITEM_BY_UPC, {
-    variables: { upc: value },
-    skip: type !== 'UPC',
-  });
-
   const [printFrontTag, { loading }] = useMutation(PRINT_FRONT_TAG);
 
-  const itemDetails = useMemo(() => {
-    if (lookupBySku) {
-      return lookupBySku.itemBySku;
-    }
-
-    if (lookupByUpc) {
-      return lookupByUpc.itemByUpc;
-    }
-  }, [lookupBySku, lookupByUpc]);
-
-  const [priceDiscrepancy, setPriceDiscrepancy] = useState(
+  const [hasPriceDiscrepancy, setPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
 
+  const {
+    state: priceDiscrepancyModalVisible,
+    toggle: toggleModal,
+    enable: showPriceDiscrepancyModal,
+  } = useBooleanState(hasPriceDiscrepancy);
+
   useEffect(() => {
-    if (priceDiscrepancy) {
+    if (hasPriceDiscrepancy) {
+      showPriceDiscrepancyModal();
       soundService
         .playSound('error')
         // eslint-disable-next-line no-console
         .catch(soundError => console.log('Error playing sound.', soundError));
     }
-  }, [priceDiscrepancy]);
+  }, [
+    hasPriceDiscrepancy,
+    showPriceDiscrepancyModal,
+    frontTagPrice,
+    itemDetails?.retailPrice,
+  ]);
+
+  const { state: printModalVisible, toggle: togglePrintModal } =
+    useBooleanState();
 
   useEffect(() => {
     setPriceDiscrepancy(
       !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
     );
   }, [frontTagPrice, itemDetails?.retailPrice]);
-
-  const { state: printModalVisible, toggle: togglePrintModal } =
-    useBooleanState();
-
-  const { state: priceDiscrepancyModalVisible, toggle: toggleModal } =
-    useBooleanState(priceDiscrepancy);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
@@ -124,9 +84,13 @@ export function ItemLookupScreen({
       if (!itemDetails?.planograms) {
         return;
       }
-      await Promise.all(
-        itemDetails?.planograms?.map(planogram => {
-          return printFrontTag({
+      const printerToStringValue = String(
+        indexOfEnumValue(PrinterOptions, printer) + 1,
+      );
+
+      const results = await Promise.allSettled(
+        itemDetails?.planograms?.map(planogram =>
+          printFrontTag({
             variables: {
               storeNumber,
               data: {
@@ -135,12 +99,24 @@ export function ItemLookupScreen({
                 sku: itemDetails?.sku,
                 count: qty,
               },
+              printer: printerToStringValue,
             },
-          });
-        }),
+          }),
+        ),
       );
+      const requestsByStatus = countBy(
+        results,
+        ({ status }) => status === 'rejected',
+      );
+      const numberOfFailedRequests = requestsByStatus.rejected;
 
-      toastService.showInfoToast(`Front tag send to ${printer}`, {
+      if (numberOfFailedRequests && numberOfFailedRequests > 0) {
+        return toastService.showErrorToast(
+          `${numberOfFailedRequests} out of ${results.length} requests failed.`,
+        );
+      }
+
+      toastService.showInfoToast(`Front tag sent to ${printer}`, {
         props: { containerStyle: styles.toast },
       });
       togglePrintModal();
@@ -167,34 +143,18 @@ export function ItemLookupScreen({
     [loading, togglePrintModal],
   );
 
-  if (isLoadingItemBySku || isLoadingItemByUpc) {
-    return <ActivityIndicator size="large" />;
-  }
-
-  if (errorBySku || errorByUpc) {
-    return (
-      <View>
-        <Text>
-          {errorBySku?.message ?? errorByUpc?.message ?? 'Unknown error'}
-        </Text>
-      </View>
-    );
-  }
-
-  if (!itemDetails) {
-    return <NoResults lookupType={type} lookupId={value} />;
-  }
-
   return (
     <FixedLayout style={styles.container}>
       <ItemDetails
         itemDetails={itemDetails}
-        priceDiscrepancy={priceDiscrepancy}
+        hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={toggleModal}
       />
       <BottomActionBar
         actions={bottomBarActions}
-        topComponent={priceDiscrepancy ? <PriceDiscrepancyAttention /> : null}
+        topComponent={
+          hasPriceDiscrepancy ? <PriceDiscrepancyAttention /> : null
+        }
         style={styles.bottomActionBar}
       />
       <PrintModal
