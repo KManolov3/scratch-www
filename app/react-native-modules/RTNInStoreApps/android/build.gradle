@@ -17,6 +17,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'com.facebook.react'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 
 android {
   compileSdkVersion safeExtGet('compileSdkVersion', 33)
@@ -30,4 +31,5 @@ repositories {
 
 dependencies {
   implementation 'com.facebook.react:react-native'
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
 }
