@@ -121,7 +121,7 @@ export function PrintModal({
       </Modal>
       <PrintConfirmationModal
         isVisible={confirmationModalOpen}
-        onCancel={showConfirmationModal}
+        onCancel={hideConfirmationModal}
         onConfirm={onConfirmCallback}
         quantity={quantity}
       />
