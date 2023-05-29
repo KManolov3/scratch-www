@@ -6,6 +6,11 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import com.advanceautoparts.bluefletch.OktaNativeSSOLogin
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class AuthProvider: ContentProvider() {
     enum class UriMatch {
@@ -30,7 +35,10 @@ class AuthProvider: ContentProvider() {
         if (uriMatcher.match(uri) != UriMatch.BluefletchSession.ordinal) throw java.lang.IllegalArgumentException("Invalid URI")
 
         return MatrixCursor(arrayOf("DATA")).apply {
-            addRow(arrayOf("{\"userId\":\"1234\"}"))
+            val token = runBlocking { OktaNativeSSOLogin.token() }
+            val tokenJSON = Json.encodeToString(token)
+
+            addRow(arrayOf(tokenJSON))
         }
 
 //        return StaticDataCursor(

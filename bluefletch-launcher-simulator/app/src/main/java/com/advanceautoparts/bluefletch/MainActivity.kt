@@ -50,7 +50,7 @@ fun Navigator(activity: Activity) {
     val okta = remember { OktaNativeSSOLogin(activity) }
 
     LaunchedEffect(null) {
-        if (okta.isAuthenticated()) controller.navigate("home")
+        if (OktaNativeSSOLogin.isAuthenticated()) controller.navigate("home")
     }
 
     val scope = rememberCoroutineScope()
@@ -140,16 +140,21 @@ fun HomeScreen(
                         .padding(vertical = 4.dp, horizontal = 8.dp)
                         .clickable { launchActivity(activity) }
                 ) {
-                    Row(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
+                    Row(modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth()) {
                         Text(activity.label)
                     }
                 }
             }
         }
 
-        Row(modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
             Button(onClick = onLogout) {
                 Text("Logout")
             }
