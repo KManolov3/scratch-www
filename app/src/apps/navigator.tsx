@@ -10,11 +10,14 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
-import { ItemLookupHome } from './ItemLookup/Home';
 import {
   BatchCountNavigator,
   BatchCountNavigatorScreenParams,
 } from './BatchCount/navigator';
+import {
+  ItemLookupNavigator,
+  ItemLookupNavigatorScreenParams,
+} from './ItemLookup/navigator';
 import {
   OutageNavigator,
   OutageNavigatorScreenParams,
@@ -26,7 +29,7 @@ type Routes = {
   OutageHome: OutageNavigatorScreenParams;
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
-  ItemLookupHome: undefined;
+  ItemLookupHome: ItemLookupNavigatorScreenParams;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -75,7 +78,11 @@ export function RootNavigator({
         component={TruckReceiveScanDetails}
       />
 
-      <Stack.Screen name="ItemLookupHome" component={ItemLookupHome} />
+      <Stack.Screen
+        name="ItemLookupHome"
+        options={{ headerShown: false }}
+        component={ItemLookupNavigator}
+      />
     </Stack.Navigator>
   );
 }

@@ -1,10 +1,10 @@
 import { StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { Row } from '@components/Row';
 import { DollarSignPosition, convertCurrencyToString } from '@lib/currency';
 import { ActionModal } from '@components/ActionModal';
 import { Text } from '@components/Text';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 
 export interface ShrinkageOverageModalProps {
   isVisible: boolean;
@@ -31,15 +31,18 @@ export function ShrinkageOverageModal({
         This Outage will result in a change at retail of:
       </Text>
 
-      <Row
+      <ItemPropertyDisplay
         label="Shrinkage Dollars"
         value={convertCurrencyToString(shrinkage)}
       />
-      <Row label="Overage Dollars" value={convertCurrencyToString(overage)} />
+      <ItemPropertyDisplay
+        label="Overage Dollars"
+        value={convertCurrencyToString(overage)}
+      />
 
       <View style={styles.divider} />
 
-      <Row
+      <ItemPropertyDisplay
         label="Net Dollars"
         value={convertCurrencyToString(
           overage - shrinkage,

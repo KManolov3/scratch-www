@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '@components/SearchBar';
-import { Barcode } from '@components/Barcode';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 
 export function BatchCountHome({
@@ -60,10 +60,9 @@ export function BatchCountHome({
         onFocus={onFocus}
         onBlur={onBlur}
         onSubmit={onSubmit}
-        showInformativeMessage={isSearchFocused}
         inputRef={inputRef}
       />
-      {!isSearchFocused && <Barcode />}
+      {!isSearchFocused && <ScanBarcodeLabel label="Scan Barcode" />}
     </FixedLayout>
   );
 }

@@ -20,4 +20,4 @@ export const Colors = {
 
   // blues
   blue: '#0774bf',
-};
+} as const;
