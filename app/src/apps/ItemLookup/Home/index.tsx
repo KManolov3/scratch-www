@@ -1,7 +1,6 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { useScanListener } from '@hooks/useScanListener';
@@ -16,7 +15,6 @@ export function ItemLookupHome() {
   });
 
   const navigation = useNavigation<ItemLookupNavigation>();
-  const inputRef = useRef<TextInputRef>(null);
 
   const onSubmit = useCallback(
     (value: string) => {
@@ -39,7 +37,7 @@ export function ItemLookupHome() {
 
   return (
     <FixedLayout>
-      <SearchBar onSubmit={onSubmit} inputRef={inputRef} />
+      <SearchBar onSubmit={onSubmit} />
       <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>
   );

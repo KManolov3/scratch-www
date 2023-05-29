@@ -1,68 +1,125 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { TextInputRef } from '@components/TextInput';
+import { useCallback } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useLazyQuery } from '@apollo/client';
+import { Text } from '@components/Text';
+import { ManualItemLookupQuery } from 'src/__generated__/graphql';
+import { gql } from 'src/__generated__';
 import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
+import { BatchCountNavigation } from '../navigator';
+import { useBatchCountState } from '../state';
 
-export function BatchCountHome({
-  route: {
-    params: { shouldFocusSearch = false } = { shouldFocusSearch: false },
-  },
-}: BatchCountScreenProps<'Home'>) {
-  const [isSearchFocused, setIsSearchFocused] = useState(shouldFocusSearch);
+export type LookupType = 'UPC' | 'SKU';
+
+const ITEM_BY_SKU = gql(`
+  query ManualItemLookup($sku: String!) {
+    itemBySku(sku: $sku, storeNumber: "0363") {
+      ...ItemInfoHeaderFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+// TODO: Handle this type of search inside of scan-barcode listener
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ITEM_BY_UPC = gql(`
+  query AutomaticItemLookup($upc: String!) {
+    itemByUpc(upc: $upc, storeNumber: "0363") {
+      ...ItemInfoHeaderFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
+// Front Tags Barcode Structure - 99{SKU}{PRICE}
+// TODO: Add option to navigate here with SKU
+export function BatchCountHome() {
   const navigation = useNavigation<BatchCountNavigation>();
-  const inputRef = useRef<TextInputRef>(null);
+  const { batchCountItems, updateItem, addItem } = useBatchCountState();
 
-  // If current route is focused, focus search field if necessary
-  useFocusEffect(
-    useCallback(() => {
-      if (!shouldFocusSearch) {
-        return;
-      }
+  const onLookupCompleted = useCallback(
+    (item: ManualItemLookupQuery) => {
+      if (item?.itemBySku) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const itemInState = batchCountItems[item.itemBySku.sku!];
 
-      setIsSearchFocused(true);
-      // If this timeout isn't set, the screen blurs at some point
-      // shortly after it finishes rendering.
-      const timeout = setTimeout(() => {
-        if (inputRef.current?.isFocused() === false) {
-          inputRef.current.focus();
-          navigation.setParams({ params: { shouldFocusSearch: false } });
+        if (!itemInState) {
+          addItem({
+            item: {
+              ...item.itemBySku,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: item.itemBySku.sku!,
+            },
+            newQty: 1,
+          });
+        } else {
+          // Updating with the retrieved information even if the item already exists in the state
+          // in case something changed (for example, the price) on the backend.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          updateItem(item.itemBySku.sku!, {
+            item: {
+              ...item.itemBySku,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: item.itemBySku.sku!,
+            },
+          });
         }
-      }, 100);
-
-      return () => clearTimeout(timeout);
-    }, [navigation, shouldFocusSearch]),
+        navigation.navigate('ItemDetails', {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          selectedItemSku: item.itemBySku.sku!,
+        });
+      }
+    },
+    [addItem, batchCountItems, navigation, updateItem],
   );
-  const onFocus = useCallback(() => {
-    setIsSearchFocused(true);
-  }, [setIsSearchFocused]);
-  const onBlur = useCallback(() => {
-    setIsSearchFocused(false);
-  }, [setIsSearchFocused]);
+
+  // TODO: use loading state to display a loading indicator
+  // TODO: since there is a "search" functionality on the BatchCountConfirm
+  // page as well, I wonder if I should extract this in the `state` component
+  const [searchBySku, { loading: isLoadingItemBySku, error: errorBySku }] =
+    useLazyQuery(ITEM_BY_SKU, {
+      onCompleted: onLookupCompleted,
+    });
 
   const onSubmit = useCallback(
     (value: string) => {
       if (value) {
-        navigation.navigate('ItemLookup', {
-          type: 'SKU',
-          value,
-        });
+        searchBySku({ variables: { sku: value } });
       }
     },
-    [navigation],
+    [searchBySku],
   );
+
+  if (isLoadingItemBySku) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  if (errorBySku) {
+    return (
+      <View>
+        <Text>{errorBySku?.message ?? 'Unknown error'}</Text>
+      </View>
+    );
+  }
+
+  // TODO: Add no result modal
 
   return (
     <FixedLayout>
-      <SearchBar
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onSubmit={onSubmit}
-        inputRef={inputRef}
-      />
-      {!isSearchFocused && <ScanBarcodeLabel label="Scan Barcode" />}
+      <SearchBar onSubmit={onSubmit} />
+      <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  scanBarcode: {
+    margin: 20,
+    marginTop: 88,
+  },
+});

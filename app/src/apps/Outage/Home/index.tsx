@@ -5,6 +5,7 @@ import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { useLazyQuery } from '@apollo/client';
 import { gql } from 'src/__generated__';
+import { StyleSheet } from 'react-native';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
@@ -25,7 +26,7 @@ export function OutageHome() {
     onCompleted: item => {
       if (item?.itemBySku) {
         addItem(item.itemBySku);
-        navigate('ItemList');
+        navigate('Item List');
       }
     },
   });
@@ -40,7 +41,14 @@ export function OutageHome() {
   return (
     <FixedLayout>
       <SearchBar onSubmit={onSubmit} />
-      <ScanBarcodeLabel label="Scan Front Tag" />
+      <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
     </FixedLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  scanBarcode: {
+    margin: 20,
+    marginTop: 88,
+  },
+});

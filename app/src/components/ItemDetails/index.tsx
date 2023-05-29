@@ -7,20 +7,23 @@ import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
-  withQuantityAdjustment?: boolean;
+  quantityAdjustment?: {
+    quantity: number;
+    setNewQuantity: (newQty: number) => void;
+  };
   frontTagPrice?: number;
 }
 
 export function ItemDetails({
   itemDetails,
-  withQuantityAdjustment = false,
+  quantityAdjustment,
   frontTagPrice,
 }: ItemDetailsProps) {
   return (
     <View style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
-        withQuantityAdjustment={withQuantityAdjustment}
+        quantityAdjustment={quantityAdjustment}
         frontTagPrice={frontTagPrice}
       />
       <Locations locationDetails={itemDetails} />

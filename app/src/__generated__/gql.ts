@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  query ManualItemLookup($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.ManualItemLookupDocument,
     "\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.AutomaticItemLookupDocument,
+    "\n  mutation SubmitBatchCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n": types.SubmitBatchCountDocument,
     "\n  fragment CycleCountCardFragment on CycleCount {\n    cycleCountId\n    cycleCountName\n    dueDate\n  }\n": types.CycleCountCardFragmentFragmentDoc,
     "\n  query CycleCountContext {\n    cycleCounts(storeNumber: \"0363\") {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n": types.CycleCountContextDocument,
     "\n  query ItemLookupBySku($sku: String!) {\n    itemBySku(sku: $sku, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n    },\n  }\n": types.ItemLookupBySkuDocument,
@@ -49,6 +50,10 @@ export function gql(source: "\n  query ManualItemLookup($sku: String!) {\n    it
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query AutomaticItemLookup($upc: String!) {\n    itemByUpc(upc: $upc, storeNumber: \"0363\") {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation SubmitBatchCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n"): (typeof documents)["\n  mutation SubmitBatchCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
