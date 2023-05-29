@@ -44,6 +44,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
           </Text>
         ))}
       </View>
+      <View style={styles.separator} />
       <FlatList
         data={data}
         renderItem={renderItem}
