@@ -54,8 +54,10 @@ export function VerifyItemsList({
             </Text>
             <View style={styles.cardActions}>
               {flag ? (
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                <Pressable onPress={() => flag.onFlag(item.sku!)}>
+                <Pressable
+                  accessibilityLabel="flag"
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  onPress={() => flag.onFlag(item.sku!)}>
                   {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     flag.flagged[item.sku!]! ? (
@@ -67,8 +69,10 @@ export function VerifyItemsList({
                 </Pressable>
               ) : undefined}
               {remove ? (
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                <Pressable onPress={() => remove.onRemove(item.sku!)}>
+                <Pressable
+                  accessibilityLabel="remove"
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  onPress={() => remove.onRemove(item.sku!)}>
                   <CrossIcon />
                 </Pressable>
               ) : undefined}
