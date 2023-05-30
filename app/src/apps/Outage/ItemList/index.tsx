@@ -1,16 +1,19 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  ListRenderItem,
+  StyleSheet,
+} from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { sumBy } from 'lodash-es';
-import { Colors } from '@lib/colors';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { VerifyItemsList } from '@components/VerifyItemsList';
-import { RemoveItemModal } from '../components/RemoveItemModal';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
+import { OutageItemCard } from '../components/ItemCard';
 
 const calculateShrinkage = (items: ItemDetailsInfo[]) =>
   sumBy(items, item => (item.onHand ?? 0) * (item.retailPrice ?? 0));
@@ -27,8 +30,6 @@ export function OutageItemList() {
 
   const [activeItem, setActiveItem] = useState<ItemDetailsInfo>();
 
-  const [isRemoveItemModalVisible, setIsRemoveItemModalVisible] =
-    useState(false);
   const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
 
   useEffect(() => {
@@ -39,9 +40,9 @@ export function OutageItemList() {
 
   const removeOutageItem = useCallback(() => {
     if (activeItem?.sku) {
+      // TODO: show a toast
       removeItem(activeItem.sku);
     }
-    setIsRemoveItemModalVisible(false);
   }, [activeItem?.sku, removeItem]);
 
   const submitOutageCount = useCallback(() => {
@@ -53,12 +54,26 @@ export function OutageItemList() {
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
-        // TODO: Show variance confirmation modal before submitting
         label: 'Complete Outage Count',
-        onPress: submitOutageCount,
+        onPress: () => setIsShrinkageModalVisible(true),
       },
     ],
-    [submitOutageCount],
+    [],
+  );
+
+  const renderItem = useCallback<
+    ListRenderItem<(typeof outageCountItems)[number]>
+  >(
+    ({ item }) => (
+      <OutageItemCard
+        key={item.sku}
+        outageItem={item}
+        active={activeItem?.sku === item.sku}
+        onPress={() => setActiveItem(item)}
+        removeItem={() => removeOutageItem()}
+      />
+    ),
+    [activeItem?.sku, removeOutageItem],
   );
 
   if (submitLoading) {
@@ -67,26 +82,18 @@ export function OutageItemList() {
 
   return (
     <>
-      <FixedLayout style={styles.layout}>
-        <VerifyItemsList items={outageCountItems} />
+      <FixedLayout>
+        <FlatList
+          data={outageCountItems}
+          renderItem={renderItem}
+          style={styles.list}
+        />
 
         <BottomActionBar
           actions={bottomBarActions}
           style={styles.bottomAction}
         />
       </FixedLayout>
-
-      {
-        // TODO: Remove this if we go with a no active item design
-        activeItem ? (
-          <RemoveItemModal
-            isVisible={isRemoveItemModalVisible}
-            activeItem={activeItem}
-            onConfirm={removeOutageItem}
-            onCancel={() => setIsRemoveItemModalVisible(false)}
-          />
-        ) : null
-      }
 
       <ShrinkageOverageModal
         isVisible={isShrinkageModalVisible}
@@ -103,11 +110,10 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
   },
-  layout: {
-    flex: 1,
-    backgroundColor: Colors.pure,
+  list: {
+    paddingVertical: 6,
   },
   bottomAction: {
-    paddingTop: 8,
+    paddingTop: 12,
   },
 });

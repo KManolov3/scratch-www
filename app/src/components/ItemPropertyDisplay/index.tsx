@@ -1,12 +1,6 @@
 import { FontWeight } from '@lib/font';
 import { Text } from '@components/Text';
-import {
-  StyleProp,
-  StyleSheet,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 
@@ -15,7 +9,6 @@ interface ItemPropertyDisplayProps {
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  valueStyle?: StyleProp<TextStyle>;
 }
 
 export function ItemPropertyDisplay({
@@ -23,13 +16,12 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
-  valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
     <View style={[styles.root, style]}>
       <View>
-        <Text>{label}</Text>
-        <Text style={[styles.bold, valueStyle]}>{value}</Text>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.value}>{value}</Text>
       </View>
       <View style={styles.icon}>{icon}</View>
     </View>
@@ -37,11 +29,21 @@ export function ItemPropertyDisplay({
 }
 
 const styles = StyleSheet.create({
-  bold: { fontWeight: FontWeight.Bold, fontSize: 20 },
   root: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     backgroundColor: Colors.pure,
+  },
+  label: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: Colors.advanceBlack,
+  },
+  value: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: FontWeight.Bold,
+    color: Colors.advanceBlack,
   },
   icon: {
     flex: 1,

@@ -1,29 +1,33 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { BaseStyles } from '@lib/baseStyles';
 
 export const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginHorizontal: 10,
+    marginVertical: 6,
+    paddingTop: 19,
+    paddingLeft: 23,
+    paddingRight: 20,
+    paddingBottom: 14,
     borderRadius: 8,
     backgroundColor: Colors.pure,
-    elevation: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    ...BaseStyles.shadow,
+  },
+  titleWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   title: {
-    fontSize: 18,
-    color: Colors.blue,
-    fontWeight: FontWeight.Demi,
+    fontSize: 24,
+    lineHeight: 32,
+    color: Colors.advanceVoid,
+    fontWeight: FontWeight.Bold,
   },
   content: {
-    flex: 1,
     flexDirection: 'row',
-    paddingTop: 8,
-  },
-  rowItem: {
-    marginRight: 12,
+    paddingTop: 9,
   },
   productInformation: {
     flex: 1,
@@ -38,16 +42,13 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  zero: {
-    color: Colors.advanceRed,
+  property: {
+    marginBottom: 8,
   },
   removeItem: {
-    padding: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.advanceYellow,
-  },
-  removeItemText: {
-    textAlign: 'center',
-    fontWeight: FontWeight.Demi,
+    marginLeft: 8,
+    alignItems: 'center',
+    verticalAlign: 'center',
+    justifyContent: 'center',
   },
 });

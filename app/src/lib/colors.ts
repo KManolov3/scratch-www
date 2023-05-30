@@ -9,7 +9,7 @@ export const Colors = {
   backdropVoid: '#37373740',
 
   // grays
-  lightGray: '#f2f2f2',
+  lightGray: '#f5f5f5',
   gray: '#e4e4e4',
   grayer: '#dadada',
   darkGray: '#9a9a9a',
