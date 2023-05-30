@@ -9,14 +9,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
-import { sumBy } from 'lodash-es';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
-
-const calculateShrinkage = (items: ItemDetailsInfo[]) =>
-  sumBy(items, item => (item.onHand ?? 0) * (item.retailPrice ?? 0));
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -61,6 +57,11 @@ export function OutageItemList() {
     [],
   );
 
+  const items = useMemo(
+    () => outageCountItems.map(item => ({ ...item, newQty: 0 })),
+    [outageCountItems],
+  );
+
   const renderItem = useCallback<
     ListRenderItem<(typeof outageCountItems)[number]>
   >(
@@ -97,8 +98,8 @@ export function OutageItemList() {
 
       <ShrinkageOverageModal
         isVisible={isShrinkageModalVisible}
-        shrinkage={calculateShrinkage(outageCountItems)}
-        overage={0}
+        countType="Outage"
+        items={items}
         onConfirm={submitOutageCount}
         onCancel={() => setIsShrinkageModalVisible(false)}
       />

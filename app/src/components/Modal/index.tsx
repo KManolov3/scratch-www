@@ -11,17 +11,14 @@ export type ModalProps = Partial<
 
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (
-    <ReactNativeModal
-      isVisible={isVisible}
-      style={[styles.modal, style]}
-      {...rest}>
-      <View style={styles.container}>{children}</View>
+    <ReactNativeModal isVisible={isVisible} style={styles.modal} {...rest}>
+      <View style={[styles.container, style]}>{children}</View>
     </ReactNativeModal>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 4,
+    borderRadius: 8,
     backgroundColor: Colors.pure,
     padding: 8,
   },

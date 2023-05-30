@@ -9,6 +9,8 @@ interface ItemPropertyDisplayProps {
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<Text>;
+  valueStyle?: StyleProp<Text>;
 }
 
 export function ItemPropertyDisplay({
@@ -16,12 +18,14 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
+  labelStyle,
+  valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
     <View style={[styles.root, style]}>
       <View>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.value}>{value}</Text>
+        <Text style={[styles.label, labelStyle]}>{label}</Text>
+        <Text style={[styles.value, valueStyle]}>{value}</Text>
       </View>
       <View style={styles.icon}>{icon}</View>
     </View>
