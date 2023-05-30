@@ -1,7 +1,8 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client/core/index.js';
+import { InMemoryCache } from '@apollo/client/cache/inmemory/inMemoryCache.js';
+import { ApolloClient } from '@apollo/client/core/ApolloClient.js';
 import * as dotenv from 'dotenv';
-import { gql } from '__generated__/gql.ts';
-import { TestDataInput } from '__generated__/graphql.ts';
+import { gql } from '../__generated__/gql.ts';
+import { TestDataInput } from '../__generated__/graphql.ts';
 
 dotenv.config();
 

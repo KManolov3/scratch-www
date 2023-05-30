@@ -16,17 +16,16 @@ export REPORT_PATH="${REPORT_PATH:-"./reports"}"
 if [[ $START_SERVERS == true ]]
 then
   npm run start-all-servers
+
+  # waiting the emulator to start
+  sleep 2
 fi
+
+cd ../../../app && npm run adb:reverse
+cd ../e2e-tests
 
 echo -e "${GREEN}> Launching app: $APP_ACTIVITY${WHITE}"
 echo  -e "${GREEN}> Used device: $DEVICE_NAME${WHITE}"
-
-# waiting the emulator to start adb reverse
-sleep 2
-
-cd ../../../app && npm run adb:reverse
-
-cd ../e2e-tests
 
 npm run e2e -- --spec "./specs/$WORK_DIR/$TEST_SUITE.ts"
 

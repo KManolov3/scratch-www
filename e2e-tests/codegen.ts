@@ -18,6 +18,7 @@ const codegenConfig: CodegenConfig = {
       Date: 'string',
     },
   },
+  emitLegacyCommonJSImports: false,
   generates: {
     './__generated__/': {
       preset: 'client',

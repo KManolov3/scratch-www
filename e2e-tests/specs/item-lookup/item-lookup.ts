@@ -1,11 +1,11 @@
-import { TestDataInput } from '../../__generated__/graphql.ts';
-import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitAndClick } from '../../methods/helpers.ts';
+import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
+import { TestDataInput } from '../../__generated__/graphql.ts';
 
 const testData = new TestDataController();
 
-describe('Batch Count', () => {
+describe('Item Lookup', () => {
   afterEach(async () => {
     await driver.reloadSession();
     await testData.clearData();
@@ -35,17 +35,31 @@ describe('Batch Count', () => {
       items: items,
     });
 
-    const batchCount = new BatchCountController();
+    const itemLookup = new ItemLookupController();
 
     for (const [index, product] of items.entries()) {
-      await batchCount.searchForSku(product);
-      await batchCount.expectProductInfo(product);
+      await itemLookup.searchForSku(product);
+      await itemLookup.expectProductInfo(product);
 
       if (index !== items.length - 1) {
         await waitAndClick(
-          batchCount.batchCountPages.itemDetailsPage.backButton
+          itemLookup.itemLookupPages.itemDetailsPage.backButton
         );
       }
     }
+  });
+
+  it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
+    const itemLookup = new ItemLookupController();
+
+    const barcodeWithPriceDiscrepancy = '99ajds31413';
+    itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
+
+    await expect(
+      $(
+        itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
+          .warningText
+      )
+    ).toBeDisplayed();
   });
 });
