@@ -5,8 +5,8 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 10,
-    marginVertical: 6,
+    marginHorizontal: 16,
+    marginTop: 12,
     paddingTop: 19,
     paddingLeft: 23,
     paddingRight: 20,
@@ -14,6 +14,9 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.pure,
     ...BaseStyles.shadow,
+  },
+  lastCard: {
+    marginBottom: 12,
   },
   titleWrapper: {
     flexDirection: 'row',

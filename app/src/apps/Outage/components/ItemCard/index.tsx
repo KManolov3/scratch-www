@@ -19,6 +19,7 @@ export const OutageItemCardFragment = gql(`
 export interface OutageItemCardProps {
   outageItem: DocumentType<typeof OutageItemCardFragment>;
   active: boolean;
+  isLast: boolean;
   onPress: () => void;
   removeItem: () => void;
 }
@@ -26,13 +27,16 @@ export interface OutageItemCardProps {
 export function OutageItemCard({
   outageItem,
   active,
+  isLast,
   onPress,
   removeItem,
 }: OutageItemCardProps) {
   const { partDesc, mfrPartNum, sku, retailPrice, onHand } = outageItem;
 
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.card, isLast && styles.lastCard]}>
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>{partDesc}</Text>
         <Pressable onPress={removeItem} style={styles.removeItem}>

@@ -34,6 +34,12 @@ export function OutageItemList() {
     }
   }, [outageCountItems]);
 
+  useEffect(() => {
+    if (outageCountItems.length === 0) {
+      navigate('Home');
+    }
+  }, [navigate, outageCountItems.length]);
+
   const removeOutageItem = useCallback(() => {
     if (activeItem?.sku) {
       // TODO: show a toast
@@ -44,8 +50,7 @@ export function OutageItemList() {
   const submitOutageCount = useCallback(() => {
     setIsShrinkageModalVisible(false);
     submitOutage();
-    navigate('Home');
-  }, [navigate, submitOutage]);
+  }, [submitOutage]);
 
   const bottomBarActions: Action[] = useMemo(
     () => [
@@ -65,16 +70,17 @@ export function OutageItemList() {
   const renderItem = useCallback<
     ListRenderItem<(typeof outageCountItems)[number]>
   >(
-    ({ item }) => (
+    ({ item, index }) => (
       <OutageItemCard
         key={item.sku}
         outageItem={item}
         active={activeItem?.sku === item.sku}
+        isLast={index === outageCountItems.length - 1}
         onPress={() => setActiveItem(item)}
         removeItem={() => removeOutageItem()}
       />
     ),
-    [activeItem?.sku, removeOutageItem],
+    [activeItem?.sku, outageCountItems.length, removeOutageItem],
   );
 
   if (submitLoading) {
@@ -90,10 +96,7 @@ export function OutageItemList() {
           style={styles.list}
         />
 
-        <BottomActionBar
-          actions={bottomBarActions}
-          style={styles.bottomAction}
-        />
+        <BottomActionBar actions={bottomBarActions} />
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -113,8 +116,5 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 6,
-  },
-  bottomAction: {
-    paddingTop: 12,
   },
 });
