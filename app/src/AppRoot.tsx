@@ -48,7 +48,24 @@ export function AppRoot({
       profileName: scanProfileName,
       scanIntentCategory,
     });
+
+    InStoreAppsNative.reloadAuthFromLauncher({
+      clientId: '0oa1mbj09brYYLDsK0h8',
+      authServerURL:
+        'https://advanceauto.oktapreview.com/oauth2/aus1lqs5cuniao55d0h8',
+    });
   }, [scanProfileName, scanIntentCategory]);
+
+  // useAppStateChange(
+  //   ['active'],
+  //   useCallback(() => {
+  //     InStoreAppsNative.reloadAuthFromLauncher({
+  //       clientId: '0oa1mbj09brYYLDsK0h8',
+  //       authServerURL:
+  //         'https://advanceauto.oktapreview.com/oauth2/aus1lqs5cuniao55d0h8',
+  //     });
+  //   }, []),
+  // );
 
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({

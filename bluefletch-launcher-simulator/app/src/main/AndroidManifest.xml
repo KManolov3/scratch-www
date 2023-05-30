@@ -26,7 +26,7 @@
                 android:authorities="com.bluefletch.launcherprovider"
                 android:name=".provider.AuthProvider"
                 android:exported="true"
-                tools:ignore="ExportedContentProvider" />
+                android:grantUriPermissions="true" />
     </application>
 
     <queries>

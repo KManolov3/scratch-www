@@ -36,19 +36,15 @@ class AuthProvider: ContentProvider() {
 
         return MatrixCursor(arrayOf("DATA")).apply {
             val token = runBlocking { OktaNativeSSOLogin.token() }
-            val tokenJSON = Json.encodeToString(token)
 
-            addRow(arrayOf(tokenJSON))
+            if (token == null) {
+                addRow(arrayOf(null))
+            } else {
+                val tokenJSON = Json.encodeToString(token)
+
+                addRow(arrayOf(tokenJSON))
+            }
         }
-
-//        return StaticDataCursor(
-//            listOf(
-//                ColumnDefinition("DATA", Cursor.FIELD_TYPE_STRING)
-//            ),
-//            listOf(
-//                listOf("{\"userId\":\"1234\"}")
-//            )
-//        )
     }
 
     override fun getType(uri: Uri): String? {

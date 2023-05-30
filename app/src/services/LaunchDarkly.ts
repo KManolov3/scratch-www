@@ -199,3 +199,5 @@ class LaunchDarklyService {
 }
 
 export const launchDarklyService = new LaunchDarklyService();
+
+console.log('Creating launchDarkly');

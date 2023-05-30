@@ -6,13 +6,17 @@ import com.okta.authfoundation.claims.preferredUsername
 import com.okta.authfoundation.claims.userId
 import com.okta.authfoundation.claims.username
 import com.okta.authfoundation.client.OidcClient
+import com.okta.authfoundation.client.OidcClientResult
 import com.okta.authfoundation.client.OidcConfiguration
 import com.okta.authfoundation.client.SharedPreferencesCache
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
+import com.okta.authfoundation.credential.RevokeAllException
 import com.okta.authfoundation.credential.Token
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.webauthenticationui.WebAuthenticationClient
 import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
@@ -20,6 +24,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 data class AuthTokens(
     val userId: String?,
     val userName: String?,
+    val idToken: String,
     val accessToken: String,
     val refreshToken: String,
     val deviceSecret: String
@@ -33,14 +38,15 @@ class OktaNativeSSOLogin(private val activity: Activity) {
         suspend fun token(): AuthTokens? {
             val credential = defaultCredential()
             val token = credential.token ?: return null
-            val userInfo = credential.getUserInfo().getOrThrow()
+            val idToken = credential.idToken() ?: return null
 
             return AuthTokens(
+                idToken = token.idToken!!,
                 accessToken = token.accessToken,
                 refreshToken = token.refreshToken!!,
                 deviceSecret = token.deviceSecret!!,
-                userId = userInfo.userId,
-                userName = userInfo.preferredUsername
+                userId = idToken.userId,
+                userName = idToken.preferredUsername
             )
         }
     }
@@ -79,7 +85,11 @@ class OktaNativeSSOLogin(private val activity: Activity) {
         if (clearBrowserLogin && idToken != null) {
             webClient.logoutOfBrowser(activity, "com.bluefletch.launcher:/logout", idToken)
         } else {
-            credential.revokeAllTokens().getOrThrow()
+            try {
+                credential.revokeAllTokens().getOrThrow()
+            } catch (error: RevokeAllException) {
+                // Could not revoke tokens
+            }
         }
 
         credential.delete()
