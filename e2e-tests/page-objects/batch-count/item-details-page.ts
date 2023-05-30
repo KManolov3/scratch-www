@@ -6,7 +6,7 @@ export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
   }
 
   get changeQuantityInput() {
-    return '[text=1]';
+    return '.android.widget.EditText';
   }
 
   get fastAcceptButton() {
@@ -19,8 +19,13 @@ export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
 
   get shrinkageOverageModal() {
     return {
-      cancelButton: '[text=CANCEL]',
-      acceptButton: '[text=ACCEPT]',
+      infoText: '[text=Shrinkage & Overage]',
+      shrinkageValue:
+        '//*[@text="Shrinkage"]/following-sibling::android.widget.TextView',
+      overageValue:
+        '//*[@text="Net Dollars"]/following-sibling::android.widget.TextView',
+      cancelButton: '[text=Cancel]',
+      acceptButton: '[text=Accept]',
     };
   }
 }

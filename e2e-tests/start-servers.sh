@@ -24,4 +24,8 @@ then
   start_servers wttab
 fi
 
+# waiting the emulator to start
+sleep 2
 
+cd ../app && npm run adb:reverse
+cd ../e2e-tests

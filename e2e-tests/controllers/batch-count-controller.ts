@@ -28,4 +28,20 @@ export class BatchCountController extends BaseCountController {
 
     await super.expectProductInfo(product);
   }
+
+  async confirmProductInfo(product: TestItemInput) {
+    const productDetails = this.batchCountPages.confirmPage.productDetails(
+      product.partDesc
+    );
+
+    await expectElementText(productDetails.sku, product.sku);
+
+    if (product.retailPrice) {
+      await expectElementText(productDetails.price, `$${product.retailPrice}`);
+    }
+
+    if (product.mfrPartNum) {
+      await expectElementText(productDetails.MFR, product.mfrPartNum);
+    }
+  }
 }
