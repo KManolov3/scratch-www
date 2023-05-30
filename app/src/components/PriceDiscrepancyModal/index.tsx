@@ -5,7 +5,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { formatPrice } from '@lib/formatPrice';
+import { convertCurrencyToString } from '@lib/currency';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
@@ -33,12 +33,12 @@ export function PriceDiscrepancyModal({
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="Scanned"
-          value={formatPrice(scanned)}
+          value={convertCurrencyToString(scanned)}
         />
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="System"
-          value={formatPrice(system)}
+          value={convertCurrencyToString(system)}
         />
       </View>
       <View style={styles.container}>
@@ -57,6 +57,17 @@ export function PriceDiscrepancyModal({
 const styles = StyleSheet.create({
   confirmationText: {
     fontWeight: FontWeight.Bold,
+    text: {
+      marginVertical: 8,
+    },
+    bold: {
+      fontWeight: FontWeight.Demi,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: Colors.darkGray,
+      marginVertical: 8,
+    },
     marginTop: 12,
     fontSize: 20,
     textAlign: 'center',

@@ -23,7 +23,8 @@ export function FixedLayout({ children, style }: FixedLayoutProps) {
       />
 
       <KeyboardAvoidingView
-        style={StyleSheet.compose(styles.keyboardAvoidingView, style)}>
+        style={StyleSheet.compose(styles.keyboardAvoidingView, style)}
+        keyboardVerticalOffset={80}>
         {children}
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -31,6 +32,6 @@ export function FixedLayout({ children, style }: FixedLayoutProps) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  root: { flex: 1, backgroundColor: Colors.pure },
   keyboardAvoidingView: { flex: 1 },
 });
