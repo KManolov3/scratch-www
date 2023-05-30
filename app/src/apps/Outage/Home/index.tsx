@@ -5,7 +5,7 @@ import { SearchBar } from '@components/SearchBar';
 import { useLazyQuery } from '@apollo/client';
 import { gql } from 'src/__generated__';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
@@ -37,11 +37,13 @@ const errorInformation: Record<ErrorType, ErrorInformation> = {
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
   const { addItem } = useOutageState();
+
+  const [isLoading, setIsLoading] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>();
 
-  // TODO: use loading state to display a loading indicator
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
+      setIsLoading(false);
       if (item?.itemBySku) {
         setErrorType(undefined);
         addItem(item.itemBySku);
@@ -53,6 +55,7 @@ export function OutageHome() {
       }
     },
     onError: () => {
+      setIsLoading(false);
       // TODO: this error should be based on what
       // the backend has returned
       setErrorType('Not Found Error');
@@ -61,6 +64,7 @@ export function OutageHome() {
 
   const onSubmit = useCallback(
     (sku: string) => {
+      setIsLoading(true);
       getItemBySku({ variables: { sku } });
     },
     [getItemBySku],
@@ -69,9 +73,17 @@ export function OutageHome() {
   return (
     <FixedLayout style={styles.container}>
       <SearchBar onSubmit={onSubmit} />
-      {!errorType ? (
+      {isLoading ? (
+        <ActivityIndicator
+          size="large"
+          color={Colors.mediumVoid}
+          style={styles.loadingIndicator}
+        />
+      ) : null}
+      {!errorType && !isLoading ? (
         <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
-      ) : (
+      ) : null}
+      {errorType && !isLoading ? (
         <View style={styles.error}>
           <Text style={styles.errorTitle}>
             {errorInformation[errorType].title}
@@ -80,7 +92,7 @@ export function OutageHome() {
             {errorInformation[errorType].message}
           </Text>
         </View>
-      )}
+      ) : null}
     </FixedLayout>
   );
 }
@@ -88,6 +100,9 @@ export function OutageHome() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.lightGray,
+  },
+  loadingIndicator: {
+    marginTop: 88,
   },
   scanBarcode: {
     marginTop: 88,
