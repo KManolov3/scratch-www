@@ -124,6 +124,8 @@ export const schema = addMocksToSchema({
               upc: item.upc,
               retailPrice: item.retailPrice,
               onHand: item.onHand,
+              planograms: item.planograms,
+              backStockSlots: item.backStockSlots,
             },
           });
 
