@@ -54,29 +54,53 @@ export class BaseCountController {
     }
 
     if (product.planograms) {
-      await expectElementText(
-        this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(1).locationId,
-        `${product.planograms[0].planogramId}`
-      );
+      for (const [index, planogram] of product.planograms.entries()) {
+        await expectElementText(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId,
+          `${planogram.planogramId}`
+        );
 
-      await expectElementText(
-        this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(1).seqNumber,
-        `${product.planograms[0].seqNum}`
-      );
+        await expectElementText(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .seqNumber,
+          `${planogram.seqNum}`
+        );
+      }
     }
 
+    await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
+
+    let backStockQuantity = 0;
+    for (const [index] of product.backStockSlots.entries()) {
+      const qty = await (
+        await $(
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
+            .quantity
+        )
+      ).getText();
+      backStockQuantity += +qty;
+    }
+
+    await expectElementText(
+      this.commonPages.itemDetailsPage.backstockQuantity,
+      `${backStockQuantity}`
+    );
+
     if (product.backStockSlots) {
-      await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
+      for (const [index, slot] of product.backStockSlots.entries()) {
+        await expectElementText(
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
+            .locationId,
+          `${slot.slotId}`
+        );
 
-      await expectElementText(
-        this.commonPages.itemDetailsPage.getSlotInfoTableRow(1).locationId,
-        `${product.backStockSlots[0].slotId}`
-      );
-
-      await expectElementText(
-        this.commonPages.itemDetailsPage.getSlotInfoTableRow(1).quantity,
-        `${product.backStockSlots[0].qty}`
-      );
+        await expectElementText(
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
+            .quantity,
+          `${slot.qty}`
+        );
+      }
     }
   }
 

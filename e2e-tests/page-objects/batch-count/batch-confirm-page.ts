@@ -4,18 +4,19 @@ export class BatchCountConfirmPage {
   }
 
   get backButton() {
-    return '[content-desc=Navigate up]';
+    return '~Navigate up';
   }
 
   productDetails(productName: string) {
     return {
-      sku: `(//*[@text="${productName}"]//following-sibling::android.widget.TextView)[2]`,
-      price: `(//*[@text="${productName}"]//following-sibling::android.widget.TextView)[4]`,
-      MFR: `(//*[@text="${productName}"]//following-sibling::android.widget.TextView)[6]`,
-      QOH: `(//*[@text="${productName}"]//following-sibling::android.widget.TextView)[8]`,
-      flagIcon: `(//*[@text="${productName}"]/following-sibling::android.view.ViewGroup//following-sibling::com.horcrux.svg.PathView)[1]`,
-      removeIcon: `(//*[@text=${productName}"]/following-sibling::android.view.ViewGroup//following-sibling::com.horcrux.svg.PathView)[2]`,
-      changeQuantityInput: `//*[@text="${productName}"]//following-sibling::android.widget.EditText`,
+      productName: `[text=${productName}]`,
+      sku: `//*[@text="${productName}"]//..//*[@content-desc="SKU value"]`,
+      price: `//*[@text="${productName}"]//..//*[@content-desc="Price value"]`,
+      MFR: `//*[@text="${productName}"]//..//*[@content-desc="MFR value"]`,
+      QOH: `//*[@text="${productName}"]//..//*[@content-desc="QOH value"]`,
+      flagIcon: `//*[@text="${productName}"]//..//*[@content-desc="flag"]`,
+      removeIcon: `//*[@text="${productName}"]//..//*[@content-desc="remove"]`,
+      changeQuantityInput: `//*[@text="${productName}"]//..//*[@content-desc="adjust quantity"]`,
     };
   }
 
@@ -26,10 +27,8 @@ export class BatchCountConfirmPage {
   get shrinkageOverageModal() {
     return {
       infoText: '[text=Shrinkage & Overage]',
-      shrinkageValue:
-        '//*[@text="Shrinkage"]/following-sibling::android.widget.TextView',
-      overageValue:
-        '//*[@text="Net Dollars"]/following-sibling::android.widget.TextView',
+      shrinkageValue: '~Shrinkage value',
+      netDollarsValue: '~Net Dollars value',
       cancelButton: '[text=Cancel]',
       acceptButton: '[text=Accept]',
     };

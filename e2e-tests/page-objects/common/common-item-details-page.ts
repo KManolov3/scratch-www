@@ -4,7 +4,7 @@ export class CommonItemDetailsPage {
   }
 
   get backButton() {
-    return '[content-desc=Navigate up]';
+    return '~Navigate up';
   }
 
   get productName() {
@@ -12,23 +12,23 @@ export class CommonItemDetailsPage {
   }
 
   get sku() {
-    return '~SKU: value';
+    return '~SKU value';
   }
 
   get price() {
-    return '~Price: value';
+    return '~Price value';
   }
 
   get partNumber() {
-    return '~P/N: value';
+    return '~Part Number value';
   }
 
   get quantityOnHand() {
-    return '~Current: value';
+    return '~QOH value';
   }
 
   get backstockQuantity() {
-    return '~Bk Stk: value';
+    return '~Back Stock value';
   }
 
   get pogLocationsButton() {
@@ -38,7 +38,7 @@ export class CommonItemDetailsPage {
   getPlanogramInfoTableRow(row: number) {
     return {
       locationId: `~POG Location${row - 1}`,
-      seqNumber: `~POG Seq${row - 1}`,
+      seqNumber: `~POG Seq #${row - 1}`,
     };
   }
 

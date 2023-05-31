@@ -13,7 +13,7 @@ import { waitForInvisible } from '../methods/helpers.ts';
 import { waitFor } from '../methods/helpers.ts';
 
 type BatchCountData = {
-  product: TestItemInput;
+  item: TestItemInput;
   newQuantity: number;
 };
 
@@ -58,16 +58,18 @@ export class BatchCountController extends BaseCountController {
 
   async completeBatchCount(batchCounts: BatchCountData[]) {
     for (const [index, data] of batchCounts.entries()) {
-      await setValue(
-        this.batchCountPages.homePage.searchForSkuInput,
-        data.product.sku
-      );
+      await this.searchForSku(data.item);
 
-      await this.expectProductInfo(data.product);
+      await this.expectProductInfo(data.item);
 
       await setValue(
         this.batchCountPages.itemDetailsPage.changeQuantityInput,
         data.newQuantity
+      );
+
+      await expectElementText(
+        this.batchCountPages.itemDetailsPage.newQuantity,
+        `${data.newQuantity}`
       );
 
       if (index > 0) {
@@ -85,7 +87,7 @@ export class BatchCountController extends BaseCountController {
     await waitFor(this.batchCountPages.confirmPage.completeButton);
 
     for (const data of batchCounts) {
-      await this.confirmProductInfo(data.product);
+      await this.confirmProductInfo(data.item);
     }
 
     await waitAndClick(this.batchCountPages.confirmPage.completeButton);
@@ -96,5 +98,7 @@ export class BatchCountController extends BaseCountController {
     await waitAndClick(
       this.batchCountPages.confirmPage.shrinkageOverageModal.acceptButton
     );
+
+    expect(this.batchCountPages.homePage.searchForSkuInput).toBeDisplayed();
   }
 }
