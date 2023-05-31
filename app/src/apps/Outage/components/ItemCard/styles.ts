@@ -23,10 +23,7 @@ export const styles = StyleSheet.create({
     paddingTop: 8,
   },
   rowItem: {
-    marginRight: 8,
-  },
-  itemProperty: {
-    marginTop: 8,
+    marginRight: 12,
   },
   productInformation: {
     flex: 1,

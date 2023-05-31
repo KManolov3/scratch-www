@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@components/Text';
 import { DocumentType, gql } from 'src/__generated__';
-import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { Row } from '@components/Row';
 import { convertCurrencyToString } from '@lib/currency';
 import { styles } from './styles';
 
@@ -36,43 +36,30 @@ export function OutageItemCard({
 
       <View style={styles.content}>
         <View style={styles.productInformation}>
-          <ItemPropertyDisplay label="P/N" value={mfrPartNum ?? 'undefined'} />
+          <Row label="P/N:" value={mfrPartNum ?? 'undefined'} />
           {active ? (
             <>
-              <ItemPropertyDisplay
-                label="SKU"
-                value={sku ?? 'undefined'}
-                style={styles.itemProperty}
-              />
-              <ItemPropertyDisplay
+              <Row label="SKU:" value={sku ?? 'undefined'} />
+              <Row
                 label="Price:"
                 value={
                   retailPrice
                     ? convertCurrencyToString(retailPrice)
                     : 'undefined'
                 }
-                style={styles.itemProperty}
               />
-              <ItemPropertyDisplay
-                label="Current:"
-                value={onHand ?? 'undefined'}
-                style={styles.itemProperty}
-              />
+              <Row label="Current:" value={onHand ?? 'undefined'} />
             </>
           ) : null}
         </View>
         <View style={styles.quantityUpdate}>
           <View style={styles.quantityInformation}>
-            <ItemPropertyDisplay
-              label="Current"
+            <Row
+              label="Current:"
               value={onHand ?? 'undefined'}
-              style={styles.rowItem}
+              containerStyle={styles.rowItem}
             />
-            <ItemPropertyDisplay
-              label="New"
-              value={0}
-              valueStyle={styles.zero}
-            />
+            <Row label="New:" value={0} valueStyle={styles.zero} />
           </View>
           {active ? (
             <Pressable onPress={removeItem} style={styles.removeItem}>

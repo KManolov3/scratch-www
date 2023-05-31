@@ -2,11 +2,11 @@ import { CommonItemDetailsPage } from '../common/common-item-details-page.ts';
 
 export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
   get newQuantity() {
-    return '~New value';
+    return '~New Qty value';
   }
 
   get changeQuantityInput() {
-    return '[text=1]';
+    return '~adjust quantity';
   }
 
   get fastAcceptButton() {
@@ -15,12 +15,5 @@ export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
 
   get verifyButton() {
     return '[text=VERIFY]';
-  }
-
-  get shrinkageOverageModal() {
-    return {
-      cancelButton: '[text=CANCEL]',
-      acceptButton: '[text=ACCEPT]',
-    };
   }
 }

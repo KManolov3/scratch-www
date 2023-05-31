@@ -1,7 +1,6 @@
 import { TestDataInput } from '../../__generated__/graphql.ts';
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
-import { waitAndClick } from '../../methods/helpers.ts';
 
 const testData = new TestDataController();
 
@@ -11,21 +10,37 @@ describe('Batch Count', () => {
     await testData.clearData();
   });
 
-  it('manually entering a SKU should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
+  it('should be successfully completed', async () => {
     const items: TestDataInput['items'] = [
       {
-        mfrPartNum: '44899',
         partDesc: 'Mobil 1 5W-30 Motor Oil',
         sku: '10069908',
         retailPrice: 36.99,
-        onHand: 73,
+        mfrPartNum: '44899',
+        onHand: 10,
+        planograms: [
+          { planogramId: '35899', seqNum: 44 },
+          { planogramId: '12456', seqNum: 22 },
+        ],
+        backStockSlots: [
+          { slotId: 47457, qty: 7 },
+          { slotId: 87802, qty: 3 },
+        ],
       },
       {
-        mfrPartNum: '18-260',
         partDesc: 'Beam Wiper Blade',
         sku: '5070221',
         retailPrice: 22.99,
-        onHand: 52,
+        mfrPartNum: '18-260',
+        onHand: 15,
+        planograms: [
+          { planogramId: '57211', seqNum: 43 },
+          { planogramId: '23425', seqNum: 56 },
+        ],
+        backStockSlots: [
+          { slotId: 47457, qty: 8 },
+          { slotId: 87802, qty: 3 },
+        ],
       },
     ];
 
@@ -37,15 +52,9 @@ describe('Batch Count', () => {
 
     const batchCount = new BatchCountController();
 
-    for (const [index, product] of items.entries()) {
-      await batchCount.searchForSku(product);
-      await batchCount.expectProductInfo(product);
-
-      if (index !== items.length - 1) {
-        await waitAndClick(
-          batchCount.batchCountPages.itemDetailsPage.backButton
-        );
-      }
-    }
+    await batchCount.completeBatchCount([
+      { item: items[0], newQuantity: 11 },
+      { item: items[1], newQuantity: 14 },
+    ]);
   });
 });

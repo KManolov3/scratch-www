@@ -1,5 +1,5 @@
 import { TestDataController } from '../../controllers/test-data-controller.ts';
-import { waitAndClick } from '../../methods/helpers.ts';
+import { waitAndClick, waitFor } from '../../methods/helpers.ts';
 import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
 import { TestDataInput } from '../../__generated__/graphql.ts';
 
@@ -53,6 +53,7 @@ describe('Item Lookup', () => {
     const itemLookup = new ItemLookupController();
 
     const barcodeWithPriceDiscrepancy = '99ajds31413';
+    await waitFor(itemLookup.itemLookupPages.homePage.searchForSkuInput);
     itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
 
     await expect(
