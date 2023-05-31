@@ -16,16 +16,4 @@ export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
   get verifyButton() {
     return '[text=VERIFY]';
   }
-
-  get shrinkageOverageModal() {
-    return {
-      infoText: '[text=Shrinkage & Overage]',
-      shrinkageValue:
-        '//*[@text="Shrinkage"]/following-sibling::android.widget.TextView',
-      overageValue:
-        '//*[@text="Net Dollars"]/following-sibling::android.widget.TextView',
-      cancelButton: '[text=Cancel]',
-      acceptButton: '[text=Accept]',
-    };
-  }
 }
