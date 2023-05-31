@@ -1,22 +1,24 @@
-import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { useCallback } from 'react';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { NumberInput } from '@components/NumberInput';
 import { MinusIcon, PlusIcon } from '@assets/icons';
+import { Colors } from '@lib/colors';
 
 export interface QuantityAdjusterProps {
   quantity: number;
   setQuantity: (quantity: number) => void;
+  minimum?: number;
 }
 
 export function QuantityAdjuster({
   quantity,
   setQuantity,
+  minimum = 0,
 }: QuantityAdjusterProps) {
   const decreaseQuantity = useCallback(
-    () => setQuantity(Math.max(0, quantity - 1)),
-    [quantity, setQuantity],
+    () => setQuantity(Math.max(minimum, quantity - 1)),
+    [minimum, quantity, setQuantity],
   );
   const increaseQuantity = useCallback(
     () => setQuantity(quantity + 1),
@@ -25,11 +27,9 @@ export function QuantityAdjuster({
 
   return (
     <Container style={styles.container}>
-      <BlockButton
-        style={[styles.square, styles.button]}
-        Icon={MinusIcon}
-        onPress={decreaseQuantity}
-      />
+      <Pressable onPress={decreaseQuantity}>
+        <MinusIcon />
+      </Pressable>
       <NumberInput
         value={quantity}
         setValue={setQuantity}
@@ -38,11 +38,9 @@ export function QuantityAdjuster({
         placeholder={quantity.toString()}
         onSubmit={setQuantity}
       />
-      <BlockButton
-        style={[styles.square, styles.button]}
-        Icon={PlusIcon}
-        onPress={increaseQuantity}
-      />
+      <Pressable onPress={increaseQuantity}>
+        <PlusIcon />
+      </Pressable>
     </Container>
   );
 }
@@ -50,13 +48,15 @@ export function QuantityAdjuster({
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
+    gap: 10,
   },
   button: {
     marginHorizontal: 8,
   },
   square: {
-    height: 46,
-    width: 46,
+    height: 40,
+    width: 32,
+    backgroundColor: Colors.lightGray,
   },
   inputContainer: {
     padding: 2,

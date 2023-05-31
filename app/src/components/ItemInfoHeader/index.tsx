@@ -4,11 +4,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
+import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { soundService } from 'src/services/SoundService';
 import { formatPrice } from '@lib/formatPrice';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
@@ -30,7 +28,8 @@ export type ItemDetailsInfo = NonNullable<
 
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
-  frontTagPrice?: number;
+  hasPriceDiscrepancy?: boolean;
+  togglePriceDiscrepancyModal?: () => void;
   quantityAdjustment?: {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
@@ -52,31 +51,9 @@ function getBackstockQuantity(
 export function ItemInfoHeader({
   itemDetails,
   quantityAdjustment,
-  frontTagPrice,
+  hasPriceDiscrepancy,
+  togglePriceDiscrepancyModal,
 }: ItemInfoHeaderProps) {
-  // TODO: Show a price discrepancy modal, in case a front tag is scanned,
-  // whose assigned price doesn't match the system price (returned from item lookup queries)
-  const priceDiscrepancy = useMemo(
-    () => !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice,
-    [frontTagPrice, itemDetails.retailPrice],
-  );
-  const [priceDiscrepancyModalVisible, setPriceDiscrepancyModalVisible] =
-    useState(priceDiscrepancy);
-
-  const toggleModal = useCallback(
-    () => setPriceDiscrepancyModalVisible(visible => !visible),
-    [],
-  );
-
-  useEffect(() => {
-    if (priceDiscrepancy) {
-      soundService
-        .playSound('error')
-        // eslint-disable-next-line no-console
-        .catch(error => console.log('Error playing sound.', error));
-    }
-  }, [priceDiscrepancy]);
-
   const backstockSlots = useMemo(
     () => getBackstockQuantity(itemDetails.backStockSlots),
     [itemDetails.backStockSlots],
@@ -103,8 +80,8 @@ export function ItemInfoHeader({
               : 'undefined'
           }
           icon={
-            priceDiscrepancy ? (
-              <Pressable onPress={toggleModal}>
+            hasPriceDiscrepancy ? (
+              <Pressable onPress={togglePriceDiscrepancyModal}>
                 <AttentionIcon />
               </Pressable>
             ) : undefined
@@ -153,15 +130,6 @@ export function ItemInfoHeader({
         <QuantityAdjuster
           quantity={quantityAdjustment.quantity}
           setQuantity={quantityAdjustment.setNewQuantity}
-        />
-      )}
-      {frontTagPrice && itemDetails.retailPrice && (
-        <PriceDiscrepancyModal
-          scanned={frontTagPrice}
-          system={itemDetails.retailPrice}
-          isVisible={priceDiscrepancyModalVisible}
-          onCancel={toggleModal}
-          onConfirm={toggleModal}
         />
       )}
     </View>
