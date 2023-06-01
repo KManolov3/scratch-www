@@ -21,7 +21,7 @@ export type LookupType = 'UPC' | 'SKU';
 // TODO: Move those below component?
 const ITEM_BY_SKU = gql(`
   query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+    itemBySku(sku: $sku, storeNumber: "501") {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -31,7 +31,7 @@ const ITEM_BY_SKU = gql(`
 
 const ITEM_BY_UPC = gql(`
   query AutomaticItemLookup($upc: String!) {
-    itemByUpc(upc: $upc, storeNumber: "0363") {
+    itemByUpc(upc: $upc, storeNumber: "501") {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields

@@ -5,12 +5,15 @@ import android.net.Uri
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.client.*
 import com.okta.authfoundation.credential.Credential
-import com.okta.authfoundation.credential.CredentialDataSource
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
 import com.okta.authfoundation.credential.Token
+import com.okta.authfoundation.credential.TokenStorage
+import com.okta.authfoundation.jwt.JwtParser
 import com.okta.authfoundationbootstrap.CredentialBootstrap
-import com.okta.oauth2.TokenExchangeFlow
 import com.okta.oauth2.TokenExchangeFlow.Companion.createTokenExchangeFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -26,75 +29,136 @@ data class LauncherTokens(
     val deviceSecret: String
 )
 
-data class AppTokens(
-    val accessToken: String,
-    val refreshToken: String
-)
-
 data class AuthConfig(
     val clientId: String,
     val authServerURL: String
 )
 
+class InMemoryOktaTokenStorage : TokenStorage {
+    private val tokens = mutableMapOf<String, TokenStorage.Entry>()
+
+    override suspend fun add(id: String) {
+        tokens[id] = TokenStorage.Entry(id, null, emptyMap())
+    }
+
+    override suspend fun entries() = tokens.values.toList()
+
+    override suspend fun remove(id: String) {
+        tokens.remove(id)
+    }
+
+    override suspend fun replace(updatedEntry: TokenStorage.Entry) {
+        tokens[updatedEntry.identifier] = updatedEntry
+    }
+}
+
+open class AuthError(message: String) : Exception(message)
+class LauncherContentProviderError : AuthError("Could not find the launcher content provider or it crashed")
+class MissingLauncherTokens : AuthError("Missing launcher tokens - maybe the app is run outside of launcher?")
+class UnauthorizedForInventoryApps : AuthError("The user is not authorized to access the inventory applications")
+class MissingRefreshToken : AuthError("Missing refresh token when obtaining tokens")
+
 class Authentication(
     val context: Context,
     val config: AuthConfig
 ) {
+    private val storage = InMemoryOktaTokenStorage()
+    private var credential: Credential? = null
+    private val client: OidcClient
+
     init {
-        AuthFoundationDefaults.cache = SharedPreferencesCache.create(context.applicationContext)
         val oidcConfiguration = OidcConfiguration(
             clientId = config.clientId,
             defaultScope = "openid email profile offline_access",
         )
-        val client = OidcClient.createFromDiscoveryUrl(
+
+        client = OidcClient.createFromDiscoveryUrl(
             oidcConfiguration,
             "${config.authServerURL.trimEnd('/')}/.well-known/openid-configuration".toHttpUrl(),
         )
-        CredentialBootstrap.initialize(client.createCredentialDataSource(context.applicationContext))
+        CredentialBootstrap.initialize(client.createCredentialDataSource(storage))
     }
 
-    suspend fun obtainToken(): AppTokens? {
-        val launcherTokens = readLauncherTokens() ?: return null
+    suspend fun cleanTokens() {
+        // TODO: Revoke or just forget?
+        credential?.delete()
+        credential = null
+    }
 
-        // TODO: Confirm these don't expire
-        val appToken = performTokenExchange(launcherTokens.idToken, launcherTokens.deviceSecret)
+    suspend fun requestTokens() {
+        val launcherTokens = readLauncherTokens()
+        val token = performTokenExchange(launcherTokens.idToken, launcherTokens.deviceSecret)
 
-        return AppTokens(
-            accessToken = appToken.accessToken,
+        if (token.refreshToken == null) throw MissingRefreshToken()
+    }
 
-            // TODO: Throw error if not present
-            refreshToken = appToken.refreshToken ?: return null
-        )
+    suspend fun currentValidAccessToken(): String? {
+        return getValidAccessToken() ?: run {
+            requestTokens()
+            getValidAccessToken()
+        }
+    }
+
+    @Serializable
+    private class TokenExpiresAtPayload(
+        @SerialName("exp") val expiresAt: Long,
+    )
+
+    private suspend fun currentCredential() = this.credential ?: run {
+        val credential = CredentialBootstrap.credentialDataSource.createCredential()
+        this.credential = credential
+        credential
     }
 
     private suspend fun performTokenExchange(idToken: String, deviceSecret: String): Token {
-        val credentialDataSource: CredentialDataSource = CredentialBootstrap.credentialDataSource
-        val tokenExchangeCredential: Credential = credentialDataSource.createCredential()
-        val tokenExchangeFlow: TokenExchangeFlow = CredentialBootstrap.oidcClient.createTokenExchangeFlow()
+        val tokenExchangeFlow = CredentialBootstrap.oidcClient.createTokenExchangeFlow()
         val token = tokenExchangeFlow.start(idToken, deviceSecret, "MobileDevice", "base offline_access").getOrThrow()
 
-        tokenExchangeCredential.storeToken(token)
+        currentCredential().storeToken(token)
 
         return token
     }
 
-    // TODO: Make this a suspend function and do this asynchronously
-    private fun readLauncherTokens(): LauncherTokens? {
+    private suspend fun readLauncherTokens() = withContext(Dispatchers.IO) {
         context.contentResolver.query(
             Uri.parse("content://com.bluefletch.launcherprovider/session"),
             arrayOf("DATA"),
             null, null, null
         ).use { cursor ->
-            // TODO: Error here that the launcher is not configured
-            if (cursor == null) return null
+            if (cursor == null) throw LauncherContentProviderError()
 
             cursor.moveToPosition(0)
             val json = cursor.getString(0)
 
-            // TODO: Error here that tokens don't exist
-            if (json == null || json == "null") return null
+            if (json == null || json == "null") throw MissingLauncherTokens()
 
-            return Json.decodeFromString<LauncherTokens>(json)
+            return@withContext Json.decodeFromString<LauncherTokens>(json)
         }
+    }
+
+    private suspend fun getValidAccessToken(): String? {
+        val credential = this.credential ?: return null
+        val token = credential.token ?: return null
+
+        val accessToken = try {
+            val parser = JwtParser.create()
+            parser.parse(token.accessToken)
+        } catch (e: Exception) {
+            // The token was malformed.
+            return null
+        }
+
+        val payload = try {
+            accessToken.deserializeClaims(TokenExpiresAtPayload.serializer())
+        } catch (e: Exception) {
+            // Failed to parse access token JWT.
+            return null
+        }
+
+        if (payload.expiresAt > AuthFoundationDefaults.clock.currentTimeEpochSecond()) {
+            return token.accessToken
+        }
+
+        return credential.refreshToken().getOrThrow().accessToken
     }
 }

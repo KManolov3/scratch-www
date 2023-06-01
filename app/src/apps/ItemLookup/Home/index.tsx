@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { TextInputRef } from '@components/TextInput';
 import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { useScanListener } from '@hooks/useScanListener';
 import { StyleSheet } from 'react-native';
+import { useScanListener } from 'src/services/Scanner';
 import { ItemLookupNavigation } from '../navigator';
 
 export function ItemLookupHome() {

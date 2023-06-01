@@ -16,6 +16,7 @@ export type ScannerConfig = {
 export interface Spec extends TurboModule {
   /* Authentication */
   reloadAuthFromLauncher(config: AuthConfig): Promise<void>;
+  currentValidAccessToken(): Promise<string | null>;
 
   /* Scanner */
   configureScanner(config: ScannerConfig): void;
