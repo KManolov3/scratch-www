@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -7,6 +8,7 @@ import { FontWeight } from '@lib/font';
 import { RootNavigator, RootRouteName } from '@apps/navigator';
 import { ScannerConfig } from 'rtn-in-store-apps';
 import { ScannerProvider } from '@services/Scanner';
+import { toastConfig } from './services/ToastService';
 import { apolloClient } from './config/graphql';
 import { Colors } from './lib/colors';
 import { AuthProvider } from './services/Auth';
@@ -16,7 +18,7 @@ import { config } from './config';
 export type AppRootProps = {
   applicationName: ApplicationName;
   initialRoute: RootRouteName;
-  scannerConfig: ScannerConfig;
+  scannerConfig?: ScannerConfig;
 };
 
 export function AppRoot({
@@ -44,6 +46,8 @@ export function AppRoot({
               initialRoute={initialRoute}
               screenOptions={screenOptions}
             />
+
+            <Toast config={toastConfig} />
           </NavigationContainer>
         </ApolloProvider>
       </LaunchDarklyProvider>

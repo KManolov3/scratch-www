@@ -18,10 +18,15 @@ import {
   ItemLookupNavigator,
   ItemLookupNavigatorScreenParams,
 } from './ItemLookup/navigator';
+import {
+  OutageNavigator,
+  OutageNavigatorScreenParams,
+} from './Outage/navigator';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;
   BatchCountHome: BatchCountNavigatorScreenParams;
+  OutageHome: OutageNavigatorScreenParams;
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: ItemLookupNavigatorScreenParams;
@@ -59,6 +64,13 @@ export function RootNavigator({
         options={{ headerShown: false }}
         component={BatchCountNavigator}
       />
+
+      <Stack.Screen
+        name="OutageHome"
+        options={{ headerShown: false }}
+        component={OutageNavigator}
+      />
+
       <Stack.Screen name="TruckDetailHome" component={TruckReceiveHome} />
 
       <Stack.Screen

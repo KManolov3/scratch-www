@@ -4,11 +4,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
+import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { soundService } from 'src/services/SoundService';
 import { formatPrice } from '@lib/formatPrice';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
@@ -30,8 +28,12 @@ export type ItemDetailsInfo = NonNullable<
 
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
-  frontTagPrice?: number;
-  withQuantityAdjustment?: boolean;
+  hasPriceDiscrepancy?: boolean;
+  togglePriceDiscrepancyModal?: () => void;
+  quantityAdjustment?: {
+    quantity: number;
+    setNewQuantity: (newQty: number) => void;
+  };
 }
 
 function getBackstockQuantity(
@@ -48,37 +50,10 @@ function getBackstockQuantity(
 
 export function ItemInfoHeader({
   itemDetails,
-  withQuantityAdjustment = false,
-  frontTagPrice,
+  quantityAdjustment,
+  hasPriceDiscrepancy,
+  togglePriceDiscrepancyModal,
 }: ItemInfoHeaderProps) {
-  // TODO: Manage this through the app context. Requirements:
-  // 1) It should be incremented whenever a UPC is scanned.
-  // 2) It should be able to be modified through the QuantityAdjuster component
-  const [newQuantity, setNewQuantity] = useState(1);
-
-  // TODO: Show a price discrepancy modal, in case a front tag is scanned,
-  // whose assigned price doesn't match the system price (returned from item lookup queries)
-  const priceDiscrepancy = useMemo(
-    () => !!frontTagPrice && frontTagPrice !== itemDetails.retailPrice,
-    [frontTagPrice, itemDetails.retailPrice],
-  );
-  const [priceDiscrepancyModalVisible, setPriceDiscrepancyModalVisible] =
-    useState(priceDiscrepancy);
-
-  const toggleModal = useCallback(
-    () => setPriceDiscrepancyModalVisible(visible => !visible),
-    [],
-  );
-
-  useEffect(() => {
-    if (priceDiscrepancy) {
-      soundService
-        .playSound('error')
-        // eslint-disable-next-line no-console
-        .catch(error => console.log('Error playing sound.', error));
-    }
-  }, [priceDiscrepancy]);
-
   const backstockSlots = useMemo(
     () => getBackstockQuantity(itemDetails.backStockSlots),
     [itemDetails.backStockSlots],
@@ -105,8 +80,8 @@ export function ItemInfoHeader({
               : 'undefined'
           }
           icon={
-            priceDiscrepancy ? (
-              <Pressable onPress={toggleModal}>
+            hasPriceDiscrepancy ? (
+              <Pressable onPress={togglePriceDiscrepancyModal}>
                 <AttentionIcon />
               </Pressable>
             ) : undefined
@@ -126,13 +101,21 @@ export function ItemInfoHeader({
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="QOH"
-          value={itemDetails.mfrPartNum}
+          value={itemDetails.onHand}
         />
         <ItemPropertyDisplay
           style={styles.itemProperties}
           label="Back Stock"
           value={backstockSlots}
         />
+
+        {quantityAdjustment && (
+          <ItemPropertyDisplay
+            style={styles.itemProperties}
+            label="New Qty"
+            value={quantityAdjustment.quantity}
+          />
+        )}
         {/* TODO: Right now the api does not return maxi
             so we decided to hide it. Add it back when
             any progress is made
@@ -143,17 +126,10 @@ export function ItemInfoHeader({
           value={0}
         /> */}
       </View>
-
-      {withQuantityAdjustment && (
-        <QuantityAdjuster quantity={newQuantity} setQuantity={setNewQuantity} />
-      )}
-      {frontTagPrice && itemDetails.retailPrice && (
-        <PriceDiscrepancyModal
-          scanned={frontTagPrice}
-          system={itemDetails.retailPrice}
-          isVisible={priceDiscrepancyModalVisible}
-          onCancel={toggleModal}
-          onConfirm={toggleModal}
+      {quantityAdjustment && (
+        <QuantityAdjuster
+          quantity={quantityAdjustment.quantity}
+          setQuantity={quantityAdjustment.setNewQuantity}
         />
       )}
     </View>

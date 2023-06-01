@@ -5,47 +5,46 @@ import { useCallback } from 'react';
 import { FontWeight } from '@lib/font';
 
 export interface ListProps<T> {
-  labelInfo: {
+  itemInfo: {
     label: string;
-    key: keyof T;
+    getValue: (item: T) => string | number;
   }[];
   data: T[];
 }
 
-export function List<
-  T extends { [key: string]: string | number | null | undefined },
->({ labelInfo, data }: ListProps<T>) {
+export function List<T>({ itemInfo, data }: ListProps<T>) {
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<T>) => {
       return (
-        <>
+        <View key={`ListItem${index}`}>
           <View style={styles.table}>
-            {labelInfo.map(({ key }) => (
+            {itemInfo.map(({ label, getValue }) => (
               <Text
                 // `key` should always be of String type anyway
-                accessibilityLabel={`${String(key)}${index}`}
-                key={`${String(key)}${index}`}
+                accessibilityLabel={`${label}${index}`}
+                key={`${label}${index}`}
                 style={styles.text}>
-                {item[key] ?? ''}
+                {getValue(item) ?? ''}
               </Text>
             ))}
           </View>
           <View style={styles.separator} />
-        </>
+        </View>
       );
     },
-    [labelInfo],
+    [itemInfo],
   );
 
   return (
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
-        {labelInfo.map(({ label }) => (
+        {itemInfo.map(({ label }) => (
           <Text key={label} style={styles.text}>
             {label}
           </Text>
         ))}
       </View>
+      <View style={styles.separator} />
       <FlatList
         data={data}
         renderItem={renderItem}

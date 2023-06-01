@@ -14,25 +14,24 @@ export type PlanogramsInfo = NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>>;
 type Planogram = NonNullable<
   NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>['planograms']>[number]
 >;
-type PlanogramKeys = keyof Planogram;
 
 export interface PlanogramListProps {
   planograms: Planogram[];
 }
 
 export function PlanogramList({ planograms }: PlanogramListProps) {
-  const labelInfo = useMemo<{ label: string; key: PlanogramKeys }[]>(
+  const listItemInfo = useMemo(
     () => [
       {
         label: 'POG Location',
-        key: 'planogramId',
+        getValue: (item: Planogram) => item.planogramId ?? 'undefined',
       },
       {
         label: 'POG Seq #',
-        key: 'seqNum',
+        getValue: (item: Planogram) => item.seqNum ?? 'undefined',
       },
     ],
     [],
   );
-  return <List labelInfo={labelInfo} data={planograms} />;
+  return <List itemInfo={listItemInfo} data={planograms} />;
 }

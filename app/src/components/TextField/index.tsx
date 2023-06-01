@@ -50,7 +50,7 @@ export function TextField({
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholder}
-        placeholderTextColor={Colors.lightVoid}
+        placeholderTextColor={Colors.mediumVoid}
         value={value}
         onChangeText={onChangeText}
         onFocus={onFocus}

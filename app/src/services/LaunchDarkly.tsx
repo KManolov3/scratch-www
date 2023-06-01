@@ -27,6 +27,7 @@ const LAUNCH_DARKLY_CONFIGURE_TIMEOUT = 4000;
 export type ApplicationName =
   | 'Batch Count'
   | 'Cycle Count'
+  | 'Outage'
   | 'Item Lookup'
   | 'Truck Receive';
 
