@@ -4,8 +4,13 @@ import { ItemLookupController } from '../../controllers/item-lookup-controller.t
 import { TestDataInput } from '../../__generated__/graphql.ts';
 
 const testData = new TestDataController();
+const itemLookup = new ItemLookupController();
 
 describe('Item Lookup', () => {
+  beforeEach(async () => {
+    await waitFor(itemLookup.itemLookupPages.homePage.searchForSkuInput, 10000);
+  });
+
   afterEach(async () => {
     await driver.reloadSession();
     await testData.clearData();
@@ -14,18 +19,19 @@ describe('Item Lookup', () => {
   it('manually entering a SKU should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
     const items: TestDataInput['items'] = [
       {
-        mfrPartNum: '44899',
         partDesc: 'Mobil 1 5W-30 Motor Oil',
         sku: '10069908',
         retailPrice: 36.99,
-        onHand: 73,
-      },
-      {
-        mfrPartNum: '18-260',
-        partDesc: 'Beam Wiper Blade',
-        sku: '5070221',
-        retailPrice: 22.99,
-        onHand: 52,
+        mfrPartNum: '44899',
+        onHand: 10,
+        planograms: [
+          { planogramId: '35899', seqNum: 44 },
+          { planogramId: '12456', seqNum: 22 },
+        ],
+        backStockSlots: [
+          { slotId: 47457, qty: 7 },
+          { slotId: 87802, qty: 3 },
+        ],
       },
     ];
 
@@ -34,8 +40,6 @@ describe('Item Lookup', () => {
       storeNumber: '0363',
       items: items,
     });
-
-    const itemLookup = new ItemLookupController();
 
     for (const [index, product] of items.entries()) {
       await itemLookup.searchForSku(product);
@@ -50,10 +54,7 @@ describe('Item Lookup', () => {
   });
 
   it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
-    const itemLookup = new ItemLookupController();
-
     const barcodeWithPriceDiscrepancy = '99ajds31413';
-    await waitFor(itemLookup.itemLookupPages.homePage.searchForSkuInput);
     itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
 
     await expect(
@@ -62,5 +63,7 @@ describe('Item Lookup', () => {
           .warningText
       )
     ).toBeDisplayed();
+
+    await itemLookup.printFrontTag('Portable', 3);
   });
 });

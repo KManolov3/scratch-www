@@ -22,7 +22,7 @@ export class BaseCountController {
   }
 
   async searchForSku(product: TestItemInput) {
-    await waitFor(this.commonPages.homePage.searchForSkuInput, 15000);
+    await waitFor(this.commonPages.homePage.searchForSkuInput, 5000);
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
     await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
