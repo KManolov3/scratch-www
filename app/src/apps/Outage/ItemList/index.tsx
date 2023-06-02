@@ -4,6 +4,7 @@ import {
   FlatList,
   ListRenderItem,
   StyleSheet,
+  ToastAndroid,
 } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -41,10 +42,13 @@ export function OutageItemList() {
   }, [navigate, outageCountItems.length]);
 
   const removeOutageItem = useCallback(
-    (sku?: string | null) => {
-      if (sku) {
-        // TODO: show a toast
-        removeItem(sku);
+    (item: ItemDetailsInfo) => {
+      if (item.sku) {
+        removeItem(item.sku);
+        ToastAndroid.show(
+          `${item.partDesc} removed from Outage list`,
+          ToastAndroid.LONG,
+        );
       }
     },
     [removeItem],
@@ -78,7 +82,7 @@ export function OutageItemList() {
         active={activeItem?.sku === item.sku}
         isLast={index === outageCountItems.length - 1}
         onPress={() => setActiveItem(item)}
-        removeItem={() => removeOutageItem(item.sku)}
+        removeItem={() => removeOutageItem(item)}
       />
     ),
     [activeItem?.sku, outageCountItems.length, removeOutageItem],
