@@ -38,12 +38,10 @@ export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
   const { addItem } = useOutageState();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>();
 
-  const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY, {
+  const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
-      setIsLoading(false);
       if (item?.itemBySku) {
         setErrorType(undefined);
         addItem(item.itemBySku);
@@ -55,7 +53,6 @@ export function OutageHome() {
       }
     },
     onError: () => {
-      setIsLoading(false);
       // TODO: this error should be based on what
       // the backend has returned
       setErrorType('Not Found Error');
@@ -64,7 +61,6 @@ export function OutageHome() {
 
   const onSubmit = useCallback(
     (sku: string) => {
-      setIsLoading(true);
       getItemBySku({ variables: { sku } });
     },
     [getItemBySku],
@@ -73,17 +69,17 @@ export function OutageHome() {
   return (
     <FixedLayout style={styles.container}>
       <SearchBar onSubmit={onSubmit} />
-      {isLoading ? (
+      {loading ? (
         <ActivityIndicator
           size="large"
           color={Colors.mediumVoid}
           style={styles.loadingIndicator}
         />
       ) : null}
-      {!errorType && !isLoading ? (
+      {!errorType && !loading ? (
         <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
       ) : null}
-      {errorType && !isLoading ? (
+      {errorType && !loading ? (
         <View style={styles.error}>
           <Text style={styles.errorTitle}>
             {errorInformation[errorType].title}

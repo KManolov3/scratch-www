@@ -40,12 +40,15 @@ export function OutageItemList() {
     }
   }, [navigate, outageCountItems.length]);
 
-  const removeOutageItem = useCallback(() => {
-    if (activeItem?.sku) {
-      // TODO: show a toast
-      removeItem(activeItem.sku);
-    }
-  }, [activeItem?.sku, removeItem]);
+  const removeOutageItem = useCallback(
+    (sku?: string | null) => {
+      if (sku) {
+        // TODO: show a toast
+        removeItem(sku);
+      }
+    },
+    [removeItem],
+  );
 
   const submitOutageCount = useCallback(() => {
     setIsShrinkageModalVisible(false);
@@ -67,9 +70,7 @@ export function OutageItemList() {
     [outageCountItems],
   );
 
-  const renderItem = useCallback<
-    ListRenderItem<(typeof outageCountItems)[number]>
-  >(
+  const renderItem = useCallback<ListRenderItem<ItemDetailsInfo>>(
     ({ item, index }) => (
       <OutageItemCard
         key={item.sku}
@@ -77,7 +78,7 @@ export function OutageItemList() {
         active={activeItem?.sku === item.sku}
         isLast={index === outageCountItems.length - 1}
         onPress={() => setActiveItem(item)}
-        removeItem={() => removeOutageItem()}
+        removeItem={() => removeOutageItem(item.sku)}
       />
     ),
     [activeItem?.sku, outageCountItems.length, removeOutageItem],
