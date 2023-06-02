@@ -30,7 +30,9 @@ export function QuantityAdjuster({
   return (
     <Container style={styles.container}>
       <Text style={styles.bold}> Qty: </Text>
-      <Pressable onPress={decreaseQuantity}>
+      <Pressable
+        accessibilityLabel="decrease quantity"
+        onPress={decreaseQuantity}>
         <MinusIcon />
       </Pressable>
       <NumberInput
@@ -38,10 +40,13 @@ export function QuantityAdjuster({
         setValue={setQuantity}
         inputStyle={[styles.square, styles.inputContainer]}
         containerStyle={styles.inputContainer}
+        accessibilityLabel="adjust quantity"
         placeholder={quantity.toString()}
         onSubmit={setQuantity}
       />
-      <Pressable onPress={increaseQuantity}>
+      <Pressable
+        accessibilityLabel="increase quantity"
+        onPress={increaseQuantity}>
         <PlusIcon />
       </Pressable>
     </Container>

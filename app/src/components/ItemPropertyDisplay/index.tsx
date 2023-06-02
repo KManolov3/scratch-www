@@ -24,8 +24,16 @@ export function ItemPropertyDisplay({
   return (
     <View style={[styles.root, style]}>
       <View>
-        <Text style={[styles.label, labelStyle]}>{label}</Text>
-        <Text style={[styles.value, valueStyle]}>{value}</Text>
+        <Text
+          accessibilityLabel={`${label} label`}
+          style={[styles.label, labelStyle]}>
+          {label}
+        </Text>
+        <Text
+          accessibilityLabel={`${label} value`}
+          style={[styles.value, valueStyle]}>
+          {value}
+        </Text>
       </View>
       <View style={styles.icon}>{icon}</View>
     </View>
