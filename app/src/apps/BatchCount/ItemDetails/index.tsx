@@ -2,9 +2,11 @@
 // token to the app, containing the current active store.
 
 import { useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ToastAndroid } from 'react-native';
+import { StyleSheet, ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
+import { Header } from '@components/Header';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { ItemDetails } from '../../../components/ItemDetails';
 import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 import { useBatchCountState } from '../state';
@@ -79,16 +81,18 @@ export function BatchCountItemDetails({
     }
   }, [submitError]);
 
+  const header = useMemo(() => <Header title="Batch Count" />, []);
+
   // TODO: Show loading indicator on submit
 
   return (
-    <View style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={selectedItem.item}
         quantityAdjustment={quantityAdjustmentDetails}
       />
       <BottomActionBar actions={bottomBarActions} />
-    </View>
+    </FixedLayout>
   );
 }
 

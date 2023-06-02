@@ -6,11 +6,12 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BlockButton } from '@components/Button/Block';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { Header } from '@components/Header';
 import { sumBy } from 'lodash-es';
 import { OutageItemCard } from '../components/ItemCard';
 import { RemoveItemModal } from '../components/RemoveItemModal';
@@ -70,13 +71,15 @@ export function OutageItemList() {
     navigate('Home');
   }, [navigate, submitOutage]);
 
+  const header = useMemo(() => <Header title="Outage" />, []);
+
   if (submitLoading) {
     return <ActivityIndicator size="large" style={styles.loading} />;
   }
 
   return (
     <>
-      <FixedLayout>
+      <FixedLayout header={header}>
         <View>
           <FlatList
             data={outageCountItems}

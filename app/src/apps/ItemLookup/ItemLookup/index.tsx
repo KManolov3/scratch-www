@@ -14,6 +14,7 @@ import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { Header } from '@components/Header';
 import { indexOfEnumValue } from '@lib/array';
 import { soundService } from 'src/services/SoundService';
 import { toastService } from 'src/services/ToastService';
@@ -143,8 +144,10 @@ export function ItemLookupScreen({
     [loading, togglePrintModal],
   );
 
+  const header = useMemo(() => <Header title="Item Lookup" />, []);
+
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}

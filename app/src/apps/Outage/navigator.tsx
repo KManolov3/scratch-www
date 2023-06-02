@@ -23,7 +23,9 @@ const Stack = createNativeStackNavigator<Routes>();
 export function OutageNavigator() {
   return (
     <OutageStateProvider>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={OutageHome} />
 
         <Stack.Screen name="Item List" component={OutageItemList} />
