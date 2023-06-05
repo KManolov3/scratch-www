@@ -1,5 +1,10 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  ListRenderItem,
+  StyleSheet,
+  FlatList,
+} from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
@@ -7,7 +12,7 @@ import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { sumBy } from 'lodash-es';
 import { Colors } from '@lib/colors';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { VerifyItemsList } from '@components/VerifyItemsList';
+import { ActionableItemCard } from '@components/ActionableItemCard';
 import { RemoveItemModal } from '../components/RemoveItemModal';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
@@ -61,6 +66,10 @@ export function OutageItemList() {
     [submitOutageCount],
   );
 
+  const renderItem = useCallback<
+    ListRenderItem<(typeof outageCountItems)[number]>
+  >(({ item }) => <ActionableItemCard item={item} />, []);
+
   if (submitLoading) {
     return <ActivityIndicator size="large" style={styles.loading} />;
   }
@@ -68,7 +77,11 @@ export function OutageItemList() {
   return (
     <>
       <FixedLayout style={styles.layout}>
-        <VerifyItemsList items={outageCountItems} />
+        <FlatList
+          data={outageCountItems}
+          renderItem={renderItem}
+          style={styles.flex}
+        />
 
         <BottomActionBar
           actions={bottomBarActions}
@@ -106,6 +119,9 @@ const styles = StyleSheet.create({
   layout: {
     flex: 1,
     backgroundColor: Colors.pure,
+  },
+  flex: {
+    flex: 1,
   },
   bottomAction: {
     paddingTop: 8,
