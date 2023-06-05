@@ -1,7 +1,7 @@
 import ReactNativeModal, {
   ModalProps as ReactNativeModalProps,
 } from 'react-native-modal';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 
 export type ModalProps = Partial<
@@ -11,8 +11,18 @@ export type ModalProps = Partial<
 
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (
-    <ReactNativeModal isVisible={isVisible} style={styles.modal} {...rest}>
-      <View style={[styles.container, style]}>{children}</View>
+    <ReactNativeModal
+      isVisible={isVisible}
+      style={[styles.modal, style]}
+      statusBarTranslucent
+      hardwareAccelerated
+      {...rest}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        pointerEvents="box-none"
+        style={styles.keyboardAvoidingView}>
+        <View style={styles.container}>{children}</View>
+      </KeyboardAvoidingView>
     </ReactNativeModal>
   );
 }
@@ -22,6 +32,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
     padding: 8,
   },
+  keyboardAvoidingView: { flex: 1, justifyContent: 'center' },
   modal: {
     margin: 8,
   },

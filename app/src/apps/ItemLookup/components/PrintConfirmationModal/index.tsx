@@ -3,80 +3,65 @@ import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { AttentionIcon } from '@assets/icons';
-import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { convertCurrencyToString } from '@lib/currency';
+import { BlackAttentionIcon } from '@assets/icons';
 
-export interface PriceDiscrepancyModalModalProps {
+export interface PrintConfirmationModalProps {
   isVisible: boolean;
-  scanned: number;
-  system: number;
   onConfirm: () => void;
   onCancel: () => void;
+  quantity: number;
 }
 
-export function PriceDiscrepancyModal({
+export function PrintConfirmationModal({
   isVisible,
-  scanned,
-  system,
   onConfirm,
   onCancel,
-}: PriceDiscrepancyModalModalProps) {
+  quantity,
+}: PrintConfirmationModalProps) {
   return (
     <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <View style={styles.attention}>
-        <AttentionIcon height={40} width={40} />
+      <View style={styles.headerSvg}>
+        <BlackAttentionIcon height={40} width={40} />
       </View>
-      <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
-      <Text style={styles.informationText}>Print updated front tag</Text>
-      <View style={styles.container}>
-        <ItemPropertyDisplay
-          style={styles.itemProperties}
-          label="Scanned"
-          value={convertCurrencyToString(scanned)}
-        />
-        <ItemPropertyDisplay
-          style={styles.itemProperties}
-          label="System"
-          value={convertCurrencyToString(system)}
-        />
+      <Text style={styles.header}>Quantity Confirmation</Text>
+      <View style={styles.confirmationText}>
+        <View style={styles.tagsInformation}>
+          <Text style={styles.text}>Are you sure you want to print</Text>
+          <Text style={styles.bold}>{quantity} front tags?</Text>
+        </View>
       </View>
       <View style={styles.container}>
         <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
+          <Text style={styles.buttonText}>Edit Quantity</Text>
         </Pressable>
         <Pressable
           onPress={onConfirm}
           style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Print Front Tag</Text>
+          <Text style={styles.buttonText}>Print {quantity} Tags</Text>
         </Pressable>
       </View>
     </Modal>
   );
 }
-
 const styles = StyleSheet.create({
-  confirmationText: {
+  header: {
     fontWeight: FontWeight.Bold,
-    text: {
-      marginVertical: 8,
-    },
-    bold: {
-      fontWeight: FontWeight.Demi,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: Colors.darkGray,
-      marginVertical: 8,
-    },
     marginTop: 12,
+    marginBottom: 30,
     fontSize: 20,
     textAlign: 'center',
   },
-  informationText: {
+  text: {
+    color: Colors.black,
     textAlign: 'center',
     lineHeight: 24,
     fontSize: 16,
+    fontWeight: FontWeight.Book,
+  },
+  tagsInformation: {
+    gap: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flexDirection: 'row',
@@ -99,12 +84,14 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.Demi,
     textAlign: 'center',
   },
-  attention: {
+  headerSvg: {
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 30,
   },
-  itemProperties: {
-    flex: 1,
+  bold: { fontWeight: FontWeight.Bold },
+  confirmationText: {
+    padding: 16,
+    marginBottom: 12,
   },
 });

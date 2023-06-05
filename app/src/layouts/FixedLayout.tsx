@@ -23,8 +23,7 @@ export function FixedLayout({ children, style }: FixedLayoutProps) {
       />
 
       <KeyboardAvoidingView
-        style={StyleSheet.compose(styles.keyboardAvoidingView, style)}
-        keyboardVerticalOffset={80}>
+        style={StyleSheet.compose(styles.keyboardAvoidingView, style)}>
         {children}
       </KeyboardAvoidingView>
     </SafeAreaView>

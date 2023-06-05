@@ -1,13 +1,19 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ToastAndroid } from 'react-native';
+import { useCallback, useEffect, useMemo } from 'react';
+import {
+  ListRenderItem,
+  ToastAndroid,
+  FlatList,
+  StyleSheet,
+} from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { VerifyItemsList } from '@components/VerifyItemsList';
+import { ActionableItemCard } from '@components/ActionableItemCard';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useBooleanState } from '@hooks/useBooleanState';
 import { useBatchCountState } from '../state';
 import { BatchCountNavigation } from '../navigator';
 
@@ -22,7 +28,11 @@ export function BatchCountConfirm() {
 
   const navigation = useNavigation<BatchCountNavigation>();
 
-  const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
+  const {
+    state: shouldShowShrinkageModal,
+    toggle: toggleShrinkageModal,
+    disable: disableShrinkageModal,
+  } = useBooleanState(false);
 
   const onCardPress = useCallback(
     (sku: string) =>
@@ -33,14 +43,13 @@ export function BatchCountConfirm() {
   );
 
   const batchCountItemsSorted = useMemo(
-    () => [
-      ...Object.values(batchCountItems)
-        .filter(({ isFlagged }) => isFlagged)
+    () =>
+      Object.values(batchCountItems)
+        .sort(
+          (item1, item2) =>
+            Number(item1.isFlagged ?? 0) - Number(item2.isFlagged ?? 0),
+        )
         .map(({ item }) => item),
-      ...Object.values(batchCountItems)
-        .filter(({ isFlagged }) => !isFlagged)
-        .map(({ item }) => item),
-    ],
     [batchCountItems],
   );
 
@@ -79,18 +88,18 @@ export function BatchCountConfirm() {
   );
 
   const submitBatchCount = useCallback(() => {
-    setIsShrinkageModalVisible(false);
+    disableShrinkageModal();
     submitBatch();
-  }, [submitBatch]);
+  }, [disableShrinkageModal, submitBatch]);
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Complete Batch Count',
-        onPress: () => setIsShrinkageModalVisible(!isShrinkageModalVisible),
+        onPress: toggleShrinkageModal,
       },
     ],
-    [isShrinkageModalVisible],
+    [toggleShrinkageModal],
   );
 
   // TODO: export transformer functions in a util file?
@@ -122,6 +131,21 @@ export function BatchCountConfirm() {
     [flaggedItems, onFlag],
   );
 
+  const renderItem = useCallback<
+    ListRenderItem<(typeof batchCountItemsSorted)[number]>
+  >(
+    ({ item }) => (
+      <ActionableItemCard
+        item={item}
+        quantityAdjustment={quantityAdjustment}
+        remove={remove}
+        flag={flag}
+        onPress={onCardPress}
+      />
+    ),
+    [flag, onCardPress, quantityAdjustment, remove],
+  );
+
   useEffect(() => {
     if (submitError) {
       // TODO: Switch with the toast library we decide to use
@@ -133,30 +157,34 @@ export function BatchCountConfirm() {
     if (Object.values(batchCountItems).length === 0) {
       navigation.navigate('Home');
     }
-  });
+  }, [batchCountItems, navigation]);
 
   // TODO: Show loading indicator on submit
 
   return (
     <>
       <FixedLayout>
-        <VerifyItemsList
-          items={batchCountItemsSorted}
-          quantityAdjustment={quantityAdjustment}
-          remove={remove}
-          flag={flag}
-          onPress={onCardPress}
+        <FlatList
+          data={batchCountItemsSorted}
+          renderItem={renderItem}
+          style={styles.flex}
         />
         <BottomActionBar actions={bottomBarActions} />
       </FixedLayout>
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={shouldShowShrinkageModal}
         countType="Batch Count"
         items={items}
         onConfirm={submitBatchCount}
         // TODO: Should this be in a useCallback?
-        onCancel={() => setIsShrinkageModalVisible(false)}
+        onCancel={disableShrinkageModal}
       />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
