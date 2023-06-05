@@ -28,7 +28,7 @@ export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
 }
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 4,
+    borderRadius: 8,
     backgroundColor: Colors.pure,
     padding: 8,
   },

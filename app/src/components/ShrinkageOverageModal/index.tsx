@@ -1,75 +1,94 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Modal } from '@components/Modal';
+import { StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { convertCurrencyToString } from '@lib/currency';
 import { Text } from '@components/Text';
-import { BlackAttentionIcon } from '@assets/icons';
+import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BaseStyles } from '@lib/baseStyles';
+import { ConfirmationModal } from '@components/ConfirmationModal';
+import { useCallback, useMemo } from 'react';
+import { sumBy } from 'lodash-es';
+
+interface Item {
+  onHand?: number | null;
+  newQty: number;
+  retailPrice?: number | null;
+}
+
+const calculateShrinkage = (items: Item[]) =>
+  sumBy(
+    items,
+    ({ onHand, newQty, retailPrice }) =>
+      Math.max((onHand ?? 0) - newQty, 0) * (retailPrice ?? 0),
+  );
+
+const calculateOverage = (items: Item[]) =>
+  sumBy(
+    items,
+    ({ newQty, onHand, retailPrice }) =>
+      Math.max(newQty - (onHand ?? 0), 0) * (retailPrice ?? 0),
+  );
+
+type CountType = 'Batch Count' | 'Outage';
 
 export interface ShrinkageOverageModalProps {
   isVisible: boolean;
-  shrinkage: number;
-  overage: number;
+  countType: CountType;
+  items: Item[];
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-// TODO: Extract a common action modal component
-// TODO: Shrinkage/overage calculation logic should likely reside inside this modal
 export function ShrinkageOverageModal({
   isVisible,
-  shrinkage,
-  overage,
+  items,
+  countType,
   onConfirm,
   onCancel,
 }: ShrinkageOverageModalProps) {
+  const displayingOutageInformation = countType === 'Outage';
+
+  const shrinkage = useMemo(() => calculateShrinkage(items), [items]);
+  const overage = useMemo(() => calculateOverage(items), [items]);
+
+  const constructActionButton = useCallback(
+    (label: string, value: number) => (
+      <ItemPropertyDisplay
+        label={label}
+        value={convertCurrencyToString(value)}
+        style={[
+          styles.itemProperties,
+          !displayingOutageInformation && styles.fullWidth,
+        ]}
+        labelStyle={styles.propertyLabel}
+        valueStyle={styles.propertyValue}
+      />
+    ),
+    [displayingOutageInformation],
+  );
+
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <View style={styles.attention}>
-        <BlackAttentionIcon height={40} width={40} />
-      </View>
-      <Text style={styles.confirmationText}>Shrinkage & Overage</Text>
-      <Text
-        style={styles.informationText}
-        // TODO: Parametrise the below text
-      >
-        This batch count will result in a change at retail of:
+    <ConfirmationModal
+      isVisible={isVisible}
+      Icon={AttentionIcon}
+      title={`Shrinkage${displayingOutageInformation ? '' : ' & Overage'}`}
+      onConfirm={onConfirm}
+      onCancel={onCancel}>
+      <Text style={styles.informationText}>
+        This {countType} will result in a change at retail of:
       </Text>
       <View style={styles.container}>
-        <ItemPropertyDisplay
-          style={[styles.itemProperties, BaseStyles.shadow]}
-          label="Shrinkage"
-          value={convertCurrencyToString(shrinkage)}
-        />
-        <ItemPropertyDisplay
-          style={[styles.itemProperties, BaseStyles.shadow]}
-          label="Net Dollars"
-          value={convertCurrencyToString(overage)}
-        />
+        {constructActionButton('Shrinkage', shrinkage)}
+        {displayingOutageInformation
+          ? null
+          : constructActionButton('Net Dollars', overage)}
       </View>
-      <View style={styles.container}>
-        <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Cancel</Text>
-        </Pressable>
-        <Pressable
-          onPress={onConfirm}
-          style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Accept</Text>
-        </Pressable>
-      </View>
-    </Modal>
+    </ConfirmationModal>
   );
 }
 
 const styles = StyleSheet.create({
-  confirmationText: {
-    fontWeight: FontWeight.Bold,
-    marginTop: 12,
-    fontSize: 20,
-    textAlign: 'center',
-  },
   informationText: {
     color: Colors.black,
     textAlign: 'center',
@@ -79,43 +98,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: FontWeight.Book,
   },
-  itemDetails: {
-    ...BaseStyles.shadow,
-    borderRadius: 8,
-    padding: 8,
-    paddingHorizontal: 12,
-  },
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 16,
+    marginTop: 12,
     gap: 8,
   },
-  button: {
-    flex: 1,
-    borderRadius: 4,
-    padding: 12,
-    fontSize: 16,
-    fontWeight: FontWeight.Bold,
-    backgroundColor: Colors.lightGray,
-  },
-  confirmationButton: {
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontWeight: FontWeight.Demi,
-    textAlign: 'center',
-  },
-  attention: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 30,
-  },
   itemProperties: {
-    flex: 1,
-    ...BaseStyles.shadow,
     borderRadius: 8,
-    padding: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    ...BaseStyles.shadow,
+  },
+  fullWidth: {
+    flex: 1,
+  },
+  propertyLabel: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  propertyValue: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: FontWeight.Demi,
   },
 });
