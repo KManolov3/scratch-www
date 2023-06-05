@@ -9,7 +9,6 @@ import { BatchCountConfirmPage } from '../page-objects/batch-count/batch-confirm
 import { TestItemInput } from '../__generated__/graphql.ts';
 import { BatchCountItemDetailsPage } from '../page-objects/batch-count/item-details-page.ts';
 import { BaseCountController } from './base-controller.ts';
-import { waitForInvisible } from '../methods/helpers.ts';
 import { waitFor } from '../methods/helpers.ts';
 
 type BatchCountData = {
@@ -56,6 +55,28 @@ export class BatchCountController extends BaseCountController {
     }
   }
 
+  calculateShrinkageAndOverage(batchCounts: BatchCountData[]) {
+    let shrinkage = 0;
+    let overage = 0;
+
+    batchCounts.forEach((data) => {
+      if (data.newQuantity < data.item.onHand) {
+        shrinkage = +(
+          shrinkage +
+          (data.item.onHand - data.newQuantity) * data.item.retailPrice
+        ).toFixed(2);
+      }
+
+      if (data.newQuantity > data.item.onHand) {
+        overage = +(
+          overage +
+          (data.newQuantity - data.item.onHand) * data.item.retailPrice
+        ).toFixed(2);
+      }
+    });
+    return { shrinkage, overage };
+  }
+
   async completeBatchCount(batchCounts: BatchCountData[]) {
     for (const [index, data] of batchCounts.entries()) {
       await this.searchForSku(data.item);
@@ -72,12 +93,6 @@ export class BatchCountController extends BaseCountController {
         `${data.newQuantity}`
       );
 
-      if (index > 0) {
-        await waitForInvisible(
-          this.batchCountPages.itemDetailsPage.fastAcceptButton
-        );
-      }
-
       if (index !== batchCounts.length - 1) {
         await waitAndClick(this.batchCountPages.itemDetailsPage.backButton);
       }
@@ -93,6 +108,19 @@ export class BatchCountController extends BaseCountController {
     await waitAndClick(this.batchCountPages.confirmPage.completeButton);
     await waitFor(
       this.batchCountPages.confirmPage.shrinkageOverageModal.infoText
+    );
+
+    const { shrinkage, overage } =
+      this.calculateShrinkageAndOverage(batchCounts);
+
+    await expectElementText(
+      this.batchCountPages.confirmPage.shrinkageOverageModal.shrinkageValue,
+      `$${shrinkage}` === '$0' ? '$0.00' : `$${shrinkage}`
+    );
+
+    await expectElementText(
+      this.batchCountPages.confirmPage.shrinkageOverageModal.netDollarsValue,
+      `$${overage}` === '$0' ? '$0.00' : `$${overage}`
     );
 
     await waitAndClick(
