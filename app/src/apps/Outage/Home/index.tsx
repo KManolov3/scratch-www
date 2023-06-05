@@ -2,9 +2,9 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { SearchBar } from '@components/SearchBar';
-import { Barcode } from '@components/Barcode';
 import { useLazyQuery } from '@apollo/client';
 import { gql } from 'src/__generated__';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
@@ -40,7 +40,7 @@ export function OutageHome() {
   return (
     <FixedLayout>
       <SearchBar onSubmit={onSubmit} />
-      <Barcode label="Scan a front tag" />
+      <ScanBarcodeLabel label="Scan a front tag" />
     </FixedLayout>
   );
 }

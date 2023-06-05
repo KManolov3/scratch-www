@@ -1,5 +1,6 @@
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
@@ -12,6 +13,7 @@ import {
 } from 'src/services/LaunchDarkly';
 import { Error } from '@components/Error';
 import { useAppStateChange } from '@hooks/useAppStateChange';
+import { toastConfig } from './services/ToastService';
 import { apolloClient } from './config/graphql';
 import { Colors } from './lib/colors';
 
@@ -102,6 +104,7 @@ export function AppRoot({
           initialRoute={initialRoute}
           screenOptions={screenOptions}
         />
+        <Toast config={toastConfig} />
       </NavigationContainer>
     </ApolloProvider>
   ) : null;

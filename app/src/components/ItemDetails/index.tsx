@@ -12,21 +12,23 @@ export interface ItemDetailsProps {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
   };
-  frontTagPrice?: number;
+  hasPriceDiscrepancy?: boolean;
+  togglePriceDiscrepancyModal?: () => void;
 }
 
 export function ItemDetails({
   itemDetails,
   quantityAdjustment,
-  frontTagPrice,
+  hasPriceDiscrepancy,
+  togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
   return (
     <View style={styles.container}>
       <ItemInfoHeader
-        // TODO: Pass title padding
         itemDetails={itemDetails}
         quantityAdjustment={quantityAdjustment}
-        frontTagPrice={frontTagPrice}
+        hasPriceDiscrepancy={hasPriceDiscrepancy}
+        togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
         itemStyle={styles.detailsItem}
       />
       <Locations locationDetails={itemDetails} />

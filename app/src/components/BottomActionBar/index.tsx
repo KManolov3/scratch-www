@@ -15,6 +15,7 @@ export interface Action {
   onPress: () => void;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  isLoading?: boolean;
 }
 
 export interface BottomActionBarProps {
@@ -32,16 +33,19 @@ export function BottomActionBar({
     <View style={[BaseStyles.shadow, styles.container, style]}>
       {topComponent}
       <Container style={styles.actionsContainer}>
-        {actions.map(({ label, onPress, buttonStyle, textStyle }) => (
-          <BlockButton
-            key={label}
-            label={label}
-            onPress={onPress}
-            id={label}
-            style={[styles.actionStyle, buttonStyle]}
-            textStyle={textStyle}
-          />
-        ))}
+        {actions.map(
+          ({ label, onPress, buttonStyle, textStyle, isLoading }) => (
+            <BlockButton
+              key={label}
+              label={label}
+              onPress={onPress}
+              id={label}
+              style={[styles.actionStyle, buttonStyle]}
+              textStyle={textStyle}
+              isLoading={isLoading}
+            />
+          ),
+        )}
       </Container>
     </View>
   );
