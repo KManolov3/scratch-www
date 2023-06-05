@@ -1,17 +1,18 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { SearchBar } from '@components/SearchBar';
-import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { useLazyQuery } from '@apollo/client';
-import { gql } from 'src/__generated__';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SearchBar } from '@components/SearchBar';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
+import { gql } from 'src/__generated__';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
 const ITEM_BY_SKU_QUERY = gql(`
-  query ItemLookupBySku($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ItemLookupBySku($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
     },
   }
@@ -20,6 +21,8 @@ const ITEM_BY_SKU_QUERY = gql(`
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
   const { addItem } = useOutageState();
+
+  const { storeNumber } = useCurrentSessionInfo();
 
   // TODO: use loading state to display a loading indicator
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY, {
@@ -33,9 +36,9 @@ export function OutageHome() {
 
   const onSubmit = useCallback(
     (sku: string) => {
-      getItemBySku({ variables: { sku } });
+      getItemBySku({ variables: { sku, storeNumber } });
     },
-    [getItemBySku],
+    [getItemBySku, storeNumber],
   );
 
   return (

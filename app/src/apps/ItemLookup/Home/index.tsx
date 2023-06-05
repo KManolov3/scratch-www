@@ -1,17 +1,18 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { useLazyQuery } from '@apollo/client';
-import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SearchBar } from '@components/SearchBar';
 import { Text } from '@components/Text';
-import { gql } from 'src/__generated__';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { gql } from 'src/__generated__';
 import { ItemLookupNavigation } from '../navigator';
 
 const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -21,13 +22,14 @@ const ITEM_BY_SKU = gql(`
 
 export function ItemLookupHome() {
   const navigation = useNavigation<ItemLookupNavigation>();
+  const { storeNumber } = useCurrentSessionInfo();
   const [searchBySku, { loading: isLoadingItemBySku, error: errorBySku }] =
     useLazyQuery(ITEM_BY_SKU);
 
   const onSubmit = useCallback(
     (value: string) => {
       return searchBySku({
-        variables: { sku: value },
+        variables: { sku: value, storeNumber },
         onCompleted: item => {
           if (item.itemBySku) {
             return navigation.navigate('ItemLookup', {
@@ -37,7 +39,7 @@ export function ItemLookupHome() {
         },
       });
     },
-    [navigation, searchBySku],
+    [navigation, searchBySku, storeNumber],
   );
 
   if (errorBySku) {

@@ -4,9 +4,7 @@ import android.app.Activity
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.claims.preferredUsername
 import com.okta.authfoundation.claims.userId
-import com.okta.authfoundation.claims.username
 import com.okta.authfoundation.client.OidcClient
-import com.okta.authfoundation.client.OidcClientResult
 import com.okta.authfoundation.client.OidcConfiguration
 import com.okta.authfoundation.client.SharedPreferencesCache
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
@@ -15,15 +13,19 @@ import com.okta.authfoundation.credential.Token
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.webauthenticationui.WebAuthenticationClient
 import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 @Serializable
-data class AuthTokens(
+data class LauncherSession(
     val userId: String?,
     val userName: String?,
+    val location: String?,
+    val extendedAttributes: LauncherSessionExtendedAttributes
+)
+
+@Serializable
+data class LauncherSessionExtendedAttributes(
     val idToken: String,
     val accessToken: String,
     val refreshToken: String,
@@ -35,18 +37,21 @@ class OktaNativeSSOLogin(private val activity: Activity) {
         private suspend fun defaultCredential() = CredentialBootstrap.defaultCredential()
 
         suspend fun isAuthenticated() = defaultCredential().token != null
-        suspend fun token(): AuthTokens? {
+        suspend fun session(location: String?): LauncherSession? {
             val credential = defaultCredential()
             val token = credential.token ?: return null
             val idToken = credential.idToken() ?: return null
 
-            return AuthTokens(
-                idToken = token.idToken!!,
-                accessToken = token.accessToken,
-                refreshToken = token.refreshToken!!,
-                deviceSecret = token.deviceSecret!!,
+            return LauncherSession(
                 userId = idToken.userId,
-                userName = idToken.preferredUsername
+                userName = idToken.preferredUsername,
+                location = location,
+                extendedAttributes = LauncherSessionExtendedAttributes(
+                    idToken = token.idToken!!,
+                    accessToken = token.accessToken,
+                    refreshToken = token.refreshToken!!,
+                    deviceSecret = token.deviceSecret!!,
+                )
             )
         }
     }

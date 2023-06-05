@@ -1,4 +1,5 @@
-import { RootScreenProps, RootNavigation } from '@apps/navigator';
+import { useLazyQuery } from '@apollo/client';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
@@ -6,21 +7,21 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {
-  createNativeStackNavigator,
   NativeStackNavigationProp,
   NativeStackScreenProps,
+  createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { scanCodeService } from '@services/ScanCode';
-import { useLazyQuery } from '@apollo/client';
 import { useScanListener } from '@services/Scanner';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { gql } from 'src/__generated__';
+import { ItemDetails } from 'src/types/ItemLookup';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 
 const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ManualItemLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -29,8 +30,8 @@ const ITEM_BY_SKU = gql(`
 `);
 
 const ITEM_BY_UPC = gql(`
-  query AutomaticItemLookup($upc: String!) {
-    itemByUpc(upc: $upc, storeNumber: "0363") {
+  query AutomaticItemLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -47,6 +48,8 @@ const Stack = createNativeStackNavigator<Routes>();
 
 export function ItemLookupNavigator() {
   const navigation = useNavigation<ItemLookupNavigation>();
+  const { storeNumber } = useCurrentSessionInfo();
+
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU);
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC);
 
@@ -55,7 +58,7 @@ export function ItemLookupNavigator() {
 
     if (scanCode.type === 'SKU') {
       return searchBySku({
-        variables: { sku: scanCode.sku },
+        variables: { sku: scanCode.sku, storeNumber },
         onCompleted: itemDetails => {
           if (itemDetails.itemBySku) {
             navigation.navigate('ItemLookup', {
@@ -68,7 +71,7 @@ export function ItemLookupNavigator() {
     }
 
     return searchByUpc({
-      variables: { upc: scanCode.upc },
+      variables: { upc: scanCode.upc, storeNumber },
       onCompleted: itemDetails => {
         if (itemDetails.itemByUpc) {
           navigation.navigate('ItemLookup', {

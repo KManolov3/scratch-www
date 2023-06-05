@@ -1,13 +1,17 @@
 import { ApolloError, useMutation } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { merge } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
-  createContext,
   ReactNode,
+  createContext,
   useCallback,
   useContext,
   useMemo,
   useState,
 } from 'react';
+import 'react-native-get-random-values';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -15,10 +19,7 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { merge } from 'lodash-es';
-import 'react-native-get-random-values';
 import { v4 as uuid } from 'uuid';
-import { useNavigation } from '@react-navigation/native';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -49,11 +50,10 @@ const Context = createContext<ContextValue | undefined>(undefined);
 
 function buildBatchCountRequest(
   batchCountItems: BatchCountItems,
+  storeNumber: string,
 ): SubmitBatchCountGql {
-  const cycleCountList: SubmitBatchCountGql = {
-    // Currently hardocoded, change after auth tokens
-    // start being parsed.
-    storeNumber: '0363',
+  return {
+    storeNumber,
     cycleCounts: [
       {
         action: Action.Create,
@@ -83,8 +83,6 @@ function buildBatchCountRequest(
       },
     ],
   };
-
-  return cycleCountList;
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
@@ -92,6 +90,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [submitBatchCount, { error, loading }] =
     useMutation(SUBMIT_BATCH_COUNT);
   const navigation = useNavigation<BatchCountNavigation>();
+
+  const { storeNumber } = useCurrentSessionInfo();
 
   const addItem = useCallback(
     (newItem: BatchCountItem) =>
@@ -119,12 +119,18 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
     [batchCountItems, setBatchCountItems],
   );
+
   const submit = useCallback(() => {
-    const batchCountRequest = buildBatchCountRequest(batchCountItems);
+    const batchCountRequest = buildBatchCountRequest(
+      batchCountItems,
+      storeNumber,
+    );
+
     submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
+
     navigation.navigate('Home');
-  }, [batchCountItems, submitBatchCount, navigation]);
+  }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
   const value = useMemo(
     () => ({

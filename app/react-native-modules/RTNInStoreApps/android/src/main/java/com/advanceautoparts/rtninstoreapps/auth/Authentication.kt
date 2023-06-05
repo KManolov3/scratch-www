@@ -1,65 +1,36 @@
-package com.advanceautoparts.rtninstoreapps
+package com.advanceautoparts.rtninstoreapps.auth
 
-import android.content.Context
-import android.net.Uri
+import com.advanceautoparts.rtninstoreapps.BluefletchLauncher
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.client.*
 import com.okta.authfoundation.credential.Credential
 import com.okta.authfoundation.credential.CredentialDataSource.Companion.createCredentialDataSource
 import com.okta.authfoundation.credential.Token
-import com.okta.authfoundation.credential.TokenStorage
 import com.okta.authfoundation.jwt.JwtParser
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.oauth2.TokenExchangeFlow.Companion.createTokenExchangeFlow
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
-
-@Serializable
-data class LauncherTokens(
-    val userId: String?,
-    val userName: String?,
-    val idToken: String,
-    val accessToken: String,
-    val refreshToken: String,
-    val deviceSecret: String
-)
 
 data class AuthConfig(
     val clientId: String,
     val authServerURL: String
 )
 
-class InMemoryOktaTokenStorage : TokenStorage {
-    private val tokens = mutableMapOf<String, TokenStorage.Entry>()
-
-    override suspend fun add(id: String) {
-        tokens[id] = TokenStorage.Entry(id, null, emptyMap())
-    }
-
-    override suspend fun entries() = tokens.values.toList()
-
-    override suspend fun remove(id: String) {
-        tokens.remove(id)
-    }
-
-    override suspend fun replace(updatedEntry: TokenStorage.Entry) {
-        tokens[updatedEntry.identifier] = updatedEntry
-    }
-}
-
 open class AuthError(message: String) : Exception(message)
-class LauncherContentProviderError : AuthError("Could not find the launcher content provider or it crashed")
-class MissingLauncherTokens : AuthError("Missing launcher tokens - maybe the app is run outside of launcher?")
-class UnauthorizedForInventoryApps : AuthError("The user is not authorized to access the inventory applications")
 class MissingRefreshToken : AuthError("Missing refresh token when obtaining tokens")
+class MissingUserId : AuthError("Missing user id from the launcher session")
+class MissingLocation : AuthError("Missing location from the launcher session")
+
+data class SessionInfo(
+    val userId: String,
+    val userName: String?,
+    val locationId: String
+)
 
 class Authentication(
-    val context: Context,
+    val launcher: BluefletchLauncher,
     val config: AuthConfig
 ) {
     private val storage = InMemoryOktaTokenStorage()
@@ -85,11 +56,17 @@ class Authentication(
         credential = null
     }
 
-    suspend fun requestTokens() {
-        val launcherTokens = readLauncherTokens()
-        val token = performTokenExchange(launcherTokens.idToken, launcherTokens.deviceSecret)
+    suspend fun requestTokens(): SessionInfo {
+        val session = launcher.readSession()
+        val token = performTokenExchange(session.extendedAttributes.idToken, session.extendedAttributes.deviceSecret)
 
         if (token.refreshToken == null) throw MissingRefreshToken()
+
+        return SessionInfo(
+            userId = session.userId ?: throw MissingUserId(),
+            userName = session.userName,
+            locationId = session.location ?: throw MissingLocation()
+        )
     }
 
     suspend fun currentValidAccessToken(): String? {
@@ -117,23 +94,6 @@ class Authentication(
         currentCredential().storeToken(token)
 
         return token
-    }
-
-    private suspend fun readLauncherTokens() = withContext(Dispatchers.IO) {
-        context.contentResolver.query(
-            Uri.parse("content://com.bluefletch.launcherprovider/session"),
-            arrayOf("DATA"),
-            null, null, null
-        ).use { cursor ->
-            if (cursor == null) throw LauncherContentProviderError()
-
-            cursor.moveToPosition(0)
-            val json = cursor.getString(0)
-
-            if (json == null || json == "null") throw MissingLauncherTokens()
-
-            return@withContext Json.decodeFromString<LauncherTokens>(json)
-        }
     }
 
     private suspend fun getValidAccessToken(): String? {

@@ -12,6 +12,7 @@ import { gql } from 'src/__generated__';
 import { v4 as uuid } from 'uuid';
 import { DateTime } from 'luxon';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
   mutation SubmitOutageCount($request: CycleCountList!) {
@@ -29,7 +30,7 @@ interface ContextValue {
 
 const Context = createContext<ContextValue | undefined>(undefined);
 
-function buildOutageCount(items: ItemDetailsInfo[]) {
+function buildOutageCount(items: ItemDetailsInfo[], storeNumber: string) {
   const now = DateTime.now().toISO();
 
   if (!now) {
@@ -38,11 +39,7 @@ function buildOutageCount(items: ItemDetailsInfo[]) {
   }
 
   return {
-    /**
-     * TODO: Replace storeNumber with the appropriate value
-     * instead of using a hardcoded one once we have access to it
-     */
-    storeNumber: '0363',
+    storeNumber,
     cycleCounts: [
       {
         action: Action.Create,
@@ -67,6 +64,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const { storeNumber } = useCurrentSessionInfo();
+
   // TODO: show a toast with an error message
   const [submitOutageCount, { loading }] = useMutation(SUBMIT_OUTAGE_COUNT);
 
@@ -85,10 +84,10 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
 
   const submit = useCallback(() => {
     submitOutageCount({
-      variables: { request: buildOutageCount(outageCountItems) },
+      variables: { request: buildOutageCount(outageCountItems, storeNumber) },
     });
     setOutageCountItems([]);
-  }, [outageCountItems, submitOutageCount]);
+  }, [outageCountItems, submitOutageCount, storeNumber]);
 
   const value = useMemo(
     () => ({

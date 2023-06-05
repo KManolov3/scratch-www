@@ -28,12 +28,10 @@ export function AuthProvider({
     // Sending requests will wait for this to be completed anyway.
 
     error,
-  } = useAsync(async () => {
-    await InStoreAppsNative.reloadAuthFromLauncher({ clientId, authServerURL });
-
-    // TODO: Take these from reloadAuthFromLauncher
-    return { userId: '42', storeNumber: '0363' };
-  }, [clientId, authServerURL]);
+  } = useAsync(
+    () => InStoreAppsNative.reloadAuthFromLauncher({ clientId, authServerURL }),
+    [clientId, authServerURL],
+  );
 
   useAppStateChange(['active'], reloadAuth);
 

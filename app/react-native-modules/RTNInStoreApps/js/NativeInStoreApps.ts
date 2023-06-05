@@ -13,9 +13,15 @@ export type ScannerConfig = {
   scanIntentCategory: string;
 };
 
+export type SessionInfo = {
+  userId: string;
+  userName?: string;
+  storeNumber: string;
+};
+
 export interface Spec extends TurboModule {
   /* Authentication */
-  reloadAuthFromLauncher(config: AuthConfig): Promise<void>;
+  reloadAuthFromLauncher(config: AuthConfig): Promise<SessionInfo>;
   currentValidAccessToken(): Promise<string | null>;
 
   /* Scanner */

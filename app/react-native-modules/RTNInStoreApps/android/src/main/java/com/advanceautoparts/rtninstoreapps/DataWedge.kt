@@ -13,12 +13,7 @@ import com.facebook.react.bridge.ReadableMap
 data class DataWedgeScanInfo(
     val labelType: String,
     val code: String
-) {
-    fun toJSObject(): ReadableMap = Arguments.createMap().apply {
-        putString("code", code)
-        putString("type", labelType)
-    }
-}
+)
 
 data class AppConfig(
     val dataWedgeProfileName: String,

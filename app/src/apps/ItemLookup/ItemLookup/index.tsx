@@ -1,25 +1,23 @@
-// The store is hardcoded until the launcher can start providing an authentication
-// token to the app, containing the current active store.
-
 import { useMutation } from '@apollo/client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { gql } from 'src/__generated__';
-import { ItemDetails } from '@components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FontWeight } from '@lib/font';
-import { Colors } from '@lib/colors';
-import { FixedLayout } from '@layouts/FixedLayout';
+import { ItemDetails } from '@components/ItemDetails';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { indexOfEnumValue } from '@lib/array';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { countBy } from 'lodash-es';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { gql } from 'src/__generated__';
 import { soundService } from 'src/services/SoundService';
 import { toastService } from 'src/services/ToastService';
-import { countBy } from 'lodash-es';
-import { ItemLookupScreenProps } from '../navigator';
 import { PrintModal } from '../components/PrintModal';
+import { ItemLookupScreenProps } from '../navigator';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -77,7 +75,7 @@ export function ItemLookupScreen({
     togglePrintModal();
   }, [toggleModal, togglePrintModal]);
 
-  const { storeNumber } = useDefaultSettings();
+  const { storeNumber } = useCurrentSessionInfo();
 
   const onPrintConfirm = useCallback(
     async (printer: PrinterOptions, qty: number) => {

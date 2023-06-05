@@ -1,6 +1,9 @@
 package com.advanceautoparts.rtninstoreapps
 
 import android.util.Log
+import com.advanceautoparts.rtninstoreapps.auth.AuthConfig
+import com.advanceautoparts.rtninstoreapps.auth.Authentication
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
@@ -25,6 +28,8 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         SupervisorJob() + Dispatchers.Main.immediate.limitedParallelism(1)
     )
 
+    private val launcher = BluefletchLauncher(reactContext)
+
     private var dataWedge: DataWedge? = null
     private var authentication: Authentication? = null
 
@@ -32,14 +37,18 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         val authConfig = AuthConfig(config.getString("clientId")!!, config.getString("authServerURL")!!)
 
         val auth = authentication ?: run {
-            val instance = Authentication(reactContext, authConfig)
+            val instance = Authentication(launcher, authConfig)
             authentication = instance
             instance
         }
 
-        auth.requestTokens()
+        val session = auth.requestTokens()
 
-        null
+        Arguments.createMap().apply {
+            putString("userId", session.userId)
+            putString("userName", session.userName)
+            putString("storeNumber", session.locationId)
+        }
     }
 
     override fun currentValidAccessToken(promise: Promise) = async(authCoroutineScope, promise) {
@@ -71,7 +80,10 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         dataWedge.subscribeForScans {
             Log.d("InStoreAppsModule", "Received DataWedge scan")
 
-            eventEmitter.emit("scan", it.toJSObject())
+            eventEmitter.emit("scan", Arguments.createMap().apply {
+                putString("code", it.code)
+                putString("type", it.labelType)
+            })
         }
     }
 
