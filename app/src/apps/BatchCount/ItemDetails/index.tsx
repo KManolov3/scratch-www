@@ -120,7 +120,7 @@ export function BatchCountItemDetails({
   // This can happen in the case when the selected item has been removed from BatchCount.
   // But this screen shouldn't be reachable in that case.
   if (!selectedItem) {
-    return <> </>;
+    return null;
   }
 
   return (

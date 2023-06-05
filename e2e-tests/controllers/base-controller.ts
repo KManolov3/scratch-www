@@ -10,6 +10,7 @@ import { TestItemInput } from '../__generated__/graphql.ts';
 import { CommonHomePage } from '../page-objects/common/common-home-page.ts';
 import { CommonItemDetailsPage } from '../page-objects/common/common-item-details-page.ts';
 import { exec } from 'child_process';
+import { sum } from 'lodash-es';
 
 export class BaseCountController {
   commonPages: CommonPages;
@@ -71,16 +72,9 @@ export class BaseCountController {
 
     await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
 
-    let backStockQuantity = 0;
-    for (const [index] of product.backStockSlots.entries()) {
-      const qty = await (
-        await $(
-          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
-            .quantity
-        )
-      ).getText();
-      backStockQuantity += +qty;
-    }
+    const backStockQuantity = sum(
+      product.backStockSlots.map((slot) => slot.qty)
+    );
 
     await expectElementText(
       this.commonPages.itemDetailsPage.backstockQuantity,

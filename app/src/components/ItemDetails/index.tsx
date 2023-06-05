@@ -25,7 +25,6 @@ export function ItemDetails({
   return (
     <View style={styles.container}>
       <ItemInfoHeader
-        // TODO: Pass title padding
         itemDetails={itemDetails}
         quantityAdjustment={quantityAdjustment}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
