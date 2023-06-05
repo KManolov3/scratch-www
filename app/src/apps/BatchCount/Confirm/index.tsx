@@ -12,7 +12,6 @@ import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { ActionableItemCard } from '@components/ActionableItemCard';
 import { useNavigation } from '@react-navigation/native';
-import { sumBy } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useBatchCountState } from '../state';
@@ -54,23 +53,13 @@ export function BatchCountConfirm() {
     [batchCountItems],
   );
 
-  const shrinkage = useMemo(
+  const items = useMemo(
     () =>
-      sumBy(
-        Object.values(batchCountItems),
-        ({ item, newQty }) =>
-          Math.max(item.onHand ?? 0 - newQty, 0) * (item.retailPrice ?? 0),
-      ),
-    [batchCountItems],
-  );
-
-  const overage = useMemo(
-    () =>
-      sumBy(
-        Object.values(batchCountItems),
-        ({ item, newQty }) =>
-          Math.max(newQty - (item.onHand ?? 0), 0) * (item.retailPrice ?? 0),
-      ),
+      Object.values(batchCountItems).map(({ item, newQty }) => ({
+        onHand: item.onHand,
+        newQty,
+        retailPrice: item.retailPrice,
+      })),
     [batchCountItems],
   );
 
@@ -184,8 +173,8 @@ export function BatchCountConfirm() {
       </FixedLayout>
       <ShrinkageOverageModal
         isVisible={shouldShowShrinkageModal}
-        shrinkage={shrinkage}
-        overage={overage}
+        countType="Batch Count"
+        items={items}
         onConfirm={submitBatchCount}
         // TODO: Should this be in a useCallback?
         onCancel={disableShrinkageModal}
