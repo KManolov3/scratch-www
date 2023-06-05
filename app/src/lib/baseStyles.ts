@@ -14,7 +14,7 @@ export const BaseStyles = StyleSheet.create({
     alignSelf: 'center',
   },
   shadow: {
-    shadowColor: Colors.advanceVoid,
+    shadowColor: Colors.black,
     shadowOpacity: 0.16,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,

@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     TODO: delete this margin when we implement a custom header.
     */
     marginBottom: 48,
+    paddingTop: 8,
 
     shadowOffset: { width: 0, height: -2 },
     elevation: 1,

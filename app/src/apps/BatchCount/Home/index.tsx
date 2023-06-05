@@ -8,6 +8,7 @@ import { ManualItemLookupQuery } from 'src/__generated__/graphql';
 import { gql } from 'src/__generated__';
 import { SearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { Colors } from '@lib/colors';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
 
@@ -110,7 +111,7 @@ export function BatchCountHome() {
   // TODO: Add no result modal
 
   return (
-    <FixedLayout>
+    <FixedLayout style={styles.container}>
       <SearchBar onSubmit={onSubmit} />
       <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>
@@ -118,6 +119,9 @@ export function BatchCountHome() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.lightGray,
+  },
   scanBarcode: {
     margin: 20,
     marginTop: 88,

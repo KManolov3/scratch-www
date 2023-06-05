@@ -10,6 +10,7 @@ export interface NumberInputProps {
   placeholder: string | number;
   value: number;
   setValue: (newValue: number) => void;
+  accessibilityLabel?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   onFocus?: () => void;
@@ -20,6 +21,7 @@ export interface NumberInputProps {
 
 export function NumberInput({
   placeholder,
+  accessibilityLabel,
   containerStyle,
   inputStyle,
   value,
@@ -51,6 +53,7 @@ export function NumberInput({
         style={[styles.input, inputStyle]}
         placeholder={placeholderToVisualise}
         placeholderTextColor={Colors.lightVoid}
+        accessibilityLabel={accessibilityLabel}
         value={value.toString()}
         onChangeText={onChangeText}
         onFocus={onFocus}

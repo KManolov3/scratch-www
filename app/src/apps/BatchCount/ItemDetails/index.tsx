@@ -1,10 +1,14 @@
 // The store is hardcoded until the launcher can start providing an authentication
 // token to the app, containing the current active store.
 
-import { useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ToastAndroid } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, ToastAndroid } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { compact } from 'lodash-es';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetails } from '../../../components/ItemDetails';
 import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 import { useBatchCountState } from '../state';
@@ -19,22 +23,24 @@ export function BatchCountItemDetails({
 }: BatchCountScreenProps<'ItemDetails'>) {
   const {
     batchCountItems,
-    submit: submitBatchCount,
+    submit: submitBatch,
     submitError,
     updateItem,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
+  const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
+
   const selectedItem = useMemo(() => {
     const item = batchCountItems[selectedItemSku];
-    if (!item) {
-      throw new Error(
-        'No item in state for selected SKU. This should not happen.',
-      );
-    }
 
     return item;
   }, [batchCountItems, selectedItemSku]);
+
+  const batchCountItemsLength = useMemo(
+    () => Object.values(batchCountItems).length,
+    [batchCountItems],
+  );
 
   const setNewQuantity = useCallback(
     (newQty: number) => {
@@ -53,23 +59,43 @@ export function BatchCountItemDetails({
     [selectedItem?.newQty, setNewQuantity],
   );
 
+  const items = useMemo(
+    () =>
+      Object.values(batchCountItems).map(({ item, newQty }) => ({
+        onHand: item.onHand,
+        newQty,
+        retailPrice: item.retailPrice,
+      })),
+    [batchCountItems],
+  );
+
+  const submitBatchCount = useCallback(() => {
+    setIsShrinkageModalVisible(false);
+    submitBatch();
+  }, [submitBatch]);
+
   const onVerify = useCallback(() => {
     navigation.navigate('Confirm');
   }, [navigation]);
 
   const bottomBarActions: Action[] = useMemo(
-    () => [
-      {
-        // TODO: Show variance confirmation modal before submitting
-        label: 'FAST ACCEPT',
-        onPress: submitBatchCount,
-      },
-      {
-        label: 'VERIFY',
-        onPress: onVerify,
-      },
-    ],
-    [submitBatchCount, onVerify],
+    () =>
+      compact([
+        batchCountItemsLength === 1
+          ? {
+              // TODO: Show variance confirmation modal before submitting
+              label: 'FAST ACCEPT',
+              onPress: () => setIsShrinkageModalVisible(true),
+              buttonStyle: styles.fastAccept,
+            }
+          : undefined,
+        {
+          label: 'VERIFY',
+          onPress: onVerify,
+        },
+        // TODO: Fix type
+      ]) as Action[],
+    [batchCountItemsLength, onVerify],
   );
 
   useEffect(() => {
@@ -81,19 +107,46 @@ export function BatchCountItemDetails({
 
   // TODO: Show loading indicator on submit
 
+  // This can happen in the case when the selected item has been removed from BatchCount.
+  // But this screen shouldn't be reachable in that case.
+  if (!selectedItem) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <ItemDetails
-        itemDetails={selectedItem.item}
-        quantityAdjustment={quantityAdjustmentDetails}
+    <>
+      <FixedLayout style={styles.layout}>
+        <ItemDetails
+          itemDetails={selectedItem.item}
+          quantityAdjustment={quantityAdjustmentDetails}
+        />
+        <BottomActionBar
+          style={styles.bottomActionBar}
+          actions={bottomBarActions}
+        />
+      </FixedLayout>
+
+      <ShrinkageOverageModal
+        isVisible={isShrinkageModalVisible}
+        countType="Batch Count"
+        items={items}
+        onConfirm={submitBatchCount}
+        // TODO: Should this be in a useCallback?
+        onCancel={() => setIsShrinkageModalVisible(false)}
       />
-      <BottomActionBar actions={bottomBarActions} />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  layout: {
+    backgroundColor: Colors.pure,
+  },
+  bottomActionBar: {
+    paddingTop: 8,
+  },
+  fastAccept: {
+    backgroundColor: Colors.lightGray,
+    borderColor: Colors.lightGray,
   },
 });
