@@ -8,7 +8,7 @@ import { BatchCountHomePage } from '../page-objects/batch-count/home-page.ts';
 import { BatchCountConfirmPage } from '../page-objects/batch-count/batch-confirm-page.ts';
 import { TestItemInput } from '../__generated__/graphql.ts';
 import { BatchCountItemDetailsPage } from '../page-objects/batch-count/item-details-page.ts';
-import { BaseCountController } from './base-controller.ts';
+import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
 
 type BatchCountData = {
@@ -16,7 +16,7 @@ type BatchCountData = {
   newQuantity: number;
 };
 
-export class BatchCountController extends BaseCountController {
+export class BatchCountController extends BaseController {
   batchCountPages: BatchCountPages;
 
   constructor() {
