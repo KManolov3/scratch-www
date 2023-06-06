@@ -144,7 +144,10 @@ export function ItemLookupScreen({
     [loading, togglePrintModal],
   );
 
-  const header = useMemo(() => <Header title="Item Lookup" />, []);
+  const header = useMemo(
+    () => <Header title="Item Lookup" item={itemDetails} />,
+    [itemDetails],
+  );
 
   return (
     <FixedLayout style={styles.container} header={header}>

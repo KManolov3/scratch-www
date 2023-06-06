@@ -6,11 +6,13 @@ import { ReactNode } from 'react';
 import { HamburgerMenu } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { RootNavigation } from '@apps/navigator';
+import { ItemDetails } from 'src/types/ItemLookup';
 
 type HeaderProps = {
   title: string;
   leftIcon?: ReactNode;
   onClickLeft?: () => void;
+  item?: ItemDetails;
 } & (
   | {
       rightIcon: ReactNode;
@@ -28,6 +30,7 @@ export function Header({
   leftIcon = <HamburgerMenu />,
   onClickLeft,
   onClickRight,
+  item,
 }: HeaderProps) {
   const navigation = useNavigation<RootNavigation>();
 
@@ -36,7 +39,8 @@ export function Header({
       <View style={styles.left}>
         <Pressable
           onPress={
-            onClickLeft ?? (() => navigation.navigate('Drawer', { title }))
+            onClickLeft ??
+            (() => navigation.navigate('Drawer', { title, item }))
           }>
           {leftIcon}
         </Pressable>

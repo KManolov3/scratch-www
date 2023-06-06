@@ -9,17 +9,20 @@ import {
   SectionListRenderItemInfo,
   View,
   StyleSheet,
+  Pressable,
 } from 'react-native';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '@components/Header';
-import { RootNavigation } from '@apps/navigator';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import { ItemDetails } from 'src/types/ItemLookup';
+import { compact } from 'lodash-es';
 import { SvgType } from '*.svg';
-import { DrawerScreenProps } from './navigator';
 
 interface DrawerSectionData {
   label: string;
   Icon?: SvgType;
+  onPress?: () => void;
 }
 
 interface DrawerSection {
@@ -28,53 +31,21 @@ interface DrawerSection {
   data: DrawerSectionData[];
 }
 
-const sections = [
-  {
-    title: 'Item In Slots',
-    data: [
-      { label: 'Print Front Tags' },
-      { label: 'Backstock Moves' },
-      { label: 'Manage Backstock slot' },
-    ],
-  },
-  {
-    title: 'Functions',
-    data: [
-      { label: 'Item Lookup', Icon: EmptyRadioButton },
-      { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
-      { label: 'Batch Count', Icon: EmptyRadioButton },
-      { label: 'New Return Request', Icon: EmptyRadioButton },
-      { label: 'Cycle Count', Icon: EmptyRadioButton },
-    ],
-  },
-  {
-    title: 'Settings',
-    backgroundColor: Colors.darkerGray,
-    data: [
-      {
-        label: 'Printers',
-      },
-      {
-        label: 'Help Request',
-      },
-    ],
-  },
-];
-
 interface DrawerSectionHeader {
   section: SectionListData<DrawerSectionData, DrawerSection>;
 }
 
 export interface DrawerProps {
   title: string;
+  item?: ItemDetails;
 }
 
 export function Drawer({
   route: {
-    params: { title },
+    params: { title, item },
   },
-}: DrawerScreenProps<'Drawer'>) {
-  const { goBack: closeDrawer } = useNavigation<RootNavigation>();
+}: RootScreenProps<'Drawer'>) {
+  const { goBack: closeDrawer, replace } = useNavigation<RootNavigation>();
 
   const renderSectionHeader = useCallback<
     (sections: DrawerSectionHeader) => ReactElement
@@ -87,18 +58,59 @@ export function Drawer({
     [],
   );
 
+  const sections = useMemo(
+    () => [
+      {
+        title: 'Item In Slots',
+        data: compact([
+          item ? { label: 'Print Front Tags' } : undefined,
+          // TODO: hardcoded for now
+          { label: 'Backstock Moves' },
+          { label: 'Manage Backstock slot' },
+        ]),
+      },
+      {
+        title: 'Functions',
+        data: [
+          { label: 'Item Lookup', Icon: EmptyRadioButton },
+          { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
+          { label: 'Batch Count', Icon: EmptyRadioButton },
+          { label: 'New Return Request', Icon: EmptyRadioButton },
+          { label: 'Cycle Count', Icon: EmptyRadioButton },
+        ],
+      },
+      {
+        title: 'Settings',
+        backgroundColor: Colors.darkerGray,
+        data: [
+          {
+            label: 'Printers',
+            onPress: () => replace('SelectPrinter', { title }),
+          },
+          {
+            label: 'Help Request',
+            onPress: () => replace('HelpRequest', { title }),
+          },
+        ],
+      },
+    ],
+    [item, replace, title],
+  );
+
   const renderSectionItem = useCallback(
     ({
-      item: { label, Icon },
+      item: { label, Icon, onPress },
       index,
     }: SectionListRenderItemInfo<DrawerSectionData>) => (
-      <View key={index} style={styles.drawerSectionsItem}>
-        <View style={styles.drawerSectionLabel}>
-          {Icon ? <Icon height={20} width={20} style={styles.icon} /> : null}
-          <Text style={styles.drawerSectionsItemText}>{label}</Text>
+      <Pressable key={index} onPress={onPress}>
+        <View style={styles.drawerSectionsItem}>
+          <View style={styles.drawerSectionLabel}>
+            {Icon ? <Icon height={20} width={20} style={styles.icon} /> : null}
+            <Text style={styles.drawerSectionsItemText}>{label}</Text>
+          </View>
+          <RightArrowIcon height={12} width={7} />
         </View>
-        <RightArrowIcon height={12} width={7} />
-      </View>
+      </Pressable>
     ),
     [],
   );

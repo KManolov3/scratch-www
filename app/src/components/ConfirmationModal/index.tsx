@@ -1,4 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
@@ -15,16 +21,20 @@ export interface ConfirmationModalProps {
   cancellationLabel?: string;
   onCancel: () => void;
   children?: ReactNode;
+  iconStyles?: StyleProp<ViewStyle>;
+  buttonsStyle?: StyleProp<ViewStyle>;
 }
 
 export function ConfirmationModal({
   isVisible,
   Icon,
+  iconStyles,
   title,
   cancellationLabel = 'Cancel',
   onCancel,
   confirmationLabel = 'Accept',
   onConfirm,
+  buttonsStyle,
   children,
 }: ConfirmationModalProps) {
   return (
@@ -33,10 +43,12 @@ export function ConfirmationModal({
       onBackdropPress={onCancel}
       style={styles.modal}>
       <>
-        {Icon ? <Icon height={40} width={40} style={styles.icon} /> : null}
+        {Icon ? (
+          <Icon height={40} width={40} style={[styles.icon, iconStyles]} />
+        ) : null}
         {title ? <Text style={styles.title}>{title}</Text> : null}
         {children}
-        <View style={styles.buttons}>
+        <View style={[styles.buttons, buttonsStyle]}>
           <Pressable onPress={onCancel} style={styles.button}>
             <Text style={styles.buttonText}>{cancellationLabel}</Text>
           </Pressable>
@@ -67,7 +79,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: FontWeight.Bold,
-    color: Colors.darkerGray,
+    color: Colors.advanceBlack,
     marginBottom: 3,
     textAlign: 'center',
   },
@@ -90,6 +102,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: FontWeight.Bold,
     textAlign: 'center',
-    color: Colors.darkerGray,
+    color: Colors.advanceBlack,
   },
 });

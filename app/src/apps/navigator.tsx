@@ -9,6 +9,8 @@ import {
 } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { Drawer, DrawerProps } from '@components/Drawer';
+import { HelpRequest, HelpRequestProps } from '@components/HelpRequest';
+import { SelectPrinterProps, SelectPrinters } from '@components/SelectPrinters';
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import {
@@ -32,6 +34,8 @@ type Routes = {
   TruckScanDetails: { asn: string };
   ItemLookupHome: ItemLookupNavigatorScreenParams;
   Drawer: DrawerProps;
+  SelectPrinter: SelectPrinterProps;
+  HelpRequest: HelpRequestProps;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -71,6 +75,18 @@ export function RootNavigator({
         name="Drawer"
         options={{ headerShown: false, animation: 'slide_from_left' }}
         component={Drawer}
+      />
+
+      <Stack.Screen
+        name="SelectPrinter"
+        options={{ headerShown: false, animation: 'slide_from_left' }}
+        component={SelectPrinters}
+      />
+
+      <Stack.Screen
+        name="HelpRequest"
+        options={{ headerShown: false, animation: 'slide_from_left' }}
+        component={HelpRequest}
       />
 
       <Stack.Screen
