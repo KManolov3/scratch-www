@@ -13,4 +13,5 @@ export { default as PrinterIcon } from './printer.svg';
 export { default as HamburgerMenu } from './hamburger.svg';
 export { default as RightArrowIcon } from './right-arrow.svg';
 export { default as EmptyRadioButton } from './radio-button-empty.svg';
+export { default as TrayIndicator } from './tray-indicator.svg';
 export { default as SelectedRadioButton } from './radio-button-selected.svg';

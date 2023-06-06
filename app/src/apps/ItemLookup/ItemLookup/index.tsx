@@ -19,8 +19,11 @@ import { indexOfEnumValue } from '@lib/array';
 import { soundService } from 'src/services/SoundService';
 import { toastService } from 'src/services/ToastService';
 import { countBy } from 'lodash-es';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { SearchIcon } from '@assets/icons';
 import { ItemLookupScreenProps } from '../navigator';
 import { PrintModal } from '../components/PrintModal';
+import { ItemLookupHome } from '../components/Home';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -143,10 +146,18 @@ export function ItemLookupScreen({
     ],
     [loading, togglePrintModal],
   );
+  const { state: searchTrayOpen, enable, disable } = useBooleanState();
 
   const header = useMemo(
-    () => <Header title="Item Lookup" item={itemDetails} />,
-    [itemDetails],
+    () => (
+      <Header
+        title="Item Lookup"
+        item={itemDetails}
+        rightIcon={<SearchIcon />}
+        onClickRight={enable}
+      />
+    ),
+    [enable, itemDetails],
   );
 
   return (
@@ -177,6 +188,10 @@ export function ItemLookupScreen({
           onConfirm={onPriceDiscrepancyConfirm}
         />
       )}
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+        <ItemLookupHome onSubmit={disable} />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }
