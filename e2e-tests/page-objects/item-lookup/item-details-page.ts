@@ -29,11 +29,12 @@ export class ItemLookupItemDetailsPage extends CommonItemDetailsPage {
 
   // this modal should be displayed only when the quantity
   // of tags for printing is > 10
-  quantityConfirmationModal() {
+  get quantityConfirmationModal() {
     return {
+      warningText: '[text=Quantity Confirmation]',
       editQuantityButton: '[text=Edit Quantity]',
-      printTagsButton:
-        '//*[contains(@text, "Print") and contains(@text, "Tags")]',
+      printTagsButton: (tagsQuantity: number) =>
+        `[text=Print ${tagsQuantity} Tags]`,
     };
   }
 

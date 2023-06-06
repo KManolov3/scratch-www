@@ -48,6 +48,18 @@ export class ItemLookupController extends BaseController {
         .printFrontTagButton
     );
 
+    if (tagsQuantity > 10) {
+      await waitFor(
+        this.itemLookupPages.itemDetailsPage.quantityConfirmationModal
+          .warningText
+      );
+      await waitAndClick(
+        this.itemLookupPages.itemDetailsPage.quantityConfirmationModal.printTagsButton(
+          tagsQuantity
+        )
+      );
+    }
+
     await waitFor(
       this.itemLookupPages.itemDetailsPage.toastMessageForPrinter(printerName)
     );
