@@ -70,18 +70,18 @@ export class BaseController {
       }
     }
 
-    await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
-
-    const backStockQuantity = sum(
-      product.backStockSlots.map((slot) => slot.qty)
-    );
-
-    await expectElementText(
-      this.commonPages.itemDetailsPage.backstockQuantity,
-      `${backStockQuantity}`
-    );
-
     if (product.backStockSlots) {
+      await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
+
+      const backStockQuantity = sum(
+        product.backStockSlots.map((slot) => slot.qty)
+      );
+
+      await expectElementText(
+        this.commonPages.itemDetailsPage.backstockQuantity,
+        `${backStockQuantity}`
+      );
+
       for (const [index, slot] of product.backStockSlots.entries()) {
         await expectElementText(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
