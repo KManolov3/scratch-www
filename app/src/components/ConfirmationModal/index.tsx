@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: FontWeight.Bold,
-    color: Colors.advanceBlack,
+    color: Colors.darkerGray,
     marginBottom: 3,
     textAlign: 'center',
   },
@@ -102,6 +102,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: FontWeight.Bold,
     textAlign: 'center',
-    color: Colors.advanceBlack,
+    color: Colors.darkerGray,
   },
 });

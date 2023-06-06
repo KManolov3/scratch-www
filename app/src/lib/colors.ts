@@ -13,7 +13,7 @@ export const Colors = {
   gray: '#e4e4e4',
   grayer: '#dadada',
   darkGray: '#9a9a9a',
-  darkerGray: '#d9d9d9',
+  darkerGray: '#1f1f1f',
   lighterVoid: '#f5f5f5',
   gray100: '#eeeeee',
   lightVoid: '#767676',

@@ -15,6 +15,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '@components/Header';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { compact } from 'lodash-es';
 import { SvgType } from '*.svg';
@@ -70,13 +71,43 @@ export function Drawer({
         ]),
       },
       {
+        // TODO: These should be based on access level
         title: 'Functions',
         data: [
-          { label: 'Item Lookup', Icon: EmptyRadioButton },
+          {
+            label: 'Item Lookup',
+            Icon: EmptyRadioButton,
+            onPress: () =>
+              InStoreAppsNative.navigateTo(Activity.ItemLookupActivity),
+          },
           { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
-          { label: 'Batch Count', Icon: EmptyRadioButton },
+          {
+            label: 'Batch Count',
+            Icon: EmptyRadioButton,
+            onPress: () =>
+              InStoreAppsNative.navigateTo(Activity.BatchCountActivity),
+          },
           { label: 'New Return Request', Icon: EmptyRadioButton },
-          { label: 'Cycle Count', Icon: EmptyRadioButton },
+          {
+            label: 'Cycle Count',
+            Icon: EmptyRadioButton,
+            onPress: () =>
+              InStoreAppsNative.navigateTo(Activity.CycleCountActivity),
+          },
+          {
+            label: 'Receiving',
+            Icon: EmptyRadioButton,
+          },
+          {
+            label: 'Backstock Managment',
+            Icon: EmptyRadioButton,
+          },
+          {
+            label: 'Outage',
+            Icon: EmptyRadioButton,
+            onPress: () =>
+              InStoreAppsNative.navigateTo(Activity.OutageActivity),
+          },
         ],
       },
       {
