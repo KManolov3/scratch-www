@@ -15,7 +15,7 @@ import { OutageStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
-  ItemList: undefined;
+  'Item List': undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -26,7 +26,7 @@ export function OutageNavigator() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={OutageHome} />
 
-        <Stack.Screen name="ItemList" component={OutageItemList} />
+        <Stack.Screen name="Item List" component={OutageItemList} />
       </Stack.Navigator>
     </OutageStateProvider>
   );

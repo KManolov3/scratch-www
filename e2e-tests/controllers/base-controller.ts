@@ -12,7 +12,7 @@ import { CommonItemDetailsPage } from '../page-objects/common/common-item-detail
 import { exec } from 'child_process';
 import { sum } from 'lodash-es';
 
-export class BaseCountController {
+export class BaseController {
   commonPages: CommonPages;
 
   constructor() {

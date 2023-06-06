@@ -1,5 +1,5 @@
 import { ItemLookupPages } from './page-access.ts';
-import { BaseCountController } from './base-controller.ts';
+import { BaseController } from './base-controller.ts';
 import { ItemLookupHomePage } from '../page-objects/item-lookup/home-page.ts';
 import {
   ItemLookupItemDetailsPage,
@@ -7,7 +7,7 @@ import {
 } from '../page-objects/item-lookup/item-details-page.ts';
 import { setValue, waitAndClick, waitFor } from '../methods/helpers.ts';
 
-export class ItemLookupController extends BaseCountController {
+export class ItemLookupController extends BaseController {
   itemLookupPages: ItemLookupPages;
 
   constructor() {

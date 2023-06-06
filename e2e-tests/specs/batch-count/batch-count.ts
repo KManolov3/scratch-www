@@ -51,10 +51,11 @@ describe('Batch Count', () => {
     });
 
     const batchCount = new BatchCountController();
-
-    await batchCount.completeBatchCount([
+    const batchCountData = [
       { item: items[0], newQuantity: 11 },
       { item: items[1], newQuantity: 14 },
-    ]);
+    ];
+
+    await batchCount.completeBatchCount(batchCountData);
   });
 });
