@@ -4,7 +4,6 @@ import { Pressable, StyleSheet } from 'react-native';
 import { NumberInput } from '@components/NumberInput';
 import { MinusIcon, PlusIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
-import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
 
 export interface QuantityAdjusterProps {
@@ -29,7 +28,6 @@ export function QuantityAdjuster({
 
   return (
     <Container style={styles.container}>
-      <Text style={styles.bold}> Qty: </Text>
       <Pressable
         accessibilityLabel="decrease quantity"
         onPress={decreaseQuantity}>
