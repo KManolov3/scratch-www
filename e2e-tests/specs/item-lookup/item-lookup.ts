@@ -1,5 +1,9 @@
 import { TestDataController } from '../../controllers/test-data-controller.ts';
-import { waitAndClick, waitFor } from '../../methods/helpers.ts';
+import {
+  expectElementText,
+  waitAndClick,
+  waitFor,
+} from '../../methods/helpers.ts';
 import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
 import { TestDataInput } from '../../__generated__/graphql.ts';
 
@@ -54,15 +58,41 @@ describe('Item Lookup', () => {
   });
 
   it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
-    const barcodeWithPriceDiscrepancy = '99ajds31413';
+    const itemWithPriceDiscrepancy: TestDataInput['items'] = [
+      {
+        sku: '25370367',
+        retailPrice: 36.99,
+      },
+    ];
+
+    await testData.setData({
+      // storeNumber must be exactly '0363' because for now it is hardcoded in the app
+      storeNumber: '0363',
+      items: itemWithPriceDiscrepancy,
+    });
+
+    const scannedPrice = '15788';
+
+    const barcodeWithPriceDiscrepancy = `99${itemWithPriceDiscrepancy[0].sku}${scannedPrice}`;
+
     itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
 
-    await expect(
-      $(
-        itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
-          .warningText
-      )
-    ).toBeDisplayed();
+    await waitFor(
+      itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
+        .warningText
+    );
+
+    await expectElementText(
+      itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
+        .scannedPrice,
+      '$157.88'
+    );
+
+    await expectElementText(
+      itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
+        .systemPrice,
+      `$${itemWithPriceDiscrepancy[0].retailPrice}`
+    );
 
     await itemLookup.printFrontTag('Portable', 3);
   });

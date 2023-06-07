@@ -99,7 +99,7 @@ export const config: WebdriverIO.Config = {
       )}/`,
       filename: 'report.html',
       reportTitle: 'Test Results Report',
-      browserName: 'Chrome',
+      browserName: `Android device ${process.env.DEVICE_NAME}`,
       collapseTests: true,
       collapseSuites: true,
       linkScreenshots: true,
