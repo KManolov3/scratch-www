@@ -4,6 +4,8 @@ import { Pressable, StyleSheet } from 'react-native';
 import { NumberInput } from '@components/NumberInput';
 import { MinusIcon, PlusIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
+import { Text } from '@components/Text';
+import { FontWeight } from '@lib/font';
 
 export interface QuantityAdjusterProps {
   quantity: number;
@@ -27,7 +29,10 @@ export function QuantityAdjuster({
 
   return (
     <Container style={styles.container}>
-      <Pressable onPress={decreaseQuantity}>
+      <Text style={styles.bold}> Qty: </Text>
+      <Pressable
+        accessibilityLabel="decrease quantity"
+        onPress={decreaseQuantity}>
         <MinusIcon />
       </Pressable>
       <NumberInput
@@ -35,10 +40,13 @@ export function QuantityAdjuster({
         setValue={setQuantity}
         inputStyle={[styles.square, styles.inputContainer]}
         containerStyle={styles.inputContainer}
+        accessibilityLabel="adjust quantity"
         placeholder={quantity.toString()}
         onSubmit={setQuantity}
       />
-      <Pressable onPress={increaseQuantity}>
+      <Pressable
+        accessibilityLabel="increase quantity"
+        onPress={increaseQuantity}>
         <PlusIcon />
       </Pressable>
     </Container>
@@ -48,8 +56,9 @@ export function QuantityAdjuster({
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-    gap: 10,
+    gap: 18,
   },
+  bold: { fontWeight: FontWeight.Bold, fontSize: 16 },
   button: {
     marginHorizontal: 8,
   },
