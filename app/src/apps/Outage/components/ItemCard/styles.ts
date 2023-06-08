@@ -5,14 +5,16 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginTop: 12,
     paddingTop: 19,
+    paddingBottom: 14,
     paddingLeft: 23,
     paddingRight: 20,
-    paddingBottom: 14,
     borderRadius: 8,
     backgroundColor: Colors.pure,
+  },
+  cardWithShadow: {
+    marginHorizontal: 16,
+    marginTop: 12,
     ...BaseStyles.shadow,
   },
   lastCard: {
@@ -31,6 +33,7 @@ export const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     paddingTop: 9,
+    justifyContent: 'space-between',
   },
   productInformation: {
     flex: 1,
