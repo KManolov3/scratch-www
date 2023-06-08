@@ -42,7 +42,7 @@ const ITEM_BY_UPC = gql(`
 type Routes = {
   Home: undefined;
   ItemLookup: { itemDetails: ItemDetails; frontTagPrice?: number };
-  PrintFrontTag: { locations: ItemDetails['planograms'] };
+  PrintFrontTag: { itemDetails: ItemDetails };
 };
 
 const Stack = createNativeStackNavigator<Routes>();

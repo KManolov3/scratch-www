@@ -12,3 +12,5 @@ export { default as PlusIcon } from './plus.svg';
 export { default as PrinterIcon } from './printer.svg';
 export { default as EmptyRadioButton } from './radio-button-empty.svg';
 export { default as SelectedRadioButton } from './radio-button-selected.svg';
+export { default as SquareCheckBox } from './square-check-box.svg';
+export { default as EmptySquareCheckBox } from './empty-square-check-box.svg';

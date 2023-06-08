@@ -6,7 +6,9 @@ export const styles = StyleSheet.create({
   bold: {
     fontWeight: FontWeight.Bold,
   },
+  flexRow: { flexDirection: 'row' },
   centeredText: { textAlign: 'center' },
+  checkIcon: { marginRight: 13 },
   header: {
     fontSize: 20,
     textAlign: 'center',
@@ -39,6 +41,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
     borderRadius: 8,
     fontWeight: FontWeight.Demi,
+    marginTop: 20,
   },
   separator: {
     backgroundColor: Colors.grayer,
@@ -46,5 +49,8 @@ export const styles = StyleSheet.create({
   },
   qty: {
     marginRight: 41,
+  },
+  toast: {
+    marginBottom: '10%',
   },
 });

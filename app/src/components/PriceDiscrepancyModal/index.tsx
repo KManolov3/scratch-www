@@ -6,6 +6,7 @@ import { FontWeight } from '@lib/font';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { convertCurrencyToString } from '@lib/currency';
+import { BaseStyles } from '@lib/baseStyles';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
@@ -106,5 +107,8 @@ const styles = StyleSheet.create({
   },
   itemProperties: {
     flex: 1,
+    ...BaseStyles.shadow,
+    padding: 12,
+    borderRadius: 8,
   },
 });

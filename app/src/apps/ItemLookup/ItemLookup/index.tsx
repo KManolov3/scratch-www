@@ -52,19 +52,18 @@ export function ItemLookupScreen({
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
-    navigate('PrintFrontTag', { locations: itemDetails.planograms });
-  }, [itemDetails.planograms, navigate, toggleModal]);
+    navigate('PrintFrontTag', { itemDetails });
+  }, [itemDetails, navigate, toggleModal]);
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tag',
-        onPress: () =>
-          navigate('PrintFrontTag', { locations: itemDetails.planograms }),
+        onPress: () => navigate('PrintFrontTag', { itemDetails }),
         textStyle: styles.bottomBarActionText,
       },
     ],
-    [itemDetails.planograms, navigate],
+    [itemDetails, navigate],
   );
 
   return (
@@ -102,8 +101,5 @@ const styles = StyleSheet.create({
   },
   bottomActionBar: {
     paddingTop: 8,
-  },
-  toast: {
-    marginBottom: '20%',
   },
 });
