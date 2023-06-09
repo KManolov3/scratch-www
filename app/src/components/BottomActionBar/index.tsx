@@ -16,6 +16,7 @@ export interface Action {
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
 export interface BottomActionBarProps {
@@ -34,7 +35,7 @@ export function BottomActionBar({
       {topComponent}
       <Container style={styles.actionsContainer}>
         {actions.map(
-          ({ label, onPress, buttonStyle, textStyle, isLoading }) => (
+          ({ label, onPress, buttonStyle, textStyle, isLoading, disabled }) => (
             <BlockButton
               key={label}
               label={label}
@@ -43,6 +44,7 @@ export function BottomActionBar({
               style={[styles.actionStyle, buttonStyle]}
               textStyle={textStyle}
               isLoading={isLoading}
+              disabled={disabled}
             />
           ),
         )}

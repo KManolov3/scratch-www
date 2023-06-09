@@ -116,7 +116,7 @@ export function ItemInfoHeader({
         />
         <ItemPropertyDisplay
           style={[styles.itemProperties, itemStyle]}
-          label="Back Stock"
+          label="Backstock"
           value={backstockSlots}
         />
 
