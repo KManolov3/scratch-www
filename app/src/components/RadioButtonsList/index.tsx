@@ -17,7 +17,7 @@ export function RadioButtonsList<T extends string>({
   bold = false,
 }: RadioButtonsListProps<T>) {
   return (
-    <View>
+    <View style={styles.container}>
       {items.map(item => (
         <RadioButton
           key={item}
@@ -41,4 +41,5 @@ export function RadioButtonsList<T extends string>({
 
 const styles = StyleSheet.create({
   text: { fontSize: 16 },
+  container: { marginTop: 14, width: 150 },
 });

@@ -263,14 +263,14 @@ export function PrintFrontTagScreen({
         confirmationLabel="Accept"
         Icon={PrinterIcon}>
         <View style={styles.printModal}>
-          <Text style={[styles.centeredText]}>
+          <Text style={styles.centeredText}>
             Print to <Text style={styles.bold}>{printer}</Text>
           </Text>
           <RadioButtonsList
             items={Array.from(Object.values(PrinterOptions))}
             checked={item => item === selectPrinter}
-            bold
             onRadioButtonPress={item => setSelectPrinter(item)}
+            bold
           />
         </View>
       </ConfirmationModal>
