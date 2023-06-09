@@ -15,3 +15,5 @@ export { default as RightArrowIcon } from './right-arrow.svg';
 export { default as EmptyRadioButton } from './radio-button-empty.svg';
 export { default as TrayIndicator } from './tray-indicator.svg';
 export { default as SelectedRadioButton } from './radio-button-selected.svg';
+export { default as SquareCheckBox } from './square-check-box.svg';
+export { default as EmptySquareCheckBox } from './empty-square-check-box.svg';

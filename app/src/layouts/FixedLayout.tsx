@@ -33,9 +33,6 @@ export function FixedLayout({ header, children, style }: FixedLayoutProps) {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.pure,
-  },
+  root: { flex: 1 },
   keyboardAvoidingView: { flex: 1 },
 });

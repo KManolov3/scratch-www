@@ -23,7 +23,7 @@ export function PlanogramList({ planograms }: PlanogramListProps) {
   const listItemInfo = useMemo(
     () => [
       {
-        label: 'POG Location',
+        label: 'POG',
         getValue: (item: Planogram) => item.planogramId ?? 'undefined',
       },
       {
