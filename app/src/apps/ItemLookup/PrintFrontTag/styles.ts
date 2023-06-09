@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
   bold: {
     fontWeight: FontWeight.Bold,
   },
-  flexRow: { flexDirection: 'row' },
+  flexRow: { flexDirection: 'row', alignItems: 'center' },
   centeredText: { textAlign: 'center' },
   checkIcon: { marginRight: 13 },
   header: {

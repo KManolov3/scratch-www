@@ -162,7 +162,7 @@ export function PrintFrontTagScreen({
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
-        label: 'Print Front Tag',
+        label: 'Print Front Tags',
         onPress:
           frontTagsForPrintingQty >= TRIGGER_CONFIRMATION_QUANTITY
             ? showConfirmationModal
@@ -260,10 +260,11 @@ export function PrintFrontTagScreen({
           setPrinter(selectPrinter);
         }}
         title="Print Front Tags"
+        confirmationLabel="Accept"
         Icon={PrinterIcon}>
         <View style={styles.printModal}>
-          <Text style={[styles.bold, styles.centeredText]}>
-            Print to {printer}
+          <Text style={[styles.centeredText]}>
+            Print to <Text style={styles.bold}>{printer}</Text>
           </Text>
           <RadioButtonsList
             items={Array.from(Object.values(PrinterOptions))}

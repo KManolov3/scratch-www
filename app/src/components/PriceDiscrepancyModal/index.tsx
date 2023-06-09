@@ -44,7 +44,7 @@ export function PriceDiscrepancyModal({
       </View>
       <View style={styles.container}>
         <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
+          <Text style={styles.buttonText}>Cancel</Text>
         </Pressable>
         <Pressable
           onPress={onConfirm}
