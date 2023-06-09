@@ -5,11 +5,11 @@ import { FontWeight } from '@lib/font';
 import { ReactNode } from 'react';
 import { HamburgerMenu } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
-import { RootNavigation } from '@apps/navigator';
 import { ItemDetails } from 'src/types/ItemLookup';
+import { RootNavigation } from '@apps/navigator';
 
 type HeaderProps = {
-  title: string;
+  title?: string;
   leftIcon?: ReactNode;
   onClickLeft?: () => void;
   item?: ItemDetails;
@@ -32,7 +32,7 @@ export function Header({
   onClickRight,
   item,
 }: HeaderProps) {
-  const navigation = useNavigation<RootNavigation>();
+  const { navigate } = useNavigation<RootNavigation>();
 
   return (
     <View style={styles.container}>
@@ -40,7 +40,12 @@ export function Header({
         <Pressable
           onPress={
             onClickLeft ??
-            (() => navigation.navigate('Drawer', { title, item }))
+            (() => {
+              navigate('Drawer', {
+                screen: 'DrawerHome',
+                params: { title, item },
+              });
+            })
           }>
           {leftIcon}
         </Pressable>

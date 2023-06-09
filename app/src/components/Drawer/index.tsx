@@ -1,8 +1,8 @@
 import { FontWeight } from '@lib/font';
-import { CrossIcon, RightArrowIcon, EmptyRadioButton } from '@assets/icons';
+import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
-import { ReactElement, useCallback, useMemo } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo } from 'react';
 import {
   SectionList,
   SectionListData,
@@ -13,12 +13,11 @@ import {
 } from 'react-native';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
-import { Header } from '@components/Header';
-import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { compact } from 'lodash-es';
 import { SvgType } from '*.svg';
+import { DrawerNavigation, DrawerScreenProps } from './navigator';
 
 interface DrawerSectionData {
   label: string;
@@ -37,7 +36,7 @@ interface DrawerSectionHeader {
 }
 
 export interface DrawerProps {
-  title: string;
+  title?: string;
   item?: ItemDetails;
 }
 
@@ -45,8 +44,10 @@ export function Drawer({
   route: {
     params: { title, item },
   },
-}: RootScreenProps<'Drawer'>) {
-  const { goBack: closeDrawer, replace } = useNavigation<RootNavigation>();
+}: DrawerScreenProps<'DrawerHome'>) {
+  const { replace, getParent } = useNavigation<DrawerNavigation>();
+
+  useEffect(() => getParent()?.setOptions({ title }), [getParent, title]);
 
   const renderSectionHeader = useCallback<
     (sections: DrawerSectionHeader) => ReactElement
@@ -146,21 +147,8 @@ export function Drawer({
     [],
   );
 
-  const header = useMemo(
-    () => (
-      <Header
-        title={title}
-        leftIcon={<CrossIcon height={32} width={32} />}
-        onClickLeft={closeDrawer}
-      />
-    ),
-    [closeDrawer, title],
-  );
-
   return (
-    <FixedLayout
-      style={{ backgroundColor: Colors.lighterVoid }}
-      header={header}>
+    <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
       <SectionList
         sections={sections}
         renderSectionHeader={renderSectionHeader}

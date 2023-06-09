@@ -9,6 +9,7 @@ import {
   ApplicationName,
   launchDarklyService,
 } from 'src/services/LaunchDarkly';
+import { DrawerHeader } from '@components/Drawer/DrawerHeader';
 import { Error } from '@components/Error';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { toastConfig } from './services/ToastService';
@@ -51,7 +52,7 @@ export function AppRoot({
 
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({
-      headerShown: false,
+      header: DrawerHeader,
     }),
     [],
   );

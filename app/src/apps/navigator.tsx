@@ -7,10 +7,11 @@ import {
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import {
+  DrawerNavigator,
+  DrawerNavigatorScreenParams,
+} from '@components/Drawer/navigator';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
-import { Drawer, DrawerProps } from '@components/Drawer';
-import { HelpRequest, HelpRequestProps } from '@components/HelpRequest';
-import { SelectPrinterProps, SelectPrinters } from '@components/SelectPrinters';
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import {
@@ -33,9 +34,7 @@ type Routes = {
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: ItemLookupNavigatorScreenParams;
-  Drawer: DrawerProps;
-  SelectPrinter: SelectPrinterProps;
-  HelpRequest: HelpRequestProps;
+  Drawer: DrawerNavigatorScreenParams;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -73,20 +72,8 @@ export function RootNavigator({
 
       <Stack.Screen
         name="Drawer"
-        options={{ headerShown: false, animation: 'slide_from_left' }}
-        component={Drawer}
-      />
-
-      <Stack.Screen
-        name="SelectPrinter"
-        options={{ headerShown: false, animation: 'slide_from_left' }}
-        component={SelectPrinters}
-      />
-
-      <Stack.Screen
-        name="HelpRequest"
-        options={{ headerShown: false, animation: 'slide_from_left' }}
-        component={HelpRequest}
+        options={{ animation: 'slide_from_left' }}
+        component={DrawerNavigator}
       />
 
       <Stack.Screen

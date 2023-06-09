@@ -1,9 +1,11 @@
-import { RootNavigation, RootScreenProps } from '@apps/navigator';
-import { BlackAttentionIcon, CrossIcon } from '@assets/icons';
+import { BlackAttentionIcon } from '@assets/icons';
 import { RadioButton } from '@components/Button/Radio';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { Container } from '@components/Container';
-import { Header } from '@components/Header';
+import {
+  DrawerNavigation,
+  DrawerScreenProps,
+} from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
 import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
@@ -17,31 +19,21 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export interface SelectPrinterProps {
-  title: string;
+  title?: string;
 }
 
 export function SelectPrinters({
   route: {
     params: { title },
   },
-}: RootScreenProps<'SelectPrinter'>) {
-  const { goBack: closeDrawer, replace } = useNavigation<RootNavigation>();
+}: DrawerScreenProps<'SelectPrinter'>) {
+  const { replace } = useNavigation<DrawerNavigation>();
+
   const {
     state: confirmationModalVisible,
     disable: closeConfirmationModal,
     enable: openConfirmationModal,
   } = useBooleanState();
-
-  const header = useMemo(
-    () => (
-      <Header
-        title={title}
-        leftIcon={<CrossIcon height={32} width={32} />}
-        onClickLeft={closeDrawer}
-      />
-    ),
-    [closeDrawer, title],
-  );
 
   const { defaultPrinterOption, set } = useDefaultSettings();
   const [printer, setPrinter] = useState(defaultPrinterOption);
@@ -74,15 +66,13 @@ export function SelectPrinters({
   }, [closeConfirmationModal, set]);
 
   const onBackPress = useCallback(
-    () => replace('Drawer', { title }),
+    () => replace('DrawerHome', { title }),
     [replace, title],
   );
 
   return (
     <>
-      <FixedLayout
-        style={{ backgroundColor: Colors.lighterVoid }}
-        header={header}>
+      <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
         <LightHeader label="Printers" onPress={onBackPress} />
         <Container style={styles.radioButtons}>
           <View>{printerValues}</View>
