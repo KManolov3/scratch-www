@@ -25,24 +25,16 @@ export function DrawerNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="DrawerHome"
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen
         name="DrawerHome"
         options={{ animation: 'slide_from_left' }}
         component={Drawer}
       />
 
-      <Stack.Screen
-        name="SelectPrinter"
-        options={{ animation: 'slide_from_left' }}
-        component={SelectPrinters}
-      />
+      <Stack.Screen name="SelectPrinter" component={SelectPrinters} />
 
-      <Stack.Screen
-        name="HelpRequest"
-        options={{ animation: 'slide_from_left' }}
-        component={HelpRequest}
-      />
+      <Stack.Screen name="HelpRequest" component={HelpRequest} />
     </Stack.Navigator>
   );
 }
