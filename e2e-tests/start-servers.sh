@@ -21,11 +21,14 @@ fi
 
 if [[ $OS == "Windows" ]]
 then
-  start_servers wttab
+  wt --title virtual-device -- emulator -avd $DEVICE_NAME
+  wt --title react-native --suppressApplicationTitle -d ~/**/in-store-mobile-app/app -- npm.cmd start
+  wt --title mock-server --suppressApplicationTitle -d ~/**/in-store-mobile-app/mock-server -- npm.cmd start
+  wt --title appium-server --suppressApplicationTitle -d ~/**/in-store-mobile-app/e2e-tests -- npm.cmd run appium
 fi
 
 # waiting the emulator to start
-sleep 2
+sleep 5
 
 cd ../app && npm run adb:reverse
 cd ../e2e-tests
