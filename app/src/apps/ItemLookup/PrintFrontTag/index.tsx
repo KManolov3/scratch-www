@@ -204,23 +204,22 @@ export function PrintFrontTagScreen({
       return (
         <>
           <View style={styles.table} key={planogramId}>
-            <View style={styles.flexRow}>
-              {compact(itemDetails.planograms).length > 1 && (
-                <Pressable
-                  style={styles.checkIcon}
-                  onPress={() =>
-                    update(status.id, { checked: !status.checked })
-                  }>
-                  {status.checked ? (
-                    <SquareCheckBox width={20} height={20} />
-                  ) : (
-                    <EmptySquareCheckBox width={20} height={20} />
-                  )}
-                </Pressable>
-              )}
-              <Text style={styles.text}>{planogramId}</Text>
-            </View>
+            <Pressable
+              onPress={() => update(status.id, { checked: !status.checked })}>
+              <View style={styles.flexRow}>
+                {compact(itemDetails.planograms).length > 1 &&
+                status.checked ? (
+                  <SquareCheckBox width={20} height={20} />
+                ) : (
+                  <EmptySquareCheckBox width={20} height={20} />
+                )}
+                <Text style={[styles.text, styles.planogramId]}>
+                  {planogramId}
+                </Text>
+              </View>
+            </Pressable>
             <QuantityAdjuster
+              uniqueAccessibilityLabel={itemDetails.sku ?? ''}
               minimum={1}
               quantity={qty}
               setQuantity={quantity => update(status.id, { qty: quantity })}
@@ -230,7 +229,7 @@ export function PrintFrontTagScreen({
         </>
       );
     },
-    [itemDetails.planograms, map, update],
+    [itemDetails.planograms, itemDetails.sku, map, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
