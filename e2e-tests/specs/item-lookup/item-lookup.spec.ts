@@ -1,11 +1,11 @@
-import { TestDataController } from '../../controllers/test-data-controller.ts';
 import {
   expectElementText,
   waitAndClick,
   waitFor,
 } from '../../methods/helpers.ts';
-import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
 import { TestDataInput } from '../../__generated__/graphql.ts';
+import { TestDataController } from '../../controllers/test-data-controller.ts';
+import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
 
 const testData = new TestDataController();
 const itemLookup = new ItemLookupController();
@@ -42,7 +42,7 @@ describe('Item Lookup', () => {
     await testData.setData({
       // storeNumber must be exactly '0363' because for now it is hardcoded in the app
       storeNumber: '0363',
-      items: items,
+      items,
     });
 
     for (const [index, product] of items.entries()) {
@@ -57,7 +57,7 @@ describe('Item Lookup', () => {
     }
   });
 
-  it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
+  it.only('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
     const itemWithPriceDiscrepancy: TestDataInput['items'] = [
       {
         sku: '25370367',

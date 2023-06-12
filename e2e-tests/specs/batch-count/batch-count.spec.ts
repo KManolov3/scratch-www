@@ -47,7 +47,7 @@ describe('Batch Count', () => {
     await testData.setData({
       // storeNumber must be exactly '0363' because for now it is hardcoded in the app
       storeNumber: '0363',
-      items: items,
+      items,
     });
 
     const batchCount = new BatchCountController();
