@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { SearchIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
 import { TextField } from '@components/TextField';
+import { BaseStyles } from '@lib/baseStyles';
 
 export interface SearchBarProps {
   onFocus?: () => void;
@@ -53,5 +54,6 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 15,
     marginTop: 16,
+    ...BaseStyles.shadow,
   },
 });
