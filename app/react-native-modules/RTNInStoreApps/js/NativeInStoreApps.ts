@@ -8,6 +8,13 @@ export type ScannerConfig = {
   scanIntentCategory: string;
 };
 
+export enum Activity {
+  ItemLookupActivity = 'ItemLookupActivity',
+  BatchCountActivity = 'BatchCountActivity',
+  CycleCountActivity = 'CycleCountActivity',
+  OutageActivity = 'OutageActivity',
+}
+
 export interface Spec extends TurboModule {
   /* Scanner */
   configureScanner(config: ScannerConfig): void;
@@ -15,6 +22,9 @@ export interface Spec extends TurboModule {
   /* NativeEventEmitter support */
   addListener: (event: string) => void;
   removeListeners: (count: number) => void;
+
+  /* Navigating to another activity */
+  navigateTo(activityName: Activity): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('RTNInStoreApps') as Spec | null;

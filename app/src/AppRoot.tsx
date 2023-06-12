@@ -1,21 +1,19 @@
 import { useMemo, useCallback, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { FontWeight } from '@lib/font';
 import { RootNavigator, RootRouteName } from '@apps/navigator';
 import {
   ApplicationName,
   launchDarklyService,
 } from 'src/services/LaunchDarkly';
+import { DrawerHeader } from '@components/Drawer/DrawerHeader';
 import { Error } from '@components/Error';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { toastConfig } from './services/ToastService';
 import { apolloClient } from './config/graphql';
-import { Colors } from './lib/colors';
 
 export type AppRootProps = {
   applicationName: ApplicationName;
@@ -54,11 +52,7 @@ export function AppRoot({
 
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({
-      headerStyle: styles.header,
-      headerTitleStyle: styles.headerTitle,
-      headerTintColor: styles.headerTitle.color,
-      headerTitleAlign: 'center',
-      contentStyle: styles.content,
+      header: DrawerHeader,
     }),
     [],
   );
@@ -109,20 +103,3 @@ export function AppRoot({
     </ApolloProvider>
   ) : null;
 }
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: Colors.pure,
-  },
-
-  headerTitle: {
-    color: Colors.advanceBlack,
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: FontWeight.Demi,
-  },
-
-  content: {
-    backgroundColor: Colors.pure,
-  },
-});
