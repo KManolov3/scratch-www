@@ -3,6 +3,7 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { useCallback } from 'react';
 import { FontWeight } from '@lib/font';
+import { Seperator } from '@components/Seperator';
 
 export interface ListProps<T> {
   itemInfo: {
@@ -28,7 +29,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
               </Text>
             ))}
           </View>
-          <View style={styles.separator} />
+          <Seperator />
         </View>
       );
     },
@@ -44,7 +45,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
           </Text>
         ))}
       </View>
-      <View style={styles.separator} />
+      <Seperator />
       <FlatList
         data={data}
         renderItem={renderItem}
@@ -74,9 +75,5 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-  },
-  separator: {
-    backgroundColor: Colors.grayer,
-    height: 1,
   },
 });

@@ -32,7 +32,7 @@ export function ConfirmationModal({
       isVisible={isVisible}
       onBackdropPress={onCancel}
       style={styles.modal}>
-      <>
+      <View style={styles.container}>
         {Icon ? <Icon height={40} width={40} style={styles.icon} /> : null}
         {title ? <Text style={styles.title}>{title}</Text> : null}
         {children}
@@ -46,7 +46,7 @@ export function ConfirmationModal({
             <Text style={styles.buttonText}>{confirmationLabel}</Text>
           </Pressable>
         </View>
-      </>
+      </View>
     </Modal>
   );
 }
@@ -56,6 +56,10 @@ const styles = StyleSheet.create({
     paddingTop: 29,
     paddingHorizontal: 8,
     paddingBottom: 22,
+  },
+  container: {
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   icon: {
     justifyContent: 'center',

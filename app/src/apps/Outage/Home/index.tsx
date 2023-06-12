@@ -41,17 +41,9 @@ export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
   const { addItem } = useOutageState();
 
-  const [itemWithBackstock, setItemWithBackstock] = useState<
-    ItemDetailsInfo | undefined
-  >(undefined);
+  const [itemWithBackstock, setItemWithBackstock] = useState<ItemDetailsInfo>();
 
   const [errorType, setErrorType] = useState<ErrorType>();
-
-  function addItemAndContinue(item: ItemDetailsInfo) {
-    setErrorType(undefined);
-    addItem(item);
-    navigate('Item List');
-  }
 
   const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
@@ -73,6 +65,15 @@ export function OutageHome() {
       setErrorType('Not Found Error');
     },
   });
+
+  const addItemAndContinue = useCallback(
+    (item: ItemDetailsInfo) => {
+      setErrorType(undefined);
+      addItem(item);
+      navigate('Item List');
+    },
+    [addItem, navigate],
+  );
 
   const onSubmit = useCallback(
     (sku: string) => {

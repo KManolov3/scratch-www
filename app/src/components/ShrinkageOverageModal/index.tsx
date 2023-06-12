@@ -80,7 +80,8 @@ export function ShrinkageOverageModal({
       Icon={BlackAttentionIcon}
       title={`Shrinkage${displayingOutageInformation ? '' : ' & Overage'}`}
       onConfirm={onConfirm}
-      onCancel={onCancel}>
+      onCancel={onCancel}
+      confirmationLabel="Approve">
       <Text style={styles.informationText}>
         This {countType} will result in a change at retail of:
       </Text>

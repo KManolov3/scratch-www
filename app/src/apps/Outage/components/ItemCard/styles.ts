@@ -52,9 +52,17 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   removeItem: {
+    paddingTop: 15,
     marginLeft: 8,
+    gap: 20,
     alignItems: 'center',
     verticalAlign: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  removeItemText: {
+    fontSize: 18,
+    color: Colors.advanceVoid,
+    fontWeight: FontWeight.Bold,
   },
 });

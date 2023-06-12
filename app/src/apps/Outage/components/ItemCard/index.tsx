@@ -4,17 +4,14 @@ import { DocumentType, gql } from 'src/__generated__';
 import { convertCurrencyToString } from '@lib/currency';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { CrossIcon } from '@assets/icons';
+import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
+import { Seperator } from '@components/Seperator';
 import { styles } from './styles';
 import { WarningMessage } from '../WarningMessage';
 
-function formatBackstockSlots(
-  slots: ({
-    __typename?: 'BackStockSlot' | undefined;
-    slotId?: number | null | undefined;
-  } | null)[],
-) {
+function formatBackstockSlots(slots: BackstockSlotsInfo['backStockSlots']) {
   return `Slot: ${slots
-    .map(slot => slot?.slotId?.toString())
+    ?.map(slot => slot?.slotId?.toString())
     .filter(Boolean)
     .join(', ')}`;
 }
@@ -48,7 +45,7 @@ export function OutageItemCard({
   const { partDesc, mfrPartNum, retailPrice, onHand } = outageItem;
 
   return (
-    <Pressable
+    <View
       style={[
         styles.card,
         isLast && styles.lastCard,
@@ -87,7 +84,15 @@ export function OutageItemCard({
         <WarningMessage
           warningText={formatBackstockSlots(outageItem.backStockSlots)}
         />
+      ) : (
+        <Seperator />
+      )}
+      {removeItem ? (
+        <Pressable onPress={removeItem} style={styles.removeItem}>
+          <CrossIcon />
+          <Text style={styles.removeItemText}>Remove Item</Text>
+        </Pressable>
       ) : null}
-    </Pressable>
+    </View>
   );
 }
