@@ -1,55 +1,48 @@
 import { CommonItemDetailsPage } from '../common/common-item-details-page.ts';
 
-type PrinterName =
+export type PrinterName =
   | 'Printer Counter 1'
   | 'Printer Counter 2'
   | 'Printer Counter 3'
   | 'Portable';
 
 export class ItemLookupItemDetailsPage extends CommonItemDetailsPage {
-  get viewOptionsButton() {
-    return '[text=View Options]';
-  }
-
-  get hideOptionsButton() {
-    return '[text=Hide Options]';
-  }
-
-  printerWithName(printerName: PrinterName) {
-    return `[text=${printerName}]`;
-  }
-
-  // get quantityInput() {
-  //   return '...';
-  // }
-
-  get closeButton() {
-    return '[text=Close]';
-  }
-
   get printFrontTagButton() {
     return '[text=Print Front Tag]';
   }
 
-  toastMessageForPrinter(printerName: PrinterName) {
-    return `[text=Front tag send to ${printerName}]`;
+  get printFrontTagModal() {
+    return {
+      viewOptionsButton: '[text=View Options]',
+      hideOptionsButton: '[text=Hide Options]',
+      printerWithName: (printerName: PrinterName = 'Printer Counter 1') =>
+        `[text=${printerName}]`,
+      quantityInput: '~adjust quantity',
+      closeButton: '[text=Close]',
+      printFrontTagButton: '(//*[@text="Print Front Tag"])[2]',
+    };
+  }
+
+  toastMessageForPrinter(printerName: PrinterName = 'Printer Counter 1') {
+    return `//android.widget.TextView[@text="Front tag sent to ${printerName}"]`;
   }
 
   // this modal should be displayed only when the quantity
   // of tags for printing is > 10
-  quantityConfirmationModal(numberOfTags: number) {
+  get quantityConfirmationModal() {
     return {
+      warningText: '[text=Quantity Confirmation]',
       editQuantityButton: '[text=Edit Quantity]',
-      printTagsButton: `[text=Print ${numberOfTags} Tags]`,
+      printTagsButton: (tagsQuantity: number) =>
+        `[text=Print ${tagsQuantity} Tags]`,
     };
   }
+
   get priceDiscrepancyModal() {
     return {
       warningText: '[text=Price Discrepancy Detected.]',
-      scannedPrice:
-        '//*[@text="Scanned"]/following-sibling::android.widget.TextView',
-      systemPrice:
-        '//*[@text="System"]/following-sibling::android.widget.TextView',
+      scannedPrice: '~Scanned value',
+      systemPrice: '~System value',
       closeButton: '[text=Close]',
       printFrontTagButton: '[text=Print Front Tag]',
     };
