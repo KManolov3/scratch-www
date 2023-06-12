@@ -2,13 +2,14 @@ import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback, useState } from 'react';
 import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { Text } from '@components/Text';
+import { Header } from '@components/Header';
 import { FontWeight } from '@lib/font';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
@@ -69,8 +70,10 @@ export function OutageHome() {
     [getItemBySku, storeNumber],
   );
 
+  const header = useMemo(() => <Header title="Outage" />, []);
+
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <SearchBar onSubmit={onSubmit} />
       {loading ? (
         <ActivityIndicator

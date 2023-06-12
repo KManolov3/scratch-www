@@ -90,6 +90,6 @@ const styles = StyleSheet.create({
     right: 18,
     position: 'absolute',
     alignContent: 'center',
-    zIndex: 1,
+    elevation: 10,
   },
 });

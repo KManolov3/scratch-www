@@ -19,6 +19,13 @@ export type SessionInfo = {
   storeNumber: string;
 };
 
+export enum Activity {
+  ItemLookupActivity = 'ItemLookupActivity',
+  BatchCountActivity = 'BatchCountActivity',
+  CycleCountActivity = 'CycleCountActivity',
+  OutageActivity = 'OutageActivity',
+}
+
 export interface Spec extends TurboModule {
   /* Authentication */
   reloadAuthFromLauncher(config: AuthConfig): Promise<SessionInfo>;
@@ -30,6 +37,9 @@ export interface Spec extends TurboModule {
   /* NativeEventEmitter support */
   addListener: (event: string) => void;
   removeListeners: (count: number) => void;
+
+  /* Navigating to another activity */
+  navigateTo(activityName: Activity): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('RTNInStoreApps') as Spec | null;

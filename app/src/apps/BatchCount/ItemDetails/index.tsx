@@ -9,6 +9,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { compact } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { Header } from '@components/Header';
 import { ItemDetails } from '../../../components/ItemDetails';
 import { BatchCountNavigation, BatchCountScreenProps } from '../navigator';
 import { useBatchCountState } from '../state';
@@ -105,6 +106,8 @@ export function BatchCountItemDetails({
     }
   }, [submitError]);
 
+  const header = useMemo(() => <Header title="Batch Count" />, []);
+
   // TODO: Show loading indicator on submit
 
   // This can happen in the case when the selected item has been removed from BatchCount.
@@ -115,7 +118,7 @@ export function BatchCountItemDetails({
 
   return (
     <>
-      <FixedLayout style={styles.layout}>
+      <FixedLayout style={styles.layout} header={header}>
         <ItemDetails
           itemDetails={selectedItem.item}
           quantityAdjustment={quantityAdjustmentDetails}

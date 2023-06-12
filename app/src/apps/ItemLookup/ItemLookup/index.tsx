@@ -1,40 +1,27 @@
-import { useMutation } from '@apollo/client';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { ItemDetails } from '@components/ItemDetails';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { Header } from '@components/Header';
+import { soundService } from 'src/services/SoundService';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { SearchIcon } from '@assets/icons';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { indexOfEnumValue } from '@lib/array';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { countBy } from 'lodash-es';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { gql } from 'src/__generated__';
-import { soundService } from 'src/services/SoundService';
-import { toastService } from 'src/services/ToastService';
-import { PrintModal } from '../components/PrintModal';
-import { ItemLookupScreenProps } from '../navigator';
-
-const PRINT_FRONT_TAG = gql(`
-  mutation PrintFrontTag(
-    $storeNumber: String!
-    $printer: String! = "1"
-    $data: [FrontTagItem]
-  ) {
-    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)
-  }
-`);
+import { useNavigation } from '@react-navigation/native';
+import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
+import { ItemLookupHome } from '../components/Home';
 
 export function ItemLookupScreen({
   route: {
     params: { itemDetails, frontTagPrice },
   },
 }: ItemLookupScreenProps<'ItemLookup'>) {
-  const [printFrontTag, { loading }] = useMutation(PRINT_FRONT_TAG);
+  const { navigate } = useNavigation<ItemLookupNavigation>();
 
   const [hasPriceDiscrepancy, setPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
@@ -61,9 +48,6 @@ export function ItemLookupScreen({
     itemDetails?.retailPrice,
   ]);
 
-  const { state: printModalVisible, toggle: togglePrintModal } =
-    useBooleanState();
-
   useEffect(() => {
     setPriceDiscrepancy(
       !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
@@ -72,77 +56,35 @@ export function ItemLookupScreen({
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
-    togglePrintModal();
-  }, [toggleModal, togglePrintModal]);
-
-  const { storeNumber } = useCurrentSessionInfo();
-
-  const onPrintConfirm = useCallback(
-    async (printer: PrinterOptions, qty: number) => {
-      if (!itemDetails?.planograms) {
-        return;
-      }
-      const printerToStringValue = String(
-        indexOfEnumValue(PrinterOptions, printer) + 1,
-      );
-
-      const results = await Promise.allSettled(
-        itemDetails?.planograms?.map(planogram =>
-          printFrontTag({
-            variables: {
-              storeNumber,
-              data: {
-                planogramId: planogram?.planogramId,
-                sequence: planogram?.seqNum,
-                sku: itemDetails?.sku,
-                count: qty,
-              },
-              printer: printerToStringValue,
-            },
-          }),
-        ),
-      );
-      const requestsByStatus = countBy(
-        results,
-        ({ status }) => status === 'rejected',
-      );
-      const numberOfFailedRequests = requestsByStatus.rejected;
-
-      if (numberOfFailedRequests && numberOfFailedRequests > 0) {
-        return toastService.showErrorToast(
-          `${numberOfFailedRequests} out of ${results.length} requests failed.`,
-        );
-      }
-
-      toastService.showInfoToast(`Front tag sent to ${printer}`, {
-        props: { containerStyle: styles.toast },
-      });
-      togglePrintModal();
-      setPriceDiscrepancy(false);
-    },
-    [
-      itemDetails?.planograms,
-      itemDetails?.sku,
-      printFrontTag,
-      storeNumber,
-      togglePrintModal,
-    ],
-  );
+    navigate('PrintFrontTag', { itemDetails });
+  }, [itemDetails, navigate, toggleModal]);
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tag',
-        onPress: togglePrintModal,
-        isLoading: loading,
+        onPress: () => navigate('PrintFrontTag', { itemDetails }),
         textStyle: styles.bottomBarActionText,
       },
     ],
-    [loading, togglePrintModal],
+    [itemDetails, navigate],
+  );
+  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+
+  const header = useMemo(
+    () => (
+      <Header
+        title="Item Lookup"
+        item={itemDetails}
+        rightIcon={<SearchIcon />}
+        onClickRight={enable}
+      />
+    ),
+    [enable, itemDetails],
   );
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
@@ -155,11 +97,6 @@ export function ItemLookupScreen({
         }
         style={styles.bottomActionBar}
       />
-      <PrintModal
-        isVisible={printModalVisible}
-        onCancel={togglePrintModal}
-        onConfirm={onPrintConfirm}
-      />
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
           scanned={frontTagPrice}
@@ -169,6 +106,10 @@ export function ItemLookupScreen({
           onConfirm={onPriceDiscrepancyConfirm}
         />
       )}
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+        <ItemLookupHome onSubmit={disable} />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }
@@ -181,8 +122,5 @@ const styles = StyleSheet.create({
   },
   bottomActionBar: {
     paddingTop: 8,
-  },
-  toast: {
-    marginBottom: '20%',
   },
 });

@@ -7,6 +7,10 @@ import {
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import {
+  DrawerNavigator,
+  DrawerNavigatorScreenParams,
+} from '@components/Drawer/navigator';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
@@ -30,6 +34,7 @@ type Routes = {
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: ItemLookupNavigatorScreenParams;
+  Drawer: DrawerNavigatorScreenParams;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -63,6 +68,12 @@ export function RootNavigator({
         name="BatchCountHome"
         options={{ headerShown: false }}
         component={BatchCountNavigator}
+      />
+
+      <Stack.Screen
+        name="Drawer"
+        options={{ animation: 'slide_from_left' }}
+        component={DrawerNavigator}
       />
 
       <Stack.Screen

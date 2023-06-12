@@ -18,6 +18,7 @@ import { gql } from 'src/__generated__';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
+import { PrintFrontTagScreen } from './PrintFrontTag';
 
 const ITEM_BY_SKU = gql(`
   query ManualItemLookup($sku: String!, $storeNumber: String!) {
@@ -42,6 +43,7 @@ const ITEM_BY_UPC = gql(`
 type Routes = {
   Home: undefined;
   ItemLookup: { itemDetails: ItemDetails; frontTagPrice?: number };
+  PrintFrontTag: { itemDetails: ItemDetails };
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -83,10 +85,13 @@ export function ItemLookupNavigator() {
   });
 
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={ItemLookupHome} />
 
       <Stack.Screen name="ItemLookup" component={ItemLookupScreen} />
+      <Stack.Screen name="PrintFrontTag" component={PrintFrontTagScreen} />
     </Stack.Navigator>
   );
 }
