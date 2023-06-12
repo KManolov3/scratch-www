@@ -219,7 +219,7 @@ export function PrintFrontTagScreen({
               </View>
             </Pressable>
             <QuantityAdjuster
-              uniqueAccessibilityLabel={itemDetails.sku ?? ''}
+              uniqueAccessibilityLabel={planogramId}
               minimum={1}
               quantity={qty}
               setQuantity={quantity => update(status.id, { qty: quantity })}
@@ -229,7 +229,7 @@ export function PrintFrontTagScreen({
         </>
       );
     },
-    [itemDetails.planograms, itemDetails.sku, map, update],
+    [itemDetails.planograms, map, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
