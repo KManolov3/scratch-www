@@ -42,6 +42,10 @@ export class ItemLookupController extends BaseController {
           printerName
         )
       );
+
+      await waitAndClick(
+        this.itemLookupPages.printFrontTagPage.selectPrinterModal.acceptButton
+      );
     }
 
     if (printData.length > 1) {
@@ -64,7 +68,7 @@ export class ItemLookupController extends BaseController {
     }
 
     await waitAndClick(
-      this.itemLookupPages.printFrontTagPage.printFrontTagButton
+      this.itemLookupPages.printFrontTagPage.printFrontTagsButton
     );
 
     const sumOfQuantities = sum(printData.map((pog) => pog.tagsQuantity));

@@ -15,7 +15,7 @@ export class ItemLookupItemDetailsPage extends CommonItemDetailsPage {
       warningText: '[text=Price Discrepancy Detected.]',
       scannedPrice: '~Scanned value',
       systemPrice: '~System value',
-      closeButton: '[text=Close]',
+      cancelButton: '[text=Cancel]',
       printFrontTagButton: '[text=Print Front Tag]',
     };
   }

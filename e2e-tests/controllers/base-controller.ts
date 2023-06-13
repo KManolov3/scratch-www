@@ -24,6 +24,7 @@ export class BaseController {
 
   async searchForSku(product: TestItemInput) {
     await waitFor(this.commonPages.homePage.searchForSkuInput, 5000);
+    await (await $(this.commonPages.homePage.searchForSkuInput)).clearValue();
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
     await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);

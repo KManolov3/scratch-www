@@ -26,7 +26,7 @@ export class ItemLookupPrintFrontTagPage {
     return `[content-desc=adjust quantity${planogram}]`;
   }
 
-  get printFrontTagButton() {
+  get printFrontTagsButton() {
     return '[text=Print Front Tags]';
   }
 

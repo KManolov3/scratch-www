@@ -1,12 +1,4 @@
 export class BatchCountConfirmPage {
-  get headerText() {
-    return '[text=Confirm]';
-  }
-
-  get backButton() {
-    return '~Navigate up';
-  }
-
   productDetails(productName: string) {
     return {
       productName: `[text=${productName}]`,

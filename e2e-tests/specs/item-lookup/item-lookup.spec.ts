@@ -1,8 +1,4 @@
-import {
-  expectElementText,
-  waitAndClick,
-  waitFor,
-} from '../../methods/helpers.ts';
+import { expectElementText, waitFor } from '../../methods/helpers.ts';
 import { TestDataInput } from '../../__generated__/graphql.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import {
@@ -40,6 +36,21 @@ describe('Item Lookup', () => {
           { slotId: 87802, qty: 3 },
         ],
       },
+      {
+        partDesc: 'Beam Wiper Blade',
+        sku: '10073342',
+        retailPrice: 73.99,
+        mfrPartNum: '73682',
+        onHand: 10,
+        planograms: [
+          { planogramId: '36839', seqNum: 21 },
+          { planogramId: '43467', seqNum: 25 },
+        ],
+        backStockSlots: [
+          { slotId: 47216, qty: 6 },
+          { slotId: 23343, qty: 7 },
+        ],
+      },
     ];
 
     await testData.setData({
@@ -53,14 +64,12 @@ describe('Item Lookup', () => {
       await itemLookup.expectProductInfo(product);
 
       if (index !== items.length - 1) {
-        await waitAndClick(
-          itemLookup.itemLookupPages.itemDetailsPage.backButton
-        );
+        await driver.back();
       }
     }
   });
 
-  it.only('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
+  it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
     const itemWithPriceDiscrepancy: TestDataInput['items'] = [
       {
         sku: '25370367',
