@@ -15,7 +15,8 @@ export type ScannerConfig = {
 
 export type SessionInfo = {
   userId: string;
-  userName?: string;
+  userName: string;
+  teamMemberId: string;
   storeNumber: string;
 };
 

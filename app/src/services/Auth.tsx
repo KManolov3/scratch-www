@@ -35,11 +35,11 @@ export function AuthProvider({
 
   useAppStateChange(['active'], reloadAuth);
 
-  if ((error as { code: string }).code === 'NotLoggedIn') {
-    return <Text>You&rsquo;re not logged in to the launcher</Text>;
-  }
-
   if (error) {
+    if ((error as { code: string }).code === 'NotLoggedIn') {
+      return <Text>You&rsquo;re not logged in to the launcher</Text>;
+    }
+
     return <Text>Could not load authentication</Text>;
   }
 

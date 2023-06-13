@@ -15,9 +15,10 @@ class NotLoggedIn: BluefletchLauncherError("NotLoggedIn", "User is not logged in
 
 @Serializable
 data class LauncherSession(
-    val userId: String?,
-    val userName: String?,
-    val location: String?,
+    val userId: String,
+    val userName: String,
+    val teamMemberId: String,
+    val location: String,
     val extendedAttributes: LauncherSessionExtendedAttributes
 )
 
@@ -147,8 +148,9 @@ class BluefletchLauncher(
 
         return LauncherSession(
             userId = session.userId,
-            userName = session.userName,
-            location = session.location,
+            userName = session.userName ?: throw LauncherContentProviderError("Missing userName"),
+            teamMemberId = session.teamId ?: throw LauncherContentProviderError("Missing teamId"),
+            location = session.location ?: throw LauncherContentProviderError("Missing location"),
             extendedAttributes = LauncherSessionExtendedAttributes(
                 idToken = extendedAttributes.idToken,
                 accessToken = extendedAttributes.accessToken,

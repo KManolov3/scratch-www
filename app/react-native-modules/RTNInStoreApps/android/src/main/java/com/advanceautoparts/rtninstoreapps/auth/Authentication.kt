@@ -1,6 +1,7 @@
 package com.advanceautoparts.rtninstoreapps.auth
 
 import com.advanceautoparts.rtninstoreapps.BluefletchLauncher
+import com.advanceautoparts.rtninstoreapps.LauncherSession
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.client.*
 import com.okta.authfoundation.credential.Credential
@@ -20,14 +21,6 @@ data class AuthConfig(
 
 open class AuthError(val name: String, message: String) : Exception(message)
 class MissingRefreshToken : AuthError("MissingRefreshToken", "Missing refresh token when obtaining tokens")
-class MissingUserId : AuthError("MissingUserId", "Missing user id from the launcher session")
-class MissingLocation : AuthError("MissingLocation", "Missing location from the launcher session")
-
-data class SessionInfo(
-    val userId: String,
-    val userName: String?,
-    val locationId: String
-)
 
 class Authentication(
     val launcher: BluefletchLauncher,
@@ -56,17 +49,13 @@ class Authentication(
         credential = null
     }
 
-    suspend fun requestTokens(): SessionInfo {
+    suspend fun requestTokens(): LauncherSession {
         val session = launcher.readSession()
         val token = performTokenExchange(session.extendedAttributes.idToken, session.extendedAttributes.deviceSecret)
 
         if (token.refreshToken == null) throw MissingRefreshToken()
 
-        return SessionInfo(
-            userId = session.userId ?: "1234",
-            userName = session.userName,
-            locationId = session.location ?: throw MissingLocation()
-        )
+        return session
     }
 
     suspend fun currentValidAccessToken(): String? {

@@ -48,7 +48,8 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         Arguments.createMap().apply {
             putString("userId", session.userId)
             putString("userName", session.userName)
-            putString("storeNumber", session.locationId)
+            putString("teamMemberId", session.teamMemberId)
+            putString("storeNumber", session.location)
         }
     }
 

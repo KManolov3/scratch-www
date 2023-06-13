@@ -2,8 +2,7 @@ package com.advanceautoparts.bluefletch
 
 import android.app.Activity
 import com.okta.authfoundation.AuthFoundationDefaults
-import com.okta.authfoundation.claims.preferredUsername
-import com.okta.authfoundation.claims.userId
+import com.okta.authfoundation.claims.*
 import com.okta.authfoundation.client.OidcClient
 import com.okta.authfoundation.client.OidcConfiguration
 import com.okta.authfoundation.client.SharedPreferencesCache
@@ -14,22 +13,47 @@ import com.okta.authfoundationbootstrap.CredentialBootstrap
 import com.okta.webauthenticationui.WebAuthenticationClient
 import com.okta.webauthenticationui.WebAuthenticationClient.Companion.createWebAuthenticationClient
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
+/**
+ * If the user is not logged in, the format is `{"extension":"","role":"","groups":"*","location":"501","userName":"","userId":""}`
+ */
 @Serializable
-data class LauncherSession(
-    val userId: String?,
-    val userName: String?,
-    val location: String?,
-    val extendedAttributes: LauncherSessionExtendedAttributes
+data class InternalLauncherSession(
+    // Seems to be an empty string
+    val extension: String?,
+
+    // Seems to be an empty string
+    val role: String?,
+
+    // The team-member id
+    val teamId: String? = null,
+
+    // Groups the user has access to (at time of development this was `DGG_Okta_OneRailNonProd_GM`)
+    val groups: String?,
+
+    // User identifier, e.g. `ivan.ivanov`
+    val userId: String? = null,
+
+    // User name such as `Ivan Ivanov`
+    val userName: String? = null,
+
+    // The store id
+    val location: String? = null,
+
+    // A JSON string with other attributes (see InternalLauncherSessionExtendedAttributes below)
+    val extendedAttributes: String? = null
 )
 
 @Serializable
-data class LauncherSessionExtendedAttributes(
+data class InternalLauncherSessionExtendedAttributes(
     val idToken: String,
     val accessToken: String,
     val refreshToken: String,
-    val deviceSecret: String
+    val deviceSecret: String,
+    val tokenExpirationTime: String,
 )
 
 class OktaNativeSSOLogin(private val activity: Activity) {
@@ -37,21 +61,26 @@ class OktaNativeSSOLogin(private val activity: Activity) {
         private suspend fun defaultCredential() = CredentialBootstrap.defaultCredential()
 
         suspend fun isAuthenticated() = defaultCredential().token != null
-        suspend fun session(location: String?): LauncherSession? {
+        suspend fun session(location: String?): InternalLauncherSession? {
             val credential = defaultCredential()
             val token = credential.token ?: return null
             val idToken = credential.idToken() ?: return null
 
-            return LauncherSession(
-                userId = idToken.userId,
-                userName = idToken.preferredUsername,
+            return InternalLauncherSession(
+                userId = idToken.email?.replace(Regex("@.*"), "")!!,
+                userName = idToken.name,
                 location = location,
-                extendedAttributes = LauncherSessionExtendedAttributes(
+                extension = "",
+                groups = "DGG_Okta_OneRailNonProd_GM",
+                role = "",
+                teamId = "1234",
+                extendedAttributes = Json.encodeToString(InternalLauncherSessionExtendedAttributes(
                     idToken = token.idToken!!,
                     accessToken = token.accessToken,
                     refreshToken = token.refreshToken!!,
                     deviceSecret = token.deviceSecret!!,
-                )
+                    tokenExpirationTime = idToken.expirationTime.toString()
+                ))
             )
         }
     }
