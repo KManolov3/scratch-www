@@ -2,6 +2,7 @@ package com.advanceautoparts.rtninstoreapps
 
 import android.util.Log
 import com.advanceautoparts.rtninstoreapps.auth.AuthConfig
+import com.advanceautoparts.rtninstoreapps.auth.AuthError
 import com.advanceautoparts.rtninstoreapps.auth.Authentication
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -101,8 +102,11 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
                 val result = closure()
 
                 promise.resolve(result)
+            } catch (error: AuthError) {
+                promise.reject(error.name, error)
+            } catch (error: BluefletchLauncherError) {
+                promise.reject(error.name, error)
             } catch (throwable: Throwable) {
-                // TODO: This receives OidcEndpointsNotAvailableException if it can't connect to Okta (`OIDC Endpoints not available`)
                 promise.reject(throwable)
             }
         }

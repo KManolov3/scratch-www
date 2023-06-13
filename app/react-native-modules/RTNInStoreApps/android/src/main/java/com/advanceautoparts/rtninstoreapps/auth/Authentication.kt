@@ -18,10 +18,10 @@ data class AuthConfig(
     val authServerURL: String
 )
 
-open class AuthError(message: String) : Exception(message)
-class MissingRefreshToken : AuthError("Missing refresh token when obtaining tokens")
-class MissingUserId : AuthError("Missing user id from the launcher session")
-class MissingLocation : AuthError("Missing location from the launcher session")
+open class AuthError(val name: String, message: String) : Exception(message)
+class MissingRefreshToken : AuthError("MissingRefreshToken", "Missing refresh token when obtaining tokens")
+class MissingUserId : AuthError("MissingUserId", "Missing user id from the launcher session")
+class MissingLocation : AuthError("MissingLocation", "Missing location from the launcher session")
 
 data class SessionInfo(
     val userId: String,

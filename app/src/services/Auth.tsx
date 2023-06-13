@@ -35,16 +35,20 @@ export function AuthProvider({
 
   useAppStateChange(['active'], reloadAuth);
 
+  if ((error as { code: string }).code === 'NotLoggedIn') {
+    return <Text>You&rsquo;re not logged in to the launcher</Text>;
+  }
+
+  if (error) {
+    return <Text>Could not load authentication</Text>;
+  }
+
   // The idea here is to wait only for the initial auth load.
   // The other times the user may not have changed at all, and even if they have,
   // we don't want to unmount the whole app.
   if (!sessionInfo) {
     // TODO: Better loading indicator
     return <Text>Loading...</Text>;
-  }
-
-  if (error) {
-    return <Text>Could not load authentication</Text>;
   }
 
   return <Context.Provider value={sessionInfo}>{children}</Context.Provider>;
