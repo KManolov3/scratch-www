@@ -4,6 +4,7 @@ import { Locations } from '@components/Locations';
 import { Colors } from '@lib/colors';
 import { PlanogramsInfo } from '@components/Locations/PlanogramList';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
+import { BaseStyles } from '@lib/baseStyles';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
@@ -28,6 +29,7 @@ export function ItemDetails({
         quantityAdjustment={quantityAdjustment}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
+        itemStyle={styles.detailsItem}
       />
       <Locations locationDetails={itemDetails} />
     </View>
@@ -38,5 +40,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.pure,
     flex: 1,
+  },
+  detailsItem: {
+    ...BaseStyles.shadow,
+    borderRadius: 8,
+    padding: 8,
+    paddingHorizontal: 12,
   },
 });

@@ -6,7 +6,8 @@ import { Colors } from '@lib/colors';
 
 export type ModalProps = Partial<
   Omit<ReactNativeModalProps, 'backdropOpacity' | 'backdropColor'>
->;
+> &
+  Pick<ReactNativeModalProps, 'children' | 'isVisible'>;
 
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (
@@ -27,8 +28,8 @@ export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
 }
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 4,
-    backgroundColor: Colors.pure,
+    borderRadius: 8,
+    backgroundColor: Colors.lightGray,
     padding: 8,
   },
   keyboardAvoidingView: { flex: 1, justifyContent: 'center' },

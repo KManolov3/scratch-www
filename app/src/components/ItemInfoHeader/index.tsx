@@ -1,13 +1,19 @@
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import _ from 'lodash-es';
 import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { formatPrice } from '@lib/formatPrice';
+import { convertCurrencyToString } from '@lib/currency';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -34,6 +40,8 @@ export interface ItemInfoHeaderProps {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
   };
+  style?: StyleProp<ViewStyle>;
+  itemStyle?: StyleProp<ViewStyle>;
 }
 
 function getBackstockQuantity(
@@ -48,11 +56,14 @@ function getBackstockQuantity(
   return _.chain(backstockSlots).compact().sumBy('qty').value();
 }
 
+// TODO: Rename this to a more suitable name
 export function ItemInfoHeader({
   itemDetails,
   quantityAdjustment,
   hasPriceDiscrepancy,
   togglePriceDiscrepancyModal,
+  style,
+  itemStyle,
 }: ItemInfoHeaderProps) {
   const backstockSlots = useMemo(
     () => getBackstockQuantity(itemDetails.backStockSlots),
@@ -60,23 +71,23 @@ export function ItemInfoHeader({
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <Text style={styles.title} accessibilityLabel="Product Title">
         {itemDetails.partDesc}
       </Text>
 
       <View style={styles.row}>
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, itemStyle]}
           label="SKU"
           value={itemDetails.sku}
         />
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, itemStyle]}
           label="Price"
           value={
             itemDetails.retailPrice
-              ? formatPrice(itemDetails.retailPrice)
+              ? convertCurrencyToString(itemDetails.retailPrice)
               : 'undefined'
           }
           icon={
@@ -91,7 +102,7 @@ export function ItemInfoHeader({
 
       <View style={styles.row}>
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, itemStyle]}
           label="Part Number"
           value={itemDetails.mfrPartNum}
         />
@@ -99,32 +110,23 @@ export function ItemInfoHeader({
 
       <View style={styles.row}>
         <ItemPropertyDisplay
-          style={styles.itemProperties}
+          style={[styles.itemProperties, itemStyle]}
           label="QOH"
           value={itemDetails.onHand}
         />
         <ItemPropertyDisplay
-          style={styles.itemProperties}
-          label="Back Stock"
+          style={[styles.itemProperties, itemStyle]}
+          label="Backstock"
           value={backstockSlots}
         />
 
         {quantityAdjustment && (
           <ItemPropertyDisplay
-            style={styles.itemProperties}
+            style={[styles.itemProperties, itemStyle]}
             label="New Qty"
             value={quantityAdjustment.quantity}
           />
         )}
-        {/* TODO: Right now the api does not return maxi
-            so we decided to hide it. Add it back when
-            any progress is made
-        */}
-        {/* <ItemPropertyDisplay
-          style={styles.itemProperties}
-          label="Maxi"
-          value={0}
-        /> */}
       </View>
       {quantityAdjustment && (
         <QuantityAdjuster
@@ -140,11 +142,10 @@ const styles = StyleSheet.create({
   container: {
     gap: 8,
   },
-  header: { fontWeight: FontWeight.Bold, fontSize: 20 },
   title: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    fontSize: 20,
+    paddingHorizontal: 8,
+    paddingTop: 16,
+    fontSize: 28,
     fontWeight: FontWeight.Bold,
     marginBottom: 12,
   },

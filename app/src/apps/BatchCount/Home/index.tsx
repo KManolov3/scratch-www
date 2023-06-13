@@ -5,9 +5,11 @@ import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { gql } from 'src/__generated__';
+import { Colors } from '@lib/colors';
+import { Header } from '@components/Header';
 import { ManualItemLookupQuery } from 'src/__generated__/graphql';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
@@ -97,6 +99,8 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
+  const header = useMemo(() => <Header title="Batch Count" />, []);
+
   if (isLoadingItemBySku) {
     return <ActivityIndicator size="large" />;
   }
@@ -112,7 +116,7 @@ export function BatchCountHome() {
   // TODO: Add no result modal
 
   return (
-    <FixedLayout>
+    <FixedLayout style={styles.container} header={header}>
       <SearchBar onSubmit={onSubmit} />
       <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>
@@ -120,6 +124,9 @@ export function BatchCountHome() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.lightGray,
+  },
   scanBarcode: {
     margin: 20,
     marginTop: 88,

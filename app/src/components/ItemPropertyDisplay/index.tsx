@@ -1,22 +1,16 @@
 import { FontWeight } from '@lib/font';
 import { Text } from '@components/Text';
-import {
-  StyleProp,
-  StyleSheet,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
-import { BaseStyles } from '@lib/baseStyles';
 
 interface ItemPropertyDisplayProps {
   label: string;
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  valueStyle?: StyleProp<TextStyle>;
+  labelStyle?: StyleProp<Text>;
+  valueStyle?: StyleProp<Text>;
 }
 
 export function ItemPropertyDisplay({
@@ -24,13 +18,22 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
+  labelStyle,
   valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
-    <View style={[styles.root, BaseStyles.shadow, style]}>
+    <View style={[styles.root, style]}>
       <View>
-        <Text>{label}</Text>
-        <Text style={[styles.bold, valueStyle]}>{value}</Text>
+        <Text
+          accessibilityLabel={`${label} label`}
+          style={[styles.label, labelStyle]}>
+          {label}
+        </Text>
+        <Text
+          accessibilityLabel={`${label} value`}
+          style={[styles.value, valueStyle]}>
+          {value}
+        </Text>
       </View>
       <View style={styles.icon}>{icon}</View>
     </View>
@@ -38,13 +41,21 @@ export function ItemPropertyDisplay({
 }
 
 const styles = StyleSheet.create({
-  bold: { fontWeight: FontWeight.Bold, fontSize: 20 },
   root: {
     flexDirection: 'row',
-    padding: 16,
     justifyContent: 'flex-start',
     backgroundColor: Colors.pure,
-    borderRadius: 8,
+  },
+  label: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: Colors.advanceBlack,
+  },
+  value: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: FontWeight.Bold,
+    color: Colors.advanceBlack,
   },
   icon: {
     flex: 1,
