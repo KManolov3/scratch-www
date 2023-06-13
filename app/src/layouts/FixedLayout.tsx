@@ -12,9 +12,10 @@ import { Colors } from '../lib/colors';
 export interface FixedLayoutProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
+  header?: ReactNode;
 }
 
-export function FixedLayout({ children, style }: FixedLayoutProps) {
+export function FixedLayout({ header, children, style }: FixedLayoutProps) {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
@@ -22,6 +23,7 @@ export function FixedLayout({ children, style }: FixedLayoutProps) {
         backgroundColor={Colors.advanceBlack}
       />
 
+      {header}
       <KeyboardAvoidingView
         style={StyleSheet.compose(styles.keyboardAvoidingView, style)}>
         {children}

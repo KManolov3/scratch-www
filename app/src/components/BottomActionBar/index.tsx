@@ -56,14 +56,6 @@ const styles = StyleSheet.create({
   container: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    /*
-    This margin is needed because the bottom action bar goes below the android action bar.
-    Even if we use SafeAreaView the problem still persists. We narrowed it down to the header
-    from react-native/navigation. Using a custom component solves the issue.
-    TODO: delete this margin when we implement a custom header.
-    */
-    marginBottom: 48,
-    paddingTop: 8,
 
     shadowOffset: { width: 0, height: -2 },
     elevation: 1,

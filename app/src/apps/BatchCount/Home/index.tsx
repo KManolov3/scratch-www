@@ -1,5 +1,5 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLazyQuery } from '@apollo/client';
@@ -7,6 +7,7 @@ import { Text } from '@components/Text';
 import { ManualItemLookupQuery } from 'src/__generated__/graphql';
 import { gql } from 'src/__generated__';
 import { SearchBar } from '@components/SearchBar';
+import { Header } from '@components/Header';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { Colors } from '@lib/colors';
 import { BatchCountNavigation } from '../navigator';
@@ -96,6 +97,8 @@ export function BatchCountHome() {
     [searchBySku],
   );
 
+  const header = useMemo(() => <Header title="Batch Count" />, []);
+
   if (isLoadingItemBySku) {
     return <ActivityIndicator size="large" />;
   }
@@ -111,7 +114,7 @@ export function BatchCountHome() {
   // TODO: Add no result modal
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <SearchBar onSubmit={onSubmit} />
       <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
     </FixedLayout>

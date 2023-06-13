@@ -80,7 +80,9 @@ export function ItemLookupNavigator() {
   });
 
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={ItemLookupHome} />
 
       <Stack.Screen name="ItemLookup" component={ItemLookupScreen} />

@@ -25,7 +25,9 @@ const Stack = createNativeStackNavigator<Routes>();
 export function BatchCountNavigator() {
   return (
     <BatchCountStateProvider>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={BatchCountHome} />
         <Stack.Screen name="ItemDetails" component={BatchCountItemDetails} />
         <Stack.Screen name="Confirm" component={BatchCountConfirm} />

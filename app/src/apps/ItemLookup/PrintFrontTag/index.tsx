@@ -9,8 +9,10 @@ import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { Text } from '@components/Text';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import {
+  BackArrowIcon,
   EmptySquareCheckBox,
   PrinterIcon,
+  SearchIcon,
   SquareCheckBox,
 } from '@assets/icons';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
@@ -23,9 +25,12 @@ import { indexOfEnumValue } from '@lib/array';
 import { toastService } from 'src/services/ToastService';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButtonsList } from '@components/RadioButtonsList';
+import { Header } from '@components/Header';
+import { BottomRegularTray } from '@components/BottomRegularTray';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
+import { ItemLookupHome } from '../components/Home';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -199,23 +204,22 @@ export function PrintFrontTagScreen({
       return (
         <>
           <View style={styles.table} key={planogramId}>
-            <View style={styles.flexRow}>
-              {compact(itemDetails.planograms).length > 1 && (
-                <Pressable
-                  style={styles.checkIcon}
-                  onPress={() =>
-                    update(status.id, { checked: !status.checked })
-                  }>
-                  {status.checked ? (
-                    <SquareCheckBox width={20} height={20} />
-                  ) : (
-                    <EmptySquareCheckBox width={20} height={20} />
-                  )}
-                </Pressable>
-              )}
-              <Text style={styles.text}>{planogramId}</Text>
-            </View>
+            <Pressable
+              onPress={() => update(status.id, { checked: !status.checked })}>
+              <View style={styles.flexRow}>
+                {compact(itemDetails.planograms).length > 1 &&
+                status.checked ? (
+                  <SquareCheckBox width={20} height={20} />
+                ) : (
+                  <EmptySquareCheckBox width={20} height={20} />
+                )}
+                <Text style={[styles.text, styles.planogramId]}>
+                  {planogramId}
+                </Text>
+              </View>
+            </Pressable>
             <QuantityAdjuster
+              uniqueAccessibilityLabel={planogramId}
               minimum={1}
               quantity={qty}
               setQuantity={quantity => update(status.id, { qty: quantity })}
@@ -228,8 +232,24 @@ export function PrintFrontTagScreen({
     [itemDetails.planograms, map, update],
   );
 
+  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+
+  const header = useMemo(
+    () => (
+      <Header
+        title="Item Lookup"
+        item={itemDetails}
+        rightIcon={<SearchIcon />}
+        onClickRight={enable}
+        leftIcon={<BackArrowIcon />}
+        onClickLeft={goBack}
+      />
+    ),
+    [enable, goBack, itemDetails],
+  );
+
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>
@@ -281,6 +301,10 @@ export function PrintFrontTagScreen({
         onConfirm={sendTagsForPrinting}
         quantity={frontTagsForPrintingQty}
       />
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+        <ItemLookupHome onSubmit={disable} />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }

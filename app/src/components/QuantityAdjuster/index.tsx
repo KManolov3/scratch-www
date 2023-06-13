@@ -10,12 +10,14 @@ export interface QuantityAdjusterProps {
   quantity: number;
   setQuantity: (quantity: number) => void;
   minimum?: number;
+  uniqueAccessibilityLabel?: string;
 }
 
 export function QuantityAdjuster({
   quantity,
   setQuantity,
   minimum = 0,
+  uniqueAccessibilityLabel = '',
 }: QuantityAdjusterProps) {
   const decreaseQuantity = useCallback(
     () => setQuantity(Math.max(minimum, quantity - 1)),
@@ -29,7 +31,7 @@ export function QuantityAdjuster({
   return (
     <Container style={styles.container}>
       <Pressable
-        accessibilityLabel="decrease quantity"
+        accessibilityLabel={`decrease quantity${uniqueAccessibilityLabel}`}
         onPress={decreaseQuantity}>
         <MinusIcon />
       </Pressable>
@@ -38,12 +40,12 @@ export function QuantityAdjuster({
         setValue={setQuantity}
         inputStyle={[styles.square, styles.inputContainer]}
         containerStyle={styles.inputContainer}
-        accessibilityLabel="adjust quantity"
+        accessibilityLabel={`adjust quantity${uniqueAccessibilityLabel}`}
         placeholder={quantity.toString()}
         onSubmit={setQuantity}
       />
       <Pressable
-        accessibilityLabel="increase quantity"
+        accessibilityLabel={`increase quantity${uniqueAccessibilityLabel}`}
         onPress={increaseQuantity}>
         <PlusIcon />
       </Pressable>

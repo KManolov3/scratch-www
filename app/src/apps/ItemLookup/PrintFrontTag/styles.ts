@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   flexRow: { flexDirection: 'row', alignItems: 'center' },
   centeredText: { textAlign: 'center' },
-  checkIcon: { marginRight: 13 },
+  planogramId: { marginLeft: 13 },
   header: {
     fontSize: 20,
     textAlign: 'center',
