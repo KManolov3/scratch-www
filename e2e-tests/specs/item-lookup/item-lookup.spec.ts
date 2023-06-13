@@ -5,7 +5,10 @@ import {
 } from '../../methods/helpers.ts';
 import { TestDataInput } from '../../__generated__/graphql.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
-import { ItemLookupController } from '../../controllers/item-lookup-controller.ts';
+import {
+  ItemLookupController,
+  PrintData,
+} from '../../controllers/item-lookup-controller.ts';
 
 const testData = new TestDataController();
 const itemLookup = new ItemLookupController();
@@ -62,6 +65,11 @@ describe('Item Lookup', () => {
       {
         sku: '25370367',
         retailPrice: 36.99,
+        planograms: [
+          { planogramId: 'F-22352355', seqNum: 23 },
+          { planogramId: 'F-78838679', seqNum: 24 },
+          { planogramId: 'F-46478421', seqNum: 25 },
+        ],
       },
     ];
 
@@ -94,6 +102,23 @@ describe('Item Lookup', () => {
       `$${itemWithPriceDiscrepancy[0].retailPrice}`
     );
 
-    await itemLookup.printFrontTag('Portable', 3);
+    const printData: PrintData[] = [
+      {
+        planogram: itemWithPriceDiscrepancy[0].planograms[0].planogramId,
+        printTag: true,
+        tagsQuantity: 5,
+      },
+      {
+        planogram: itemWithPriceDiscrepancy[0].planograms[1].planogramId,
+        printTag: true,
+        tagsQuantity: 3,
+      },
+      {
+        planogram: itemWithPriceDiscrepancy[0].planograms[2].planogramId,
+        printTag: false,
+      },
+    ];
+
+    await itemLookup.printFrontTag(printData, 'Portable');
   });
 });
