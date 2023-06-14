@@ -115,15 +115,15 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
-    override fun navigateTo(appName:String) {
-        val componentName = ComponentName(
-        "com.advanceautoparts.instoreapps",
-        "com.advanceautoparts.instoreapps.activities." + appName
-        )
-        this.reactContext.startActivity(Intent(Intent.ACTION_MAIN).also {
-        it.addCategory(Intent.CATEGORY_LAUNCHER)
-        it.component = componentName
-        it.flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+    override fun navigateTo(appName: String) {
+        this.reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+
+            component = ComponentName(
+                "com.advanceautoparts.instoreapps",
+                "com.advanceautoparts.instoreapps.activities." + appName
+            )
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
-  }
+    }
 }

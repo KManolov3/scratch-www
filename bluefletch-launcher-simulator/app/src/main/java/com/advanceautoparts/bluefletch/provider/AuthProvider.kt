@@ -6,6 +6,7 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import com.advanceautoparts.bluefletch.MainApplication
 import com.advanceautoparts.bluefletch.OktaNativeSSOLogin
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
@@ -28,7 +29,6 @@ class AuthProvider: ContentProvider() {
 
     override fun onCreate(): Boolean {
         // Intentionally blank
-
         return true
     }
 
@@ -36,7 +36,7 @@ class AuthProvider: ContentProvider() {
         if (uriMatcher.match(uri) != UriMatch.BluefletchSession.ordinal) throw java.lang.IllegalArgumentException("Invalid URI")
 
         return MatrixCursor(arrayOf("DATA")).apply {
-            val token = runBlocking { OktaNativeSSOLogin.session(locationId) }
+            val token = runBlocking { MainApplication.current.okta.session(locationId) }
 
             if (token == null) {
                 addRow(arrayOf(null))

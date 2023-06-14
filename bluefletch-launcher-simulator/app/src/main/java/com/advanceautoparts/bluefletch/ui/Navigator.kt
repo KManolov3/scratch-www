@@ -17,17 +17,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun Navigator(activity: Activity) {
     val controller = rememberNavController()
-    val okta = remember { OktaNativeSSOLogin(activity) }
 
     LaunchedEffect(null) {
-        if (OktaNativeSSOLogin.isAuthenticated()) controller.navigate("home")
+        if (MainApplication.current.okta.isAuthenticated()) controller.navigate("home")
     }
 
     val scope = rememberCoroutineScope()
 
     val logout = { clearBrowser: Boolean ->
         scope.launch {
-            okta.logout(clearBrowserLogin = clearBrowser)
+            MainApplication.current.okta.logout(activity, clearBrowserLogin = clearBrowser)
             controller.navigate("require-login")
         }
     }
@@ -36,7 +35,7 @@ fun Navigator(activity: Activity) {
         composable("require-login") {
             LoginScreen {
                 scope.launch {
-                    okta.login()
+                    MainApplication.current.okta.login(activity)
                     controller.navigate("home")
                 }
             }

@@ -1,6 +1,8 @@
 package com.advanceautoparts.bluefletch
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import com.okta.authfoundation.AuthFoundationDefaults
 import com.okta.authfoundation.claims.*
 import com.okta.authfoundation.client.OidcClient
@@ -56,40 +58,12 @@ data class InternalLauncherSessionExtendedAttributes(
     val tokenExpirationTime: String,
 )
 
-class OktaNativeSSOLogin(private val activity: Activity) {
-    companion object {
-        private suspend fun defaultCredential() = CredentialBootstrap.defaultCredential()
-
-        suspend fun isAuthenticated() = defaultCredential().token != null
-        suspend fun session(location: String?): InternalLauncherSession? {
-            val credential = defaultCredential()
-            val token = credential.token ?: return null
-            val idToken = credential.idToken() ?: return null
-
-            return InternalLauncherSession(
-                userId = idToken.email?.replace(Regex("@.*"), "")!!,
-                userName = idToken.name,
-                location = location,
-                extension = "",
-                groups = "DGG_Okta_OneRailNonProd_GM",
-                role = "",
-                teamId = "1234",
-                extendedAttributes = Json.encodeToString(InternalLauncherSessionExtendedAttributes(
-                    idToken = token.idToken!!,
-                    accessToken = token.accessToken,
-                    refreshToken = token.refreshToken!!,
-                    deviceSecret = token.deviceSecret!!,
-                    tokenExpirationTime = idToken.expirationTime.toString()
-                ))
-            )
-        }
-    }
-
+class OktaNativeSSOLogin(appContext: Context) {
     private val oidcClient: OidcClient
     private val webClient: WebAuthenticationClient
 
     init {
-        AuthFoundationDefaults.cache = SharedPreferencesCache.create(activity.applicationContext)
+        AuthFoundationDefaults.cache = SharedPreferencesCache.create(appContext)
 
         oidcClient = OidcClient.createFromDiscoveryUrl(
             OidcConfiguration(
@@ -99,12 +73,38 @@ class OktaNativeSSOLogin(private val activity: Activity) {
             "https://advanceauto.oktapreview.com/oauth2/aus1lqs5cuniao55d0h8/.well-known/openid-configuration".toHttpUrl()
         )
 
-        CredentialBootstrap.initialize(oidcClient.createCredentialDataSource(activity.applicationContext))
+        CredentialBootstrap.initialize(oidcClient.createCredentialDataSource(appContext))
 
         webClient = CredentialBootstrap.oidcClient.createWebAuthenticationClient()
     }
 
-    suspend fun login(): Token {
+    private suspend fun defaultCredential() = CredentialBootstrap.defaultCredential()
+
+    suspend fun isAuthenticated() = defaultCredential().token != null
+    suspend fun session(location: String?): InternalLauncherSession? {
+        val credential = defaultCredential()
+        val token = credential.token ?: return null
+        val idToken = credential.idToken() ?: return null
+
+        return InternalLauncherSession(
+            userId = idToken.email?.replace(Regex("@.*"), "")!!,
+            userName = idToken.name,
+            location = location,
+            extension = "",
+            groups = "DGG_Okta_OneRailNonProd_GM",
+            role = "",
+            teamId = "1234",
+            extendedAttributes = Json.encodeToString(InternalLauncherSessionExtendedAttributes(
+                idToken = token.idToken!!,
+                accessToken = token.accessToken,
+                refreshToken = token.refreshToken!!,
+                deviceSecret = token.deviceSecret!!,
+                tokenExpirationTime = idToken.expirationTime.toString()
+            ))
+        )
+    }
+
+    suspend fun login(activity: Activity): Token {
         val token = webClient.login(activity, "com.bluefletch.launcher:/callback").getOrThrow()
 
         defaultCredential().storeToken(token)
@@ -112,7 +112,7 @@ class OktaNativeSSOLogin(private val activity: Activity) {
         return token
     }
 
-    suspend fun logout(clearBrowserLogin: Boolean) {
+    suspend fun logout(activity: Activity, clearBrowserLogin: Boolean) {
         val credential = defaultCredential()
         val idToken = credential.token?.idToken
 
