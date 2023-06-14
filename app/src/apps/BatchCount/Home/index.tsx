@@ -1,23 +1,24 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useMemo } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useLazyQuery } from '@apollo/client';
-import { Text } from '@components/Text';
-import { ManualItemLookupQuery } from 'src/__generated__/graphql';
-import { gql } from 'src/__generated__';
-import { SearchBar } from '@components/SearchBar';
-import { Header } from '@components/Header';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SearchBar } from '@components/SearchBar';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { useCallback, useMemo } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { gql } from 'src/__generated__';
 import { Colors } from '@lib/colors';
+import { Header } from '@components/Header';
+import { ManualItemLookupQuery } from 'src/__generated__/graphql';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
 
 export type LookupType = 'UPC' | 'SKU';
 
 const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query BatchCountManualItemLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -28,8 +29,8 @@ const ITEM_BY_SKU = gql(`
 // TODO: Handle this type of search inside of scan-barcode listener
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ITEM_BY_UPC = gql(`
-  query AutomaticItemLookup($upc: String!) {
-    itemByUpc(upc: $upc, storeNumber: "0363") {
+  query BatchCountAutomaticItemLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -43,6 +44,7 @@ const ITEM_BY_UPC = gql(`
 export function BatchCountHome() {
   const navigation = useNavigation<BatchCountNavigation>();
   const { batchCountItems, updateItem, addItem } = useBatchCountState();
+  const { storeNumber } = useCurrentSessionInfo();
 
   const onLookupCompleted = useCallback(
     (item: ManualItemLookupQuery) => {
@@ -89,12 +91,12 @@ export function BatchCountHome() {
     });
 
   const onSubmit = useCallback(
-    (value: string) => {
-      if (value) {
-        searchBySku({ variables: { sku: value } });
+    (sku: string) => {
+      if (sku) {
+        searchBySku({ variables: { sku, storeNumber } });
       }
     },
-    [searchBySku],
+    [searchBySku, storeNumber],
   );
 
   const header = useMemo(() => <Header title="Batch Count" />, []);

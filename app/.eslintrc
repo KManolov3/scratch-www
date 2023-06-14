@@ -36,6 +36,7 @@
     "no-nested-ternary": "error",
     "no-underscore-dangle": "error",
     "no-return-assign": "error",
+    "max-classes-per-file": ["error", 5],
     "react/destructuring-assignment": "off",
     "react/jsx-max-depth": ["error", { "max": 5 }],
     "react/jsx-props-no-spreading": "off",
@@ -61,6 +62,12 @@
       {
         "selector": "ImportDeclaration[source.value='react-native'] > ImportSpecifier[imported.name=/(Text(?!Style)(?!Props)|TextInput)/]",
         "message": "Please import 'Text' and 'TextInput 'from '@components' instead."
+      }
+    ],
+    "react-hooks/exhaustive-deps": [
+      "error",
+      {
+        "additionalHooks": "(^useAsync$|^useAuthenticatedAsync$)",
       }
     ]
   }

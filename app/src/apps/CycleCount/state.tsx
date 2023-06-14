@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { CycleCountContextQuery } from 'src/__generated__/graphql';
@@ -12,8 +13,8 @@ interface ContextValue {
 const Context = createContext<ContextValue | undefined>(undefined);
 
 const QUERY = gql(`
-  query CycleCountContext {
-    cycleCounts(storeNumber: "0363") {
+  query CycleCountContext($storeNumber: String!) {
+    cycleCounts(storeNumber: $storeNumber) {
       storeNumber
       cycleCountType
 
@@ -36,7 +37,10 @@ const QUERY = gql(`
 `);
 
 export function CycleCountStateProvider({ children }: { children: ReactNode }) {
-  const { data, loading, error } = useQuery(QUERY);
+  const { storeNumber } = useCurrentSessionInfo();
+  const { data, loading, error } = useQuery(QUERY, {
+    variables: { storeNumber },
+  });
 
   const value = useMemo(
     () => ({ cycleCounts: data?.cycleCounts, loading, error }),
