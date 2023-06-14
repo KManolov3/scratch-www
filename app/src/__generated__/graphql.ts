@@ -325,6 +325,8 @@ export type Mutation = {
   setCycleCountItems: UpdateCycleCountResult;
   submitCycleCount: SubmitCycleCountResult;
   takeOverCycleCount: TakeOverCycleCountResult;
+  testClearData?: Maybe<Scalars['Boolean']>;
+  testSetData: TestSetDataResult;
   updateCycleCount: UpdateCycleCountResult;
   updateTruckScanItem?: Maybe<TruckScanItem>;
   verifyCycleCount: VerifyCycleCountResult;
@@ -378,6 +380,11 @@ export type MutationSubmitCycleCountArgs = {
 
 export type MutationTakeOverCycleCountArgs = {
   id: Scalars['String'];
+};
+
+
+export type MutationTestSetDataArgs = {
+  input: TestDataInput;
 };
 
 
@@ -571,6 +578,48 @@ export type TeamMember = {
   __typename?: 'TeamMember';
   id: Scalars['String'];
   name: Scalars['String'];
+};
+
+export type TestBackStockSlotInput = {
+  guid?: InputMaybe<Scalars['String']>;
+  lastModified?: InputMaybe<Scalars['Date']>;
+  qty?: InputMaybe<Scalars['Int']>;
+  sectionsLotName?: InputMaybe<Scalars['String']>;
+  sectionsLotNum?: InputMaybe<Scalars['String']>;
+  slotDescription?: InputMaybe<Scalars['String']>;
+  slotId?: InputMaybe<Scalars['Int']>;
+  slotName?: InputMaybe<Scalars['String']>;
+  storeNumber?: InputMaybe<Scalars['String']>;
+};
+
+export type TestDataInput = {
+  items?: InputMaybe<Array<TestItemInput>>;
+  missingItemSkus?: InputMaybe<Array<Scalars['String']>>;
+  storeNumber: Scalars['String'];
+};
+
+export type TestItemInput = {
+  backStockSlots?: InputMaybe<Array<InputMaybe<TestBackStockSlotInput>>>;
+  mfrPartNum?: InputMaybe<Scalars['String']>;
+  onHand?: InputMaybe<Scalars['Int']>;
+  partDesc?: InputMaybe<Scalars['String']>;
+  planograms?: InputMaybe<Array<InputMaybe<TestPlanogramInput>>>;
+  retailPrice?: InputMaybe<Scalars['Float']>;
+  sku: Scalars['String'];
+  upc?: InputMaybe<Scalars['String']>;
+};
+
+export type TestPlanogramInput = {
+  description?: InputMaybe<Scalars['String']>;
+  planogramId?: InputMaybe<Scalars['String']>;
+  seqNum?: InputMaybe<Scalars['Int']>;
+};
+
+export type TestSetDataResult = {
+  __typename?: 'TestSetDataResult';
+  items?: Maybe<Array<Item>>;
+  missingItemSkus?: Maybe<Array<Scalars['String']>>;
+  storeNumber: Scalars['String'];
 };
 
 export type TruckScan = {

@@ -18,6 +18,13 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
-    "@typescript-eslint/no-floating-promises": "error"
+    "@typescript-eslint/no-floating-promises": "error",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ImportDeclaration[source.value='@apollo/client'] > ImportSpecifier[imported.name=gql]",
+        "message": "Please import 'gql' from '__generated__' instead."
+      }
+    ]
   }
 }

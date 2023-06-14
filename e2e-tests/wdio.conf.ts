@@ -48,8 +48,6 @@ export const config: WebdriverIO.Config = {
 
       newCommandTimeout: 240,
       maxInstances: 1,
-      noReset: true,
-      dontStopAppOnReset: true,
     },
   ],
 
@@ -101,7 +99,7 @@ export const config: WebdriverIO.Config = {
       )}/`,
       filename: 'report.html',
       reportTitle: 'Test Results Report',
-      browserName: 'Chrome',
+      browserName: `Android device ${process.env.DEVICE_NAME}`,
       collapseTests: true,
       collapseSuites: true,
       linkScreenshots: true,
