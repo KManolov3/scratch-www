@@ -10,19 +10,15 @@ import { Colors } from '@lib/colors';
 import { Header } from '@components/Header';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
 
-// TODO: Expand this so that it supports scanning front tags, which will provide additional info.
-// Front Tags Barcode Structure - 99{SKU}{PRICE}
-// TODO: Add option to navigate here with SKU
 export function BatchCountHome() {
   const { addItem } = useBatchCountState();
   const { storeNumber } = useCurrentSessionInfo();
-
   // TODO: use loading state to display a loading indicator
   // TODO: since there is a "search" functionality on the BatchCountConfirm
   // page as well, I wonder if I should extract this in the `state` component
   const [searchBySku, { loading: isLoadingItemBySku, error: errorBySku }] =
     useLazyQuery(ITEM_BY_SKU, {
-      onCompleted: addItem,
+      onCompleted: item => addItem(item.itemBySku ?? undefined),
     });
 
   const onSubmit = useCallback(

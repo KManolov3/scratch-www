@@ -1,4 +1,4 @@
-import { ApolloError, useMutation } from '@apollo/client';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
@@ -20,13 +20,15 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
+import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
+import { scanCodeService } from 'src/services/ScanCode';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItems;
-  addItem: (item: Item) => void;
+  addItem: (item: Item | undefined) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
@@ -44,7 +46,6 @@ export const ITEM_BY_SKU = gql(`
   }
 `);
 
-// TODO: Handle this type of search inside of scan-barcode listener
 export const ITEM_BY_UPC = gql(`
   query BatchCountItemByUpcLookup($upc: String!, $storeNumber: String!) {
     itemByUpc(upc: $upc, storeNumber: $storeNumber) {
@@ -134,10 +135,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, setBatchCountItems],
   );
 
+  // TODO: allow for different handling when scanning by UPC vs SKU
+  // (they will differ by initial quantity, for example)
   const addItem = useCallback(
-    // TODO: allow for different handling when scanning by UPC vs SKU
-    // (they will differ by initial quantity, for example)
-    (newItem: Item) => {
+    (newItem: Item | undefined) => {
       if (newItem) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const itemInState = batchCountItems[newItem.sku!];
@@ -190,13 +191,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     await submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
 
-    toastService.showInfoToast('Batch count completed', {
-      props: {
-        containerStyle: {
-          marginBottom: '10%',
-        },
-      },
-    });
+    toastService.showInfoToast('Batch count completed');
     navigation.navigate('Home');
   }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
@@ -212,6 +207,27 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     }),
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
+
+  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+    onCompleted: item => addItem(item.itemBySku ?? undefined),
+  });
+  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+    onCompleted: item => addItem(item.itemByUpc ?? undefined),
+  });
+
+  useScanListener(scan => {
+    const scanCode = scanCodeService.parse(scan);
+
+    if (scanCode.type === 'SKU') {
+      return searchBySku({
+        variables: { sku: scanCode.sku, storeNumber },
+      });
+    }
+
+    return searchByUpc({
+      variables: { upc: scanCode.upc, storeNumber },
+    });
+  });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
