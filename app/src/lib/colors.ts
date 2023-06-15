@@ -8,6 +8,8 @@ export const Colors = {
   backdropBlack: '#00000082',
   backdropVoid: '#37373740',
 
+  lightYellow: '#fffbf2',
+
   // grays
   lightGray: '#f5f5f5',
   mediumGray: '#f2f2f2',

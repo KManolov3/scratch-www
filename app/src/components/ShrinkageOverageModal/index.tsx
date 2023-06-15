@@ -3,7 +3,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { convertCurrencyToString } from '@lib/currency';
 import { Text } from '@components/Text';
-import { AttentionIcon } from '@assets/icons';
+import { BlackAttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BaseStyles } from '@lib/baseStyles';
 import { ConfirmationModal } from '@components/ConfirmationModal';
@@ -56,13 +56,19 @@ export function ShrinkageOverageModal({
     (label: string, value: number) => (
       <ItemPropertyDisplay
         label={label}
-        value={convertCurrencyToString(value)}
+        value={
+          (displayingOutageInformation ? '- ' : '') +
+          convertCurrencyToString(value)
+        }
         style={[
           styles.itemProperties,
           !displayingOutageInformation && styles.fullWidth,
         ]}
         labelStyle={styles.propertyLabel}
-        valueStyle={styles.propertyValue}
+        valueStyle={[
+          styles.propertyValue,
+          displayingOutageInformation && styles.redText,
+        ]}
       />
     ),
     [displayingOutageInformation],
@@ -71,10 +77,11 @@ export function ShrinkageOverageModal({
   return (
     <ConfirmationModal
       isVisible={isVisible}
-      Icon={AttentionIcon}
+      Icon={BlackAttentionIcon}
       title={`Shrinkage${displayingOutageInformation ? '' : ' & Overage'}`}
       onConfirm={onConfirm}
-      onCancel={onCancel}>
+      onCancel={onCancel}
+      confirmationLabel="Approve">
       <Text style={styles.informationText}>
         This {countType} will result in a change at retail of:
       </Text>
@@ -121,5 +128,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 32,
     fontWeight: FontWeight.Demi,
+  },
+  redText: {
+    color: Colors.advanceRed,
+    alignSelf: 'center',
   },
 });

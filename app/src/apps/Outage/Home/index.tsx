@@ -11,13 +11,16 @@ import { Colors } from '@lib/colors';
 import { Text } from '@components/Text';
 import { Header } from '@components/Header';
 import { FontWeight } from '@lib/font';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
+import { BackstockWarningModal } from '../components/BackstockWarningModal';
 
 const ITEM_BY_SKU_QUERY = gql(`
   query ItemLookupBySku($sku: String!, $storeNumber: String!) {
     itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
+      ...BackstockSlotFields
     },
   }
 `);
@@ -32,7 +35,7 @@ interface ErrorInformation {
 const errorInformation: Record<ErrorType, ErrorInformation> = {
   'Not Found Error': {
     title: 'No Results Found',
-    message: 'Try searching for another SKU or scanning another front tag',
+    message: 'Try searching for another SKU or scanning a barcode',
   },
 };
 
@@ -42,14 +45,18 @@ export function OutageHome() {
 
   const { storeNumber } = useCurrentSessionInfo();
 
+  const [itemWithBackstock, setItemWithBackstock] = useState<ItemDetailsInfo>();
+
   const [errorType, setErrorType] = useState<ErrorType>();
 
   const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
       if (item?.itemBySku) {
-        setErrorType(undefined);
-        addItem(item.itemBySku);
-        navigate('Item List');
+        if (item?.itemBySku.backStockSlots?.length) {
+          setItemWithBackstock(item.itemBySku);
+        } else {
+          addItemAndContinue(item.itemBySku);
+        }
       } else {
         // TODO: this error should be based on what
         // the backend has returned
@@ -63,6 +70,15 @@ export function OutageHome() {
     },
   });
 
+  const addItemAndContinue = useCallback(
+    (item: ItemDetailsInfo) => {
+      setErrorType(undefined);
+      addItem(item);
+      navigate('Item List');
+    },
+    [addItem, navigate],
+  );
+
   const onSubmit = useCallback(
     (sku: string) => {
       getItemBySku({ variables: { sku, storeNumber } });
@@ -73,29 +89,42 @@ export function OutageHome() {
   const header = useMemo(() => <Header title="Outage" />, []);
 
   return (
-    <FixedLayout style={styles.container} header={header}>
-      <SearchBar onSubmit={onSubmit} />
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={Colors.mediumVoid}
-          style={styles.loadingIndicator}
+    <>
+      <FixedLayout style={styles.container} header={header}>
+        <SearchBar onSubmit={onSubmit} />
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color={Colors.mediumVoid}
+            style={styles.loadingIndicator}
+          />
+        ) : null}
+        {!errorType && !loading ? (
+          <ScanBarcodeLabel
+            label="Scan For Outage"
+            style={styles.scanBarcode}
+          />
+        ) : null}
+        {errorType && !loading ? (
+          <View style={styles.error}>
+            <Text style={styles.errorTitle}>
+              {errorInformation[errorType].title}
+            </Text>
+            <Text style={styles.errorMessage}>
+              {errorInformation[errorType].message}
+            </Text>
+          </View>
+        ) : null}
+      </FixedLayout>
+      {itemWithBackstock ? (
+        <BackstockWarningModal
+          isVisible={true}
+          item={itemWithBackstock}
+          onConfirm={() => addItemAndContinue(itemWithBackstock)}
+          onCancel={() => setItemWithBackstock(undefined)}
         />
       ) : null}
-      {!errorType && !loading ? (
-        <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
-      ) : null}
-      {errorType && !loading ? (
-        <View style={styles.error}>
-          <Text style={styles.errorTitle}>
-            {errorInformation[errorType].title}
-          </Text>
-          <Text style={styles.errorMessage}>
-            {errorInformation[errorType].message}
-          </Text>
-        </View>
-      ) : null}
-    </FixedLayout>
+    </>
   );
 }
 
