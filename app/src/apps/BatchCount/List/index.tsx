@@ -18,7 +18,7 @@ import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from 'src/services/ToastService';
 import { BatchCountNavigation } from '../navigator';
-import { useBatchCountState } from '../state';
+import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 
 export function BatchCountList() {
@@ -105,6 +105,19 @@ export function BatchCountList() {
     [expandedSku],
   );
 
+  const onRemove = useCallback(
+    (item: BatchCountItem['item']) => {
+      removeItem(item.sku);
+      toastService.showInfoToast(
+        `${item.partDesc} removed from Batch count list`,
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+    },
+    [removeItem],
+  );
+
   useEffect(() => {
     if (Object.values(batchCountItems).length === 0) {
       navigation.navigate('Home');
@@ -124,7 +137,7 @@ export function BatchCountList() {
         isExpanded={expandedSku === item.sku}
         isBookmarked={bookmarkedItems[item.sku] ?? false}
         onBookmarkPress={() => onFlag(item.sku)}
-        onRemove={() => removeItem(item.sku)}
+        onRemove={() => onRemove(item)}
         onCardPress={() => onCardPress(item.sku)}
       />
     ),
@@ -133,7 +146,7 @@ export function BatchCountList() {
       expandedSku,
       onCardPress,
       onFlag,
-      removeItem,
+      onRemove,
       setNewQuantity,
     ],
   );

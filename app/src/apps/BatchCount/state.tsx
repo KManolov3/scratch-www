@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import 'react-native-get-random-values';
+import { toastService } from 'src/services/ToastService';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -138,6 +139,13 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     await submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
 
+    toastService.showInfoToast('Batch count completed', {
+      props: {
+        containerStyle: {
+          marginBottom: '10%',
+        },
+      },
+    });
     navigation.navigate('Home');
   }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
