@@ -27,6 +27,7 @@ import { useNavigation } from '@react-navigation/native';
 import { RadioButtonsList } from '@components/RadioButtonsList';
 import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -83,7 +84,8 @@ export function PrintFrontTagScreen({
   const { state: printerModalVisible, toggle: togglePrintModal } =
     useBooleanState();
 
-  const { defaultPrinterOption, storeNumber } = useDefaultSettings();
+  const { defaultPrinterOption } = useDefaultSettings();
+  const { storeNumber } = useCurrentSessionInfo();
 
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);

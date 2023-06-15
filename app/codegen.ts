@@ -11,7 +11,7 @@ if (!env) {
 
 const codegenConfig: CodegenConfig = {
   schema: env.API_URL,
-  documents: ['src/**/*.tsx'],
+  documents: ['src/**/*.tsx', 'src/**/*.ts'],
   config: {
     defaultScalarType: 'unknown',
     scalars: {

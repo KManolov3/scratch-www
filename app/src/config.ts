@@ -12,5 +12,14 @@ function required<K extends keyof typeof env>(name: K): string {
 }
 
 export const config = {
+  build: required('BUILD'),
+  version: required('VERSION'),
+
   apiUrl: required('API_URL'),
+  launchDarklyMobileKey: required('LAUNCH_DARKLY_MOBILE_KEY'),
+
+  okta: {
+    clientId: required('OKTA_CLIENT_ID'),
+    authServerURL: required('OKTA_AUTH_SERVER_URL'),
+  },
 };

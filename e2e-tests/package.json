@@ -7,13 +7,17 @@
     "start-all-servers": "./start-servers.sh",
     "stop-all-servers": "./stop-servers.sh",
     "e2e": "wdio run wdio.conf.ts",
+    "e2e:batch-count": "cd ./specs/batch-count && ../../run-e2e.sh BatchCountActivity",
     "e2e:cycle-count": "cd ./specs/cycle-count && ../../run-e2e.sh CycleCountActivity",
     "e2e:item-lookup": "cd ./specs/item-lookup && ../../run-e2e.sh ItemLookupActivity",
     "e2e:truck-detail-scan": "cd ./specs/truck-detail-scan && ../../run-e2e.sh TruckDetailScanActivity",
     "e2e:multiple-apps": "./run-e2e-multiple-apps.sh",
-    "eslint": "eslint ."
+    "eslint": "eslint .",
+    "graphql:codegen": "graphql-codegen",
+    "graphql:watch": "graphql-codegen -w"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.14",
     "@types/fs-extra": "^11.0.1",
     "@types/lodash-es": "^4.17.7",
     "@types/randomstring": "^1.1.8",
@@ -26,10 +30,11 @@
     "randomstring": "^1.2.3",
     "ttab": "^0.8.0",
     "wdio-html-nice-reporter": "^8.1.0",
-    "webdriverio": "^8.8.0",
-    "wttab": "^1.2.2"
+    "webdriverio": "^8.8.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^3.3.1",
+    "@graphql-codegen/client-preset": "^3.0.1",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.11",
@@ -41,6 +46,7 @@
     "@wdio/selenium-standalone-service": "^8.8.0",
     "@wdio/spec-reporter": "^8.8.0",
     "@wdio/types": "^8.8.0",
+    "dotenv": "^16.0.3",
     "eslint": "^8.39.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",

@@ -7,10 +7,11 @@ import { Text } from '@components/Text';
 import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -27,10 +28,12 @@ export function ItemLookupHome({ onSubmit }: ItemLookupHomeProps) {
   const [searchBySku, { loading: isLoadingItemBySku, error: errorBySku }] =
     useLazyQuery(ITEM_BY_SKU);
 
+  const { storeNumber } = useCurrentSessionInfo();
+
   const submit = useCallback(
     (value: string) => {
       return searchBySku({
-        variables: { sku: value },
+        variables: { sku: value, storeNumber },
         onCompleted: item => {
           onSubmit?.();
           if (item.itemBySku) {
@@ -41,7 +44,7 @@ export function ItemLookupHome({ onSubmit }: ItemLookupHomeProps) {
         },
       });
     },
-    [navigation, onSubmit, searchBySku],
+    [navigation, onSubmit, searchBySku, storeNumber],
   );
 
   if (errorBySku) {

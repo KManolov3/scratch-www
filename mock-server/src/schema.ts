@@ -1,17 +1,19 @@
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker';
 import {
   IMocks,
   MockList,
   addMocksToSchema,
   createMockStore,
-} from "@graphql-tools/mock";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { readFile } from "fs/promises";
+} from '@graphql-tools/mock';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { readFile } from 'fs/promises';
+import { TestItemInput } from '../../e2e-tests/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
   typeDefs: await Promise.all([
-    readFile("schema/base-schema.graphql", "utf-8"),
-    readFile("schema/cycle-count-extensions.graphql", "utf-8"),
+    readFile('schema/base-schema.graphql', 'utf-8'),
+    readFile('schema/cycle-count-extensions.graphql', 'utf-8'),
+    readFile('schema/test-only-schema.graphql', 'utf-8'),
   ]),
 });
 
@@ -72,10 +74,10 @@ const mocks: IMocks = {
     description: () => faker.commerce.productDescription(),
     seqNum: faker.datatype.number(),
   },
-  
+
   BackStockSlot: {
     slotId: () => faker.datatype.number({ min: 0, max: 99999999 }),
-    qty: quantityFaker, 
+    qty: quantityFaker,
   },
 
   Pog: {
@@ -92,23 +94,72 @@ const store = createMockStore({
   mocks,
   schema: innerSchema,
   typePolicies: {
-    BackStockSlot: { keyFieldName: "guid" },
-    CycleCount: { keyFieldName: "cycleCountId" },
-    Item: { keyFieldName: "sku" },
-    Planogram: { keyFieldName: "planogramId" },
-    Pog: { keyFieldName: "pogId" },
-    NewCycleCount: { keyFieldName: "id" },
-    TruckScan: { keyFieldName: "asnReferenceNumber" },
-    TruckScanItem: { keyFieldName: "sku" },
+    BackStockSlot: { keyFieldName: 'guid' },
+    CycleCount: { keyFieldName: 'cycleCountId' },
+    Planogram: { keyFieldName: 'planogramId' },
+    Pog: { keyFieldName: 'pogId' },
+    NewCycleCount: { keyFieldName: 'id' },
+    TruckScan: { keyFieldName: 'asnReferenceNumber' },
+    TruckScanItem: { keyFieldName: 'sku' },
   },
 });
 
-export const schema = addMocksToSchema({ schema: innerSchema, store });
+export const schema = addMocksToSchema({
+  schema: innerSchema,
+  store,
+  // eslint-disable-next-line no-shadow, arrow-parens
+  resolvers: store => ({
+    Mutation: {
+      testSetData(_, { input }) {
+        const items = input.items.map((item: TestItemInput) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: { sku: item.sku, storeNumber: input.storeNumber },
+            value: {
+              mfrPartNum: item.mfrPartNum,
+              partDesc: item.partDesc,
+              sku: item.sku,
+              upc: item.upc,
+              retailPrice: item.retailPrice,
+              onHand: item.onHand,
+              planograms: item.planograms,
+              backStockSlots: item.backStockSlots,
+            },
+          });
+
+          return item;
+        });
+
+        input.missingItemSkus.forEach((itemSku: string) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: {
+              sku: itemSku,
+              storeNumber: input.storeNumber,
+            },
+            value: null,
+          });
+        });
+
+        return { items, missingItemSkus: input.missingItemSkus };
+      },
+
+      testClearData() {
+        store.reset();
+        return true;
+      },
+    },
+  }),
+});
 
 function toDateISOString(date: Date) {
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
