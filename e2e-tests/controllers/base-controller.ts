@@ -22,6 +22,18 @@ export class BaseController {
     };
   }
 
+  async verticalScroll(
+    coordinateX: number,
+    coordinateY: number,
+    distance: number
+  ) {
+    await driver.touchAction([
+      { action: 'longPress', x: coordinateX, y: coordinateY },
+      { action: 'moveTo', x: coordinateX, y: coordinateY - distance },
+      'release',
+    ]);
+  }
+
   async searchForSku(product: TestItemInput) {
     await waitFor(this.commonPages.homePage.searchForSkuInput, 5000);
     await (await $(this.commonPages.homePage.searchForSkuInput)).clearValue();
@@ -57,6 +69,16 @@ export class BaseController {
 
     if (product.planograms) {
       for (const [index, planogram] of product.planograms.entries()) {
+        const planogramLocX = await $(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId
+        ).getLocation('x');
+
+        const planogramLocY = await $(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId
+        ).getLocation('y');
+
         await expectElementText(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
             .locationId,
@@ -68,6 +90,8 @@ export class BaseController {
             .seqNumber,
           `${planogram.seqNum}`
         );
+
+        await this.verticalScroll(planogramLocX, planogramLocY, 150);
       }
     }
 
@@ -84,6 +108,16 @@ export class BaseController {
 
     if (product.backStockSlots) {
       for (const [index, slot] of product.backStockSlots.entries()) {
+        const backstockSlotLocX = await $(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId
+        ).getLocation('x');
+
+        const backstockSlotLocY = await $(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId
+        ).getLocation('y');
+
         await expectElementText(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId,
@@ -95,6 +129,8 @@ export class BaseController {
             .quantity,
           `${slot.qty}`
         );
+
+        await this.verticalScroll(backstockSlotLocX, backstockSlotLocY, 150);
       }
     }
   }
