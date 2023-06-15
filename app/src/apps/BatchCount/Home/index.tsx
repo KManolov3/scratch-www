@@ -71,10 +71,7 @@ export function BatchCountHome() {
             },
           });
         }
-        navigation.navigate('ItemDetails', {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          selectedItemSku: item.itemBySku.sku!,
-        });
+        navigation.navigate('List');
       }
     },
     [addItem, batchCountItems, navigation, updateItem],
@@ -116,7 +113,10 @@ export function BatchCountHome() {
   return (
     <FixedLayout style={styles.container} header={header}>
       <SearchBar onSubmit={onSubmit} />
-      <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
+      <ScanBarcodeLabel
+        label="Scan to Start Batch Count"
+        style={styles.scanBarcode}
+      />
     </FixedLayout>
   );
 }

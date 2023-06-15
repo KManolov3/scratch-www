@@ -35,7 +35,7 @@ interface ContextValue {
 export interface BatchCountItem {
   item: Item & { sku: NonNullable<Item['sku']> };
   newQty: number;
-  isFlagged?: boolean;
+  isBookmarked?: boolean;
 }
 
 type BatchCountItems = Record<BatchCountItem['item']['sku'], BatchCountItem>;

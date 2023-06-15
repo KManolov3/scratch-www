@@ -2,6 +2,8 @@ export { default as AttentionIcon } from './attention.svg';
 export { default as BlackAttentionIcon } from './black-attention.svg';
 export { default as BackArrowIcon } from './back-arrow.svg';
 export { default as BarcodeIcon } from './barcode.svg';
+export { default as BookmarkBlack } from './bookmark-black.svg';
+export { default as BookmarkWhite } from './bookmark-white.svg';
 export { default as CloseCircleIcon } from './close-circle.svg';
 export { default as CrossIcon } from './cross.svg';
 export { default as FullFlagIcon } from './full-flag.svg';

@@ -32,7 +32,7 @@ export function HelpRequest({
   );
 
   return (
-    <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
+    <FixedLayout style={{ backgroundColor: Colors.lightGray }}>
       <LightHeader onPress={onBackPress} label="Help Request" />
       {/* TODO: the designs here are not clear so leaving it like this for now */}
       <TextInput

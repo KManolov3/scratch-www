@@ -72,7 +72,7 @@ export function SelectPrinters({
 
   return (
     <>
-      <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
+      <FixedLayout style={{ backgroundColor: Colors.lightGray }}>
         <LightHeader label="Printers" onPress={onBackPress} />
         <Container style={styles.radioButtons}>
           <View>{printerValues}</View>

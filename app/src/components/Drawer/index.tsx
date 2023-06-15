@@ -148,7 +148,7 @@ export function Drawer({
   );
 
   return (
-    <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
+    <FixedLayout style={{ backgroundColor: Colors.lightGray }}>
       <SectionList
         sections={sections}
         renderSectionHeader={renderSectionHeader}

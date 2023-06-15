@@ -8,6 +8,7 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
+  // TODO: remove quantity adjustment from here and below
   quantityAdjustment?: {
     quantity: number;
     setNewQuantity: (newQty: number) => void;
@@ -31,7 +32,10 @@ export function ItemDetails({
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
         itemStyle={styles.detailsItem}
       />
-      <Locations locationDetails={itemDetails} />
+      <Locations
+        locationDetails={itemDetails}
+        containerStyle={styles.locations}
+      />
     </View>
   );
 }
@@ -46,5 +50,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     paddingHorizontal: 12,
+  },
+  locations: {
+    margin: 13,
   },
 });

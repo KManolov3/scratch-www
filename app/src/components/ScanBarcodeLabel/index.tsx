@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     lineHeight: 32,
+    letterSpacing: -0.72,
     fontWeight: FontWeight.Demi,
     marginBottom: 20,
   },

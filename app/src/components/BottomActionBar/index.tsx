@@ -1,6 +1,7 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 import {
   StyleProp,
@@ -59,6 +60,8 @@ const styles = StyleSheet.create({
 
     shadowOffset: { width: 0, height: -2 },
     elevation: 1,
+
+    backgroundColor: Colors.pure,
   },
   actionsContainer: { justifyContent: 'space-evenly' },
   actionStyle: {

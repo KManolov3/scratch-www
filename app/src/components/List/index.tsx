@@ -39,7 +39,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
         {itemInfo.map(({ label }) => (
-          <Text key={label} style={styles.text}>
+          <Text key={label} style={styles.headerText}>
             {label}
           </Text>
         ))}
@@ -54,7 +54,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
   );
 }
 
-const horizonalOffset = 20;
+const horizonalOffset = 0;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: horizonalOffset,
@@ -72,8 +72,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontWeight: FontWeight.Demi,
   },
+  headerText: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: FontWeight.Demi,
+  },
   text: {
     fontSize: 16,
+    lineHeight: 19,
   },
   separator: {
     backgroundColor: Colors.grayer,

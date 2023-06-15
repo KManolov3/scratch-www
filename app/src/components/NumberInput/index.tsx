@@ -1,13 +1,20 @@
 import { useCallback, useMemo } from 'react';
 import { TextInput, TextInputRef } from '@components/TextInput';
-import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
+  ColorValue,
+  View,
+} from 'react-native';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
-import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
 
 export interface NumberInputProps {
   placeholder: string | number;
+  placeholderTextColor?: ColorValue;
   value: number;
   setValue: (newValue: number) => void;
   accessibilityLabel?: string;
@@ -21,6 +28,7 @@ export interface NumberInputProps {
 
 export function NumberInput({
   placeholder,
+  placeholderTextColor,
   accessibilityLabel,
   containerStyle,
   inputStyle,
@@ -48,11 +56,11 @@ export function NumberInput({
     [placeholder],
   );
   return (
-    <Container style={containerStyle}>
+    <View style={[styles.container, containerStyle]}>
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholderToVisualise}
-        placeholderTextColor={Colors.lightVoid}
+        placeholderTextColor={placeholderTextColor ?? Colors.lightVoid}
         accessibilityLabel={accessibilityLabel}
         value={value.toString()}
         onChangeText={onChangeText}
@@ -62,21 +70,21 @@ export function NumberInput({
         keyboardType="number-pad"
         ref={inputRef}
       />
-    </Container>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  input: {
+  container: {
     height: 48,
     marginVertical: 8,
-
-    textAlign: 'center',
 
     borderWidth: 1,
     borderRadius: 8,
     borderColor: Colors.gray,
-
+    flex: 1,
+  },
+  input: {
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Medium,
     fontSize: 16,
