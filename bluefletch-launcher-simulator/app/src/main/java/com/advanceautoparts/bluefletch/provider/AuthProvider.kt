@@ -28,6 +28,8 @@ class AuthProvider: ContentProvider() {
     var locationId: String = "501"
 
     override fun onCreate(): Boolean {
+        MainApplication.current.okta = OktaNativeSSOLogin(context!!.applicationContext)
+
         // Intentionally blank
         return true
     }
