@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { generate } from 'randomstring';
 
 const WAIT_FOR_TIMEOUT = 3000;
+export const Enter = '66';
 
 export function generateRandomString(
   length = 12,
@@ -21,7 +22,7 @@ export async function waitFor(
   selector: string,
   timeout = WAIT_FOR_TIMEOUT
 ): Promise<WebdriverIO.Element> {
-  console.log(`Waiting for Element: ${selector}`);
+  console.log(`Waiting for element: ${selector}`);
   const element = await $(selector);
   await element.waitForDisplayed({ timeout });
   console.log('Wait for element success');
@@ -54,20 +55,9 @@ export async function setValue(selector: string, value: string | number) {
   console.log(`Value ${value} is set to ${selector}`);
 }
 
-export async function clearAndSetValue(
-  selector: string,
-  value: string | number
-) {
-  await clearValue(selector);
-  const element = await $(selector);
-  await element.setValue(value);
-  console.log(`Value ${value} is set to ${selector}`);
-}
-
 export async function clearValue(selector: string) {
-  console.log(`Clearing value of ${selector}`);
-  // Select all, delete
-  await (await $(selector)).keys(['Control', 'a', 'Backspace']);
+  console.log(`Clearing value of element ${selector}`);
+  await $(selector).clearValue();
 }
 
 export async function expectElementValue(selector: string, expected: string) {
@@ -75,19 +65,20 @@ export async function expectElementValue(selector: string, expected: string) {
   const displayed = await $(selector).getValue();
   expect(
     expected === displayed,
-    `Displayed value ${displayed} does not match expected ${expected}`
+    `Element ${selector} has value ${displayed} instead of expected ${expected}`
   );
 }
 
-export async function expectElementText(selector: string, expected: string) {
-  await browser.waitUntil(
-    async () => {
-      const displayed = await $(selector).getText();
-      return displayed === expected;
-    },
-    {
-      timeout: 3000,
-      timeoutMsg: `Displayed text does not match expected ${expected}`,
-    }
+export async function expectElementText(
+  selector: string,
+  expected: string,
+  timeout = WAIT_FOR_TIMEOUT
+) {
+  await waitFor(selector, timeout);
+  const displayed = await $(selector).getText();
+  console.log(`Expecting element ${selector} to have text ${expected}`);
+  assert(
+    displayed === expected,
+    `Element ${selector} has text ${displayed} instead of expected ${expected}`
   );
 }

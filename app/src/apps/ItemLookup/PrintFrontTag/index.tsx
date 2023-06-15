@@ -9,8 +9,10 @@ import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { Text } from '@components/Text';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import {
+  BackArrowIcon,
   EmptySquareCheckBox,
   PrinterIcon,
+  SearchIcon,
   SquareCheckBox,
 } from '@assets/icons';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
@@ -23,9 +25,13 @@ import { indexOfEnumValue } from '@lib/array';
 import { toastService } from 'src/services/ToastService';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButtonsList } from '@components/RadioButtonsList';
+import { Header } from '@components/Header';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
+import { ItemLookupHome } from '../components/Home';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -78,7 +84,8 @@ export function PrintFrontTagScreen({
   const { state: printerModalVisible, toggle: togglePrintModal } =
     useBooleanState();
 
-  const { defaultPrinterOption, storeNumber } = useDefaultSettings();
+  const { defaultPrinterOption } = useDefaultSettings();
+  const { storeNumber } = useCurrentSessionInfo();
 
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
@@ -228,8 +235,24 @@ export function PrintFrontTagScreen({
     [itemDetails.planograms, map, update],
   );
 
+  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+
+  const header = useMemo(
+    () => (
+      <Header
+        title="Item Lookup"
+        item={itemDetails}
+        rightIcon={<SearchIcon />}
+        onClickRight={enable}
+        leftIcon={<BackArrowIcon />}
+        onClickLeft={goBack}
+      />
+    ),
+    [enable, goBack, itemDetails],
+  );
+
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>
@@ -281,6 +304,10 @@ export function PrintFrontTagScreen({
         onConfirm={sendTagsForPrinting}
         quantity={frontTagsForPrintingQty}
       />
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+        <ItemLookupHome onSubmit={disable} />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }

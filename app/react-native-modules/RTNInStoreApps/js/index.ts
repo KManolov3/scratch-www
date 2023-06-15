@@ -10,6 +10,7 @@ export const InStoreAppsNative = NativeModule as NonNullable<
   typeof NativeModule
 >;
 export * from './NativeInStoreApps';
+export * from './ScanInfo';
 
 interface Events {
   scan: ScanInfo;

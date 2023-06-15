@@ -2,15 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { ItemDetails } from '@components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FontWeight } from '@lib/font';
-import { Colors } from '@lib/colors';
-import { FixedLayout } from '@layouts/FixedLayout';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { useNavigation } from '@react-navigation/native';
+import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { SearchIcon } from '@assets/icons';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useNavigation } from '@react-navigation/native';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
+import { ItemLookupHome } from '../components/Home';
 
 export function ItemLookupScreen({
   route: {
@@ -65,9 +69,22 @@ export function ItemLookupScreen({
     ],
     [itemDetails, navigate],
   );
+  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+
+  const header = useMemo(
+    () => (
+      <Header
+        title="Item Lookup"
+        item={itemDetails}
+        rightIcon={<SearchIcon />}
+        onClickRight={enable}
+      />
+    ),
+    [enable, itemDetails],
+  );
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
@@ -89,6 +106,10 @@ export function ItemLookupScreen({
           onConfirm={onPriceDiscrepancyConfirm}
         />
       )}
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+        <ItemLookupHome onSubmit={disable} />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }

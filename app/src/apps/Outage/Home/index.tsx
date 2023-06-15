@@ -1,22 +1,24 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { SearchBar } from '@components/SearchBar';
 import { useLazyQuery } from '@apollo/client';
-import { gql } from 'src/__generated__';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SearchBar } from '@components/SearchBar';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useCallback, useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 import { Text } from '@components/Text';
+import { Header } from '@components/Header';
 import { FontWeight } from '@lib/font';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
-import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
+import { OutageNavigation } from '../navigator';
 import { BackstockWarningModal } from '../components/BackstockWarningModal';
 
 const ITEM_BY_SKU_QUERY = gql(`
-  query ItemLookupBySku($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ItemLookupBySku($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...BackstockSlotFields
     },
@@ -40,6 +42,8 @@ const errorInformation: Record<ErrorType, ErrorInformation> = {
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
   const { addItem } = useOutageState();
+
+  const { storeNumber } = useCurrentSessionInfo();
 
   const [itemWithBackstock, setItemWithBackstock] = useState<ItemDetailsInfo>();
 
@@ -77,14 +81,16 @@ export function OutageHome() {
 
   const onSubmit = useCallback(
     (sku: string) => {
-      getItemBySku({ variables: { sku } });
+      getItemBySku({ variables: { sku, storeNumber } });
     },
-    [getItemBySku],
+    [getItemBySku, storeNumber],
   );
+
+  const header = useMemo(() => <Header title="Outage" />, []);
 
   return (
     <>
-      <FixedLayout style={styles.container}>
+      <FixedLayout style={styles.container} header={header}>
         <SearchBar onSubmit={onSubmit} />
         {loading ? (
           <ActivityIndicator
