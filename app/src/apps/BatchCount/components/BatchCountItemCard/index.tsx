@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -13,9 +12,25 @@ import { Text } from '@components/Text';
 import _ from 'lodash-es';
 import { BookmarkBlack, BookmarkWhite, CrossIcon } from '@assets/icons';
 import { FontWeight } from '@lib/font';
+import { DocumentType, gql } from 'src/__generated__';
+
+const ITEM_INFO_FIELDS = gql(`
+  fragment ItemInfoFields on Item {
+    mfrPartNum
+    sku
+    retailPrice
+    onHand
+    partDesc
+    backStockSlots {
+      qty
+    }
+  }
+`);
+
+type ItemInfo = NonNullable<DocumentType<typeof ITEM_INFO_FIELDS>>;
 
 interface BatchCountItemCardProps {
-  item: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
+  item: ItemInfo & PlanogramsInfo & BackstockSlotsInfo;
   newQuantity: number;
   setNewQuantity: (quantity: number) => void;
   isExpanded: boolean;

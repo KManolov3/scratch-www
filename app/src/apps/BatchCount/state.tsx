@@ -26,13 +26,34 @@ import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItems;
-  addItem: (item: BatchCountItem) => void;
+  addItem: (item: Item) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
   submitLoading?: boolean;
   submitError?: ApolloError;
 }
+
+export const ITEM_BY_SKU = gql(`
+  query BatchCountItemBySkuLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+// TODO: Handle this type of search inside of scan-barcode listener
+export const ITEM_BY_UPC = gql(`
+  query BatchCountItemByUpcLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
 
 export interface BatchCountItem {
   item: Item & { sku: NonNullable<Item['sku']> };
@@ -95,15 +116,6 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
 
   const { storeNumber } = useCurrentSessionInfo();
 
-  const addItem = useCallback(
-    (newItem: BatchCountItem) =>
-      setBatchCountItems({
-        ...batchCountItems,
-        [newItem.item.sku]: newItem,
-      }),
-    [batchCountItems, setBatchCountItems],
-  );
-
   const updateItem = useCallback(
     (sku: string, updatedItem: Partial<BatchCountItem>) => {
       const itemInState = batchCountItems[sku];
@@ -120,6 +132,45 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       });
     },
     [batchCountItems, setBatchCountItems],
+  );
+
+  const addItem = useCallback(
+    // TODO: allow for different handling when scanning by UPC vs SKU
+    // (they will differ by initial quantity, for example)
+    (newItem: Item) => {
+      if (newItem) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const itemInState = batchCountItems[newItem.sku!];
+
+        if (!itemInState) {
+          setBatchCountItems({
+            ...batchCountItems,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            [newItem.sku!]: {
+              item: {
+                ...newItem,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                sku: newItem.sku!,
+              },
+              newQty: 1,
+            },
+          });
+        } else {
+          // Updating with the retrieved information even if the item already exists in the state
+          // in case something changed (for example, the price) on the backend.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          updateItem(newItem.sku!, {
+            item: {
+              ...newItem,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: newItem.sku!,
+            },
+          });
+        }
+        navigation.navigate('List');
+      }
+    },
+    [batchCountItems, navigation, updateItem],
   );
 
   const removeItem = useCallback(
