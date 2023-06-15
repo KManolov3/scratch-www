@@ -9,8 +9,10 @@ import { ItemPropertyInput } from '@components/ItemPropertyInput';
 import { BaseStyles } from '@lib/baseStyles';
 import { convertCurrencyToString } from '@lib/currency';
 import { Locations } from '@components/Locations';
+import { Text } from '@components/Text';
 import _ from 'lodash-es';
-import { BookmarkBlack, BookmarkWhite } from '@assets/icons';
+import { BookmarkBlack, BookmarkWhite, CrossIcon } from '@assets/icons';
+import { FontWeight } from '@lib/font';
 
 interface BatchCountItemCardProps {
   item: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
@@ -160,6 +162,12 @@ export function BatchCountItemCard({
               />
             </View>
             <Locations locationDetails={item} />
+            {/* TODO: Should we add an explicit separator? In most cases the Locations table will be enough,
+              but it might look strange if there are no locations */}
+            <Pressable onPress={onRemove} style={styles.removeItem}>
+              <CrossIcon />
+              <Text style={styles.removeItemText}>Remove Item</Text>
+            </Pressable>
           </View>
         )}
       </Pressable>
@@ -222,5 +230,18 @@ const styles = StyleSheet.create({
   },
   bottomMargin: {
     marginBottom: 12,
+  },
+  removeItem: {
+    marginLeft: 10,
+    gap: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeItemText: {
+    fontSize: 14,
+    lineHeight: 40,
+    color: Colors.advanceBlack,
+    fontWeight: FontWeight.Bold,
   },
 });

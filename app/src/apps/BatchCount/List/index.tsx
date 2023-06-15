@@ -105,6 +105,12 @@ export function BatchCountList() {
     [expandedSku],
   );
 
+  useEffect(() => {
+    if (Object.values(batchCountItems).length === 0) {
+      navigation.navigate('Home');
+    }
+  }, [batchCountItems, navigation]);
+
   const renderItem = useCallback<
     ListRenderItem<(typeof batchCountItemsSorted)[number]>
   >(

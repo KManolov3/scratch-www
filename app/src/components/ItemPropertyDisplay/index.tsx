@@ -35,7 +35,7 @@ export function ItemPropertyDisplay({
           {value}
         </Text>
       </View>
-      <View style={styles.icon}>{icon}</View>
+      {icon && <View style={styles.icon}>{icon}</View>}
     </View>
   );
 }
