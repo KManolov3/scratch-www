@@ -1,7 +1,7 @@
 import { Text } from '@components/Text';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
-import { ReactNode, createContext, useContext, useEffect } from 'react';
+import { ReactNode, createContext, useContext } from 'react';
 import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 
 export interface SessionInfo {

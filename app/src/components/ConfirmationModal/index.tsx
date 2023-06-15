@@ -21,14 +21,12 @@ export interface ConfirmationModalProps {
   cancellationLabel?: string;
   onCancel: () => void;
   children?: ReactNode;
-  iconStyles?: StyleProp<ViewStyle>;
   buttonsStyle?: StyleProp<ViewStyle>;
 }
 
 export function ConfirmationModal({
   isVisible,
   Icon,
-  iconStyles,
   title,
   cancellationLabel = 'Cancel',
   onCancel,
