@@ -201,7 +201,7 @@ export function LaunchDarklyProvider({
   const loading = configuring || loadingFlags;
   const contextValue = useMemo(() => ({ flags, loading }), [flags, loading]);
 
-  useAppStateChange(['background'], () => {
+  useAppStateChange('background', () => {
     launchDarkly.get().then(
       _ => _.flush(),
 

@@ -116,12 +116,12 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
     }
 
     override fun navigateTo(appName: String) {
-        this.reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
+        reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)
 
             component = ComponentName(
                 "com.advanceautoparts.instoreapps",
-                "com.advanceautoparts.instoreapps.activities." + appName
+                "com.advanceautoparts.instoreapps.activities.$appName"
             )
             flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
