@@ -233,11 +233,10 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   inputStyle: {
-    marginTop: 7,
-    marginBottom: 8,
-    marginHorizontal: 4,
-    padding: 0,
+    paddingVertical: 8,
+    paddingHorizontal: 5,
     textAlign: 'left',
+    flex: 1,
   },
   row: {
     justifyContent: 'space-between',
