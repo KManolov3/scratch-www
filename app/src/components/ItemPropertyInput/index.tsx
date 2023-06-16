@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     color: Colors.advanceBlack,
   },
   input: {
+    borderWidth: 0,
     fontSize: 20,
     lineHeight: 28,
     fontWeight: FontWeight.Bold,
