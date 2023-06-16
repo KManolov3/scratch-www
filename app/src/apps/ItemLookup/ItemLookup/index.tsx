@@ -25,7 +25,7 @@ export function ItemLookupScreen({
 }: ItemLookupScreenProps<'ItemLookup'>) {
   const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  const [hasPriceDiscrepancy, setPriceDiscrepancy] = useState(
+  const [hasPriceDiscrepancy, setHasPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
 
@@ -37,25 +37,19 @@ export function ItemLookupScreen({
   } = useBooleanState(hasPriceDiscrepancy);
 
   useEffect(() => {
-    if (hasPriceDiscrepancy) {
+    const priceDiscrepancy =
+      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
+    setHasPriceDiscrepancy(priceDiscrepancy);
+
+    if (priceDiscrepancy) {
       showPriceDiscrepancyModal();
+
       soundService
         .playSound('error')
         // eslint-disable-next-line no-console
         .catch(soundError => console.log('Error playing sound.', soundError));
     }
-  }, [
-    hasPriceDiscrepancy,
-    showPriceDiscrepancyModal,
-    frontTagPrice,
-    itemDetails?.retailPrice,
-  ]);
-
-  useEffect(() => {
-    setPriceDiscrepancy(
-      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
-    );
-  }, [frontTagPrice, itemDetails?.retailPrice]);
+  }, [frontTagPrice, itemDetails?.retailPrice, showPriceDiscrepancyModal]);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
@@ -104,7 +98,7 @@ export function ItemLookupScreen({
   });
 
   useEventBus('print-success', () => {
-    setPriceDiscrepancy(false);
+    setHasPriceDiscrepancy(false);
   });
 
   return (

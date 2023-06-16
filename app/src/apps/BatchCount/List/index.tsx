@@ -206,7 +206,7 @@ export function BatchCountList() {
     <>
       <FixedLayout header={header}>
         <FlatList
-          style={styles.list}
+          contentContainerStyle={styles.list}
           data={batchCountItemsSorted}
           renderItem={renderItem}
         />
@@ -229,7 +229,7 @@ export function BatchCountList() {
 
 const styles = StyleSheet.create({
   list: {
-    paddingTop: 16,
+    paddingVertical: 16,
   },
   bottomActionBar: {
     paddingTop: 8,
