@@ -45,7 +45,6 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
           </Text>
         ))}
       </View>
-      <Seperator />
       <FlatList
         data={data}
         renderItem={renderItem}
