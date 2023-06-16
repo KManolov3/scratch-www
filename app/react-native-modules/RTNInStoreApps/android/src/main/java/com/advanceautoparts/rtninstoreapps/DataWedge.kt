@@ -86,7 +86,7 @@ class DataWedge(
 
         putExtra("com.symbol.datawedge.api.SET_CONFIG", Bundle().apply {
             putString("PROFILE_NAME", appConfig.dataWedgeProfileName)
-            putString("CONFIG_MODE", "OVERWRITE")
+            putString("CONFIG_MODE", "CREATE_IF_NOT_EXIST")
             putString("PROFILE_ENABLED", "true")
 
             putParcelableArray("APP_LIST", arrayOf(
@@ -96,9 +96,10 @@ class DataWedge(
                 }
             ))
 
-            putParcelableArray("PLUGIN_CONFIG", arrayOf(
+            putParcelableArrayList("PLUGIN_CONFIG", arrayListOf(
                 Bundle().apply {
                     putString("PLUGIN_NAME", "BARCODE")
+                    putString("RESET_CONFIG", "true")
                     putBundle("PARAM_LIST", Bundle().apply {
                         putString("scanner_selection", "auto")
                     })
@@ -106,11 +107,20 @@ class DataWedge(
 
                 Bundle().apply {
                     putString("PLUGIN_NAME", "INTENT")
+                    putString("RESET_CONFIG", "true")
                     putBundle("PARAM_LIST", Bundle().apply {
                         putString("intent_output_enabled", "true")
                         putString("intent_action", intentConfig.action)
                         putString("intent_category", intentConfig.category)
-                        putString("intent_action", "0") // 0 is "Start Activity"
+                        putString("intent_delivery", "0") // 0 is "Start Activity"
+                    })
+                },
+
+                Bundle().apply {
+                    putString("PLUGIN_NAME", "KEYSTROKE")
+                    putString("RESET_CONFIG", "true")
+                    putBundle("PARAM_LIST", Bundle().apply {
+                        putString("keystroke_output_enabled", "false")
                     })
                 }
             ))

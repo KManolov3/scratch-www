@@ -13,6 +13,7 @@ const frontTagRegex = /^99(\w+)(\d{5})$/;
 class ScanCode {
   parse({ code }: ScanInfo): ScannedCode {
     const frontTag = code.match(frontTagRegex);
+
     if (frontTag && frontTag[1] && frontTag[2]) {
       return {
         type: 'SKU',
@@ -20,6 +21,7 @@ class ScanCode {
         frontTagPrice: parseInt(frontTag[2], 10) / 100,
       };
     }
+
     return { type: 'UPC', upc: code };
   }
 }
