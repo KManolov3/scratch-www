@@ -94,6 +94,7 @@ export function ItemLookupScreen({
   });
 
   useFocusEventBus('search-success', () => {
+    hidePriceDiscrepancyModal();
     hideSearchTray();
   });
 

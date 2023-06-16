@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: FontWeight.Bold,
-    marginBottom: 12,
   },
   icon: { margin: 4 },
   row: {
