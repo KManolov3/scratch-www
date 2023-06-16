@@ -51,10 +51,11 @@ const styles = StyleSheet.create({
   detailsItem: {
     ...BaseStyles.shadow,
     borderRadius: 8,
-    padding: 8,
-    paddingHorizontal: 12,
+    padding: 6,
+    paddingHorizontal: 15,
   },
   locations: {
-    margin: 13,
+    marginHorizontal: 12,
+    marginTop: 16,
   },
 });

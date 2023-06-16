@@ -25,6 +25,7 @@ export function Locations({ locationDetails, containerStyle }: LocationsProps) {
         values={locationTypes}
         selected={selectedValue}
         setSelected={setSelectedValue}
+        buttonStyle={styles.buttonStyle}
         textStyle={styles.tabSelectorText}
       />
       <View style={styles.locationContainer}>
@@ -47,6 +48,9 @@ const styles = StyleSheet.create({
   },
   locationContainer: {
     flex: 1,
+  },
+  buttonStyle: {
+    minHeight: 40,
   },
   tabSelectorText: {
     fontSize: 14,

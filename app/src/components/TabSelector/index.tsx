@@ -12,6 +12,7 @@ export interface TabSelectorProps<T extends DefinableStringArray> {
   selected: T[number];
   setSelected: (value: T[number]) => void;
   style?: StyleProp<ViewStyle>;
+  buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
 
@@ -20,6 +21,7 @@ export function TabSelector<T extends DefinableStringArray>({
   selected,
   setSelected,
   style,
+  buttonStyle,
   textStyle,
 }: TabSelectorProps<T>) {
   const tabs = useMemo(() => {
@@ -27,7 +29,11 @@ export function TabSelector<T extends DefinableStringArray>({
       <BlockButton
         label={value}
         onPress={() => setSelected(value)}
-        style={[styles.pressable, value === selected ? styles.selectedTab : {}]}
+        style={[
+          styles.pressable,
+          value === selected ? styles.selectedTab : {},
+          buttonStyle,
+        ]}
         textStyle={[
           value === selected ? { color: Colors.pure } : {},
           textStyle,
@@ -35,7 +41,7 @@ export function TabSelector<T extends DefinableStringArray>({
         key={value}
       />
     ));
-  }, [values, selected, textStyle, setSelected]);
+  }, [values, selected, buttonStyle, textStyle, setSelected]);
   return <Container style={[BaseStyles.shadow, style]}>{tabs}</Container>;
 }
 

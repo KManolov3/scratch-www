@@ -149,9 +149,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    paddingHorizontal: 8,
-    paddingTop: 16,
-    fontSize: 28,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: FontWeight.Bold,
     marginBottom: 12,
   },
