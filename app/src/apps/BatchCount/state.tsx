@@ -23,6 +23,7 @@ import {
 import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
 import { scanCodeService } from 'src/services/ScanCode';
+import { EventBus } from '@hooks/useEventBus';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -208,11 +209,25 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
+  const onError = useCallback((searchError: ApolloError) => {
+    EventBus.emit('search-error', searchError);
+  }, []);
+
+  const onCompleted = useCallback(() => EventBus.emit('search-success'), []);
+
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
-    onCompleted: item => addItem(item.itemBySku ?? undefined),
+    onCompleted: item => {
+      addItem(item.itemBySku ?? undefined);
+      onCompleted();
+    },
+    onError,
   });
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
-    onCompleted: item => addItem(item.itemByUpc ?? undefined),
+    onCompleted: item => {
+      addItem(item.itemByUpc ?? undefined);
+      onCompleted();
+    },
+    onError,
   });
 
   useScanListener(scan => {
