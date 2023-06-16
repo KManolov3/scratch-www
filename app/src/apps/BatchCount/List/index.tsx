@@ -2,12 +2,7 @@
 // token to the app, containing the current active store.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  StyleSheet,
-  ToastAndroid,
-  FlatList,
-  ListRenderItem,
-} from 'react-native';
+import { StyleSheet, FlatList, ListRenderItem } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -17,6 +12,7 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from 'src/services/ToastService';
+import { useFocusEventBus } from '@hooks/useEventBus';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
@@ -179,9 +175,28 @@ export function BatchCountList() {
 
   useEffect(() => {
     if (submitError) {
-      ToastAndroid.show(submitError.message, ToastAndroid.LONG);
+      toastService.showInfoToast(
+        `Error while submitting batch count. ${submitError.message}`,
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
     }
   }, [submitError]);
+
+  useFocusEventBus('search-error', () => {
+    disableShrinkageModal();
+    toastService.showInfoToast(
+      'No results found. Try searching for another SKU or scanning another barcode.',
+      {
+        props: { containerStyle: styles.toast },
+      },
+    );
+  });
+
+  useFocusEventBus('search-success', () => {
+    disableShrinkageModal();
+  });
 
   const header = useMemo(() => <Header title="Batch Count" />, []);
 
@@ -206,7 +221,6 @@ export function BatchCountList() {
         countType="Batch Count"
         items={items}
         onConfirm={submitBatchCount}
-        // TODO: Should this be in a useCallback?
         onCancel={disableShrinkageModal}
       />
     </>
