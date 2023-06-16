@@ -1,6 +1,3 @@
-// The store is hardcoded until the launcher can start providing an authentication
-// token to the app, containing the current active store.
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ListRenderItem, FlatList, StyleSheet } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
@@ -8,14 +5,19 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
+import { WhiteBackArrow } from '@assets/icons';
+import { useNavigation } from '@react-navigation/native';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
+import { BatchCountNavigation } from '../navigator';
 
 // TODO: Think about extracting part of the shared code between this screen and BatchCountList
 // They are nearly the same component, differing only in the `isSummary` property and the action bar
 export function BatchCountSummary() {
+  const { goBack } = useNavigation<BatchCountNavigation>();
+
   const {
     submit: submitBatch,
     submitError,
@@ -168,7 +170,16 @@ export function BatchCountSummary() {
 
   // TODO: Show loading indicator on submit
 
-  const header = useMemo(() => <Header title="Summary" />, []);
+  const header = useMemo(
+    () => (
+      <Header
+        title="Summary"
+        leftIcon={<WhiteBackArrow />}
+        onClickLeft={goBack}
+      />
+    ),
+    [goBack],
+  );
 
   return (
     <>

@@ -6,11 +6,11 @@ import {
   TextStyle,
   StyleSheet,
   ColorValue,
-  View,
 } from 'react-native';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
 import { noop } from 'lodash-es';
+import { Container } from '@components/Container';
 
 export interface NumberInputProps {
   placeholder: string | number;
@@ -56,7 +56,7 @@ export function NumberInput({
     [placeholder],
   );
   return (
-    <View style={[styles.container, containerStyle]}>
+    <Container style={containerStyle}>
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholderToVisualise}
@@ -70,21 +70,21 @@ export function NumberInput({
         keyboardType="number-pad"
         ref={inputRef}
       />
-    </View>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  input: {
     height: 48,
     marginVertical: 8,
+
+    textAlign: 'center',
 
     borderWidth: 1,
     borderRadius: 8,
     borderColor: Colors.gray,
-    flex: 1,
-  },
-  input: {
+
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Medium,
     fontSize: 16,
