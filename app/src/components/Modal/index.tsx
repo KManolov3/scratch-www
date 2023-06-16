@@ -29,7 +29,7 @@ export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 8,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.pure,
     padding: 8,
   },
   keyboardAvoidingView: { flex: 1, justifyContent: 'center' },

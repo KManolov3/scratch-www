@@ -6,10 +6,10 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { gql } from 'src/__generated__';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Text } from '@components/Text';
 import { Header } from '@components/Header';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { useOutageState } from '../state';
@@ -26,18 +26,6 @@ const ITEM_BY_SKU_QUERY = gql(`
 `);
 
 type ErrorType = 'Not Found Error';
-
-interface ErrorInformation {
-  title: string;
-  message: string;
-}
-
-const errorInformation: Record<ErrorType, ErrorInformation> = {
-  'Not Found Error': {
-    title: 'No Results Found',
-    message: 'Try searching for another SKU or scanning a barcode',
-  },
-};
 
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -63,11 +51,6 @@ export function OutageHome() {
         setErrorType('Not Found Error');
       }
     },
-    onError: () => {
-      // TODO: this error should be based on what
-      // the backend has returned
-      setErrorType('Not Found Error');
-    },
   });
 
   const addItemAndContinue = useCallback(
@@ -92,29 +75,25 @@ export function OutageHome() {
     <>
       <FixedLayout style={styles.container} header={header}>
         <SearchBar onSubmit={onSubmit} />
-        {loading ? (
+        {loading && (
           <ActivityIndicator
             size="large"
             color={Colors.mediumVoid}
             style={styles.loadingIndicator}
           />
-        ) : null}
-        {!errorType && !loading ? (
+        )}
+        {!errorType && !loading && (
           <ScanBarcodeLabel
             label="Scan For Outage"
             style={styles.scanBarcode}
           />
-        ) : null}
-        {errorType && !loading ? (
-          <View style={styles.error}>
-            <Text style={styles.errorTitle}>
-              {errorInformation[errorType].title}
-            </Text>
-            <Text style={styles.errorMessage}>
-              {errorInformation[errorType].message}
-            </Text>
-          </View>
-        ) : null}
+        )}
+        {errorType && !loading && (
+          <ErrorContainer
+            title="No Results Found"
+            message="Try searching for another SKU or scanning another front tag"
+          />
+        )}
       </FixedLayout>
       {itemWithBackstock ? (
         <BackstockWarningModal
@@ -133,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
   },
   loadingIndicator: {
-    marginTop: 88,
+    marginTop: 144,
   },
   scanBarcode: {
     marginTop: 88,

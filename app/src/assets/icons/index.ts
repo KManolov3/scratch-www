@@ -1,6 +1,7 @@
 export { default as AttentionIcon } from './attention.svg';
 export { default as BlackAttentionIcon } from './black-attention.svg';
 export { default as BackArrowIcon } from './back-arrow.svg';
+export { default as WhiteBackArrow } from './white-back-arrow.svg';
 export { default as BarcodeIcon } from './barcode.svg';
 export { default as BookmarkBlack } from './bookmark-black.svg';
 export { default as BookmarkWhite } from './bookmark-white.svg';
@@ -9,6 +10,7 @@ export { default as CrossIcon } from './cross.svg';
 export { default as FullFlagIcon } from './full-flag.svg';
 export { default as EmptyFlagIcon } from './empty-flag.svg';
 export { default as SearchIcon } from './search.svg';
+export { default as WhiteSearchIcon } from './white-search.svg';
 export { default as MinusIcon } from './minus.svg';
 export { default as PlusIcon } from './plus.svg';
 export { default as PrinterIcon } from './printer.svg';

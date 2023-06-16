@@ -1,7 +1,6 @@
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { BarcodeIcon } from '@assets/icons';
 import { Text } from '@components/Text';
-import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 
 interface ScanBarcodeLabelProps {
@@ -21,7 +20,6 @@ export function ScanBarcodeLabel({ label, style }: ScanBarcodeLabelProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    backgroundColor: Colors.lightGray,
     alignItems: 'center',
   },
   text: {

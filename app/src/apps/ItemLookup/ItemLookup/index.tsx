@@ -8,11 +8,13 @@ import { useBooleanState } from '@hooks/useBooleanState';
 import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
 import { BottomRegularTray } from '@components/BottomRegularTray';
-import { SearchIcon } from '@assets/icons';
+import { WhiteSearchIcon } from '@assets/icons';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
+import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
+import { toastService } from '@services/ToastService';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { ItemLookupHome } from '../components/Home';
 
@@ -31,6 +33,7 @@ export function ItemLookupScreen({
     state: priceDiscrepancyModalVisible,
     toggle: toggleModal,
     enable: showPriceDiscrepancyModal,
+    disable: hidePriceDiscrepancyModal,
   } = useBooleanState(hasPriceDiscrepancy);
 
   useEffect(() => {
@@ -69,25 +72,47 @@ export function ItemLookupScreen({
     ],
     [itemDetails, navigate],
   );
-  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+  const {
+    state: searchTrayOpen,
+    enable: showSearchTray,
+    disable: hideSearchTray,
+  } = useBooleanState();
 
   const header = useMemo(
     () => (
       <Header
         title="Item Lookup"
         item={itemDetails}
-        rightIcon={<SearchIcon />}
-        onClickRight={enable}
+        rightIcon={<WhiteSearchIcon />}
+        onClickRight={showSearchTray}
       />
     ),
-    [enable, itemDetails],
+    [showSearchTray, itemDetails],
   );
+
+  useFocusEventBus('search-error', () => {
+    if (!searchTrayOpen) {
+      hidePriceDiscrepancyModal();
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning another barcode.',
+      );
+    }
+  });
+
+  useFocusEventBus('search-success', () => {
+    hideSearchTray();
+  });
+
+  useEventBus('print-success', () => {
+    setPriceDiscrepancy(false);
+  });
 
   return (
     <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
+        frontTagPrice={frontTagPrice}
         togglePriceDiscrepancyModal={toggleModal}
       />
       <BottomActionBar
@@ -107,8 +132,11 @@ export function ItemLookupScreen({
         />
       )}
 
-      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
-        <ItemLookupHome onSubmit={disable} />
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
+        <ItemLookupHome
+          onSubmit={hideSearchTray}
+          searchBarStyle={styles.container}
+        />
       </BottomRegularTray>
     </FixedLayout>
   );

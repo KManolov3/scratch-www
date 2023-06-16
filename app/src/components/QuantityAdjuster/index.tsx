@@ -10,20 +10,35 @@ export interface QuantityAdjusterProps {
   quantity: number;
   setQuantity: (quantity: number) => void;
   minimum?: number;
+  maximum?: number;
 }
 
 export function QuantityAdjuster({
   quantity,
   setQuantity,
   minimum = 0,
+  maximum,
 }: QuantityAdjusterProps) {
+  const setQuantityWithRestrictions = useCallback(
+    (qty: number) => {
+      if (minimum && qty < minimum) {
+        return setQuantity(minimum);
+      }
+      if (maximum && qty > maximum) {
+        return setQuantity(maximum);
+      }
+      setQuantity(qty);
+    },
+    [maximum, minimum, setQuantity],
+  );
+
   const decreaseQuantity = useCallback(
-    () => setQuantity(Math.max(minimum, quantity - 1)),
-    [minimum, quantity, setQuantity],
+    () => setQuantityWithRestrictions(quantity - 1),
+    [quantity, setQuantityWithRestrictions],
   );
   const increaseQuantity = useCallback(
-    () => setQuantity(quantity + 1),
-    [quantity, setQuantity],
+    () => setQuantityWithRestrictions(quantity + 1),
+    [quantity, setQuantityWithRestrictions],
   );
 
   return (
@@ -35,12 +50,12 @@ export function QuantityAdjuster({
       </Pressable>
       <NumberInput
         value={quantity}
-        setValue={setQuantity}
+        setValue={setQuantityWithRestrictions}
+        onSubmit={setQuantityWithRestrictions}
         inputStyle={[styles.square, styles.inputContainer]}
         containerStyle={styles.inputContainer}
         accessibilityLabel="adjust quantity"
         placeholder={quantity.toString()}
-        onSubmit={setQuantity}
       />
       <Pressable
         accessibilityLabel="increase quantity"
@@ -56,7 +71,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 18,
   },
-  bold: { fontWeight: FontWeight.Bold, fontSize: 16 },
   button: {
     marginHorizontal: 8,
   },
@@ -68,5 +82,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     padding: 2,
     justifyContent: 'center',
+    fontWeight: FontWeight.Bold,
   },
 });

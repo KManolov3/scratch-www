@@ -53,4 +53,7 @@ export const styles = StyleSheet.create({
   toast: {
     marginBottom: '10%',
   },
+  searchBar: {
+    backgroundColor: Colors.pure,
+  },
 });

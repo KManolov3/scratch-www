@@ -48,12 +48,22 @@ export function SelectPrinters({
           onPress={() => {
             printerToBeSelected.current = item;
             openConfirmationModal();
-          }}
-          buttonStyle={styles.button}>
-          <Text style={styles.text}>{item}</Text>
-          {item === printer ? (
-            <Text style={styles.default}>Default</Text>
-          ) : null}
+          }}>
+          <View style={styles.radioButtonText}>
+            <Text
+              style={[
+                styles.text,
+                {
+                  fontWeight:
+                    item === printer ? FontWeight.Bold : FontWeight.Demi,
+                },
+              ]}>
+              {item}
+            </Text>
+            {item === printer ? (
+              <Text style={styles.default}>Default</Text>
+            ) : null}
+          </View>
         </RadioButton>
       )),
     [openConfirmationModal, printer],
@@ -72,11 +82,9 @@ export function SelectPrinters({
 
   return (
     <>
-      <FixedLayout style={{ backgroundColor: Colors.lightGray }}>
+      <FixedLayout style={styles.container}>
         <LightHeader label="Printers" onPress={onBackPress} />
-        <Container style={styles.radioButtons}>
-          <View>{printerValues}</View>
-        </Container>
+        <Container style={styles.radioButtons}>{printerValues}</Container>
       </FixedLayout>
       <ConfirmationModal
         isVisible={confirmationModalVisible}
@@ -100,15 +108,20 @@ export function SelectPrinters({
 }
 
 const styles = StyleSheet.create({
-  radioButtons: { margin: 16, ...BaseStyles.shadow },
+  radioButtons: {
+    margin: 16,
+    ...BaseStyles.shadow,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    paddingHorizontal: 32,
+  },
   text: {
     fontSize: 20,
     fontWeight: FontWeight.Demi,
     marginLeft: 13,
   },
-  button: { marginLeft: 32 },
   buttons: { marginTop: 60 },
-  default: { fontSize: 10, fontWeight: FontWeight.Book, marginLeft: 70 },
+  default: { fontSize: 10, fontWeight: FontWeight.Book },
   confirmationModalText: {
     textAlign: 'center',
     justifyContent: 'center',
@@ -116,4 +129,10 @@ const styles = StyleSheet.create({
   },
   bold: { fontWeight: FontWeight.Bold },
   icon: { marginTop: 60 },
+  container: { backgroundColor: Colors.lightGray },
+  radioButtonText: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
 });

@@ -39,7 +39,10 @@ export function TextField({
 }: TextFieldProps) {
   const [value, setValue] = useState<string>('');
   const onClear = useCallback(() => setValue(''), [setValue]);
-  const submitValue = useCallback(() => onSubmit(value), [onSubmit, value]);
+  const submitValue = useCallback(() => {
+    onSubmit(value);
+    setValue('');
+  }, [onSubmit, value]);
   const onChangeText = useCallback(
     (text: string) => setValue(text),
     [setValue],
@@ -91,5 +94,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignContent: 'center',
     elevation: 10,
+    zIndex: 1,
   },
 });

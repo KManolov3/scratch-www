@@ -18,6 +18,7 @@ export const Colors = {
   grayer: '#dadada',
   darkGray: '#9a9a9a',
   darkerGray: '#1f1f1f',
+  drawerGray: '#D9D9D9',
 
   lightVoid: '#767676',
   darkVoid: '#1D192b',

@@ -14,6 +14,7 @@ export interface ItemDetailsProps {
     setNewQuantity: (newQty: number) => void;
   };
   hasPriceDiscrepancy?: boolean;
+  frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
 }
 
@@ -21,6 +22,7 @@ export function ItemDetails({
   itemDetails,
   quantityAdjustment,
   hasPriceDiscrepancy,
+  frontTagPrice,
   togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
   return (
@@ -31,6 +33,7 @@ export function ItemDetails({
         hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
         itemStyle={styles.detailsItem}
+        frontTagPrice={frontTagPrice}
       />
       <Locations
         locationDetails={itemDetails}

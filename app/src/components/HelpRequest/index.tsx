@@ -32,7 +32,7 @@ export function HelpRequest({
   );
 
   return (
-    <FixedLayout style={{ backgroundColor: Colors.lightGray }}>
+    <FixedLayout style={styles.container}>
       <LightHeader onPress={onBackPress} label="Help Request" />
       {/* TODO: the designs here are not clear so leaving it like this for now */}
       <TextInput
@@ -69,4 +69,5 @@ const styles = StyleSheet.create({
     ...BaseStyles.shadow,
   },
   description: { height: 146 },
+  container: { backgroundColor: Colors.lightGray },
 });
