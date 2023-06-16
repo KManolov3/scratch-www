@@ -13,7 +13,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-    padding: 8,
     margin: 16,
     backgroundColor: Colors.advanceYellow,
     borderColor: Colors.advanceYellow,
