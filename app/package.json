@@ -13,7 +13,8 @@
     "graphql:codegen": "graphql-codegen",
     "graphql:watch": "graphql-codegen -w",
     "prepare": "cd .. && husky install ./app/.husky && cd ./app",
-    "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema"
+    "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema",
+    "package:debug": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
