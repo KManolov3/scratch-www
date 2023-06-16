@@ -113,8 +113,19 @@ export function BatchCountSummary() {
         isExpanded={expandedSku === item.sku}
         isBookmarked={bookmarkedItems[item.sku] ?? false}
         isSummary
+        // TODO: `useCallback`s
         onBookmarkPress={() => onFlag(item.sku)}
-        onRemove={() => removeItem(item.sku)}
+        onRemove={() => {
+          removeItem(item.sku);
+
+          // TODO: Handle copy-paste?
+          toastService.showInfoToast(
+            `${item.partDesc} removed from Batch count list`,
+            {
+              props: { containerStyle: styles.toast },
+            },
+          );
+        }}
         onCardPress={() => onCardPress(item.sku)}
       />
     ),

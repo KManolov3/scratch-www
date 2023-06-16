@@ -146,7 +146,10 @@ export function Drawer({
               styles.settings,
             ]}>
             <Text style={styles.drawerHeaderText}>Settings</Text>
-            <Text style={styles.version}>ver. {config.version}</Text>
+            <Text style={styles.version}>
+              ver. {config.version}
+              {config.build ? `-${config.build}` : ''}
+            </Text>
           </View>
         ),
         key: 'Settings',

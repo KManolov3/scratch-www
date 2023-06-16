@@ -154,7 +154,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 sku: newItem.sku!,
               },
-              newQty: 1,
+              newQty: incrementCount ? 1 : 0,
             },
           });
         } else {

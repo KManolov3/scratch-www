@@ -7,6 +7,7 @@ import {
   TextStyle,
   StyleSheet,
   View,
+  KeyboardTypeOptions,
 } from 'react-native';
 import { FontWeight } from '@lib/font';
 import { BaseStyles } from '@lib/baseStyles';
@@ -15,6 +16,7 @@ import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
 
 export interface TextFieldProps {
+  keyboardType?: KeyboardTypeOptions;
   placeholder: string;
   icon?: ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
@@ -27,6 +29,7 @@ export interface TextFieldProps {
 }
 
 export function TextField({
+  keyboardType,
   placeholder,
   icon,
   containerStyle,
@@ -60,6 +63,7 @@ export function TextField({
         onBlur={onBlur}
         onSubmitEditing={submitValue}
         ref={inputRef}
+        keyboardType={keyboardType}
       />
       {clearable && (
         <ClearButton
