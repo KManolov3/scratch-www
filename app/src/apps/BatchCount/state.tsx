@@ -29,7 +29,7 @@ import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItems;
-  addItem: (item: Item | undefined) => void;
+  addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
@@ -139,7 +139,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   // TODO: allow for different handling when scanning by UPC vs SKU
   // (they will differ by initial quantity, for example)
   const addItem = useCallback(
-    (newItem: Item | undefined) => {
+    (newItem: Item | undefined, incrementCount: boolean) => {
       if (newItem) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const itemInState = batchCountItems[newItem.sku!];
@@ -167,6 +167,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               sku: newItem.sku!,
             },
+            newQty: incrementCount
+              ? itemInState.newQty + 1
+              : itemInState.newQty,
           });
         }
         navigation.navigate('List');
@@ -217,14 +220,15 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
 
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
-      addItem(item.itemBySku ?? undefined);
+      addItem(item.itemBySku ?? undefined, false);
       onCompleted();
     },
     onError,
   });
+
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
-      addItem(item.itemByUpc ?? undefined);
+      addItem(item.itemByUpc ?? undefined, true);
       onCompleted();
     },
     onError,

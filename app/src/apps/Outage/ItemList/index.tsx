@@ -87,7 +87,7 @@ export function OutageItemList() {
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}
-          style={styles.list}
+          contentContainerStyle={styles.list}
         />
 
         <BottomActionBar actions={bottomBarActions} />

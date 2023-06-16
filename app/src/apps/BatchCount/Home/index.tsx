@@ -23,7 +23,7 @@ export function BatchCountHome() {
         setError(searchError);
       },
       onCompleted: item => {
-        addItem(item.itemBySku ?? undefined);
+        addItem(item.itemBySku ?? undefined, false);
         setError(undefined);
       },
     },
