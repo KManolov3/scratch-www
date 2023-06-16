@@ -103,45 +103,53 @@ export function BatchCountItemCard({
         <View style={[styles.baseInfoContainer, styles.bottomMargin]}>
           <ItemPropertyDisplay
             label="Part Number"
+            style={styles.partNumber}
             value={item.mfrPartNum}
-            valueStyle={styles.valueStyle}
+            valueStyle={styles.value}
           />
+
           {isSummary && !isExpanded ? (
             <ItemPropertyDisplay
               label="Total Qty"
+              style={styles.smallColumn}
               value={newQuantity}
-              valueStyle={styles.valueStyle}
+              valueStyle={styles.value}
             />
           ) : (
             <ItemPropertyDisplay
               label="Current"
+              style={styles.smallColumn}
               value={item.onHand}
-              valueStyle={styles.valueStyle}
+              valueStyle={styles.value}
             />
           )}
+
           {isSummary ? (
             <ItemPropertyDisplay
               label="Variance"
+              style={styles.smallColumn}
               value={variance}
-              valueStyle={styles.valueStyle}
+              valueStyle={styles.value}
             />
           ) : (
             <ItemPropertyInput
               label="New Qty"
+              style={styles.smallColumn}
               value={newQuantity}
               setValue={setNewQuantity}
               inputContainerStyle={styles.inputContainerStyle}
-              inputStyle={[styles.valueStyle, styles.inputStyle]}
+              inputStyle={[styles.value, styles.inputStyle]}
             />
           )}
         </View>
+
         {isExpanded && (
           <View style={styles.moreInfoContainer}>
             <View style={styles.row}>
               <ItemPropertyDisplay
                 label="Item Name"
                 value={item.partDesc}
-                valueStyle={styles.valueStyle}
+                valueStyle={styles.value}
               />
               {isSummary && (
                 <ItemPropertyInput
@@ -149,7 +157,7 @@ export function BatchCountItemCard({
                   value={newQuantity}
                   setValue={setNewQuantity}
                   inputContainerStyle={styles.inputContainerStyle}
-                  inputStyle={[styles.valueStyle, styles.inputStyle]}
+                  inputStyle={[styles.value, styles.inputStyle]}
                 />
               )}
             </View>
@@ -158,7 +166,7 @@ export function BatchCountItemCard({
               <ItemPropertyDisplay
                 label="SKU"
                 value={item.sku}
-                valueStyle={styles.valueStyle}
+                valueStyle={styles.value}
               />
               <ItemPropertyDisplay
                 label="Price"
@@ -167,13 +175,13 @@ export function BatchCountItemCard({
                     ? convertCurrencyToString(item.retailPrice)
                     : 'undefined'
                 }
-                valueStyle={styles.valueStyle}
+                valueStyle={styles.value}
               />
 
               <ItemPropertyDisplay
                 label="Backstock"
                 value={backstockSlotQuantity}
-                valueStyle={styles.valueStyle}
+                valueStyle={styles.value}
               />
             </View>
             <Locations locationDetails={item} />
@@ -208,8 +216,8 @@ const styles = StyleSheet.create({
     ...BaseStyles.shadow,
   },
   baseInfoContainer: {
-    justifyContent: 'space-between',
     flexDirection: 'row',
+    gap: 12,
   },
   moreInfoContainer: {
     gap: 12,
@@ -228,9 +236,15 @@ const styles = StyleSheet.create({
     width: 66,
     backgroundColor: Colors.mediumGray,
   },
-  valueStyle: {
+  value: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  partNumber: {
+    flex: 1,
+  },
+  smallColumn: {
+    minWidth: 60,
   },
   inputStyle: {
     marginTop: 7,
