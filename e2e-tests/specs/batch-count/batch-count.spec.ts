@@ -57,8 +57,8 @@ describe('Batch Count', () => {
     });
 
     const batchCountData = [
-      { item: items[0], newQuantity: 11 },
-      { item: items[1], newQuantity: 14 },
+      { item: items[0], newQuantity: 11, bookmarked: false },
+      { item: items[1], newQuantity: 14, bookmarked: true },
     ];
 
     await batchCount.completeBatchCount(batchCountData);

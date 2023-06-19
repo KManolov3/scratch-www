@@ -1,4 +1,4 @@
-import { BatchCountConfirmPage } from '../page-objects/batch-count/batch-confirm-page.ts';
+import { BatchCountApprovePage } from '../page-objects/batch-count/approve-count-page.ts';
 import { BatchCountHomePage } from '../page-objects/batch-count/home-page.ts';
 import { BatchCountItemDetailsPage } from '../page-objects/batch-count/item-details-page.ts';
 import { CommonHomePage } from '../page-objects/common/common-home-page.ts';
@@ -14,7 +14,7 @@ export interface CommonPages {
 export interface BatchCountPages {
   homePage: BatchCountHomePage;
   itemDetailsPage: BatchCountItemDetailsPage;
-  confirmPage: BatchCountConfirmPage;
+  approveCountPage: BatchCountApprovePage;
 }
 
 export interface ItemLookupPages {

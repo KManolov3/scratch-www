@@ -28,7 +28,7 @@ then
 fi
 
 # waiting the emulator to start
-sleep 5
+sleep 10
 
 cd ../app && npm run adb:reverse
 cd ../e2e-tests
