@@ -3,6 +3,7 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { useCallback } from 'react';
 import { FontWeight } from '@lib/font';
+import { Seperator } from '@components/Seperator';
 
 export interface ListProps<T> {
   itemInfo: {
@@ -28,7 +29,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
               </Text>
             ))}
           </View>
-          <View style={styles.separator} />
+          <Seperator />
         </View>
       );
     },
@@ -39,12 +40,11 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
     <View style={styles.container}>
       <View style={[styles.table, styles.headers]}>
         {itemInfo.map(({ label }) => (
-          <Text key={label} style={styles.text}>
+          <Text key={label} style={styles.headerText}>
             {label}
           </Text>
         ))}
       </View>
-      <View style={styles.separator} />
       <FlatList
         data={data}
         renderItem={renderItem}
@@ -54,7 +54,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
   );
 }
 
-const horizonalOffset = 20;
+const horizonalOffset = 0;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: horizonalOffset,
@@ -72,11 +72,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontWeight: FontWeight.Demi,
   },
+  headerText: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: FontWeight.Demi,
+  },
   text: {
     fontSize: 16,
-  },
-  separator: {
-    backgroundColor: Colors.grayer,
-    height: 1,
+    lineHeight: 19,
   },
 });

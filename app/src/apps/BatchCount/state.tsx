@@ -1,13 +1,18 @@
-import { ApolloError, useMutation } from '@apollo/client';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { merge } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
-  createContext,
   ReactNode,
+  createContext,
   useCallback,
   useContext,
   useMemo,
   useState,
 } from 'react';
+import 'react-native-get-random-values';
+import { toastService } from 'src/services/ToastService';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -15,16 +20,16 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { merge } from 'lodash-es';
-import 'react-native-get-random-values';
+import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
-import { useNavigation } from '@react-navigation/native';
+import { scanCodeService } from 'src/services/ScanCode';
+import { EventBus } from '@hooks/useEventBus';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItems;
-  addItem: (item: BatchCountItem) => void;
+  addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
@@ -32,10 +37,30 @@ interface ContextValue {
   submitError?: ApolloError;
 }
 
+export const ITEM_BY_SKU = gql(`
+  query BatchCountItemBySkuLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+export const ITEM_BY_UPC = gql(`
+  query BatchCountItemByUpcLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
 export interface BatchCountItem {
   item: Item & { sku: NonNullable<Item['sku']> };
   newQty: number;
-  isFlagged?: boolean;
+  isBookmarked?: boolean;
 }
 
 type BatchCountItems = Record<BatchCountItem['item']['sku'], BatchCountItem>;
@@ -50,11 +75,10 @@ const Context = createContext<ContextValue | undefined>(undefined);
 
 function buildBatchCountRequest(
   batchCountItems: BatchCountItems,
+  storeNumber: string,
 ): SubmitBatchCountGql {
-  const cycleCountList: SubmitBatchCountGql = {
-    // Currently hardocoded, change after auth tokens
-    // start being parsed.
-    storeNumber: '0363',
+  return {
+    storeNumber,
     cycleCounts: [
       {
         action: Action.Create,
@@ -84,8 +108,6 @@ function buildBatchCountRequest(
       },
     ],
   };
-
-  return cycleCountList;
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
@@ -94,14 +116,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     useMutation(SUBMIT_BATCH_COUNT);
   const navigation = useNavigation<BatchCountNavigation>();
 
-  const addItem = useCallback(
-    (newItem: BatchCountItem) =>
-      setBatchCountItems({
-        ...batchCountItems,
-        [newItem.item.sku]: newItem,
-      }),
-    [batchCountItems, setBatchCountItems],
-  );
+  const { storeNumber } = useCurrentSessionInfo();
 
   const updateItem = useCallback(
     (sku: string, updatedItem: Partial<BatchCountItem>) => {
@@ -121,6 +136,48 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, setBatchCountItems],
   );
 
+  // TODO: allow for different handling when scanning by UPC vs SKU
+  // (they will differ by initial quantity, for example)
+  const addItem = useCallback(
+    (newItem: Item | undefined, incrementCount: boolean) => {
+      if (newItem) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const itemInState = batchCountItems[newItem.sku!];
+
+        if (!itemInState) {
+          setBatchCountItems({
+            ...batchCountItems,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            [newItem.sku!]: {
+              item: {
+                ...newItem,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                sku: newItem.sku!,
+              },
+              newQty: 1,
+            },
+          });
+        } else {
+          // Updating with the retrieved information even if the item already exists in the state
+          // in case something changed (for example, the price) on the backend.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          updateItem(newItem.sku!, {
+            item: {
+              ...newItem,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: newItem.sku!,
+            },
+            newQty: incrementCount
+              ? itemInState.newQty + 1
+              : itemInState.newQty,
+          });
+        }
+        navigation.navigate('List');
+      }
+    },
+    [batchCountItems, navigation, updateItem],
+  );
+
   const removeItem = useCallback(
     (sku: string) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -131,11 +188,16 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   );
 
   const submit = useCallback(async () => {
-    const batchCountRequest = buildBatchCountRequest(batchCountItems);
+    const batchCountRequest = buildBatchCountRequest(
+      batchCountItems,
+      storeNumber,
+    );
     await submitBatchCount({ variables: { request: batchCountRequest } });
     setBatchCountItems({});
+
+    toastService.showInfoToast('Batch count completed');
     navigation.navigate('Home');
-  }, [batchCountItems, submitBatchCount, navigation]);
+  }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
   const value = useMemo(
     () => ({
@@ -149,6 +211,42 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     }),
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
+
+  const onError = useCallback((searchError: ApolloError) => {
+    EventBus.emit('search-error', searchError);
+  }, []);
+
+  const onCompleted = useCallback(() => EventBus.emit('search-success'), []);
+
+  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+    onCompleted: item => {
+      addItem(item.itemBySku ?? undefined, false);
+      onCompleted();
+    },
+    onError,
+  });
+
+  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+    onCompleted: item => {
+      addItem(item.itemByUpc ?? undefined, true);
+      onCompleted();
+    },
+    onError,
+  });
+
+  useScanListener(scan => {
+    const scanCode = scanCodeService.parse(scan);
+
+    if (scanCode.type === 'SKU') {
+      return searchBySku({
+        variables: { sku: scanCode.sku, storeNumber },
+      });
+    }
+
+    return searchByUpc({
+      variables: { upc: scanCode.upc, storeNumber },
+    });
+  });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

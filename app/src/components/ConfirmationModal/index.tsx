@@ -15,13 +15,13 @@ import { SvgType } from '*.svg';
 export interface ConfirmationModalProps {
   isVisible: boolean;
   Icon?: SvgType;
+  iconStyles?: StyleProp<ViewStyle>;
   title?: string;
   confirmationLabel?: string;
   onConfirm: () => void;
   cancellationLabel?: string;
   onCancel: () => void;
   children?: ReactNode;
-  iconStyles?: StyleProp<ViewStyle>;
   buttonsStyle?: StyleProp<ViewStyle>;
 }
 
@@ -42,7 +42,7 @@ export function ConfirmationModal({
       isVisible={isVisible}
       onBackdropPress={onCancel}
       style={styles.modal}>
-      <>
+      <View style={styles.container}>
         {Icon ? (
           <Icon height={40} width={40} style={[styles.icon, iconStyles]} />
         ) : null}
@@ -58,7 +58,7 @@ export function ConfirmationModal({
             <Text style={styles.buttonText}>{confirmationLabel}</Text>
           </Pressable>
         </View>
-      </>
+      </View>
     </Modal>
   );
 }
@@ -68,6 +68,12 @@ const styles = StyleSheet.create({
     paddingTop: 29,
     paddingHorizontal: 8,
     paddingBottom: 22,
+  },
+  container: {
+    paddingTop: 20,
+    paddingBottom: 10,
+    // TODO: Find out why the outer part of the modal is not the specified background color here
+    backgroundColor: Colors.pure,
   },
   icon: {
     justifyContent: 'center',

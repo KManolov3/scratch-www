@@ -13,7 +13,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-    padding: 8,
     margin: 16,
     backgroundColor: Colors.advanceYellow,
     borderColor: Colors.advanceYellow,
@@ -26,10 +25,10 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
   },
   text: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 40,
     color: primaryColor,
-    fontWeight: FontWeight.Demi,
+    fontWeight: FontWeight.Bold,
   },
   disabledText: {
     color: secondaryColor,
@@ -41,5 +40,9 @@ export const styles = StyleSheet.create({
     height: 12,
     marginLeft: 4,
     alignSelf: 'center',
+  },
+  loading: {
+    backgroundColor: Colors.lightGray,
+    borderColor: 'transparent',
   },
 });

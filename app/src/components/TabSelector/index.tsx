@@ -3,7 +3,7 @@ import { Container } from '@components/Container';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { useMemo } from 'react';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 
 type DefinableStringArray = ReadonlyArray<string>;
 
@@ -12,6 +12,8 @@ export interface TabSelectorProps<T extends DefinableStringArray> {
   selected: T[number];
   setSelected: (value: T[number]) => void;
   style?: StyleProp<ViewStyle>;
+  buttonStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export function TabSelector<T extends DefinableStringArray>({
@@ -19,18 +21,27 @@ export function TabSelector<T extends DefinableStringArray>({
   selected,
   setSelected,
   style,
+  buttonStyle,
+  textStyle,
 }: TabSelectorProps<T>) {
   const tabs = useMemo(() => {
     return values.map(value => (
       <BlockButton
         label={value}
         onPress={() => setSelected(value)}
-        style={[styles.pressable, value === selected ? styles.selectedTab : {}]}
-        textStyle={value === selected ? { color: Colors.pure } : {}}
+        style={[
+          styles.pressable,
+          value === selected ? styles.selectedTab : {},
+          buttonStyle,
+        ]}
+        textStyle={[
+          value === selected ? { color: Colors.pure } : {},
+          textStyle,
+        ]}
         key={value}
       />
     ));
-  }, [values, setSelected, selected]);
+  }, [values, selected, buttonStyle, textStyle, setSelected]);
   return <Container style={[BaseStyles.shadow, style]}>{tabs}</Container>;
 }
 

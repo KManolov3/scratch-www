@@ -1,13 +1,20 @@
 import { useCallback, useMemo } from 'react';
 import { TextInput, TextInputRef } from '@components/TextInput';
-import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
+  ColorValue,
+} from 'react-native';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
-import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
+import { Container } from '@components/Container';
 
 export interface NumberInputProps {
   placeholder: string | number;
+  placeholderTextColor?: ColorValue;
   value: number;
   setValue: (newValue: number) => void;
   accessibilityLabel?: string;
@@ -21,6 +28,7 @@ export interface NumberInputProps {
 
 export function NumberInput({
   placeholder,
+  placeholderTextColor,
   accessibilityLabel,
   containerStyle,
   inputStyle,
@@ -52,7 +60,7 @@ export function NumberInput({
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholderToVisualise}
-        placeholderTextColor={Colors.lightVoid}
+        placeholderTextColor={placeholderTextColor ?? Colors.lightVoid}
         accessibilityLabel={accessibilityLabel}
         value={value.toString()}
         onChangeText={onChangeText}

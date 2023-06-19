@@ -13,12 +13,16 @@
     "graphql:codegen": "graphql-codegen",
     "graphql:watch": "graphql-codegen -w",
     "prepare": "cd .. && husky install ./app/.husky && cd ./app",
-    "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema"
+    "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema",
+    "package:clean": "rm android/app/src/main/assets/index.android.bundle",
+    "package:install:debug": "npm run package:build:debug && adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "package:build:debug": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "eventemitter3": "^5.0.1",
     "graphql": "^16.6.0",
     "launchdarkly-react-native-client-sdk": "^7.1.4",
     "lodash-es": "^4.17.21",
@@ -34,8 +38,8 @@
     "react-native-sound": "^0.11.2",
     "react-native-svg": "^13.9.0",
     "react-native-toast-message": "^2.1.6",
-    "uuid": "^9.0.0",
-    "rtn-in-store-apps": "file:./react-native-modules/RTNInStoreApps"
+    "rtn-in-store-apps": "file:./react-native-modules/RTNInStoreApps",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

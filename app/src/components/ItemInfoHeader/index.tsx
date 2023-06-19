@@ -35,6 +35,7 @@ export type ItemDetailsInfo = NonNullable<
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
   hasPriceDiscrepancy?: boolean;
+  frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
   quantityAdjustment?: {
     quantity: number;
@@ -56,11 +57,11 @@ function getBackstockQuantity(
   return _.chain(backstockSlots).compact().sumBy('qty').value();
 }
 
-// TODO: Rename this to a more suitable name
 export function ItemInfoHeader({
   itemDetails,
   quantityAdjustment,
   hasPriceDiscrepancy,
+  frontTagPrice,
   togglePriceDiscrepancyModal,
   style,
   itemStyle,
@@ -69,6 +70,15 @@ export function ItemInfoHeader({
     () => getBackstockQuantity(itemDetails.backStockSlots),
     [itemDetails.backStockSlots],
   );
+
+  const price = useMemo(() => {
+    if (hasPriceDiscrepancy) {
+      return frontTagPrice ? convertCurrencyToString(frontTagPrice) : undefined;
+    }
+    return itemDetails.retailPrice
+      ? convertCurrencyToString(itemDetails.retailPrice)
+      : 'undefined';
+  }, [frontTagPrice, hasPriceDiscrepancy, itemDetails.retailPrice]);
 
   return (
     <View style={[styles.container, style]}>
@@ -85,11 +95,7 @@ export function ItemInfoHeader({
         <ItemPropertyDisplay
           style={[styles.itemProperties, itemStyle]}
           label="Price"
-          value={
-            itemDetails.retailPrice
-              ? convertCurrencyToString(itemDetails.retailPrice)
-              : 'undefined'
-          }
+          value={price}
           icon={
             hasPriceDiscrepancy ? (
               <Pressable onPress={togglePriceDiscrepancyModal}>
@@ -143,11 +149,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    paddingHorizontal: 8,
-    paddingTop: 16,
-    fontSize: 28,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: FontWeight.Bold,
-    marginBottom: 12,
   },
   icon: { margin: 4 },
   row: {

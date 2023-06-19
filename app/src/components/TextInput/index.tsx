@@ -8,7 +8,7 @@ import {
   Keyboard,
   KeyboardTypeOptions,
 } from 'react-native';
-import { getFontFamily } from 'src/lib/font';
+import { FontFamily } from '@lib/font';
 import { styles, placeholderColor } from './styles';
 
 export type TextInputRef = RNTextInput;
@@ -38,15 +38,14 @@ export const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     ref,
   ) => {
     const resolvedStyle = StyleSheet.flatten(style);
-    const { fontWeight, fontFamily, fontStyle, ...restOfStyle } = resolvedStyle;
 
-    const customStyle = {
-      fontFamily: getFontFamily({ fontWeight, fontFamily, fontStyle }),
+    const fontFamily = {
+      fontFamily: FontFamily.OpenSans,
     };
 
     return (
       <RNTextInput
-        style={[styles.default, restOfStyle, customStyle]}
+        style={[styles.default, resolvedStyle, fontFamily]}
         placeholderTextColor={placeholderTextColor ?? placeholderColor}
         onSubmitEditing={onSubmitEditing ?? Keyboard.dismiss}
         returnKeyType={returnKeyType ?? getReturnKeyType(keyboardType)}

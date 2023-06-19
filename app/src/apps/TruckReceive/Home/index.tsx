@@ -12,12 +12,13 @@ import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
 import { RootNavigation } from '@apps/navigator';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';
 
 const QUERY = gql(`
-  query truckScanApp {
-    truckScansByStore(storeNumber: "0363") {
+  query truckScanApp($storeNumber: String!) {
+    truckScansByStore(storeNumber: $storeNumber) {
       asnReferenceNumber
       status
       storeNumber
@@ -28,7 +29,10 @@ const QUERY = gql(`
 export function TruckReceiveHome() {
   const [search, setSearch] = useState('');
 
-  const { loading, data, error } = useQuery(QUERY);
+  const { storeNumber } = useCurrentSessionInfo();
+  const { loading, data, error } = useQuery(QUERY, {
+    variables: { storeNumber },
+  });
 
   if (loading) {
     return <ActivityIndicator size="large" />;
