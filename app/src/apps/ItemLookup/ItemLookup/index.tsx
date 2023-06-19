@@ -81,16 +81,13 @@ export function ItemLookupScreen({
     disable: hideSearchTray,
   } = useBooleanState();
 
-  const header = useMemo(
-    () => (
-      <Header
-        title="Item Lookup"
-        item={itemDetails}
-        rightIcon={<WhiteSearchIcon />}
-        onClickRight={showSearchTray}
-      />
-    ),
-    [showSearchTray, itemDetails],
+  const header = (
+    <Header
+      title="Item Lookup"
+      item={itemDetails}
+      rightIcon={<WhiteSearchIcon />}
+      onClickRight={showSearchTray}
+    />
   );
 
   useFocusEventBus('search-error', () => {

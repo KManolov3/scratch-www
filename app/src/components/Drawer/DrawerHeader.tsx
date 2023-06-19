@@ -1,4 +1,4 @@
-import { CrossIcon } from '@assets/icons';
+import { WhiteCrossIcon } from '@assets/icons';
 import { Header } from '@components/Header';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -10,7 +10,7 @@ export function DrawerHeader({ options: { title } }: NativeStackHeaderProps) {
   return (
     <Header
       title={title}
-      leftIcon={<CrossIcon height={32} width={32} />}
+      leftIcon={<WhiteCrossIcon height={32} width={32} />}
       onClickLeft={closeDrawer}
     />
   );

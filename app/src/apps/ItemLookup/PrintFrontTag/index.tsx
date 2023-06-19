@@ -241,18 +241,15 @@ export function PrintFrontTagScreen({
     }
   });
 
-  const header = useMemo(
-    () => (
-      <Header
-        title="Item Lookup"
-        item={itemDetails}
-        rightIcon={<WhiteSearchIcon />}
-        onClickRight={enable}
-        leftIcon={<WhiteBackArrow />}
-        onClickLeft={goBack}
-      />
-    ),
-    [enable, goBack, itemDetails],
+  const header = (
+    <Header
+      title="Item Lookup"
+      item={itemDetails}
+      rightIcon={<WhiteSearchIcon />}
+      onClickRight={enable}
+      leftIcon={<WhiteBackArrow />}
+      onClickLeft={goBack}
+    />
   );
 
   return (

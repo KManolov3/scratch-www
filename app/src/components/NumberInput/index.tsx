@@ -76,9 +76,6 @@ export function NumberInput({
 
 const styles = StyleSheet.create({
   input: {
-    height: 48,
-    marginVertical: 8,
-
     textAlign: 'center',
 
     borderWidth: 1,
