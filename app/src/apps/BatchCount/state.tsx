@@ -136,8 +136,6 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, setBatchCountItems],
   );
 
-  // TODO: allow for different handling when scanning by UPC vs SKU
-  // (they will differ by initial quantity, for example)
   const addItem = useCallback(
     (newItem: Item | undefined, incrementCount: boolean) => {
       if (newItem) {
