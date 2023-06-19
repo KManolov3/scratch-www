@@ -56,4 +56,5 @@ export const styles = StyleSheet.create({
   searchBar: {
     backgroundColor: Colors.pure,
   },
+  planogramContainer: { flex: 1 },
 });

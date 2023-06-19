@@ -147,7 +147,9 @@ export function ItemLookupScreen({
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: Colors.pure },
+  container: {
+    backgroundColor: Colors.pure,
+  },
   bottomBarActionText: {
     color: Colors.advanceBlack,
     fontWeight: FontWeight.Bold,

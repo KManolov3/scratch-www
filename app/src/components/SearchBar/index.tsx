@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     color: Colors.advanceBlack,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.pure,
 
     margin: 8,
     padding: 15,
