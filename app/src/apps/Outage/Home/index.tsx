@@ -57,6 +57,7 @@ export function OutageHome() {
     (item: ItemDetailsInfo) => {
       setErrorType(undefined);
       addItem(item);
+      setItemWithBackstock(undefined);
       navigate('Item List');
     },
     [addItem, navigate],

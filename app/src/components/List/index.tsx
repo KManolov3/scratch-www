@@ -3,7 +3,7 @@ import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { useCallback } from 'react';
 import { FontWeight } from '@lib/font';
-import { Seperator } from '@components/Seperator';
+import { Separator } from '@components/Separator';
 
 export interface ListProps<T> {
   itemInfo: {
@@ -29,7 +29,7 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
               </Text>
             ))}
           </View>
-          <Seperator />
+          <Separator />
         </View>
       );
     },
