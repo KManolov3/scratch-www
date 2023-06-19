@@ -38,6 +38,8 @@ const mocks: IMocks = {
   Item: {
     ...itemFakes,
 
+    // planograms: () => new MockList(1),
+
     retailPrice: () =>
       faker.datatype.float({ min: 10, max: 100, precision: 0.01 }),
     onHand: quantityFaker,

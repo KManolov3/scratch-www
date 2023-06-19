@@ -19,7 +19,10 @@ export function SearchBar({
 }: SearchBarProps) {
   return (
     <TextField
+      // TODO: The component is called SearchBar, not SKUSearchBar,
+      //       extract this placeholder and the keyboardType
       placeholder="Search for a SKU"
+      keyboardType="number-pad"
       icon={
         <SearchIcon style={styles.icon} height={iconSize} width={iconSize} />
       }

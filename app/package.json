@@ -15,8 +15,14 @@
     "prepare": "cd .. && husky install ./app/.husky && cd ./app",
     "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema",
     "package:clean": "rm android/app/src/main/assets/index.android.bundle",
-    "package:install:debug": "npm run package:build:debug && adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
-    "package:build:debug": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ./gradlew assembleDebug"
+
+    "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps",
+    "package:install:dev": "adb install -r builds/in-store-apps-dev.apk",
+    "package:build:dev": "PACKAGE_NAME=com.advanceautoparts.instoreapps ENV_FILE=.env.dev react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.dev ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-dev.apk",
+
+    "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
+    "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
+    "package:build:qa": "PACKAGE_NAME=com.advanceautoparts.instoreapps.qa ENV_FILE=.env.qa react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.qa ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-qa.apk"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",

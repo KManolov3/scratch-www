@@ -71,7 +71,7 @@ export function OutageItemList() {
         key={item.sku}
         outageItem={item}
         isLast={index === outageCountItems.length - 1}
-        removeItem={() => removeOutageItem(item)}
+        onRemove={() => removeOutageItem(item)}
       />
     ),
     [outageCountItems.length, removeOutageItem],

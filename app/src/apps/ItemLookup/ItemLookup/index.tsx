@@ -48,8 +48,17 @@ export function ItemLookupScreen({
         .playSound('error')
         // eslint-disable-next-line no-console
         .catch(soundError => console.log('Error playing sound.', soundError));
+    } else {
+      // TODO: This is done on the second render, thus the modal changes values first, then hides.
+      //       Maybe we want to hide it directly somehow?
+      hidePriceDiscrepancyModal();
     }
-  }, [frontTagPrice, itemDetails?.retailPrice, showPriceDiscrepancyModal]);
+  }, [
+    frontTagPrice,
+    itemDetails?.retailPrice,
+    showPriceDiscrepancyModal,
+    hidePriceDiscrepancyModal,
+  ]);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();

@@ -35,23 +35,10 @@ export const styles = StyleSheet.create({
     paddingTop: 9,
     justifyContent: 'space-between',
   },
-  productInformation: {
-    flex: 1,
-    marginRight: 12,
-  },
-  quantityUpdate: {
-    flex: 1,
-    paddingLeft: 12,
-    justifyContent: 'space-between',
-  },
-  quantityInformation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   property: {
     marginBottom: 8,
   },
-  removeItem: {
+  removeItemButton: {
     paddingTop: 15,
     marginLeft: 8,
     gap: 20,
@@ -61,7 +48,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   removeItemText: {
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Bold,
   },
