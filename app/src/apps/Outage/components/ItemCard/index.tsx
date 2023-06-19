@@ -5,7 +5,7 @@ import { convertCurrencyToString } from '@lib/currency';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { CrossIcon } from '@assets/icons';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
-import { Seperator } from '@components/Seperator';
+import { Separator } from '@components/Separator';
 import { styles } from './styles';
 import { WarningMessage } from '../WarningMessage';
 
@@ -32,14 +32,14 @@ export const OutageItemCardFragment = gql(`
 export interface OutageItemCardProps {
   outageItem: DocumentType<typeof OutageItemCardFragment>;
   isLast?: boolean;
-  removeItem?: () => void;
+  onRemove?: () => void;
   flatten?: boolean;
 }
 
 export function OutageItemCard({
   outageItem,
   isLast,
-  removeItem,
+  onRemove,
   flatten,
 }: OutageItemCardProps) {
   const { partDesc, mfrPartNum, retailPrice, onHand } = outageItem;
@@ -53,11 +53,6 @@ export function OutageItemCard({
       ]}>
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>{partDesc}</Text>
-        {removeItem ? (
-          <Pressable onPress={removeItem} style={styles.removeItem}>
-            <CrossIcon />
-          </Pressable>
-        ) : null}
       </View>
 
       <View style={styles.content}>
@@ -85,10 +80,10 @@ export function OutageItemCard({
           warningText={formatBackstockSlots(outageItem.backStockSlots)}
         />
       ) : (
-        <Seperator />
+        <Separator />
       )}
-      {removeItem ? (
-        <Pressable onPress={removeItem} style={styles.removeItem}>
+      {onRemove ? (
+        <Pressable onPress={onRemove} style={styles.removeItemButton}>
           <CrossIcon />
           <Text style={styles.removeItemText}>Remove Item</Text>
         </Pressable>

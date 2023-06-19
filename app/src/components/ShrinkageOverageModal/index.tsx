@@ -52,7 +52,7 @@ export function ShrinkageOverageModal({
 
   const shrinkage = useMemo(() => calculateShrinkage(items), [items]);
   const overage = useMemo(() => calculateOverage(items), [items]);
-  const netDollars = useMemo(() => overage - shrinkage, [shrinkage, overage]);
+  const netDollars = overage - shrinkage;
 
   return (
     <ConfirmationModal
@@ -80,7 +80,7 @@ export function ShrinkageOverageModal({
       <View style={styles.shrinkageOverage}>
         <ItemPropertyDisplay
           label="Shrinkage"
-          value={`-${convertCurrencyToString(shrinkage)}`}
+          value={convertCurrencyToString(-shrinkage)}
           labelStyle={styles.shrinkageOverageLabel}
           valueStyle={[styles.shrinkageOverageValue, styles.redText]}
         />
