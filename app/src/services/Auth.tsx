@@ -60,7 +60,7 @@ export function AuthProvider({
   // The other times the user may not have changed at all, and even if they have,
   // we don't want to unmount the whole app.
   if (!sessionInfo) {
-    // TODO: Better loading indicator
+    // This will be hidden by the loading screen
     return <Text>Loading...</Text>;
   }
 
