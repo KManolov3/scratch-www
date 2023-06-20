@@ -36,10 +36,15 @@ export function BatchCountSummary() {
     disable: disableShrinkageModal,
   } = useBooleanState(false);
 
+  const sortFn = useCallback(
+    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
+    [],
+  );
+  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
   const batchCountItemsSorted = useSortOnScreenFocus(
     batchCountItems,
-    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
-    ({ item }: BatchCountItem) => item.sku,
+    sortFn,
+    keyFn,
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
