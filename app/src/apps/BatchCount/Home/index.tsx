@@ -1,6 +1,6 @@
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useCallback, useState } from 'react';
@@ -38,8 +38,7 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
-  useFocusEventBus('search-error', (...args) => {
-    const searchError = args[0];
+  useFocusEventBus('search-error', searchError => {
     setError(searchError);
   });
 
@@ -51,7 +50,7 @@ export function BatchCountHome() {
 
   return (
     <FixedLayout style={styles.container} header={header}>
-      <SearchBar onSubmit={onSubmit} />
+      <SkuSearchBar onSubmit={onSubmit} />
       {/* TODO: Check the error, don't assume every error is NotFound */}
       {!error && !isLoadingItemBySku && (
         <ScanBarcodeLabel
