@@ -6,7 +6,6 @@ import android.util.Log
 import com.advanceautoparts.rtninstoreapps.auth.AuthConfig
 import com.advanceautoparts.rtninstoreapps.auth.AuthError
 import com.advanceautoparts.rtninstoreapps.auth.Authentication
-import com.advanceautoparts.rtninstoreapps.loadingscreen.ActivityWithLoadingScreen
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -15,6 +14,10 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.*
 
 class AuthenticationNotConfigured : Exception("Authentication not configured - please call reloadAuthFromLauncher first")
+
+interface ActivityWithLoadingScreen {
+    fun hideLoadingScreen()
+}
 
 class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInStoreAppsSpec(reactContext) {
     companion object {
@@ -107,7 +110,7 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
     override fun hideLoadingScreen() {
         val activity = reactContext.currentActivity as? ActivityWithLoadingScreen ?: return
 
-        activity.loadingScreen.hide()
+        activity.hideLoadingScreen()
     }
 
     override fun addListener(event: String) {

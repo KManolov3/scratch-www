@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
@@ -31,22 +31,22 @@ export function AppRoot({
     [],
   );
 
-  const initialFocusPending = useRef(true);
+  const loadingScreenVisible = useRef(true);
+
+  const hideLoadingScreenIfVisible = useCallback(() => {
+    if (loadingScreenVisible.current) {
+      loadingScreenVisible.current = false;
+      InStoreAppsNative.hideLoadingScreen();
+    }
+  }, []);
 
   const screenListeners = useMemo(
-    () => ({
-      focus: () => {
-        if (initialFocusPending.current) {
-          initialFocusPending.current = false;
-          InStoreAppsNative.hideLoadingScreen();
-        }
-      },
-    }),
-    [],
+    () => ({ focus: hideLoadingScreenIfVisible }),
+    [hideLoadingScreenIfVisible],
   );
 
   const app = (
-    <AuthProvider config={config.okta}>
+    <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
       <LaunchDarklyProvider applicationName={applicationName}>
         <ApolloProvider client={apolloClient}>
           <NavigationContainer>

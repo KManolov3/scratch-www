@@ -1,7 +1,7 @@
 import { Text } from '@components/Text';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, useContext, useRef } from 'react';
 import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 
 export interface SessionInfo {
@@ -14,12 +14,17 @@ const Context = createContext<SessionInfo | undefined>(undefined);
 export interface AuthProviderProps {
   config: AuthConfig;
   children: ReactNode;
+  onError: () => void;
 }
 
 export function AuthProvider({
   config: { clientId, authServerURL },
   children,
+  onError,
 }: AuthProviderProps) {
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
   const {
     data: sessionInfo,
     reload: reloadAuth,
@@ -29,7 +34,15 @@ export function AuthProvider({
 
     error,
   } = useAsync(
-    () => InStoreAppsNative.reloadAuthFromLauncher({ clientId, authServerURL }),
+    () =>
+      InStoreAppsNative.reloadAuthFromLauncher({
+        clientId,
+        authServerURL,
+      }).catch(authError => {
+        onErrorRef.current();
+
+        return Promise.reject(authError);
+      }),
     [clientId, authServerURL],
   );
 

@@ -22,6 +22,8 @@ export const Colors = {
   mediumVoid: '#666666',
   advanceVoid: '#373737',
 
+  // Please sync this with the color defined in styles.xml in the native android project
+  // because it's used in the status bar color
   advanceBlack: '#1e1e1e',
 
   // blues
