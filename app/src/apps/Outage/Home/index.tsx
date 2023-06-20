@@ -2,7 +2,7 @@ import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { gql } from 'src/__generated__';
@@ -70,7 +70,7 @@ export function OutageHome() {
     [getItemBySku, storeNumber],
   );
 
-  const header = useMemo(() => <Header title="Outage" />, []);
+  const header = <Header title="Outage" />;
 
   return (
     <>

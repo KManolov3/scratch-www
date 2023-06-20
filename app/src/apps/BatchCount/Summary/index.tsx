@@ -9,7 +9,7 @@ import { WhiteBackArrow } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
-import { useBatchCountState } from '../state';
+import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 
@@ -20,9 +20,9 @@ export function BatchCountSummary() {
 
   const {
     submit: submitBatch,
+    submitLoading,
     submitError,
     updateItem,
-    removeItem,
     batchCountItems,
   } = useBatchCountState();
 
@@ -41,7 +41,7 @@ export function BatchCountSummary() {
     [batchCountItems],
   );
 
-  const [expandedSku, setExpandedSku] = useState<string | undefined>();
+  const [expandedSku, setExpandedSku] = useState<string>();
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -62,20 +62,8 @@ export function BatchCountSummary() {
     [batchCountItems],
   );
 
-  const bookmarkedItems: { [sku: string]: boolean } = useMemo(
-    () =>
-      Object.entries(batchCountItems).reduce(
-        (acc, [sku, item]) =>
-          Object.assign(acc, {
-            [sku]: item.isBookmarked ?? false,
-          }),
-        {},
-      ),
-    [batchCountItems],
-  );
-  const onFlag = useCallback(
-    (sku: string) => {
-      const isCurrentlyBookmarked = bookmarkedItems[sku];
+  const onBookmark = useCallback(
+    (sku: string, isCurrentlyBookmarked: boolean) => {
       updateItem(sku, {
         isBookmarked: !isCurrentlyBookmarked,
       });
@@ -85,10 +73,10 @@ export function BatchCountSummary() {
         });
       }
     },
-    [bookmarkedItems, updateItem],
+    [updateItem],
   );
 
-  const onCardPress = useCallback(
+  const onClick = useCallback(
     (sku: string) => {
       if (expandedSku !== sku) {
         setExpandedSku(sku);
@@ -100,10 +88,8 @@ export function BatchCountSummary() {
     [expandedSku],
   );
 
-  const renderItem = useCallback<
-    ListRenderItem<(typeof batchCountItemsSorted)[number]>
-  >(
-    ({ item: { item, newQty } }) => (
+  const renderItem = useCallback<ListRenderItem<BatchCountItem>>(
+    ({ item: { item, newQty, isBookmarked } }) => (
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
@@ -111,32 +97,14 @@ export function BatchCountSummary() {
           setNewQuantity(item.sku, quantity)
         }
         isExpanded={expandedSku === item.sku}
-        isBookmarked={bookmarkedItems[item.sku] ?? false}
+        isBookmarked={!!isBookmarked}
         isSummary
-        // TODO: `useCallback`s
-        onBookmarkPress={() => onFlag(item.sku)}
-        onRemove={() => {
-          removeItem(item.sku);
-
-          // TODO: Handle copy-paste?
-          toastService.showInfoToast(
-            `${item.partDesc} removed from Batch count list`,
-            {
-              props: { containerStyle: styles.toast },
-            },
-          );
-        }}
-        onCardPress={() => onCardPress(item.sku)}
+        onBookmark={() => onBookmark(item.sku, !!isBookmarked)}
+        onClick={() => onClick(item.sku)}
+        style={styles.card}
       />
     ),
-    [
-      bookmarkedItems,
-      expandedSku,
-      onCardPress,
-      onFlag,
-      removeItem,
-      setNewQuantity,
-    ],
+    [expandedSku, onClick, onBookmark, setNewQuantity],
   );
 
   const submitBatchCount = useCallback(() => {
@@ -149,9 +117,10 @@ export function BatchCountSummary() {
       {
         label: 'Approve Count',
         onPress: enableShrinkageModal,
+        isLoading: submitLoading,
       },
     ],
-    [enableShrinkageModal],
+    [enableShrinkageModal, submitLoading],
   );
 
   useEffect(() => {
@@ -179,17 +148,12 @@ export function BatchCountSummary() {
     disableShrinkageModal();
   });
 
-  // TODO: Show loading indicator on submit
-
-  const header = useMemo(
-    () => (
-      <Header
-        title="Summary"
-        leftIcon={<WhiteBackArrow />}
-        onClickLeft={goBack}
-      />
-    ),
-    [goBack],
+  const header = (
+    <Header
+      title="Summary"
+      leftIcon={<WhiteBackArrow />}
+      onClickLeft={goBack}
+    />
   );
 
   return (
@@ -220,6 +184,10 @@ export function BatchCountSummary() {
 const styles = StyleSheet.create({
   list: {
     paddingVertical: 16,
+  },
+  card: {
+    marginHorizontal: 21,
+    marginVertical: 4,
   },
   flex: {
     flex: 1,

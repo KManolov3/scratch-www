@@ -40,7 +40,6 @@ export interface ShrinkageOverageModalProps {
   onCancel: () => void;
 }
 
-// TODO: Fix backdrop not extending to the bottom
 export function ShrinkageOverageModal({
   isVisible,
   items,
@@ -48,7 +47,7 @@ export function ShrinkageOverageModal({
   onConfirm,
   onCancel,
 }: ShrinkageOverageModalProps) {
-  const isOutageCount = useMemo(() => countType === 'Outage', [countType]);
+  const isOutageCount = countType === 'Outage';
 
   const shrinkage = useMemo(() => calculateShrinkage(items), [items]);
   const overage = useMemo(() => calculateOverage(items), [items]);

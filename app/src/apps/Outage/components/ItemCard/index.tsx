@@ -3,7 +3,7 @@ import { Text } from '@components/Text';
 import { DocumentType, gql } from 'src/__generated__';
 import { convertCurrencyToString } from '@lib/currency';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { CrossIcon } from '@assets/icons';
+import { BlackCrossIcon } from '@assets/icons';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 import { Separator } from '@components/Separator';
 import { styles } from './styles';
@@ -84,7 +84,7 @@ export function OutageItemCard({
       )}
       {onRemove ? (
         <Pressable onPress={onRemove} style={styles.removeItemButton}>
-          <CrossIcon />
+          <BlackCrossIcon />
           <Text style={styles.removeItemText}>Remove Item</Text>
         </Pressable>
       ) : null}

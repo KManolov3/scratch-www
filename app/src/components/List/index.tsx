@@ -54,10 +54,8 @@ export function List<T>({ itemInfo, data }: ListProps<T>) {
   );
 }
 
-const horizonalOffset = 0;
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: horizonalOffset,
     backgroundColor: Colors.pure,
     flex: 1,
   },
