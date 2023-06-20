@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { ApolloProvider } from '@apollo/client';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { RootNavigator, RootRouteName } from '@apps/navigator';
-import { ScannerConfig } from 'rtn-in-store-apps';
+import { ScannerConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 import { ScannerProvider } from '@services/Scanner';
 import { DrawerHeader } from '@components/Drawer/DrawerHeader';
 import { toastConfig } from './services/ToastService';
@@ -31,6 +31,20 @@ export function AppRoot({
     [],
   );
 
+  const initialFocusPending = useRef(true);
+
+  const screenListeners = useMemo(
+    () => ({
+      focus: () => {
+        if (initialFocusPending.current) {
+          initialFocusPending.current = false;
+          InStoreAppsNative.hideLoadingScreen();
+        }
+      },
+    }),
+    [],
+  );
+
   const app = (
     <AuthProvider config={config.okta}>
       <LaunchDarklyProvider applicationName={applicationName}>
@@ -39,6 +53,7 @@ export function AppRoot({
             <RootNavigator
               initialRoute={initialRoute}
               screenOptions={screenOptions}
+              screenListeners={screenListeners}
             />
 
             <Toast config={toastConfig} />

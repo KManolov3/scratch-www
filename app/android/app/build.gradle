@@ -157,6 +157,8 @@ dependencies {
 
     implementation 'androidx.startup:startup-runtime:1.1.1'
 
+    implementation "com.airbnb.android:lottie:6.0.1"
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.squareup.okhttp3', module:'okhttp'
