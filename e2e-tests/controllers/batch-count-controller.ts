@@ -116,12 +116,12 @@ export class BatchCountController extends BaseController {
 
     await expectElementText(
       this.batchCountPages.approveCountPage.shrinkageOverageModal.overageValue,
-      `$${overage}` === '$0' ? '-$0.00' : `$${overage}`
+      `$${overage}` === '$0' ? '$0.00' : `$${overage}`
     );
 
     await expectElementText(
       this.batchCountPages.approveCountPage.shrinkageOverageModal.netDollars,
-      shrinkage > overage ? `$-${netDollars}` : `$${netDollars}`
+      shrinkage > overage ? `-$${netDollars}` : `$${netDollars}`
     );
   }
 
