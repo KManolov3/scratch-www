@@ -38,8 +38,7 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
-  useFocusEventBus('search-error', (...args) => {
-    const searchError = args[0];
+  useFocusEventBus('search-error', searchError => {
     setError(searchError);
   });
 

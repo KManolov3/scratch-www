@@ -58,8 +58,7 @@ export function ItemLookupHome({
 
   const { storeNumber } = useCurrentSessionInfo();
 
-  useFocusEventBus('search-error', (...args) => {
-    const searchError = args[0];
+  useFocusEventBus('search-error', searchError => {
     setError(searchError);
   });
 
