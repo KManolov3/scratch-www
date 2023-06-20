@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ApolloError, useLazyQuery } from '@apollo/client';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { gql } from 'src/__generated__';
 import {
@@ -78,7 +78,7 @@ export function ItemLookupHome({
 
   return (
     <>
-      <SearchBar onSubmit={submit} containerStyle={searchBarStyle} />
+      <SkuSearchBar onSubmit={submit} containerStyle={searchBarStyle} />
       {!error && !isLoadingItemBySku && (
         <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
       )}

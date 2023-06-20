@@ -1,6 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -75,7 +75,7 @@ export function OutageHome() {
   return (
     <>
       <FixedLayout style={styles.container} header={header}>
-        <SearchBar onSubmit={onSubmit} />
+        <SkuSearchBar onSubmit={onSubmit} />
         {loading && (
           <ActivityIndicator
             size="large"
