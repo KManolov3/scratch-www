@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { sortBy } from 'lodash-es';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
@@ -37,11 +38,7 @@ export function BatchCountSummary() {
 
   const batchCountItemsSorted = useSortOnScreenFocus(
     batchCountItems,
-    (items: BatchCountItem[]) =>
-      items.sort(
-        (item1, item2) =>
-          Number(item2.isBookmarked ?? 0) - Number(item1.isBookmarked ?? 0),
-      ),
+    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
     ({ item }: BatchCountItem) => item.sku,
   );
 

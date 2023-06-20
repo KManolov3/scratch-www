@@ -4,7 +4,7 @@ import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
-import { compact } from 'lodash-es';
+import { compact, sortBy } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
@@ -34,11 +34,7 @@ export function BatchCountList() {
 
   const batchCountItemsSorted = useSortOnScreenFocus(
     batchCountItems,
-    (items: BatchCountItem[]) =>
-      items.sort(
-        (item1, item2) =>
-          Number(item2.isBookmarked ?? 0) - Number(item1.isBookmarked ?? 0),
-      ),
+    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
     ({ item }: BatchCountItem) => item.sku,
   );
 
