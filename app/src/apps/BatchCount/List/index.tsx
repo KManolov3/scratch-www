@@ -10,6 +10,7 @@ import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
@@ -31,13 +32,14 @@ export function BatchCountList() {
     disable: disableShrinkageModal,
   } = useBooleanState(false);
 
-  const batchCountItemsSorted = useMemo(
-    () =>
-      Object.values(batchCountItems).sort(
+  const batchCountItemsSorted = useSortOnScreenFocus(
+    batchCountItems,
+    (items: BatchCountItem[]) =>
+      items.sort(
         (item1, item2) =>
           Number(item2.isBookmarked ?? 0) - Number(item1.isBookmarked ?? 0),
       ),
-    [batchCountItems],
+    ({ item }: BatchCountItem) => item.sku,
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
@@ -53,7 +55,7 @@ export function BatchCountList() {
 
   const items = useMemo(
     () =>
-      Object.values(batchCountItems).map(({ item, newQty }) => ({
+      batchCountItems.map(({ item, newQty }) => ({
         onHand: item.onHand,
         newQty,
         retailPrice: item.retailPrice,
@@ -101,7 +103,7 @@ export function BatchCountList() {
   );
 
   useEffect(() => {
-    if (Object.values(batchCountItems).length === 0) {
+    if (batchCountItems.length === 0) {
       navigation.navigate('Home');
     }
   }, [batchCountItems, navigation]);
