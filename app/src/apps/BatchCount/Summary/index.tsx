@@ -24,8 +24,10 @@ export function BatchCountSummary() {
     submitLoading,
     submitError,
     updateItem,
+    removeItem,
     batchCountItems,
   } = useBatchCountState();
+  const navigation = useNavigation<BatchCountNavigation>();
 
   const {
     state: isShrinkageModalVisible,
@@ -90,6 +92,25 @@ export function BatchCountSummary() {
     [expandedSku],
   );
 
+  const onRemove = useCallback(
+    (item: BatchCountItem['item']) => {
+      removeItem(item.sku);
+      toastService.showInfoToast(
+        `${item.partDesc} removed from Batch count list`,
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+    },
+    [removeItem],
+  );
+
+  useEffect(() => {
+    if (batchCountItems.length === 0) {
+      navigation.navigate('Home');
+    }
+  }, [batchCountItems, navigation]);
+
   const renderItem = useCallback<ListRenderItem<BatchCountItem>>(
     ({ item: { item, newQty, isBookmarked } }) => (
       <BatchCountItemCard
@@ -102,11 +123,12 @@ export function BatchCountSummary() {
         isBookmarked={!!isBookmarked}
         isSummary
         onBookmark={() => onBookmark(item.sku, !!isBookmarked)}
+        onRemove={() => onRemove(item)}
         onClick={() => onClick(item.sku)}
         style={styles.card}
       />
     ),
-    [expandedSku, onClick, onBookmark, setNewQuantity],
+    [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
   const submitBatchCount = useCallback(() => {
