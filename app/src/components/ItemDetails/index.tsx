@@ -8,11 +8,6 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
-  // TODO: remove quantity adjustment from here and below
-  quantityAdjustment?: {
-    quantity: number;
-    setNewQuantity: (newQty: number) => void;
-  };
   hasPriceDiscrepancy?: boolean;
   frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
@@ -20,7 +15,6 @@ export interface ItemDetailsProps {
 
 export function ItemDetails({
   itemDetails,
-  quantityAdjustment,
   hasPriceDiscrepancy,
   frontTagPrice,
   togglePriceDiscrepancyModal,
@@ -29,7 +23,6 @@ export function ItemDetails({
     <View style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
-        quantityAdjustment={quantityAdjustment}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
         itemStyle={styles.detailsItem}

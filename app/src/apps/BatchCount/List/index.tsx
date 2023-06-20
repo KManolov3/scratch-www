@@ -1,6 +1,3 @@
-// The store is hardcoded until the launcher can start providing an authentication
-// token to the app, containing the current active store.
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, FlatList, ListRenderItem } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
@@ -21,6 +18,7 @@ export function BatchCountList() {
   const {
     batchCountItems,
     submit: submitBatch,
+    submitLoading,
     submitError,
     updateItem,
     removeItem,
@@ -42,7 +40,7 @@ export function BatchCountList() {
     [batchCountItems],
   );
 
-  const [expandedSku, setExpandedSku] = useState<string | undefined>();
+  const [expandedSku, setExpandedSku] = useState<string>();
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -63,20 +61,8 @@ export function BatchCountList() {
     [batchCountItems],
   );
 
-  const bookmarkedItems: { [sku: string]: boolean } = useMemo(
-    () =>
-      Object.entries(batchCountItems).reduce(
-        (acc, [sku, item]) =>
-          Object.assign(acc, {
-            [sku]: item.isBookmarked ?? false,
-          }),
-        {},
-      ),
-    [batchCountItems],
-  );
-  const onFlag = useCallback(
-    (sku: string) => {
-      const isCurrentlyBookmarked = bookmarkedItems[sku];
+  const onBookmark = useCallback(
+    (sku: string, isCurrentlyBookmarked: boolean) => {
       updateItem(sku, {
         isBookmarked: !isCurrentlyBookmarked,
       });
@@ -86,10 +72,10 @@ export function BatchCountList() {
         });
       }
     },
-    [bookmarkedItems, updateItem],
+    [updateItem],
   );
 
-  const onCardPress = useCallback(
+  const onClick = useCallback(
     (sku: string) => {
       if (expandedSku !== sku) {
         setExpandedSku(sku);
@@ -120,10 +106,8 @@ export function BatchCountList() {
     }
   }, [batchCountItems, navigation]);
 
-  const renderItem = useCallback<
-    ListRenderItem<(typeof batchCountItemsSorted)[number]>
-  >(
-    ({ item: { item, newQty } }) => (
+  const renderItem = useCallback<ListRenderItem<BatchCountItem>>(
+    ({ item: { item, newQty, isBookmarked } }) => (
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
@@ -131,20 +115,14 @@ export function BatchCountList() {
           setNewQuantity(item.sku, quantity)
         }
         isExpanded={expandedSku === item.sku}
-        isBookmarked={bookmarkedItems[item.sku] ?? false}
-        onBookmarkPress={() => onFlag(item.sku)}
+        isBookmarked={!!isBookmarked}
+        onBookmark={() => onBookmark(item.sku, !!isBookmarked)}
         onRemove={() => onRemove(item)}
-        onCardPress={() => onCardPress(item.sku)}
+        onClick={() => onClick(item.sku)}
+        style={styles.card}
       />
     ),
-    [
-      bookmarkedItems,
-      expandedSku,
-      onCardPress,
-      onFlag,
-      onRemove,
-      setNewQuantity,
-    ],
+    [expandedSku, onBookmark, onClick, onRemove, setNewQuantity],
   );
 
   const submitBatchCount = useCallback(() => {
@@ -164,13 +142,14 @@ export function BatchCountList() {
           onPress: enableShrinkageModal,
           buttonStyle: styles.fastAccept,
           textStyle: styles.fastAcceptText,
+          isLoading: submitLoading,
         },
         {
           label: 'Create Summary',
           onPress: onVerify,
         },
       ]),
-    [enableShrinkageModal, onVerify],
+    [enableShrinkageModal, onVerify, submitLoading],
   );
 
   useEffect(() => {
@@ -198,13 +177,12 @@ export function BatchCountList() {
     disableShrinkageModal();
   });
 
-  const header = useMemo(() => <Header title="Batch Count" />, []);
-
-  // TODO: Show loading indicator on submit
+  const header = <Header title="Batch Count" />;
 
   return (
     <>
       <FixedLayout header={header}>
+        {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}
           data={batchCountItemsSorted}
@@ -230,6 +208,10 @@ export function BatchCountList() {
 const styles = StyleSheet.create({
   list: {
     paddingVertical: 16,
+  },
+  card: {
+    marginHorizontal: 21,
+    marginVertical: 4,
   },
   bottomActionBar: {
     paddingTop: 8,

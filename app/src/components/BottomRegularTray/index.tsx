@@ -1,44 +1,62 @@
-import { ReactNode } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
-import { Modal } from '@components/Modal';
+import ReactNativeModal from 'react-native-modal';
+import {
+  KeyboardAvoidingView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { TrayIndicator } from '@assets/icons';
 import { Colors } from '@lib/colors';
+import { BaseStyles } from '@lib/baseStyles';
+import { ModalProps } from '@components/Modal';
 
-interface BottomRegularTrayProps {
-  hideTray(): void;
-  children: ReactNode;
-  isVisible: boolean;
-}
+export type BottomRegularTrayProps = ModalProps & { hideTray(): void };
 
 export function BottomRegularTray({
-  hideTray,
-  children,
   isVisible,
+  children,
+  style,
+  hideTray,
+  ...rest
 }: BottomRegularTrayProps) {
   return (
-    <Modal
+    <ReactNativeModal
       isVisible={isVisible}
+      style={[styles.modal, style]}
+      backdropOpacity={0}
       onBackdropPress={hideTray}
       onBackButtonPress={hideTray}
-      style={styles.absolutePosition}>
-      <StatusBar backgroundColor={Colors.backdropBlack} />
-      <View style={styles.tray}>
-        <TrayIndicator width={48} height={4} />
-      </View>
-      {children}
-    </Modal>
+      {...rest}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        pointerEvents="box-none"
+        style={styles.keyboardAvoidingView}>
+        <View style={styles.container}>
+          <StatusBar backgroundColor={Colors.backdropBlack} />
+          <View style={styles.tray}>
+            <TrayIndicator width={48} height={4} />
+          </View>
+          {children}
+        </View>
+      </KeyboardAvoidingView>
+    </ReactNativeModal>
   );
 }
 
 const styles = StyleSheet.create({
-  absolutePosition: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: -20,
-
+  modal: {
     margin: 0,
   },
+  container: {
+    padding: 8,
+
+    borderRadius: 0,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    backgroundColor: Colors.pure,
+    ...BaseStyles.shadow,
+  },
+  keyboardAvoidingView: { flex: 1, justifyContent: 'flex-end' },
   tray: {
     alignItems: 'center',
   },

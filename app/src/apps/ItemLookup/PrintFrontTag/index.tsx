@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, ListRenderItemInfo, Pressable, View } from 'react-native';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -186,8 +186,8 @@ export function PrintFrontTagScreen({
     ],
   );
 
-  const renderItem = useCallback(
-    ({ item: { planogramId } }: ListRenderItemInfo<Planogram>) => {
+  const renderPlanogram = useCallback(
+    ({ planogramId }: Planogram) => {
       if (!planogramId) {
         return null;
       }
@@ -199,7 +199,7 @@ export function PrintFrontTagScreen({
       const qty = map.get(planogramId)?.qty ?? 0;
 
       return (
-        <>
+        <Fragment key={planogramId}>
           <View style={styles.table} key={planogramId}>
             <Pressable
               onPress={() => update(status.id, { checked: !status.checked })}>
@@ -224,7 +224,7 @@ export function PrintFrontTagScreen({
             />
           </View>
           <View style={styles.separator} />
-        </>
+        </Fragment>
       );
     },
     [itemDetails.planograms, map, update],
@@ -240,18 +240,15 @@ export function PrintFrontTagScreen({
     }
   });
 
-  const header = useMemo(
-    () => (
-      <Header
-        title="Item Lookup"
-        item={itemDetails}
-        rightIcon={<WhiteSearchIcon />}
-        onClickRight={enable}
-        leftIcon={<WhiteBackArrow />}
-        onClickLeft={goBack}
-      />
-    ),
-    [enable, goBack, itemDetails],
+  const header = (
+    <Header
+      title="Item Lookup"
+      item={itemDetails}
+      rightIcon={<WhiteSearchIcon />}
+      onClickRight={enable}
+      leftIcon={<WhiteBackArrow />}
+      onClickLeft={goBack}
+    />
   );
 
   return (
@@ -269,10 +266,9 @@ export function PrintFrontTagScreen({
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
-      <FlatList
-        data={compact(itemDetails.planograms)}
-        renderItem={renderItem}
-      />
+      <ScrollView style={styles.planogramContainer}>
+        {compact(itemDetails.planograms).map(renderPlanogram)}
+      </ScrollView>
       <BottomActionBar
         actions={bottomBarActions}
         style={styles.bottomActionBar}
