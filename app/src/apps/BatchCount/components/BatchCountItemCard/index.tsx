@@ -1,7 +1,13 @@
 import { useMemo } from 'react';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { PlanogramsInfo } from '@components/Locations/PlanogramList';
 import { Colors } from '@lib/colors';
 import { ItemPropertyInput } from '@components/ItemPropertyInput';
@@ -9,10 +15,11 @@ import { BaseStyles } from '@lib/baseStyles';
 import { convertCurrencyToString } from '@lib/currency';
 import { Locations } from '@components/Locations';
 import { Text } from '@components/Text';
-import _ from 'lodash-es';
-import { BookmarkBlack, BookmarkWhite, CrossIcon } from '@assets/icons';
+import { BookmarkBlack, BookmarkWhite, BlackCrossIcon } from '@assets/icons';
 import { FontWeight } from '@lib/font';
 import { DocumentType, gql } from 'src/__generated__';
+import { getBackstockQuantity } from '@lib/common';
+import { noop } from 'lodash-es';
 
 const ITEM_INFO_FIELDS = gql(`
   fragment ItemInfoFields on Item {
@@ -36,20 +43,10 @@ interface BatchCountItemCardProps {
   isExpanded: boolean;
   isBookmarked: boolean;
   isSummary?: boolean;
-  onBookmarkPress: () => void;
-  onCardPress: () => void;
-  onRemove: () => void;
-}
-
-// TODO: Extract this somewhere, since it's used in ItemLookup as well?
-function getBackstockQuantity(
-  backstockSlots: BackstockSlotsInfo['backStockSlots'],
-) {
-  if (!backstockSlots) {
-    return 0;
-  }
-
-  return _.chain(backstockSlots).compact().sumBy('qty').value();
+  onBookmark: () => void;
+  onClick: () => void;
+  onRemove?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 // TODO: Can this component be cleaner? It has grown quite large, and has
@@ -61,46 +58,38 @@ export function BatchCountItemCard({
   setNewQuantity,
   isExpanded,
   isBookmarked,
-  onBookmarkPress,
-  onCardPress,
-  onRemove,
+  onBookmark,
+  onClick,
+  onRemove = noop,
   isSummary = false,
+  style,
 }: BatchCountItemCardProps) {
-  // TODO: Handle slight vertical overlay
-  // TODO: Add "Remove Item" button
-
   const backstockSlotQuantity = useMemo(
     () => getBackstockQuantity(item.backStockSlots),
     [item.backStockSlots],
   );
-  const isBookmarkVisible = useMemo(
-    () => isExpanded || isBookmarked,
-    [isExpanded, isBookmarked],
-  );
-  const bookmark = useMemo(
-    () => (isBookmarked ? <BookmarkBlack /> : <BookmarkWhite />),
-    [isBookmarked],
-  );
-  const variance = useMemo(
-    () => newQuantity - (item.onHand ?? 0),
-    [item.onHand, newQuantity],
-  );
+  const isBookmarkVisible = isExpanded || isBookmarked;
+
+  const bookmark = isBookmarked ? <BookmarkBlack /> : <BookmarkWhite />;
+  const variance = newQuantity - (item.onHand ?? 0);
 
   return (
     <View
       style={[
         styles.container,
         isBookmarkVisible && styles.horizontalMarginExpanded,
+        style,
       ]}>
       {isBookmarkVisible && (
-        <Pressable style={styles.bookmark} onPress={onBookmarkPress}>
+        <Pressable style={styles.bookmark} onPress={onBookmark}>
           {bookmark}
         </Pressable>
       )}
       <Pressable
         style={[styles.card, isBookmarked && styles.solidBorder]}
-        onPress={onCardPress}>
-        <View style={[styles.baseInfoContainer, styles.bottomMargin]}>
+        onPress={onClick}>
+        <View
+          style={[styles.baseInfoContainer, isExpanded && styles.bottomMargin]}>
           <ItemPropertyDisplay
             label="Part Number"
             style={styles.partNumber}
@@ -185,12 +174,12 @@ export function BatchCountItemCard({
               />
             </View>
             <Locations locationDetails={item} />
-            {/* TODO: Should we add an explicit separator? In most cases the Locations table will be enough,
-              but it might look strange if there are no locations */}
-            <Pressable onPress={onRemove} style={styles.removeItem}>
-              <CrossIcon />
-              <Text style={styles.removeItemText}>Remove Item</Text>
-            </Pressable>
+            {!isSummary && (
+              <Pressable onPress={onRemove} style={styles.removeItem}>
+                <BlackCrossIcon />
+                <Text style={styles.removeItemText}>Remove Item</Text>
+              </Pressable>
+            )}
           </View>
         )}
       </Pressable>
@@ -200,8 +189,6 @@ export function BatchCountItemCard({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 21,
-    marginVertical: 4,
     flexDirection: 'row',
   },
   bookmark: {
@@ -230,9 +217,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.advanceBlack,
   },
   inputContainerStyle: {
-    marginVertical: 0,
-    height: 40,
-    padding: 0,
     width: 66,
     backgroundColor: Colors.mediumGray,
   },

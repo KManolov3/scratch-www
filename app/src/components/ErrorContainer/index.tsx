@@ -3,10 +3,6 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { StyleSheet, View } from 'react-native';
 
-export interface ErrorInformation {
-  title: string;
-  message: string;
-}
 interface ErrorContainerProps {
   title: string;
   message: string;

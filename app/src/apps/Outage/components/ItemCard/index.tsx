@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@components/Text';
 import { DocumentType } from 'src/__generated__';
-import { CrossIcon } from '@assets/icons';
+import { BlackCrossIcon } from '@assets/icons';
 import { Separator } from '@components/Separator';
 import { styles } from './styles';
 import { OutageItemInfo, OutageItemInfoFragment } from '../ItemInfo';
@@ -23,7 +23,7 @@ export function OutageItemCard({
       {!outageItem.backStockSlots?.length && <Separator />}
       {onRemove ? (
         <Pressable onPress={onRemove} style={styles.removeItemButton}>
-          <CrossIcon />
+          <BlackCrossIcon />
           <Text style={styles.removeItemText}>Remove Item</Text>
         </Pressable>
       ) : null}

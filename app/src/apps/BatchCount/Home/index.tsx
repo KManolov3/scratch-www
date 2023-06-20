@@ -1,9 +1,9 @@
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { Colors } from '@lib/colors';
@@ -38,8 +38,7 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
-  useFocusEventBus('search-error', (...args) => {
-    const searchError = args[0];
+  useFocusEventBus('search-error', searchError => {
     setError(searchError);
   });
 
@@ -47,11 +46,12 @@ export function BatchCountHome() {
     setError(undefined);
   });
 
-  const header = useMemo(() => <Header title="Batch Count" />, []);
+  const header = <Header title="Batch Count" />;
 
   return (
     <FixedLayout style={styles.container} header={header}>
-      <SearchBar onSubmit={onSubmit} />
+      <SkuSearchBar onSubmit={onSubmit} />
+      {/* TODO: Check the error, don't assume every error is NotFound */}
       {!error && !isLoadingItemBySku && (
         <ScanBarcodeLabel
           label="Scan to Start Batch Count"

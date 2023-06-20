@@ -8,12 +8,11 @@ import {
   ViewStyle,
 } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
-import { QuantityAdjuster } from '@components/QuantityAdjuster';
-import _ from 'lodash-es';
 import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { convertCurrencyToString } from '@lib/currency';
+import { getBackstockQuantity } from '@lib/common';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -37,29 +36,12 @@ export interface ItemInfoHeaderProps {
   hasPriceDiscrepancy?: boolean;
   frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
-  quantityAdjustment?: {
-    quantity: number;
-    setNewQuantity: (newQty: number) => void;
-  };
   style?: StyleProp<ViewStyle>;
   itemStyle?: StyleProp<ViewStyle>;
 }
 
-function getBackstockQuantity(
-  backstockSlots: DocumentType<
-    typeof ITEM_INFO_HEADER_FIELDS
-  >['backStockSlots'],
-) {
-  if (!backstockSlots) {
-    return 0;
-  }
-
-  return _.chain(backstockSlots).compact().sumBy('qty').value();
-}
-
 export function ItemInfoHeader({
   itemDetails,
-  quantityAdjustment,
   hasPriceDiscrepancy,
   frontTagPrice,
   togglePriceDiscrepancyModal,
@@ -125,21 +107,7 @@ export function ItemInfoHeader({
           label="Backstock"
           value={backstockSlots}
         />
-
-        {quantityAdjustment && (
-          <ItemPropertyDisplay
-            style={[styles.itemProperties, itemStyle]}
-            label="New Qty"
-            value={quantityAdjustment.quantity}
-          />
-        )}
       </View>
-      {quantityAdjustment && (
-        <QuantityAdjuster
-          quantity={quantityAdjustment.quantity}
-          setQuantity={quantityAdjustment.setNewQuantity}
-        />
-      )}
     </View>
   );
 }

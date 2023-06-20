@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     margin: 0,
-    padding: 0,
     borderWidth: 0,
     borderRadius: 8,
     backgroundColor: Colors.pure,

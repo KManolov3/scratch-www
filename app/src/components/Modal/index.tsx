@@ -14,8 +14,6 @@ export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
     <ReactNativeModal
       isVisible={isVisible}
       style={[styles.modal, style]}
-      statusBarTranslucent
-      hardwareAccelerated
       {...rest}>
       <KeyboardAvoidingView
         behavior="padding"

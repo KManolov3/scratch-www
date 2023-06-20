@@ -111,6 +111,8 @@ function buildBatchCountRequest(
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
+  // TODO: Experiment implementing the state with `useMap`
+  // https://usehooks-ts.com/react-hook/use-map
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItems>({});
   const [submitBatchCount, { error, loading }] =
     useMutation(SUBMIT_BATCH_COUNT);
@@ -210,26 +212,22 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
-  const onError = useCallback((searchError: ApolloError) => {
-    EventBus.emit('search-error', searchError);
-  }, []);
-
-  const onCompleted = useCallback(() => EventBus.emit('search-success'), []);
-
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
-      onCompleted();
+      EventBus.emit('search-success');
     },
-    onError,
+    onError: (searchError: ApolloError) =>
+      EventBus.emit('search-error', searchError),
   });
 
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
-      onCompleted();
+      EventBus.emit('search-success');
     },
-    onError,
+    onError: (searchError: ApolloError) =>
+      EventBus.emit('search-error', searchError),
   });
 
   useScanListener(scan => {
