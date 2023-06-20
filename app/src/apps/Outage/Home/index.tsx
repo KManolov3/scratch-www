@@ -51,6 +51,11 @@ export function OutageHome() {
         setErrorType('Not Found Error');
       }
     },
+    onError: () => {
+      // TODO: this error should be based on what
+      // the backend has returned
+      setErrorType('Not Found Error');
+    },
   });
 
   const addItemAndContinue = useCallback(
@@ -96,14 +101,14 @@ export function OutageHome() {
           />
         )}
       </FixedLayout>
-      {itemWithBackstock ? (
-        <BackstockWarningModal
-          isVisible={true}
-          item={itemWithBackstock}
-          onConfirm={() => addItemAndContinue(itemWithBackstock)}
-          onCancel={() => setItemWithBackstock(undefined)}
-        />
-      ) : null}
+      <BackstockWarningModal
+        isVisible={!!itemWithBackstock}
+        item={itemWithBackstock}
+        onConfirm={() => {
+          itemWithBackstock && addItemAndContinue(itemWithBackstock);
+        }}
+        onCancel={() => setItemWithBackstock(undefined)}
+      />
     </>
   );
 }
