@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
@@ -54,11 +53,13 @@ export function ItemLookupNavigator() {
   const navigation = useNavigation<ItemLookupNavigation>();
   const { storeNumber } = useCurrentSessionInfo();
 
-  const onError = useCallback((error: ApolloError) => {
+  function onError(error: ApolloError) {
     EventBus.emit('search-error', error);
-  }, []);
+  }
 
-  const onCompleted = useCallback(() => EventBus.emit('search-success'), []);
+  function onCompleted() {
+    EventBus.emit('search-success');
+  }
 
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, { onError });
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, { onError });

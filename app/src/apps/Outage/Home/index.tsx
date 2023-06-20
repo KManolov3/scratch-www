@@ -1,6 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -51,6 +51,11 @@ export function OutageHome() {
         setErrorType('Not Found Error');
       }
     },
+    onError: () => {
+      // TODO: this error should be based on what
+      // the backend has returned
+      setErrorType('Not Found Error');
+    },
   });
 
   const addItemAndContinue = useCallback(
@@ -75,7 +80,7 @@ export function OutageHome() {
   return (
     <>
       <FixedLayout style={styles.container} header={header}>
-        <SearchBar onSubmit={onSubmit} />
+        <SkuSearchBar onSubmit={onSubmit} />
         {loading && (
           <ActivityIndicator
             size="large"
@@ -96,14 +101,14 @@ export function OutageHome() {
           />
         )}
       </FixedLayout>
-      {itemWithBackstock ? (
-        <BackstockWarningModal
-          isVisible={true}
-          item={itemWithBackstock}
-          onConfirm={() => addItemAndContinue(itemWithBackstock)}
-          onCancel={() => setItemWithBackstock(undefined)}
-        />
-      ) : null}
+      <BackstockWarningModal
+        isVisible={!!itemWithBackstock}
+        item={itemWithBackstock}
+        onConfirm={() => {
+          itemWithBackstock && addItemAndContinue(itemWithBackstock);
+        }}
+        onCancel={() => setItemWithBackstock(undefined)}
+      />
     </>
   );
 }

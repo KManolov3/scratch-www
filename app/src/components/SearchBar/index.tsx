@@ -4,19 +4,19 @@ import { Colors } from '@lib/colors';
 import { TextField } from '@components/TextField';
 import { BaseStyles } from '@lib/baseStyles';
 
-export interface SearchBarProps {
+export interface SkuSearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onSubmit?: (value: string) => void;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export function SearchBar({
+export function SkuSearchBar({
   onFocus,
   onBlur,
   onSubmit,
   containerStyle,
-}: SearchBarProps) {
+}: SkuSearchBarProps) {
   return (
     <TextField
       // TODO: The component is called SearchBar, not SKUSearchBar,

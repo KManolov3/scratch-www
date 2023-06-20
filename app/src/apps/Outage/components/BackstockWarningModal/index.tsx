@@ -5,11 +5,11 @@ import { Text } from '@components/Text';
 import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
-import { OutageItemCard } from '../ItemCard';
+import { OutageItemInfo } from '../ItemInfo';
 
 export interface BackstockWarningModalProps {
   isVisible: boolean;
-  item: ItemDetailsInfo;
+  item?: ItemDetailsInfo;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -32,7 +32,7 @@ export function BackstockWarningModal({
         This item has quantity assigned to a backstock slot. Backstock slot will
         also be cleared.
       </Text>
-      <OutageItemCard outageItem={item} flatten />
+      {item && <OutageItemInfo outageItem={item} />}
     </ConfirmationModal>
   );
 }
