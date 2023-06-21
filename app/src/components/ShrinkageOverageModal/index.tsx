@@ -80,6 +80,7 @@ export function ShrinkageOverageModal({
         <ItemPropertyDisplay
           label="Shrinkage"
           value={convertCurrencyToString(-shrinkage)}
+          containerStyle={styles.shrinkageOverageContainer}
           labelStyle={styles.shrinkageOverageLabel}
           valueStyle={[styles.shrinkageOverageValue, styles.redText]}
         />
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   },
   shrinkageOverage: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     backgroundColor: Colors.pure,
     borderRadius: 8,
     marginHorizontal: 50,
@@ -138,13 +139,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     ...BaseStyles.shadow,
   },
+  shrinkageOverageContainer: {
+    flexDirection: 'column',
+    gap: 8,
+    alignItems: 'center',
+  },
   shrinkageOverageLabel: {
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 22,
     fontWeight: FontWeight.Medium,
   },
   shrinkageOverageValue: {
-    fontSize: 16,
+    fontSize: 24,
     lineHeight: 24,
     fontWeight: FontWeight.Bold,
   },

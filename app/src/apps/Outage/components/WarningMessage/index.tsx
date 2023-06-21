@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 14,
     borderColor: Colors.advanceRed,
-    borderWidth: 1,
+    borderWidth: 2,
     borderStyle: 'dashed',
-    borderRadius: 10,
+    borderRadius: 4,
   },
   text: {
     paddingLeft: 10,

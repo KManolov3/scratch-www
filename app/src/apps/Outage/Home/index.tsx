@@ -8,12 +8,11 @@ import { useCurrentSessionInfo } from '@services/Auth';
 import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { useOutageState } from '../state';
-import { OutageNavigation } from '../navigator';
+import { OutageNavigation, header } from '../navigator';
 import { BackstockWarningModal } from '../components/BackstockWarningModal';
 
 const ITEM_BY_SKU_QUERY = gql(`
@@ -74,8 +73,6 @@ export function OutageHome() {
     },
     [getItemBySku, storeNumber],
   );
-
-  const header = <Header title="Outage" />;
 
   return (
     <>
