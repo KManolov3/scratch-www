@@ -126,4 +126,22 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
             flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
     }
+
+    private var syncStorage: SyncStorage = SyncStorage(reactContext)
+
+    override fun getValueFromSharedPreferences(key: String): String? {
+        return syncStorage.getItem((key))
+    }
+
+    override fun setValueToSharedPreferences(key: String, value: String) {
+        syncStorage.setItem(key, value)
+    }
+
+    override fun removeValueFromSharedPreferences(key: String) {
+        syncStorage.removeItem(key)
+    }
+
+    override fun clearSharedPreferences() {
+        syncStorage.clear()
+    }
 }

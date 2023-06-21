@@ -15,7 +15,7 @@ import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export interface SelectPrinterProps {
@@ -35,8 +35,9 @@ export function SelectPrinters({
     enable: openConfirmationModal,
   } = useBooleanState();
 
-  const { defaultPrinterOption, set } = useDefaultSettings();
-  const [printer, setPrinter] = useState(defaultPrinterOption);
+  const { data: defaultPrinterOption, set } = useDefaultSettings(
+    'defaultPrinterOption',
+  );
   const printerToBeSelected = useRef(defaultPrinterOption);
 
   const printerValues = useMemo(
@@ -44,7 +45,7 @@ export function SelectPrinters({
       Array.from(Object.values(PrinterOptions)).map(item => (
         <RadioButton
           key={item}
-          checked={item === printer}
+          checked={item === defaultPrinterOption}
           onPress={() => {
             printerToBeSelected.current = item;
             openConfirmationModal();
@@ -55,23 +56,24 @@ export function SelectPrinters({
                 styles.text,
                 {
                   fontWeight:
-                    item === printer ? FontWeight.Bold : FontWeight.Demi,
+                    item === defaultPrinterOption
+                      ? FontWeight.Bold
+                      : FontWeight.Demi,
                 },
               ]}>
               {item}
             </Text>
-            {item === printer ? (
+            {item === defaultPrinterOption ? (
               <Text style={styles.default}>Default</Text>
             ) : null}
           </View>
         </RadioButton>
       )),
-    [openConfirmationModal, printer],
+    [openConfirmationModal, defaultPrinterOption],
   );
 
   const confirm = useCallback(() => {
-    setPrinter(printerToBeSelected.current);
-    set('defaultPrinterOption', printerToBeSelected.current);
+    set(printerToBeSelected.current);
     closeConfirmationModal();
   }, [closeConfirmationModal, set]);
 

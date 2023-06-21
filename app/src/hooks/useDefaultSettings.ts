@@ -1,4 +1,6 @@
-import { useCallback } from 'react';
+import { safeParseJson } from '@lib/object';
+import { LocalStorageService } from '@services/LocalStorageService';
+import { useCallback, useEffect, useState } from 'react';
 
 export enum PrinterOptions {
   Counter1 = 'Printer Counter 1',
@@ -11,24 +13,46 @@ export interface DefaultSettings {
   defaultPrinterOption: PrinterOptions;
 }
 
-export function useDefaultSettings(): DefaultSettings & {
-  set: <Key extends keyof DefaultSettings, Value = DefaultSettings[Key]>(
-    key: Key,
-    value: Value,
-  ) => void;
+const DefaultSettingValues: DefaultSettings = {
+  defaultPrinterOption: PrinterOptions.Counter1,
+};
+
+export function useDefaultSettings<Key extends keyof DefaultSettings>(
+  key: Key,
+): {
+  data: DefaultSettings[Key];
+  set: (value: DefaultSettings[Key]) => void;
 } {
+  function getValueFromLocalStorageWithDefault<T>(defaultValue: T): T {
+    const value = LocalStorageService.get(key);
+    if (!value) {
+      LocalStorageService.set(key, JSON.stringify(defaultValue));
+      return defaultValue;
+    }
+    const parsed = safeParseJson(value);
+    if (parsed) {
+      return parsed as T;
+    }
+    return value as T;
+  }
+
   const set = useCallback(
-    <Key extends keyof DefaultSettings, Value = DefaultSettings[Key]>(
-      _key: Key,
-      _value: Value,
-    ) => {
-      // TODO: set the value in **whereever these values are kept**
+    (value: DefaultSettings[Key]) => {
+      LocalStorageService.set(key, value);
+      setSetting(value);
     },
-    [],
+    [key],
   );
-  return {
-    // TODO: hardcoded for now, change when we implement the launcher
-    defaultPrinterOption: PrinterOptions.Counter1,
-    set,
-  };
+
+  const [setting, setSetting] = useState(
+    getValueFromLocalStorageWithDefault(DefaultSettingValues[key]),
+  );
+
+  useEffect(() => {
+    if (!setting) {
+      LocalStorageService.set(key, DefaultSettingValues[key]);
+    }
+  }, [key, setting]);
+
+  return { data: setting, set };
 }

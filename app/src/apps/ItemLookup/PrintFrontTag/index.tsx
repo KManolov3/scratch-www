@@ -85,7 +85,9 @@ export function PrintFrontTagScreen({
   const { state: printerModalVisible, toggle: togglePrintModal } =
     useBooleanState();
 
-  const { defaultPrinterOption } = useDefaultSettings();
+  const { data: defaultPrinterOption } = useDefaultSettings(
+    'defaultPrinterOption',
+  );
   const { storeNumber } = useCurrentSessionInfo();
 
   const [printer, setPrinter] = useState(defaultPrinterOption);
