@@ -174,12 +174,10 @@ export function BatchCountItemCard({
               />
             </View>
             <Locations locationDetails={item} />
-            {!isSummary && (
-              <Pressable onPress={onRemove} style={styles.removeItem}>
-                <BlackCrossIcon />
-                <Text style={styles.removeItemText}>Remove Item</Text>
-              </Pressable>
-            )}
+            <Pressable onPress={onRemove} style={styles.removeItem}>
+              <BlackCrossIcon />
+              <Text style={styles.removeItemText}>Remove Item</Text>
+            </Pressable>
           </View>
         )}
       </Pressable>

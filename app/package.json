@@ -22,7 +22,8 @@
 
     "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
     "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
-    "package:build:qa": "PACKAGE_NAME=com.advanceautoparts.instoreapps.qa ENV_FILE=.env.qa react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.qa ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-qa.apk"
+    "package:build:qa": "PACKAGE_NAME=com.advanceautoparts.instoreapps.qa ENV_FILE=.env.qa react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.qa ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-qa.apk",
+    "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
