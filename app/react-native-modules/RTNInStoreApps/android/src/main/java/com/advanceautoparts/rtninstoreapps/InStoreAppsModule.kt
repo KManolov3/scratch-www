@@ -120,8 +120,8 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
             addCategory(Intent.CATEGORY_LAUNCHER)
 
             component = ComponentName(
-                "com.advanceautoparts.instoreapps",
-                "com.advanceautoparts.instoreapps.activities.$appName"
+                reactContext.packageName,
+                "${reactContext.packageName}.activities.$appName"
             )
             flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
