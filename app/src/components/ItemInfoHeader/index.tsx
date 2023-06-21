@@ -8,12 +8,11 @@ import {
   ViewStyle,
 } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
-import { QuantityAdjuster } from '@components/QuantityAdjuster';
-import _ from 'lodash-es';
 import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { convertCurrencyToString } from '@lib/currency';
+import { getBackstockQuantity } from '@lib/common';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {
@@ -35,32 +34,16 @@ export type ItemDetailsInfo = NonNullable<
 export interface ItemInfoHeaderProps {
   itemDetails: ItemDetailsInfo;
   hasPriceDiscrepancy?: boolean;
+  frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
-  quantityAdjustment?: {
-    quantity: number;
-    setNewQuantity: (newQty: number) => void;
-  };
   style?: StyleProp<ViewStyle>;
   itemStyle?: StyleProp<ViewStyle>;
 }
 
-function getBackstockQuantity(
-  backstockSlots: DocumentType<
-    typeof ITEM_INFO_HEADER_FIELDS
-  >['backStockSlots'],
-) {
-  if (!backstockSlots) {
-    return 0;
-  }
-
-  return _.chain(backstockSlots).compact().sumBy('qty').value();
-}
-
-// TODO: Rename this to a more suitable name
 export function ItemInfoHeader({
   itemDetails,
-  quantityAdjustment,
   hasPriceDiscrepancy,
+  frontTagPrice,
   togglePriceDiscrepancyModal,
   style,
   itemStyle,
@@ -69,6 +52,15 @@ export function ItemInfoHeader({
     () => getBackstockQuantity(itemDetails.backStockSlots),
     [itemDetails.backStockSlots],
   );
+
+  const price = useMemo(() => {
+    if (hasPriceDiscrepancy) {
+      return frontTagPrice ? convertCurrencyToString(frontTagPrice) : undefined;
+    }
+    return itemDetails.retailPrice
+      ? convertCurrencyToString(itemDetails.retailPrice)
+      : 'undefined';
+  }, [frontTagPrice, hasPriceDiscrepancy, itemDetails.retailPrice]);
 
   return (
     <View style={[styles.container, style]}>
@@ -85,11 +77,7 @@ export function ItemInfoHeader({
         <ItemPropertyDisplay
           style={[styles.itemProperties, itemStyle]}
           label="Price"
-          value={
-            itemDetails.retailPrice
-              ? convertCurrencyToString(itemDetails.retailPrice)
-              : 'undefined'
-          }
+          value={price}
           icon={
             hasPriceDiscrepancy ? (
               <Pressable onPress={togglePriceDiscrepancyModal}>
@@ -119,21 +107,7 @@ export function ItemInfoHeader({
           label="Backstock"
           value={backstockSlots}
         />
-
-        {quantityAdjustment && (
-          <ItemPropertyDisplay
-            style={[styles.itemProperties, itemStyle]}
-            label="New Qty"
-            value={quantityAdjustment.quantity}
-          />
-        )}
       </View>
-      {quantityAdjustment && (
-        <QuantityAdjuster
-          quantity={quantityAdjustment.quantity}
-          setQuantity={quantityAdjustment.setNewQuantity}
-        />
-      )}
     </View>
   );
 }
@@ -143,11 +117,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    paddingHorizontal: 8,
-    paddingTop: 16,
-    fontSize: 28,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: FontWeight.Bold,
-    marginBottom: 12,
   },
   icon: { margin: 4 },
   row: {

@@ -14,12 +14,22 @@
     "graphql:watch": "graphql-codegen -w",
     "prepare": "cd .. && husky install ./app/.husky && cd ./app",
     "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema",
-    "package:debug": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ./gradlew assembleDebug"
+    "package:clean": "rm android/app/src/main/assets/index.android.bundle",
+
+    "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps",
+    "package:install:dev": "adb install -r builds/in-store-apps-dev.apk",
+    "package:build:dev": "PACKAGE_NAME=com.advanceautoparts.instoreapps ENV_FILE=.env.dev react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.dev ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-dev.apk",
+
+    "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
+    "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
+    "package:build:qa": "PACKAGE_NAME=com.advanceautoparts.instoreapps.qa ENV_FILE=.env.qa react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.qa ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-qa.apk",
+    "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "eventemitter3": "^5.0.1",
     "graphql": "^16.6.0",
     "launchdarkly-react-native-client-sdk": "^7.1.4",
     "lodash-es": "^4.17.21",
@@ -35,8 +45,8 @@
     "react-native-sound": "^0.11.2",
     "react-native-svg": "^13.9.0",
     "react-native-toast-message": "^2.1.6",
-    "uuid": "^9.0.0",
-    "rtn-in-store-apps": "file:./react-native-modules/RTNInStoreApps"
+    "rtn-in-store-apps": "file:./react-native-modules/RTNInStoreApps",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

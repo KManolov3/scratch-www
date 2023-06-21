@@ -8,11 +8,13 @@ import { useBooleanState } from '@hooks/useBooleanState';
 import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
 import { BottomRegularTray } from '@components/BottomRegularTray';
-import { SearchIcon } from '@assets/icons';
+import { WhiteSearchIcon } from '@assets/icons';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
+import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
+import { toastService } from '@services/ToastService';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { ItemLookupHome } from '../components/Home';
 
@@ -23,7 +25,7 @@ export function ItemLookupScreen({
 }: ItemLookupScreenProps<'ItemLookup'>) {
   const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  const [hasPriceDiscrepancy, setPriceDiscrepancy] = useState(
+  const [hasPriceDiscrepancy, setHasPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
 
@@ -31,28 +33,32 @@ export function ItemLookupScreen({
     state: priceDiscrepancyModalVisible,
     toggle: toggleModal,
     enable: showPriceDiscrepancyModal,
+    disable: hidePriceDiscrepancyModal,
   } = useBooleanState(hasPriceDiscrepancy);
 
   useEffect(() => {
-    if (hasPriceDiscrepancy) {
+    const priceDiscrepancy =
+      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
+    setHasPriceDiscrepancy(priceDiscrepancy);
+
+    if (priceDiscrepancy) {
       showPriceDiscrepancyModal();
+
       soundService
         .playSound('error')
         // eslint-disable-next-line no-console
         .catch(soundError => console.log('Error playing sound.', soundError));
+    } else {
+      // TODO: This is done on the second render, thus the modal changes values first, then hides.
+      //       Maybe we want to hide it directly somehow?
+      hidePriceDiscrepancyModal();
     }
   }, [
-    hasPriceDiscrepancy,
-    showPriceDiscrepancyModal,
     frontTagPrice,
     itemDetails?.retailPrice,
+    showPriceDiscrepancyModal,
+    hidePriceDiscrepancyModal,
   ]);
-
-  useEffect(() => {
-    setPriceDiscrepancy(
-      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
-    );
-  }, [frontTagPrice, itemDetails?.retailPrice]);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
@@ -69,25 +75,45 @@ export function ItemLookupScreen({
     ],
     [itemDetails, navigate],
   );
-  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+  const {
+    state: searchTrayOpen,
+    enable: showSearchTray,
+    disable: hideSearchTray,
+  } = useBooleanState();
 
-  const header = useMemo(
-    () => (
-      <Header
-        title="Item Lookup"
-        item={itemDetails}
-        rightIcon={<SearchIcon />}
-        onClickRight={enable}
-      />
-    ),
-    [enable, itemDetails],
+  const header = (
+    <Header
+      title="Item Lookup"
+      item={itemDetails}
+      rightIcon={<WhiteSearchIcon />}
+      onClickRight={showSearchTray}
+    />
   );
+
+  useFocusEventBus('search-error', () => {
+    if (!searchTrayOpen) {
+      hidePriceDiscrepancyModal();
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning another barcode.',
+      );
+    }
+  });
+
+  useFocusEventBus('search-success', () => {
+    hidePriceDiscrepancyModal();
+    hideSearchTray();
+  });
+
+  useEventBus('print-success', () => {
+    setHasPriceDiscrepancy(false);
+  });
 
   return (
     <FixedLayout style={styles.container} header={header}>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
+        frontTagPrice={frontTagPrice}
         togglePriceDiscrepancyModal={toggleModal}
       />
       <BottomActionBar
@@ -107,15 +133,20 @@ export function ItemLookupScreen({
         />
       )}
 
-      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
-        <ItemLookupHome onSubmit={disable} />
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
+        <ItemLookupHome
+          onSubmit={hideSearchTray}
+          searchBarStyle={styles.container}
+        />
       </BottomRegularTray>
     </FixedLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: Colors.pure },
+  container: {
+    backgroundColor: Colors.pure,
+  },
   bottomBarActionText: {
     color: Colors.advanceBlack,
     fontWeight: FontWeight.Bold,

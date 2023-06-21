@@ -24,16 +24,7 @@ export function OutageItemList() {
     submit: submitOutage,
     submitLoading,
   } = useOutageState();
-
-  const [activeItem, setActiveItem] = useState<ItemDetailsInfo>();
-
   const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
-
-  useEffect(() => {
-    if (outageCountItems.length > 0) {
-      setActiveItem(outageCountItems[outageCountItems.length - 1]);
-    }
-  }, [outageCountItems]);
 
   useEffect(() => {
     if (outageCountItems.length === 0) {
@@ -79,13 +70,11 @@ export function OutageItemList() {
       <OutageItemCard
         key={item.sku}
         outageItem={item}
-        active={activeItem?.sku === item.sku}
         isLast={index === outageCountItems.length - 1}
-        onPress={() => setActiveItem(item)}
-        removeItem={() => removeOutageItem(item)}
+        onRemove={() => removeOutageItem(item)}
       />
     ),
-    [activeItem?.sku, outageCountItems.length, removeOutageItem],
+    [outageCountItems.length, removeOutageItem],
   );
 
   if (submitLoading) {
@@ -98,7 +87,7 @@ export function OutageItemList() {
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}
-          style={styles.list}
+          contentContainerStyle={styles.list}
         />
 
         <BottomActionBar actions={bottomBarActions} />

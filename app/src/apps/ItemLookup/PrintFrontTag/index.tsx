@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, ListRenderItemInfo, Pressable, View } from 'react-native';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -9,11 +9,11 @@ import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { Text } from '@components/Text';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import {
-  BackArrowIcon,
   EmptySquareCheckBox,
   PrinterIcon,
-  SearchIcon,
   SquareCheckBox,
+  WhiteBackArrow,
+  WhiteSearchIcon,
 } from '@assets/icons';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { Planogram } from 'src/__generated__/graphql';
@@ -28,6 +28,7 @@ import { RadioButtonsList } from '@components/RadioButtonsList';
 import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { EventBus, useEventBus } from '@hooks/useEventBus';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -91,10 +92,17 @@ export function PrintFrontTagScreen({
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
   const {
+    state: confirmationModalOpen,
+    enable: showConfirmationModal,
+    disable: hideConfirmationModal,
+  } = useBooleanState();
+
+  const {
     data,
     loading,
     trigger: sendTagsForPrinting,
   } = useAsyncAction(() => {
+    hideConfirmationModal();
     const promises = compact(
       Array.from(map.values()).map(({ id, seqNum, checked, qty }) => {
         if (!checked) {
@@ -131,7 +139,7 @@ export function PrintFrontTagScreen({
       const numberOfFailedRequests = requestsByStatus.rejected;
 
       if (numberOfFailedRequests && numberOfFailedRequests > 0) {
-        return toastService.showErrorToast(
+        return toastService.showInfoToast(
           `${numberOfFailedRequests} out of ${data.length} requests failed.`,
         );
       }
@@ -140,23 +148,10 @@ export function PrintFrontTagScreen({
         props: { containerStyle: styles.toast },
       });
 
+      EventBus.emit('print-success');
       goBack();
-      // This is a hacky way to not show the price
-      // discrepancy after we've printed the front tags
-      // We only want to trigger that if the last screen
-      // was ItemLookup, because that's one only screen
-      // price discrepancy can be shown
-      if ((getState().routeNames.at(-2) as unknown) === 'ItemLookup') {
-        replace('ItemLookup', { itemDetails });
-      }
     }
   }, [data, getState, goBack, itemDetails, printer, replace]);
-
-  const {
-    state: confirmationModalOpen,
-    enable: showConfirmationModal,
-    disable: hideConfirmationModal,
-  } = useBooleanState();
 
   const frontTagsForPrintingQty = useMemo(
     () =>
@@ -177,7 +172,7 @@ export function PrintFrontTagScreen({
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
         disabled:
-          (itemDetails.planograms?.length ?? 0) > 1 &&
+          (itemDetails.planograms?.length ?? 0) < 1 ||
           every(Array.from(map.values()), ['checked', false]),
       },
     ],
@@ -191,8 +186,8 @@ export function PrintFrontTagScreen({
     ],
   );
 
-  const renderItem = useCallback(
-    ({ item: { planogramId } }: ListRenderItemInfo<Planogram>) => {
+  const renderPlanogram = useCallback(
+    ({ planogramId }: Planogram) => {
       if (!planogramId) {
         return null;
       }
@@ -204,7 +199,7 @@ export function PrintFrontTagScreen({
       const qty = map.get(planogramId)?.qty ?? 0;
 
       return (
-        <>
+        <Fragment key={planogramId}>
           <View style={styles.table} key={planogramId}>
             <View style={styles.flexRow}>
               {compact(itemDetails.planograms).length > 1 && (
@@ -224,12 +219,13 @@ export function PrintFrontTagScreen({
             </View>
             <QuantityAdjuster
               minimum={1}
+              maximum={99}
               quantity={qty}
               setQuantity={quantity => update(status.id, { qty: quantity })}
             />
           </View>
           <View style={styles.separator} />
-        </>
+        </Fragment>
       );
     },
     [itemDetails.planograms, map, update],
@@ -237,18 +233,23 @@ export function PrintFrontTagScreen({
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
 
-  const header = useMemo(
-    () => (
-      <Header
-        title="Item Lookup"
-        item={itemDetails}
-        rightIcon={<SearchIcon />}
-        onClickRight={enable}
-        leftIcon={<BackArrowIcon />}
-        onClickLeft={goBack}
-      />
-    ),
-    [enable, goBack, itemDetails],
+  useEventBus('search-error', () => {
+    if (!searchTrayOpen) {
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning another barcode.',
+      );
+    }
+  });
+
+  const header = (
+    <Header
+      title="Item Lookup"
+      item={itemDetails}
+      rightIcon={<WhiteSearchIcon />}
+      onClickRight={enable}
+      leftIcon={<WhiteBackArrow />}
+      onClickLeft={goBack}
+    />
   );
 
   return (
@@ -266,10 +267,9 @@ export function PrintFrontTagScreen({
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
-      <FlatList
-        data={compact(itemDetails.planograms)}
-        renderItem={renderItem}
-      />
+      <ScrollView style={styles.planogramContainer}>
+        {compact(itemDetails.planograms).map(renderPlanogram)}
+      </ScrollView>
       <BottomActionBar
         actions={bottomBarActions}
         style={styles.bottomActionBar}
@@ -283,7 +283,7 @@ export function PrintFrontTagScreen({
           setPrinter(selectPrinter);
         }}
         title="Print Front Tags"
-        confirmationLabel="Accept"
+        confirmationLabel="Select"
         Icon={PrinterIcon}>
         <View style={styles.printModal}>
           <Text style={styles.centeredText}>
@@ -306,7 +306,7 @@ export function PrintFrontTagScreen({
       />
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
-        <ItemLookupHome onSubmit={disable} />
+        <ItemLookupHome onSubmit={disable} searchBarStyle={styles.searchBar} />
       </BottomRegularTray>
     </FixedLayout>
   );

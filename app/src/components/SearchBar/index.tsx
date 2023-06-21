@@ -1,24 +1,33 @@
-import { StyleSheet } from 'react-native';
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { SearchIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
 import { TextField } from '@components/TextField';
 import { BaseStyles } from '@lib/baseStyles';
 
-export interface SearchBarProps {
+export interface SkuSearchBarProps {
   onFocus?: () => void;
   onBlur?: () => void;
   onSubmit?: (value: string) => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-export function SearchBar({ onFocus, onBlur, onSubmit }: SearchBarProps) {
+export function SkuSearchBar({
+  onFocus,
+  onBlur,
+  onSubmit,
+  containerStyle,
+}: SkuSearchBarProps) {
   return (
     <TextField
+      // TODO: The component is called SearchBar, not SKUSearchBar,
+      //       extract this placeholder and the keyboardType
       placeholder="Search for a SKU"
+      keyboardType="number-pad"
       icon={
         <SearchIcon style={styles.icon} height={iconSize} width={iconSize} />
       }
       inputStyle={styles.input}
-      containerStyle={styles.container}
+      containerStyle={[styles.container, containerStyle]}
       onFocus={onFocus}
       onBlur={onBlur}
       onSubmit={onSubmit}

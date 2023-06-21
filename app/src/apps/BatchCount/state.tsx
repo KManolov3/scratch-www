@@ -1,4 +1,4 @@
-import { ApolloError, useMutation } from '@apollo/client';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import 'react-native-get-random-values';
+import { toastService } from 'src/services/ToastService';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -19,13 +20,16 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
+import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
+import { scanCodeService } from 'src/services/ScanCode';
+import { EventBus } from '@hooks/useEventBus';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
-  batchCountItems: BatchCountItems;
-  addItem: (item: BatchCountItem) => void;
+  batchCountItems: BatchCountItem[];
+  addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
@@ -33,13 +37,31 @@ interface ContextValue {
   submitError?: ApolloError;
 }
 
+export const ITEM_BY_SKU = gql(`
+  query BatchCountItemBySkuLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+export const ITEM_BY_UPC = gql(`
+  query BatchCountItemByUpcLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
+      ...ItemInfoFields
+      ...PlanogramFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
 export interface BatchCountItem {
   item: Item & { sku: NonNullable<Item['sku']> };
   newQty: number;
-  isFlagged?: boolean;
+  isBookmarked?: boolean;
 }
-
-type BatchCountItems = Record<BatchCountItem['item']['sku'], BatchCountItem>;
 
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
@@ -50,7 +72,7 @@ const SUBMIT_BATCH_COUNT = gql(`
 const Context = createContext<ContextValue | undefined>(undefined);
 
 function buildBatchCountRequest(
-  batchCountItems: BatchCountItems,
+  batchCountItems: BatchCountItem[],
   storeNumber: string,
 ): SubmitBatchCountGql {
   return {
@@ -66,46 +88,30 @@ function buildBatchCountRequest(
         createDate: DateTime.now().toISO()!,
         cycleCountName: uuid(),
         cycleCountType: CycleCountType.BatchCount,
-        items: Object.keys(batchCountItems).map(sku => {
-          const batchCountItem = batchCountItems[sku];
-          if (batchCountItem === undefined) {
-            throw new Error(
-              `Could not find item indexed by sku ${sku}. This should never happen`,
-            );
-          }
-
-          return {
-            sku,
-            onhandAtCountQty: batchCountItem.newQty.toString(),
-            // Should we change the model and just not pass anything here if `onHand` is missing?
-            freezeQty: batchCountItem.item.onHand?.toString() ?? 'undefined',
-          };
-        }),
+        items: batchCountItems.map(({ item, newQty }) => ({
+          sku: item.sku,
+          onhandAtCountQty: newQty.toString(),
+          // Should we change the model and just not pass anything here if `onHand` is missing?
+          freezeQty: item.onHand?.toString() ?? 'undefined',
+        })),
       },
     ],
   };
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
-  const [batchCountItems, setBatchCountItems] = useState<BatchCountItems>({});
+  // TODO: Experiment implementing the state with `useMap`
+  // https://usehooks-ts.com/react-hook/use-map
+  const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
   const [submitBatchCount, { error, loading }] =
     useMutation(SUBMIT_BATCH_COUNT);
   const navigation = useNavigation<BatchCountNavigation>();
 
   const { storeNumber } = useCurrentSessionInfo();
 
-  const addItem = useCallback(
-    (newItem: BatchCountItem) =>
-      setBatchCountItems({
-        ...batchCountItems,
-        [newItem.item.sku]: newItem,
-      }),
-    [batchCountItems, setBatchCountItems],
-  );
-
   const updateItem = useCallback(
     (sku: string, updatedItem: Partial<BatchCountItem>) => {
-      const itemInState = batchCountItems[sku];
+      const itemInState = batchCountItems.find(({ item }) => item.sku === sku);
 
       if (!itemInState) {
         // TODO: Should this be an error? It will break the application, but then again,
@@ -113,20 +119,59 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Attempting to update an item not existing in state');
       }
 
-      setBatchCountItems({
-        ...batchCountItems,
-        [sku]: merge(batchCountItems[sku], updatedItem),
-      });
+      setBatchCountItems([
+        merge(itemInState, updatedItem),
+        ...batchCountItems.filter(({ item }) => item.sku !== sku),
+      ]);
     },
     [batchCountItems, setBatchCountItems],
   );
 
-  const removeItem = useCallback(
-    (sku: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [sku]: itemToRemove, ...rest } = batchCountItems;
-      setBatchCountItems(rest);
+  const addItem = useCallback(
+    (newItem: Item | undefined, incrementCount: boolean) => {
+      if (newItem) {
+        const itemInState = batchCountItems.find(
+          ({ item }) => item.sku === newItem.sku,
+        );
+
+        if (!itemInState) {
+          setBatchCountItems([
+            {
+              item: {
+                ...newItem,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                sku: newItem.sku!,
+              },
+              newQty: incrementCount ? 1 : 0,
+            },
+            ...batchCountItems,
+          ]);
+        } else {
+          // Updating with the retrieved information even if the item already exists in the state
+          // in case something changed (for example, the price) on the backend.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          updateItem(newItem.sku!, {
+            item: {
+              ...newItem,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: newItem.sku!,
+            },
+            newQty: incrementCount
+              ? itemInState.newQty + 1
+              : itemInState.newQty,
+          });
+        }
+        navigation.navigate('List');
+      }
     },
+    [batchCountItems, navigation, updateItem],
+  );
+
+  const removeItem = useCallback(
+    (sku: string) =>
+      setBatchCountItems(
+        batchCountItems.filter(({ item }) => item.sku !== sku),
+      ),
     [batchCountItems],
   );
 
@@ -136,8 +181,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       storeNumber,
     );
     await submitBatchCount({ variables: { request: batchCountRequest } });
-    setBatchCountItems({});
+    setBatchCountItems([]);
 
+    toastService.showInfoToast('Batch count completed');
     navigation.navigate('Home');
   }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
@@ -153,6 +199,38 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     }),
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
+
+  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+    onCompleted: item => {
+      addItem(item.itemBySku ?? undefined, false);
+      EventBus.emit('search-success');
+    },
+    onError: (searchError: ApolloError) =>
+      EventBus.emit('search-error', searchError),
+  });
+
+  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+    onCompleted: item => {
+      addItem(item.itemByUpc ?? undefined, true);
+      EventBus.emit('search-success');
+    },
+    onError: (searchError: ApolloError) =>
+      EventBus.emit('search-error', searchError),
+  });
+
+  useScanListener(scan => {
+    const scanCode = scanCodeService.parse(scan);
+
+    if (scanCode.type === 'SKU') {
+      return searchBySku({
+        variables: { sku: scanCode.sku, storeNumber },
+      });
+    }
+
+    return searchByUpc({
+      variables: { upc: scanCode.upc, storeNumber },
+    });
+  });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -1,6 +1,7 @@
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 import {
   StyleProp,
@@ -31,7 +32,7 @@ export function BottomActionBar({
   style,
 }: BottomActionBarProps) {
   return (
-    <View style={[BaseStyles.shadow, styles.container, style]}>
+    <View style={[styles.container, style]}>
       {topComponent}
       <Container style={styles.actionsContainer}>
         {actions.map(
@@ -54,16 +55,19 @@ export function BottomActionBar({
 }
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 8,
+
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
 
+    backgroundColor: Colors.pure,
+    ...BaseStyles.shadow,
     shadowOffset: { width: 0, height: -2 },
-    elevation: 1,
   },
   actionsContainer: { justifyContent: 'space-evenly' },
   actionStyle: {
     flex: 1,
-    marginTop: 16,
+    marginTop: 6,
     borderRadius: 8,
   },
 });

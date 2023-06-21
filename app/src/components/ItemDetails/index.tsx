@@ -8,30 +8,30 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export interface ItemDetailsProps {
   itemDetails: ItemDetailsInfo & PlanogramsInfo & BackstockSlotsInfo;
-  quantityAdjustment?: {
-    quantity: number;
-    setNewQuantity: (newQty: number) => void;
-  };
   hasPriceDiscrepancy?: boolean;
+  frontTagPrice?: number;
   togglePriceDiscrepancyModal?: () => void;
 }
 
 export function ItemDetails({
   itemDetails,
-  quantityAdjustment,
   hasPriceDiscrepancy,
+  frontTagPrice,
   togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
   return (
     <View style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
-        quantityAdjustment={quantityAdjustment}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
         togglePriceDiscrepancyModal={togglePriceDiscrepancyModal}
         itemStyle={styles.detailsItem}
+        frontTagPrice={frontTagPrice}
       />
-      <Locations locationDetails={itemDetails} />
+      <Locations
+        locationDetails={itemDetails}
+        containerStyle={styles.locations}
+      />
     </View>
   );
 }
@@ -44,7 +44,11 @@ const styles = StyleSheet.create({
   detailsItem: {
     ...BaseStyles.shadow,
     borderRadius: 8,
-    padding: 8,
-    paddingHorizontal: 12,
+    padding: 6,
+    paddingHorizontal: 15,
+  },
+  locations: {
+    marginHorizontal: 12,
+    marginTop: 16,
   },
 });

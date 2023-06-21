@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import { ApolloError, useLazyQuery } from '@apollo/client';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
@@ -16,6 +16,7 @@ import { scanCodeService } from '@services/ScanCode';
 import { useScanListener } from '@services/Scanner';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from 'src/types/ItemLookup';
+import { EventBus } from '@hooks/useEventBus';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 import { PrintFrontTagScreen } from './PrintFrontTag';
@@ -52,8 +53,16 @@ export function ItemLookupNavigator() {
   const navigation = useNavigation<ItemLookupNavigation>();
   const { storeNumber } = useCurrentSessionInfo();
 
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU);
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC);
+  function onError(error: ApolloError) {
+    EventBus.emit('search-error', error);
+  }
+
+  function onCompleted() {
+    EventBus.emit('search-success');
+  }
+
+  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, { onError });
+  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, { onError });
 
   useScanListener(scan => {
     const scanCode = scanCodeService.parse(scan);
@@ -62,6 +71,7 @@ export function ItemLookupNavigator() {
       return searchBySku({
         variables: { sku: scanCode.sku, storeNumber },
         onCompleted: itemDetails => {
+          onCompleted();
           if (itemDetails.itemBySku) {
             navigation.navigate('ItemLookup', {
               frontTagPrice: scanCode.frontTagPrice,
@@ -75,6 +85,7 @@ export function ItemLookupNavigator() {
     return searchByUpc({
       variables: { upc: scanCode.upc, storeNumber },
       onCompleted: itemDetails => {
+        onCompleted();
         if (itemDetails.itemByUpc) {
           navigation.navigate('ItemLookup', {
             itemDetails: itemDetails.itemByUpc,

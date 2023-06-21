@@ -5,53 +5,28 @@ import { BaseStyles } from '@lib/baseStyles';
 
 export const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    paddingTop: 19,
-    paddingLeft: 23,
-    paddingRight: 20,
-    paddingBottom: 14,
+    paddingBottom: 15,
     borderRadius: 8,
     backgroundColor: Colors.pure,
+    marginHorizontal: 16,
+    marginTop: 12,
     ...BaseStyles.shadow,
   },
   lastCard: {
     marginBottom: 12,
   },
-  titleWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: 24,
-    lineHeight: 32,
-    color: Colors.advanceVoid,
-    fontWeight: FontWeight.Bold,
-  },
-  content: {
-    flexDirection: 'row',
-    paddingTop: 9,
-  },
-  productInformation: {
-    flex: 1,
-    marginRight: 12,
-  },
-  quantityUpdate: {
-    flex: 1,
-    paddingLeft: 12,
-    justifyContent: 'space-between',
-  },
-  quantityInformation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  property: {
-    marginBottom: 8,
-  },
-  removeItem: {
+  removeItemButton: {
+    paddingTop: 15,
     marginLeft: 8,
+    gap: 20,
     alignItems: 'center',
     verticalAlign: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  removeItemText: {
+    fontSize: 14,
+    color: Colors.advanceVoid,
+    fontWeight: FontWeight.Bold,
   },
 });

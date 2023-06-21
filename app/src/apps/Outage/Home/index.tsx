@@ -1,40 +1,31 @@
 import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { gql } from 'src/__generated__';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Text } from '@components/Text';
 import { Header } from '@components/Header';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
+import { BackstockWarningModal } from '../components/BackstockWarningModal';
 
 const ITEM_BY_SKU_QUERY = gql(`
   query ItemLookupBySku($sku: String!, $storeNumber: String!) {
     itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
+      ...BackstockSlotFields
     },
   }
 `);
 
 type ErrorType = 'Not Found Error';
-
-interface ErrorInformation {
-  title: string;
-  message: string;
-}
-
-const errorInformation: Record<ErrorType, ErrorInformation> = {
-  'Not Found Error': {
-    title: 'No Results Found',
-    message: 'Try searching for another SKU or scanning another front tag',
-  },
-};
 
 export function OutageHome() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -42,14 +33,18 @@ export function OutageHome() {
 
   const { storeNumber } = useCurrentSessionInfo();
 
+  const [itemWithBackstock, setItemWithBackstock] = useState<ItemDetailsInfo>();
+
   const [errorType, setErrorType] = useState<ErrorType>();
 
   const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
     onCompleted: item => {
       if (item?.itemBySku) {
-        setErrorType(undefined);
-        addItem(item.itemBySku);
-        navigate('Item List');
+        if (item?.itemBySku.backStockSlots?.length) {
+          setItemWithBackstock(item.itemBySku);
+        } else {
+          addItemAndContinue(item.itemBySku);
+        }
       } else {
         // TODO: this error should be based on what
         // the backend has returned
@@ -63,6 +58,16 @@ export function OutageHome() {
     },
   });
 
+  const addItemAndContinue = useCallback(
+    (item: ItemDetailsInfo) => {
+      setErrorType(undefined);
+      addItem(item);
+      setItemWithBackstock(undefined);
+      navigate('Item List');
+    },
+    [addItem, navigate],
+  );
+
   const onSubmit = useCallback(
     (sku: string) => {
       getItemBySku({ variables: { sku, storeNumber } });
@@ -70,32 +75,41 @@ export function OutageHome() {
     [getItemBySku, storeNumber],
   );
 
-  const header = useMemo(() => <Header title="Outage" />, []);
+  const header = <Header title="Outage" />;
 
   return (
-    <FixedLayout style={styles.container} header={header}>
-      <SearchBar onSubmit={onSubmit} />
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={Colors.mediumVoid}
-          style={styles.loadingIndicator}
-        />
-      ) : null}
-      {!errorType && !loading ? (
-        <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
-      ) : null}
-      {errorType && !loading ? (
-        <View style={styles.error}>
-          <Text style={styles.errorTitle}>
-            {errorInformation[errorType].title}
-          </Text>
-          <Text style={styles.errorMessage}>
-            {errorInformation[errorType].message}
-          </Text>
-        </View>
-      ) : null}
-    </FixedLayout>
+    <>
+      <FixedLayout style={styles.container} header={header}>
+        <SkuSearchBar onSubmit={onSubmit} />
+        {loading && (
+          <ActivityIndicator
+            size="large"
+            color={Colors.mediumVoid}
+            style={styles.loadingIndicator}
+          />
+        )}
+        {!errorType && !loading && (
+          <ScanBarcodeLabel
+            label="Scan For Outage"
+            style={styles.scanBarcode}
+          />
+        )}
+        {errorType && !loading && (
+          <ErrorContainer
+            title="No Results Found"
+            message="Try searching for another SKU or scanning another front tag"
+          />
+        )}
+      </FixedLayout>
+      <BackstockWarningModal
+        isVisible={!!itemWithBackstock}
+        item={itemWithBackstock}
+        onConfirm={() => {
+          itemWithBackstock && addItemAndContinue(itemWithBackstock);
+        }}
+        onCancel={() => setItemWithBackstock(undefined)}
+      />
+    </>
   );
 }
 
@@ -104,7 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
   },
   loadingIndicator: {
-    marginTop: 88,
+    marginTop: 144,
   },
   scanBarcode: {
     marginTop: 88,

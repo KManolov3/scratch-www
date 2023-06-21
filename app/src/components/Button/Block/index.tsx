@@ -42,9 +42,10 @@ export function BlockButton({
         style,
         disabled && styles.disabled,
         disabled && disabledStyle,
+        isLoading && styles.loading,
       ]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       {...rest}>
       {!!Icon && (
         <Icon
@@ -54,19 +55,20 @@ export function BlockButton({
         />
       )}
 
-      {typeof label === 'string' ? (
-        <Text
-          style={[
-            styles.text,
-            textStyle,
-            disabled && styles.disabledText,
-            disabled && disabledTextStyle,
-          ]}>
-          {label}
-        </Text>
-      ) : (
-        label
-      )}
+      {!isLoading &&
+        (typeof label === 'string' ? (
+          <Text
+            style={[
+              styles.text,
+              textStyle,
+              disabled && styles.disabledText,
+              disabled && disabledTextStyle,
+            ]}>
+            {label}
+          </Text>
+        ) : (
+          label
+        ))}
 
       {isLoading && (
         <ActivityIndicator

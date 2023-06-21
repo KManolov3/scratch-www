@@ -14,22 +14,25 @@ import {
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
+import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { compact } from 'lodash-es';
+import { config } from 'src/config';
 import { SvgType } from '*.svg';
 import { DrawerNavigation, DrawerScreenProps } from './navigator';
 
 interface DrawerSectionData {
   label: string;
   Icon?: SvgType;
+  backgroundColor?: string;
   onPress?: () => void;
 }
 
-interface DrawerSection {
-  title: string;
+type DrawerSection = {
+  title: string | ReactElement;
   backgroundColor?: string;
   data: DrawerSectionData[];
-}
+};
 
 interface DrawerSectionHeader {
   section: SectionListData<DrawerSectionData, DrawerSection>;
@@ -45,19 +48,41 @@ export function Drawer({
     params: { title, item },
   },
 }: DrawerScreenProps<'DrawerHome'>) {
-  const { replace, getParent } = useNavigation<DrawerNavigation>();
+  const { replace, getParent, goBack } = useNavigation<DrawerNavigation>();
+  const { navigate } = useNavigation<ItemLookupNavigation>();
 
   useEffect(() => getParent()?.setOptions({ title }), [getParent, title]);
 
   const renderSectionHeader = useCallback<
-    (sections: DrawerSectionHeader) => ReactElement
-  >(
-    ({ section: { title: sectionTitle } }) => (
-      <Text key={sectionTitle} style={styles.drawerHeader}>
-        {sectionTitle}
-      </Text>
-    ),
-    [],
+    (sections: DrawerSectionHeader) => ReactElement | null
+  >(({ section: { title: sectionTitle, data } }) => {
+    if (data.length === 0) {
+      return null;
+    }
+
+    if (typeof sectionTitle === 'string') {
+      return (
+        <Text
+          key={sectionTitle}
+          style={[
+            styles.drawerHeader,
+            styles.drawerHeaderText,
+            styles.drawerSections,
+          ]}>
+          {sectionTitle}
+        </Text>
+      );
+    }
+
+    return sectionTitle;
+  }, []);
+
+  const navigateTo = useCallback(
+    (activityName: Activity) => {
+      goBack();
+      InStoreAppsNative.navigateTo(activityName);
+    },
+    [goBack],
   );
 
   const sections = useMemo(
@@ -65,10 +90,14 @@ export function Drawer({
       {
         title: 'Item In Slots',
         data: compact([
-          item ? { label: 'Print Front Tags' } : undefined,
-          // TODO: hardcoded for now
-          { label: 'Backstock Moves' },
-          { label: 'Manage Backstock slot' },
+          item
+            ? {
+                label: 'Print Front Tags',
+                onPress: () => navigate('PrintFrontTag', { itemDetails: item }),
+              }
+            : undefined,
+          // { label: 'Backstock Moves' },
+          // { label: 'Manage Backstock slot' },
         ]),
       },
       {
@@ -78,22 +107,19 @@ export function Drawer({
           {
             label: 'Item Lookup',
             Icon: EmptyRadioButton,
-            onPress: () =>
-              InStoreAppsNative.navigateTo(Activity.ItemLookupActivity),
+            onPress: () => navigateTo(Activity.ItemLookupActivity),
           },
           { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
           {
             label: 'Batch Count',
             Icon: EmptyRadioButton,
-            onPress: () =>
-              InStoreAppsNative.navigateTo(Activity.BatchCountActivity),
+            onPress: () => navigateTo(Activity.BatchCountActivity),
           },
           { label: 'New Return Request', Icon: EmptyRadioButton },
           {
             label: 'Cycle Count',
             Icon: EmptyRadioButton,
-            onPress: () =>
-              InStoreAppsNative.navigateTo(Activity.CycleCountActivity),
+            onPress: () => navigateTo(Activity.CycleCountActivity),
           },
           {
             label: 'Receiving',
@@ -106,35 +132,54 @@ export function Drawer({
           {
             label: 'Outage',
             Icon: EmptyRadioButton,
-            onPress: () =>
-              InStoreAppsNative.navigateTo(Activity.OutageActivity),
+            onPress: () => navigateTo(Activity.OutageActivity),
           },
-        ],
+        ].filter(({ label }) => label !== title),
       },
       {
-        title: 'Settings',
-        backgroundColor: Colors.darkerGray,
+        title: (
+          <View
+            key="Settings"
+            style={[
+              styles.drawerSections,
+              styles.drawerHeader,
+              styles.settings,
+            ]}>
+            <Text style={styles.drawerHeaderText}>Settings</Text>
+            <Text style={styles.version}>
+              ver. {config.version}
+              {config.build ? `-${config.build}` : ''}
+            </Text>
+          </View>
+        ),
+        key: 'Settings',
+        backgroundColor: Colors.drawerGray,
         data: [
           {
             label: 'Printers',
             onPress: () => replace('SelectPrinter', { title }),
+            backgroundColor: Colors.drawerGray,
           },
           {
             label: 'Help Request',
             onPress: () => replace('HelpRequest', { title }),
+            backgroundColor: Colors.drawerGray,
           },
         ],
       },
     ],
-    [item, replace, title],
+    [item, navigate, navigateTo, replace, title],
   );
 
   const renderSectionItem = useCallback(
     ({
-      item: { label, Icon, onPress },
+      item: { label, Icon, onPress, backgroundColor },
       index,
     }: SectionListRenderItemInfo<DrawerSectionData>) => (
-      <Pressable key={index} onPress={onPress}>
+      <Pressable
+        key={index}
+        onPress={onPress}
+        style={[{ backgroundColor }, styles.drawerSections]}>
         <View style={styles.drawerSectionsItem}>
           <View style={styles.drawerSectionLabel}>
             {Icon ? <Icon height={20} width={20} style={styles.icon} /> : null}
@@ -148,47 +193,30 @@ export function Drawer({
   );
 
   return (
-    <FixedLayout style={{ backgroundColor: Colors.lighterVoid }}>
+    <FixedLayout style={styles.container}>
       <SectionList
         sections={sections}
         renderSectionHeader={renderSectionHeader}
         renderItem={renderSectionItem}
-        style={styles.drawerSections}
       />
     </FixedLayout>
   );
 }
 
 export const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.advanceBlack,
-    paddingHorizontal: 14,
-  },
-  crossIcon: {
-    marginRight: 26,
-  },
-  hamburgerIcon: {
-    marginRight: 36,
-  },
-  title: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: FontWeight.Demi,
-    color: Colors.pure,
-    marginLeft: 36,
-  },
+  container: { backgroundColor: Colors.lightGray },
   drawerSections: {
     paddingHorizontal: 19,
-    paddingBottom: 32,
   },
   drawerHeader: {
+    paddingTop: 16,
+    marginTop: 16,
+  },
+  drawerHeaderText: {
     fontSize: 18,
     lineHeight: 20,
     fontWeight: FontWeight.Bold,
     color: Colors.black,
-    marginTop: 32,
   },
   icon: {
     marginRight: 10,
@@ -214,4 +242,11 @@ export const styles = StyleSheet.create({
     fontWeight: FontWeight.Demi,
     color: Colors.darkVoid,
   },
+  settings: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.drawerGray,
+  },
+  version: { fontWeight: FontWeight.Book },
 });
