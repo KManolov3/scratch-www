@@ -38,7 +38,7 @@ export function useDefaultSettings<Key extends keyof DefaultSettings>(
 
   const set = useCallback(
     (value: DefaultSettings[Key]) => {
-      LocalStorageService.set(key, value);
+      LocalStorageService.set(key, JSON.stringify(value));
       setSetting(value);
     },
     [key],
@@ -50,7 +50,7 @@ export function useDefaultSettings<Key extends keyof DefaultSettings>(
 
   useEffect(() => {
     if (!setting) {
-      LocalStorageService.set(key, DefaultSettingValues[key]);
+      LocalStorageService.set(key, JSON.stringify(DefaultSettingValues[key]));
     }
   }, [key, setting]);
 
