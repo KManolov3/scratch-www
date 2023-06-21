@@ -174,5 +174,27 @@ dependencies {
     }
 }
 
+tasks.register("buildStringsFromEnv") {
+    def variables = project.env.entrySet().collect {
+        if (it.key.startsWith("STRINGS_XML_")) {
+            def key = it.key.replace(/STRINGS_XML_/, '').toLowerCase()
+
+            "   <string name=\"${key}\">${it.value}</string>"
+        }
+    }.findAll {it != null }.join("\n")
+
+    def fileContent = """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+${variables}
+</resources>"""
+
+    new File("app/src/main/res/values/env_strings.xml").write(fileContent)
+}
+
+tasks.named("preBuild") {
+    dependsOn("buildStringsFromEnv")
+}
+
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
 apply plugin: 'org.jetbrains.kotlin.android'; applyNativeModulesAppBuildGradle(project)
+apply plugin: "com.dorongold.task-tree"
