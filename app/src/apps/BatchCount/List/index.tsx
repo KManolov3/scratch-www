@@ -4,12 +4,13 @@ import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useNavigation } from '@react-navigation/native';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
-import { compact } from 'lodash-es';
+import { compact, sortBy } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
@@ -31,13 +32,15 @@ export function BatchCountList() {
     disable: disableShrinkageModal,
   } = useBooleanState(false);
 
-  const batchCountItemsSorted = useMemo(
-    () =>
-      Object.values(batchCountItems).sort(
-        (item1, item2) =>
-          Number(item2.isBookmarked ?? 0) - Number(item1.isBookmarked ?? 0),
-      ),
-    [batchCountItems],
+  const sortFn = useCallback(
+    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
+    [],
+  );
+  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
+  const batchCountItemsSorted = useSortOnScreenFocus(
+    batchCountItems,
+    sortFn,
+    keyFn,
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
@@ -53,7 +56,7 @@ export function BatchCountList() {
 
   const items = useMemo(
     () =>
-      Object.values(batchCountItems).map(({ item, newQty }) => ({
+      batchCountItems.map(({ item, newQty }) => ({
         onHand: item.onHand,
         newQty,
         retailPrice: item.retailPrice,
@@ -101,7 +104,7 @@ export function BatchCountList() {
   );
 
   useEffect(() => {
-    if (Object.values(batchCountItems).length === 0) {
+    if (batchCountItems.length === 0) {
       navigation.navigate('Home');
     }
   }, [batchCountItems, navigation]);
