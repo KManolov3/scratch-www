@@ -9,6 +9,8 @@ import { WhiteBackArrow } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { sortBy } from 'lodash-es';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
@@ -23,8 +25,10 @@ export function BatchCountSummary() {
     submitLoading,
     submitError,
     updateItem,
+    removeItem,
     batchCountItems,
   } = useBatchCountState();
+  const navigation = useNavigation<BatchCountNavigation>();
 
   const {
     state: isShrinkageModalVisible,
@@ -32,13 +36,15 @@ export function BatchCountSummary() {
     disable: disableShrinkageModal,
   } = useBooleanState(false);
 
-  const batchCountItemsSorted = useMemo(
-    () =>
-      Object.values(batchCountItems).sort(
-        (item1, item2) =>
-          Number(item2.isBookmarked ?? 0) - Number(item1.isBookmarked ?? 0),
-      ),
-    [batchCountItems],
+  const sortFn = useCallback(
+    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
+    [],
+  );
+  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
+  const batchCountItemsSorted = useSortOnScreenFocus(
+    batchCountItems,
+    sortFn,
+    keyFn,
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
@@ -88,6 +94,25 @@ export function BatchCountSummary() {
     [expandedSku],
   );
 
+  const onRemove = useCallback(
+    (item: BatchCountItem['item']) => {
+      removeItem(item.sku);
+      toastService.showInfoToast(
+        `${item.partDesc} removed from Batch count list`,
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+    },
+    [removeItem],
+  );
+
+  useEffect(() => {
+    if (batchCountItems.length === 0) {
+      navigation.navigate('Home');
+    }
+  }, [batchCountItems, navigation]);
+
   const renderItem = useCallback<ListRenderItem<BatchCountItem>>(
     ({ item: { item, newQty, isBookmarked } }) => (
       <BatchCountItemCard
@@ -100,11 +125,12 @@ export function BatchCountSummary() {
         isBookmarked={!!isBookmarked}
         isSummary
         onBookmark={() => onBookmark(item.sku, !!isBookmarked)}
+        onRemove={() => onRemove(item)}
         onClick={() => onClick(item.sku)}
         style={styles.card}
       />
     ),
-    [expandedSku, onClick, onBookmark, setNewQuantity],
+    [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
   const submitBatchCount = useCallback(() => {

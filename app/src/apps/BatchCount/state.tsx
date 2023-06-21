@@ -28,7 +28,7 @@ import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
-  batchCountItems: BatchCountItems;
+  batchCountItems: BatchCountItem[];
   addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
@@ -63,8 +63,6 @@ export interface BatchCountItem {
   isBookmarked?: boolean;
 }
 
-type BatchCountItems = Record<BatchCountItem['item']['sku'], BatchCountItem>;
-
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
     sendCycleCountList(request: $request)
@@ -74,7 +72,7 @@ const SUBMIT_BATCH_COUNT = gql(`
 const Context = createContext<ContextValue | undefined>(undefined);
 
 function buildBatchCountRequest(
-  batchCountItems: BatchCountItems,
+  batchCountItems: BatchCountItem[],
   storeNumber: string,
 ): SubmitBatchCountGql {
   return {
@@ -90,21 +88,12 @@ function buildBatchCountRequest(
         createDate: DateTime.now().toISO()!,
         cycleCountName: uuid(),
         cycleCountType: CycleCountType.BatchCount,
-        items: Object.keys(batchCountItems).map(sku => {
-          const batchCountItem = batchCountItems[sku];
-          if (batchCountItem === undefined) {
-            throw new Error(
-              `Could not find item indexed by sku ${sku}. This should never happen`,
-            );
-          }
-
-          return {
-            sku,
-            onhandAtCountQty: batchCountItem.newQty.toString(),
-            // Should we change the model and just not pass anything here if `onHand` is missing?
-            freezeQty: batchCountItem.item.onHand?.toString() ?? 'undefined',
-          };
-        }),
+        items: batchCountItems.map(({ item, newQty }) => ({
+          sku: item.sku,
+          onhandAtCountQty: newQty.toString(),
+          // Should we change the model and just not pass anything here if `onHand` is missing?
+          freezeQty: item.onHand?.toString() ?? 'undefined',
+        })),
       },
     ],
   };
@@ -113,7 +102,7 @@ function buildBatchCountRequest(
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   // TODO: Experiment implementing the state with `useMap`
   // https://usehooks-ts.com/react-hook/use-map
-  const [batchCountItems, setBatchCountItems] = useState<BatchCountItems>({});
+  const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
   const [submitBatchCount, { error, loading }] =
     useMutation(SUBMIT_BATCH_COUNT);
   const navigation = useNavigation<BatchCountNavigation>();
@@ -122,7 +111,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
 
   const updateItem = useCallback(
     (sku: string, updatedItem: Partial<BatchCountItem>) => {
-      const itemInState = batchCountItems[sku];
+      const itemInState = batchCountItems.find(({ item }) => item.sku === sku);
 
       if (!itemInState) {
         // TODO: Should this be an error? It will break the application, but then again,
@@ -130,10 +119,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Attempting to update an item not existing in state');
       }
 
-      setBatchCountItems({
-        ...batchCountItems,
-        [sku]: merge(batchCountItems[sku], updatedItem),
-      });
+      setBatchCountItems([
+        merge(itemInState, updatedItem),
+        ...batchCountItems.filter(({ item }) => item.sku !== sku),
+      ]);
     },
     [batchCountItems, setBatchCountItems],
   );
@@ -141,14 +130,13 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback(
     (newItem: Item | undefined, incrementCount: boolean) => {
       if (newItem) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const itemInState = batchCountItems[newItem.sku!];
+        const itemInState = batchCountItems.find(
+          ({ item }) => item.sku === newItem.sku,
+        );
 
         if (!itemInState) {
-          setBatchCountItems({
-            ...batchCountItems,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            [newItem.sku!]: {
+          setBatchCountItems([
+            {
               item: {
                 ...newItem,
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -156,7 +144,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
               },
               newQty: incrementCount ? 1 : 0,
             },
-          });
+            ...batchCountItems,
+          ]);
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -179,11 +168,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (sku: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [sku]: itemToRemove, ...rest } = batchCountItems;
-      setBatchCountItems(rest);
-    },
+    (sku: string) =>
+      setBatchCountItems(
+        batchCountItems.filter(({ item }) => item.sku !== sku),
+      ),
     [batchCountItems],
   );
 
@@ -193,7 +181,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       storeNumber,
     );
     await submitBatchCount({ variables: { request: batchCountRequest } });
-    setBatchCountItems({});
+    setBatchCountItems([]);
 
     toastService.showInfoToast('Batch count completed');
     navigation.navigate('Home');
