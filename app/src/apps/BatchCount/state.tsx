@@ -146,6 +146,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
             },
             ...batchCountItems,
           ]);
+          EventBus.emit('add-new-item');
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -203,7 +204,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
@@ -212,7 +213,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
