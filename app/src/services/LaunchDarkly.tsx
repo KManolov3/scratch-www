@@ -213,7 +213,7 @@ export function LaunchDarklyProvider({
   });
 
   if (configuring) {
-    // TODO: Better loading indicator - sync it with the AuthProvider loading indicator
+    // This will be hidden by the loading screen
     return <Text>Loading</Text>;
   }
 

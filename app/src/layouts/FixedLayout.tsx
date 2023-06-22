@@ -20,6 +20,7 @@ export function FixedLayout({ header, children, style }: FixedLayoutProps) {
     <SafeAreaView style={styles.root}>
       <StatusBar
         barStyle="light-content"
+        // Please sync this with the color defined in styles.xml in the native android project
         backgroundColor={Colors.advanceBlack}
       />
 
