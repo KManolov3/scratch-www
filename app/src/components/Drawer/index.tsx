@@ -209,8 +209,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 19,
   },
   drawerHeader: {
-    paddingTop: 16,
-    marginTop: 16,
+    paddingVertical: 12,
+    marginTop: 4,
   },
   drawerHeaderText: {
     fontSize: 18,
@@ -226,7 +226,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.pure,
     borderRadius: 9,
-    marginTop: 12,
+    marginBottom: 12,
     paddingVertical: 14,
     paddingLeft: 23,
     paddingRight: 18,

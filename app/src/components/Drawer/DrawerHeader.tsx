@@ -10,7 +10,7 @@ export function DrawerHeader({ options: { title } }: NativeStackHeaderProps) {
   return (
     <Header
       title={title}
-      leftIcon={<WhiteCrossIcon height={32} width={32} />}
+      leftIcon={<WhiteCrossIcon width={46} height={46} />}
       onClickLeft={closeDrawer}
     />
   );
