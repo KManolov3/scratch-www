@@ -76,20 +76,37 @@ export function ShrinkageOverageModal({
           ]}
         />
       )}
-      <View style={styles.shrinkageOverage}>
+      <View
+        style={[
+          styles.shrinkage,
+          !isOutageCount && styles.shrinkageAndOverage,
+        ]}>
         <ItemPropertyDisplay
           label="Shrinkage"
           value={convertCurrencyToString(-shrinkage)}
-          containerStyle={styles.shrinkageOverageContainer}
-          labelStyle={styles.shrinkageOverageLabel}
-          valueStyle={[styles.shrinkageOverageValue, styles.redText]}
+          containerStyle={isOutageCount && styles.shrinkageOnlyContainer}
+          labelStyle={[
+            styles.shrinkageLabel,
+            !isOutageCount && styles.shrinkageAndOverageLabel,
+          ]}
+          valueStyle={[
+            styles.shrinkageValue,
+            styles.redText,
+            !isOutageCount && styles.shrinkageAndOverageValue,
+          ]}
         />
         {!isOutageCount && (
           <ItemPropertyDisplay
             label="Overage"
             value={convertCurrencyToString(overage)}
-            labelStyle={styles.shrinkageOverageLabel}
-            valueStyle={styles.shrinkageOverageValue}
+            labelStyle={[
+              styles.shrinkageLabel,
+              styles.shrinkageAndOverageLabel,
+            ]}
+            valueStyle={[
+              styles.shrinkageValue,
+              styles.shrinkageAndOverageValue,
+            ]}
           />
         )}
       </View>
@@ -129,7 +146,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: FontWeight.Demi,
   },
-  shrinkageOverage: {
+  shrinkage: {
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: Colors.pure,
@@ -139,20 +156,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     ...BaseStyles.shadow,
   },
-  shrinkageOverageContainer: {
+  shrinkageAndOverage: {
+    justifyContent: 'space-between',
+  },
+  shrinkageOnlyContainer: {
     flexDirection: 'column',
     gap: 8,
     alignItems: 'center',
   },
-  shrinkageOverageLabel: {
+  shrinkageLabel: {
     fontSize: 16,
     lineHeight: 22,
     fontWeight: FontWeight.Medium,
   },
-  shrinkageOverageValue: {
+  shrinkageAndOverageLabel: {
+    fontSize: 14,
+  },
+  shrinkageValue: {
     fontSize: 24,
     lineHeight: 24,
     fontWeight: FontWeight.Bold,
+  },
+  shrinkageAndOverageValue: {
+    fontSize: 16,
   },
   redText: {
     color: Colors.advanceRed,
