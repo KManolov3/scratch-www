@@ -1,4 +1,3 @@
-import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -26,11 +25,10 @@ function getValueFromLocalStorageWithDefault<T>(
     LocalStorageService.set(key, JSON.stringify(defaultValue));
     return defaultValue;
   }
-  const parsed = safeParseJson(value);
-  if (parsed) {
-    return parsed as T;
+  if (typeof defaultValue === 'string') {
+    return value as T;
   }
-  return value as T;
+  return JSON.parse(value);
 }
 
 export function useDefaultSettings<Key extends keyof DefaultSettings>(
