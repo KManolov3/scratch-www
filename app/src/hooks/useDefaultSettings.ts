@@ -1,6 +1,6 @@
 import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export enum PrinterOptions {
   Counter1 = 'Printer Counter 1',
@@ -17,42 +17,45 @@ const DefaultSettingValues: DefaultSettings = {
   defaultPrinterOption: PrinterOptions.Counter1,
 };
 
+function getValueFromLocalStorageWithDefault<T>(
+  key: string,
+  defaultValue: T,
+): T {
+  const value = LocalStorageService.get(key);
+  if (!value) {
+    LocalStorageService.set(key, JSON.stringify(defaultValue));
+    return defaultValue;
+  }
+  const parsed = safeParseJson(value);
+  if (parsed) {
+    return parsed as T;
+  }
+  return value as T;
+}
+
 export function useDefaultSettings<Key extends keyof DefaultSettings>(
   key: Key,
+  ...additionalArgs: string[]
 ): {
   data: DefaultSettings[Key];
   set: (value: DefaultSettings[Key]) => void;
 } {
-  function getValueFromLocalStorageWithDefault<T>(defaultValue: T): T {
-    const value = LocalStorageService.get(key);
-    if (!value) {
-      LocalStorageService.set(key, JSON.stringify(defaultValue));
-      return defaultValue;
-    }
-    const parsed = safeParseJson(value);
-    if (parsed) {
-      return parsed as T;
-    }
-    return value as T;
-  }
+  const keyValue = useMemo(
+    () => [key, ...additionalArgs].join('.'),
+    [additionalArgs, key],
+  );
 
   const set = useCallback(
     (value: DefaultSettings[Key]) => {
-      LocalStorageService.set(key, JSON.stringify(value));
+      LocalStorageService.set(keyValue, JSON.stringify(value));
       setSetting(value);
     },
-    [key],
+    [keyValue],
   );
 
   const [setting, setSetting] = useState(
-    getValueFromLocalStorageWithDefault(DefaultSettingValues[key]),
+    getValueFromLocalStorageWithDefault(keyValue, DefaultSettingValues[key]),
   );
-
-  useEffect(() => {
-    if (!setting) {
-      LocalStorageService.set(key, JSON.stringify(DefaultSettingValues[key]));
-    }
-  }, [key, setting]);
 
   return { data: setting, set };
 }
