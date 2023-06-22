@@ -7,8 +7,7 @@ import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { useAsyncAction } from '@hooks/useAsyncAction';
-import { useScanListener } from '@services/Scanner';
-import { scanCodeService } from '@services/ScanCode';
+import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
 
@@ -23,16 +22,18 @@ export function OutageHome() {
     error,
   } = useAsyncAction((sku: string) => requestToAddItem(sku));
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'backroom-tag':
+        addItem(code.sku);
+        break;
 
-    if (scanCode.type === 'SKU') {
-      addItem(scanCode.sku);
-    } else {
-      // TODO: Duplication with the other Outage screen
-      toastService.showInfoToast(
-        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
-      );
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+        );
     }
   });
 

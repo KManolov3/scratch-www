@@ -10,8 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useScanListener } from '@services/Scanner';
-import { scanCodeService } from '@services/ScanCode';
+import { useScanCodeListener } from '@services/ScanCode';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from '@services/ToastService';
@@ -56,19 +55,21 @@ export function OutageItemList() {
     }
   });
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'backroom-tag':
+        addItem(code.sku);
+        break;
 
-    if (scanCode.type === 'SKU') {
-      addItem(scanCode.sku);
-    } else {
-      // TODO: Duplication with the other Outage screen
-      toastService.showInfoToast(
-        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
     }
   });
 
