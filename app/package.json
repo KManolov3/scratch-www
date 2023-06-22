@@ -28,25 +28,25 @@
 
     "package:clean": "rm android/app/src/main/assets/index.android.bundle",
 
-    "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps.local",
+    "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps",
     "package:install:local": "adb install -r builds/in-store-apps-local.apk",
-    "package:build:local": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && (cd android && ENVFILE=.env ./gradlew assembleDebug) && mkdir -p builds && cp android/app/build/outputs/apk/debug/app-debug.apk builds/in-store-apps-local.apk",
+    "package:build:local": "(cd android && ENVFILE=.env ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-local.apk",
 
     "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps.dev",
     "package:install:dev": "adb install -r builds/in-store-apps-dev.apk",
-    "package:build:dev": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && (cd android && ENVFILE=.env.dev ./gradlew assembleDebug) && mkdir -p builds && cp android/app/build/outputs/apk/debug/app-debug.apk builds/in-store-apps-dev.apk",
+    "package:build:dev": "(cd android && ENVFILE=.env.dev ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-dev.apk",
 
     "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
     "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
-    "package:build:qa": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && (cd android && ENVFILE=.env.qa ./gradlew assembleDebug) && mkdir -p builds && cp android/app/build/outputs/apk/debug/app-debug.apk builds/in-store-apps-qa.apk",
+    "package:build:qa": "(cd android && ENVFILE=.env.qa ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-qa.apk",
 
     "package:uninstall:staging": "adb uninstall com.advanceautoparts.instoreapps.staging",
     "package:install:staging": "adb install -r builds/in-store-apps-staging.apk",
-    "package:build:staging": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && (cd android && ENVFILE=.env.staging ./gradlew assembleDebug) && mkdir -p builds && cp android/app/build/outputs/apk/debug/app-debug.apk builds/in-store-apps-staging.apk",
+    "package:build:staging": "(cd android && ENVFILE=.env.staging ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-staging.apk",
 
     "package:uninstall:production": "adb uninstall com.advanceautoparts.instoreapps",
     "package:install:production": "adb install -r builds/in-store-apps-production.apk",
-    "package:build:production": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && (cd android && ENVFILE=.env.production ./gradlew assembleDebug) && mkdir -p builds && cp android/app/build/outputs/apk/debug/app-debug.apk builds/in-store-apps-production.apk",
+    "package:build:production": "(cd android && ENVFILE=.env.production ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-production.apk",
 
     "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
   },
