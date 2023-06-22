@@ -1,5 +1,6 @@
+import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export enum PrinterOptions {
   Counter1 = 'Printer Counter 1',
@@ -16,18 +17,6 @@ const DefaultSettingValues: DefaultSettings = {
   defaultPrinterOption: PrinterOptions.Counter1,
 };
 
-function getValueFromLocalStorageWithDefault<T>(
-  key: string,
-  defaultValue: T,
-): T {
-  const value = LocalStorageService.get(key);
-  if (!value) {
-    LocalStorageService.set(key, JSON.stringify(defaultValue));
-    return defaultValue;
-  }
-  return JSON.parse(value);
-}
-
 export function useDefaultSettings<Key extends keyof DefaultSettings>(
   key: Key,
   ...additionalArgs: string[]
@@ -35,22 +24,23 @@ export function useDefaultSettings<Key extends keyof DefaultSettings>(
   data: DefaultSettings[Key];
   set: (value: DefaultSettings[Key]) => void;
 } {
-  const keyValue = useMemo(
-    () => [key, ...additionalArgs].join('.'),
+  const set = useCallback(
+    (value: DefaultSettings[Key]) => {
+      LocalStorageService.set(
+        [key, ...additionalArgs].join('.'),
+        JSON.stringify(value),
+      );
+      setSetting(value);
+    },
     [additionalArgs, key],
   );
 
-  const set = useCallback(
-    (value: DefaultSettings[Key]) => {
-      LocalStorageService.set(keyValue, JSON.stringify(value));
-      setSetting(value);
-    },
-    [keyValue],
+  const [setting, setSetting] = useState<DefaultSettings[Key] | undefined>(
+    safeParseJson(LocalStorageService.get([key, ...additionalArgs].join('.'))),
   );
 
-  const [setting, setSetting] = useState(
-    getValueFromLocalStorageWithDefault(keyValue, DefaultSettingValues[key]),
-  );
-
-  return { data: setting, set };
+  return {
+    data: setting ?? DefaultSettingValues[key],
+    set,
+  };
 }
