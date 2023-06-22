@@ -2,10 +2,10 @@ import { InStoreAppsNative } from 'rtn-in-store-apps';
 
 export class LocalStorageService {
   static get(key: string) {
-    return InStoreAppsNative.getValueFromSharedPreferences(key);
+    return InStoreAppsNative.getPreference(key);
   }
 
   static set(key: string, value: string) {
-    InStoreAppsNative.setValueToSharedPreferences(key, value);
+    InStoreAppsNative.setPreference(key, value);
   }
 }

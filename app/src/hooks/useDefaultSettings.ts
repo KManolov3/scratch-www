@@ -25,9 +25,6 @@ function getValueFromLocalStorageWithDefault<T>(
     LocalStorageService.set(key, JSON.stringify(defaultValue));
     return defaultValue;
   }
-  if (typeof defaultValue === 'string') {
-    return value as T;
-  }
   return JSON.parse(value);
 }
 

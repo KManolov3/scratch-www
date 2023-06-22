@@ -139,19 +139,19 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
 
     private var syncStorage: SyncStorage = SyncStorage(reactContext)
 
-    override fun getValueFromSharedPreferences(key: String): String? {
+    override fun getPreference(key: String): String? {
         return syncStorage.getItem((key))
     }
 
-    override fun setValueToSharedPreferences(key: String, value: String) {
+    override fun setPreference(key: String, value: String) {
         syncStorage.setItem(key, value)
     }
 
-    override fun removeValueFromSharedPreferences(key: String) {
+    override fun removePreference(key: String) {
         syncStorage.removeItem(key)
     }
 
-    override fun clearSharedPreferences() {
+    override fun clearPreferences() {
         syncStorage.clear()
     }
 }

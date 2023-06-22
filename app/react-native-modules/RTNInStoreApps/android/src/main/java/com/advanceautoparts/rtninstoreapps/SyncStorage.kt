@@ -8,15 +8,11 @@ import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
 
 class SyncStorage(reactContext: ReactApplicationContext) {
-    companion object {
-        private const val PREF = "com.advanceautoparts.rtninstoreapps.PREFERENCE_FILE_KEY"
-    }
-
-    private val sharedPref: SharedPreferences = reactContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
-    private val editor = sharedPref.edit()
+    private val preferences = reactContext.getSharedPreferences("com.advanceautoparts.rtninstoreapps.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
+    private val editor = preferences.edit()
 
     fun getItem(key: String): String? {
-        return sharedPref.getString(key, null)
+        return preferences.getString(key, null)
     }
 
     fun setItem(key: String, value: String) {
@@ -29,13 +25,5 @@ class SyncStorage(reactContext: ReactApplicationContext) {
 
     fun clear() {
         editor.clear().apply()
-    }
-
-    fun getAllKeys(): WritableArray {
-        val keys: WritableArray = WritableNativeArray()
-        for (key in sharedPref.all.keys) {
-            keys.pushString(key)
-        }
-        return keys
     }
 }

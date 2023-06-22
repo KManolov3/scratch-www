@@ -46,10 +46,10 @@ export interface Spec extends TurboModule {
   navigateTo(activityName: Activity): void;
 
   /* Shared preferences as local storage */
-  getValueFromSharedPreferences(key: string): string | undefined;
-  setValueToSharedPreferences(key: string, value: string): void;
-  removeValueFromSharedPreferences(key: string): void;
-  clearSharedPreferences(): void;
+  getPreference(key: string): string | undefined;
+  setPreference(key: string, value: string): void;
+  removePreference(key: string): void;
+  clearPreferences(): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('RTNInStoreApps') as Spec | null;
