@@ -6,18 +6,41 @@ import { Colors } from '@lib/colors';
 import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useScanListener } from '@services/Scanner';
+import { scanCodeService } from '@services/ScanCode';
+import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
-  const { addItem, itemLoading, itemError } = useOutageState();
+  const { requestToAddItem } = useOutageState();
 
-  const header = <Header title="Outage" />;
+  const {
+    trigger: addItem,
+    loading,
+
+    // TODO: Reset this when going back to this screen?
+    error,
+  } = useAsyncAction((sku: string) => requestToAddItem(sku));
+
+  useScanListener(scan => {
+    const scanCode = scanCodeService.parse(scan);
+
+    if (scanCode.type === 'SKU') {
+      addItem(scanCode.sku);
+    } else {
+      // TODO: Duplication with the other Outage screen
+      toastService.showInfoToast(
+        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+      );
+    }
+  });
 
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout style={styles.container} header={<Header title="Outage" />}>
       <SkuSearchBar onSubmit={addItem} />
 
-      {itemLoading && (
+      {loading && (
         <ActivityIndicator
           size="large"
           color={Colors.mediumVoid}
@@ -25,11 +48,12 @@ export function OutageHome() {
         />
       )}
 
-      {!itemError && !itemLoading && (
+      {!error && !loading && (
         <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
       )}
 
-      {itemError && !itemLoading && (
+      {/* TODO: Distinguish between not found and other errors */}
+      {!!error && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning another front tag"
