@@ -1,15 +1,16 @@
 import { WhiteCrossIcon } from '@assets/icons';
 import { Header } from '@components/Header';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { useGlobalState } from '@apps/state';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigation } from './navigator';
 
-export function DrawerHeader({ options: { title } }: NativeStackHeaderProps) {
+export function DrawerHeader() {
   const { goBack: closeDrawer } = useNavigation<DrawerNavigation>();
+  const { applicationName } = useGlobalState();
 
   return (
     <Header
-      title={title}
+      title={applicationName}
       leftIcon={<WhiteCrossIcon width={46} height={46} />}
       onClickLeft={closeDrawer}
     />

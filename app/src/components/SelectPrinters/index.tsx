@@ -2,10 +2,7 @@ import { BlackAttentionIcon } from '@assets/icons';
 import { RadioButton } from '@components/Button/Radio';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { Container } from '@components/Container';
-import {
-  DrawerNavigation,
-  DrawerScreenProps,
-} from '@components/Drawer/navigator';
+import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
 import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
@@ -22,11 +19,7 @@ export interface SelectPrinterProps {
   title?: string;
 }
 
-export function SelectPrinters({
-  route: {
-    params: { title },
-  },
-}: DrawerScreenProps<'SelectPrinter'>) {
+export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
 
   const {
@@ -75,14 +68,11 @@ export function SelectPrinters({
     closeConfirmationModal();
   }, [closeConfirmationModal, set]);
 
-  const onBackPress = useCallback(
-    () => replace('DrawerHome', { title }),
-    [replace, title],
-  );
+  const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   return (
     <>
-      <FixedLayout style={styles.container}>
+      <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
         <Container style={styles.radioButtons}>{printerValues}</Container>
       </FixedLayout>

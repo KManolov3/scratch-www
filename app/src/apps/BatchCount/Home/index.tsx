@@ -7,7 +7,6 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { Colors } from '@lib/colors';
-import { Header } from '@components/Header';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
 
@@ -47,9 +46,7 @@ export function BatchCountHome() {
   });
 
   return (
-    <FixedLayout
-      style={styles.container}
-      header={<Header title="Batch Count" />}>
+    <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={onSubmit} />
       {/* TODO: Check the error, don't assume every error is NotFound */}
       {!error && !isLoadingItemBySku && (

@@ -104,7 +104,6 @@ export function ItemLookupScreen({
       style={styles.container}
       header={
         <Header
-          title="Item Lookup"
           item={itemDetails}
           rightIcon={<WhiteSearchIcon />}
           onClickRight={showSearchTray}

@@ -2,7 +2,7 @@ import { FontWeight } from '@lib/font';
 import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
-import { ReactElement, useCallback, useEffect, useMemo } from 'react';
+import { ReactElement, useCallback, useMemo } from 'react';
 import {
   SectionList,
   SectionListData,
@@ -15,11 +15,11 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
-import { ItemDetails } from 'src/types/ItemLookup';
+import { useGlobalState } from '@apps/state';
 import { compact } from 'lodash-es';
 import { config } from 'src/config';
 import { SvgType } from '*.svg';
-import { DrawerNavigation, DrawerScreenProps } from './navigator';
+import { DrawerNavigation } from './navigator';
 
 interface DrawerSectionData {
   label: string;
@@ -38,20 +38,11 @@ interface DrawerSectionHeader {
   section: SectionListData<DrawerSectionData, DrawerSection>;
 }
 
-export interface DrawerProps {
-  title?: string;
-  item?: ItemDetails;
-}
-
-export function Drawer({
-  route: {
-    params: { title, item },
-  },
-}: DrawerScreenProps<'DrawerHome'>) {
-  const { replace, getParent, goBack } = useNavigation<DrawerNavigation>();
+export function Drawer() {
+  const { replace, goBack } = useNavigation<DrawerNavigation>();
   const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  useEffect(() => getParent()?.setOptions({ title }), [getParent, title]);
+  const { selectedItem, applicationName } = useGlobalState();
 
   const renderSectionHeader = useCallback<
     (sections: DrawerSectionHeader) => ReactElement | null
@@ -90,10 +81,11 @@ export function Drawer({
       {
         title: 'Item In Slots',
         data: compact([
-          item
+          selectedItem
             ? {
                 label: 'Print Front Tags',
-                onPress: () => navigate('PrintFrontTag', { itemDetails: item }),
+                onPress: () =>
+                  navigate('PrintFrontTag', { itemDetails: selectedItem }),
               }
             : undefined,
           // { label: 'Backstock Moves' },
@@ -134,7 +126,7 @@ export function Drawer({
             Icon: EmptyRadioButton,
             onPress: () => navigateTo(Activity.OutageActivity),
           },
-        ].filter(({ label }) => label !== title),
+        ].filter(({ label }) => label !== applicationName),
       },
       {
         title: (
@@ -157,18 +149,18 @@ export function Drawer({
         data: [
           {
             label: 'Printers',
-            onPress: () => replace('SelectPrinter', { title }),
+            onPress: () => replace('SelectPrinter'),
             backgroundColor: Colors.drawerGray,
           },
           {
             label: 'Help Request',
-            onPress: () => replace('HelpRequest', { title }),
+            onPress: () => replace('HelpRequest'),
             backgroundColor: Colors.drawerGray,
           },
         ],
       },
     ],
-    [item, navigate, navigateTo, replace, title],
+    [applicationName, navigate, navigateTo, replace, selectedItem],
   );
 
   const renderSectionItem = useCallback(
@@ -193,7 +185,7 @@ export function Drawer({
   );
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} withoutHeader>
       <SectionList
         sections={sections}
         renderSectionHeader={renderSectionHeader}

@@ -8,7 +8,6 @@ import { useCurrentSessionInfo } from '@services/Auth';
 import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
@@ -77,7 +76,7 @@ export function OutageHome() {
 
   return (
     <>
-      <FixedLayout style={styles.container} header={<Header title="Outage" />}>
+      <FixedLayout style={styles.container}>
         <SkuSearchBar onSubmit={onSubmit} />
         {loading && (
           <ActivityIndicator

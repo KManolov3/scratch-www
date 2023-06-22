@@ -246,7 +246,6 @@ export function PrintFrontTagScreen({
       style={styles.container}
       header={
         <Header
-          title="Item Lookup"
           item={itemDetails}
           rightIcon={<WhiteSearchIcon />}
           onClickRight={enable}
