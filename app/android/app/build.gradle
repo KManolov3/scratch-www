@@ -179,7 +179,7 @@ tasks.register("buildStringsFromEnv") {
         if (it.key.startsWith("STRINGS_XML_")) {
             def key = it.key.replace(/STRINGS_XML_/, '').toLowerCase()
 
-            "   <string name=\"${key}\">${it.value}</string>"
+            "    <string name=\"${key}\">${it.value}</string>"
         }
     }.findAll {it != null }.join("\n")
 
