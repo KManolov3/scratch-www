@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { ItemDetails } from '@components/ItemDetails';
+import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';

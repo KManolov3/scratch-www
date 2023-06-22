@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { ItemDetailsInfo, ItemInfoHeader } from '@components/ItemInfoHeader';
 import { Locations } from '@components/Locations';
 import { Colors } from '@lib/colors';
@@ -20,7 +20,7 @@ export function ItemDetails({
   togglePriceDiscrepancyModal,
 }: ItemDetailsProps) {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <ItemInfoHeader
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
@@ -32,7 +32,7 @@ export function ItemDetails({
         locationDetails={itemDetails}
         containerStyle={styles.locations}
       />
-    </View>
+    </ScrollView>
   );
 }
 

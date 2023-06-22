@@ -57,4 +57,5 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
   },
   planogramContainer: { flex: 1 },
+  radioButtons: { width: 170, marginTop: 14 },
 });
