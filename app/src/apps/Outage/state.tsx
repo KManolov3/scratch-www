@@ -1,4 +1,3 @@
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import {
   ReactNode,
   createContext,
@@ -7,12 +6,17 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useMutation } from '@apollo/client';
-import { gql } from 'src/__generated__';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { DocumentType, gql } from 'src/__generated__';
 import { v4 as uuid } from 'uuid';
 import { DateTime } from 'luxon';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { useScanListener } from '@services/Scanner';
+import { BackstockWarningModal } from './components/BackstockWarningModal';
+import { OutageNavigation } from './navigator';
+import { useNavigation } from '@react-navigation/native';
+import { scanCodeService } from '@services/ScanCode';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
   mutation SubmitOutageCount($request: CycleCountList!) {
@@ -20,17 +24,37 @@ const SUBMIT_OUTAGE_COUNT = gql(`
   }
 `);
 
+// TODO: ItemInfoHeaderFields wtf
+const ITEM_BY_SKU_QUERY = gql(`
+  query ItemLookupBySku($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
+      ...ItemInfoHeaderFields
+      ...BackstockSlotFields
+    },
+  }
+`);
+
+export type OutageItemInfo = NonNullable<
+  DocumentType<typeof ITEM_BY_SKU_QUERY>['itemBySku']
+>;
+
 interface ContextValue {
-  outageCountItems: ItemDetailsInfo[];
-  addItem: (item: ItemDetailsInfo) => void;
+  outageCountItems: OutageItemInfo[];
+
+  // TODO: Rename to requestAddItem
+  addItem: (sku: string) => void;
   removeItem: (sku: string) => void;
+
+  itemLoading: boolean;
+  itemError: ErrorType | undefined;
+
   submit: () => void;
   submitLoading: boolean;
 }
 
 const Context = createContext<ContextValue | undefined>(undefined);
 
-function buildOutageCount(items: ItemDetailsInfo[], storeNumber: string) {
+function buildOutageCount(items: OutageItemInfo[], storeNumber: string) {
   const now = DateTime.now().toISO();
 
   if (!now) {
@@ -59,28 +83,88 @@ function buildOutageCount(items: ItemDetailsInfo[], storeNumber: string) {
   };
 }
 
+type ErrorType = 'Not Found Error';
+
 export function OutageStateProvider({ children }: { children: ReactNode }) {
-  const [outageCountItems, setOutageCountItems] = useState<ItemDetailsInfo[]>(
+  const { navigate } = useNavigation<OutageNavigation>();
+  const [outageCountItems, setOutageCountItems] = useState<OutageItemInfo[]>(
     [],
+  );
+
+  // TODO: Not a state
+  const [errorType, setErrorType] = useState<ErrorType>();
+
+  const [itemWithBackstock, setItemWithBackstock] = useState<OutageItemInfo>();
+
+  // TODO: Use this
+  const [getItemBySku, { loading: itemLoading, error }] = useLazyQuery(
+    ITEM_BY_SKU_QUERY,
+    {
+      onCompleted: item => {
+        // TODO: "This item is already part of the outage count" message
+
+        if (item?.itemBySku) {
+          if (item?.itemBySku.backStockSlots?.length) {
+            setItemWithBackstock(item.itemBySku);
+          } else {
+            addItemAndContinue(item.itemBySku);
+          }
+        } else {
+          // TODO: this error should be based on what
+          // the backend has returned
+          setErrorType('Not Found Error');
+        }
+      },
+      onError: () => {
+        // TODO: EventBus schenanigans
+
+        // TODO: this error should be based on what
+        // the backend has returned
+        setErrorType('Not Found Error');
+      },
+    },
   );
 
   const { storeNumber } = useCurrentSessionInfo();
 
   // TODO: show a toast with an error message
-  const [submitOutageCount, { loading }] = useMutation(SUBMIT_OUTAGE_COUNT);
+  const [submitOutageCount, { loading: submitLoading }] =
+    useMutation(SUBMIT_OUTAGE_COUNT);
 
-  const addItem = useCallback((item: ItemDetailsInfo) => {
-    setOutageCountItems(currentItems => [
-      ...currentItems.filter(({ sku }) => sku !== item.sku),
-      item,
-    ]);
-  }, []);
+  // const addItem = useCallback((item: OutageItemInfo) => {
+  //   setOutageCountItems(currentItems => [
+  //     // TODO: Is there a better way to do this?
+  //     item,
+  //     ...currentItems.filter(_ => _.sku !== sku),
+  //   ]);
+  // }, []);
+
+  const addItem = useCallback(
+    (sku: string) => getItemBySku({ variables: { sku, storeNumber } }),
+    [getItemBySku],
+  );
 
   const removeItem = useCallback((sku: string) => {
     setOutageCountItems(currentItems =>
       currentItems.filter(item => item.sku !== sku),
     );
   }, []);
+
+  const addItemAndContinue = useCallback(
+    (item: OutageItemInfo) => {
+      setErrorType(undefined);
+
+      setOutageCountItems(currentItems => [
+        // TODO: Is there a better way to do this?
+        item,
+        ...currentItems.filter(_ => _.sku !== item.sku),
+      ]);
+
+      setItemWithBackstock(undefined);
+      navigate('Item List');
+    },
+    [addItem, navigate],
+  );
 
   const submit = useCallback(() => {
     submitOutageCount({
@@ -89,18 +173,43 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     setOutageCountItems([]);
   }, [outageCountItems, submitOutageCount, storeNumber]);
 
+  useScanListener(scan => {
+    const scanCode = scanCodeService.parse(scan);
+
+    if (scanCode.type === 'SKU') {
+      addItem(scanCode.sku);
+    } else {
+      // TODO: Toast or show message
+    }
+  });
+
   const value = useMemo(
     () => ({
       outageCountItems,
       addItem,
       removeItem,
+      itemLoading,
+      itemError: errorType,
       submit,
-      submitLoading: loading,
+      submitLoading,
     }),
-    [outageCountItems, addItem, removeItem, submit, loading],
+    [outageCountItems, addItem, removeItem, submit, submitLoading],
   );
 
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <>
+      <BackstockWarningModal
+        isVisible={!!itemWithBackstock}
+        item={itemWithBackstock}
+        onConfirm={() => {
+          itemWithBackstock && addItemAndContinue(itemWithBackstock);
+        }}
+        onCancel={() => setItemWithBackstock(undefined)}
+      />
+
+      <Context.Provider value={value}>{children}</Context.Provider>
+    </>
+  );
 }
 
 export function useOutageState() {
