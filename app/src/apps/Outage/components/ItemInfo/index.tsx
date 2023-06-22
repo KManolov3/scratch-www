@@ -61,11 +61,11 @@ export function OutageItemInfo({ outageItem }: OutageItemCardProps) {
         <ItemPropertyDisplay label="New" value={0} style={styles.property} />
       </View>
 
-      {outageItem.backStockSlots?.length && (
+      {outageItem?.backStockSlots?.length ? (
         <WarningMessage
           warningText={formatBackstockSlots(outageItem.backStockSlots)}
         />
-      )}
+      ) : null}
     </View>
   );
 }
