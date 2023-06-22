@@ -46,10 +46,10 @@ export function BatchCountHome() {
     setError(undefined);
   });
 
-  const header = <Header title="Batch Count" />;
-
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout
+      style={styles.container}
+      header={<Header title="Batch Count" />}>
       <SkuSearchBar onSubmit={onSubmit} />
       {/* TODO: Check the error, don't assume every error is NotFound */}
       {!error && !isLoadingItemBySku && (
@@ -68,7 +68,7 @@ export function BatchCountHome() {
       {error && !isLoadingItemBySku && (
         <ErrorContainer
           title="No Results Found"
-          message="Try searching for another SKU or scanning another barcode"
+          message="Try searching for another SKU or scanning a barcode"
         />
       )}
     </FixedLayout>

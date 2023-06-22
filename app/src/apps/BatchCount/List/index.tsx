@@ -172,7 +172,7 @@ export function BatchCountList() {
   useFocusEventBus('search-error', () => {
     disableShrinkageModal();
     toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning another barcode.',
+      'No results found. Try searching for another SKU or scanning a barcode.',
       {
         props: { containerStyle: styles.toast },
       },
@@ -190,11 +190,9 @@ export function BatchCountList() {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   });
 
-  const header = <Header title="Batch Count" />;
-
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout header={<Header title="Batch Count" />}>
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}

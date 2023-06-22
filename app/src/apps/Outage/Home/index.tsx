@@ -75,11 +75,9 @@ export function OutageHome() {
     [getItemBySku, storeNumber],
   );
 
-  const header = <Header title="Outage" />;
-
   return (
     <>
-      <FixedLayout style={styles.container} header={header}>
+      <FixedLayout style={styles.container} header={<Header title="Outage" />}>
         <SkuSearchBar onSubmit={onSubmit} />
         {loading && (
           <ActivityIndicator
@@ -97,7 +95,7 @@ export function OutageHome() {
         {errorType && !loading && (
           <ErrorContainer
             title="No Results Found"
-            message="Try searching for another SKU or scanning another front tag"
+            message="Try searching for another SKU or scanning a front tag"
           />
         )}
       </FixedLayout>

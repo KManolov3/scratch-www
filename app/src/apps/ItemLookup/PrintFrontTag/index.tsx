@@ -236,24 +236,24 @@ export function PrintFrontTagScreen({
   useEventBus('search-error', () => {
     if (!searchTrayOpen) {
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
       );
     }
   });
 
-  const header = (
-    <Header
-      title="Item Lookup"
-      item={itemDetails}
-      rightIcon={<WhiteSearchIcon />}
-      onClickRight={enable}
-      leftIcon={<WhiteBackArrow />}
-      onClickLeft={goBack}
-    />
-  );
-
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout
+      style={styles.container}
+      header={
+        <Header
+          title="Item Lookup"
+          item={itemDetails}
+          rightIcon={<WhiteSearchIcon />}
+          onClickRight={enable}
+          leftIcon={<WhiteBackArrow />}
+          onClickLeft={goBack}
+        />
+      }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>
