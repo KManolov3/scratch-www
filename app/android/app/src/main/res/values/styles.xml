@@ -1,9 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+
+        <!-- Please sync this with the colors defined in the app in FixedLayout -->
+        <item name="android:statusBarColor">#82000000</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
+    <!-- Loading screen theme. Shown before the loading screen -->
+    <style name="LoadingScreenTheme" parent="AppTheme">
+        <item name="android:windowAnimationStyle">@style/loading_screen_animation</item>
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <item name="android:windowBackground">@drawable/loading_screen_background</item>
+    </style>
+
+    <style name="loading_screen_animation">
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
 </resources>
