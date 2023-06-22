@@ -15,6 +15,10 @@ import kotlinx.coroutines.*
 
 class AuthenticationNotConfigured : Exception("Authentication not configured - please call reloadAuthFromLauncher first")
 
+interface ActivityWithLoadingScreen {
+    fun hideLoadingScreen()
+}
+
 class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInStoreAppsSpec(reactContext) {
     companion object {
         const val NAME = "RTNInStoreApps"
@@ -91,6 +95,24 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
+    override fun navigateTo(appName: String) {
+        reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+
+            component = ComponentName(
+                "com.advanceautoparts.instoreapps",
+                "com.advanceautoparts.instoreapps.activities.$appName"
+            )
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        })
+    }
+
+    override fun hideLoadingScreen() {
+        val activity = reactContext.currentActivity as? ActivityWithLoadingScreen ?: return
+
+        activity.hideLoadingScreen()
+    }
+
     override fun addListener(event: String) {
         // Nothing to do here, this is just a way for the NativeEventEmitter to notify us if we want to handle the subscription event
     }
@@ -113,17 +135,5 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
                 promise.reject(throwable)
             }
         }
-    }
-
-    override fun navigateTo(appName: String) {
-        reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-
-            component = ComponentName(
-                "com.advanceautoparts.instoreapps",
-                "com.advanceautoparts.instoreapps.activities.$appName"
-            )
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        })
     }
 }

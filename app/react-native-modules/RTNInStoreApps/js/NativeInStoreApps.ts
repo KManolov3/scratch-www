@@ -28,6 +28,9 @@ export enum Activity {
 }
 
 export interface Spec extends TurboModule {
+  /* Loading Screen */
+  hideLoadingScreen(): void;
+
   /* Authentication */
   reloadAuthFromLauncher(config: AuthConfig): Promise<SessionInfo>;
   currentValidAccessToken(): Promise<string | null>;
