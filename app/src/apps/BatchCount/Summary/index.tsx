@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ListRenderItem, FlatList, StyleSheet } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -11,6 +11,7 @@ import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { sortBy } from 'lodash-es';
+import { Item } from 'src/__generated__/graphql';
 import { BatchCountItem, useBatchCountState } from '../state';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
@@ -48,6 +49,8 @@ export function BatchCountSummary() {
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
+
+  const flatListRef = useRef<FlatList>(null);
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -170,8 +173,15 @@ export function BatchCountSummary() {
     );
   });
 
-  useFocusEventBus('search-success', () => {
+  useFocusEventBus('search-success', (item?: Item) => {
     disableShrinkageModal();
+    if (item && item.sku !== expandedSku) {
+      setExpandedSku(undefined);
+    }
+  });
+
+  useFocusEventBus('add-new-item', () => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   });
 
   const header = (
@@ -189,6 +199,7 @@ export function BatchCountSummary() {
           contentContainerStyle={styles.list}
           data={batchCountItemsSorted}
           renderItem={renderItem}
+          ref={flatListRef}
         />
         <BottomActionBar
           style={styles.bottomActionBar}
