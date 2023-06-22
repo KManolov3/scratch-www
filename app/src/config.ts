@@ -31,16 +31,19 @@ function required<K extends keyof typeof env>(name: K): string {
 }
 
 function optional<K extends keyof typeof env>(name: K): string | undefined {
-  const value = env[name];
+  const value = env[name]?.trim();
 
+  // We want to filter out empty strings
+  // eslint-disable-next-line no-unneeded-ternary
   return value ? value : undefined;
 }
 
 function boolean(value: string): boolean;
 function boolean(value: string | undefined, defaultValue: boolean): boolean;
-function boolean(
-  value: string | undefined,
-  defaultValue: boolean = false,
-): boolean {
+function boolean(value: string | undefined, defaultValue = false): boolean {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
   return value === 'true' || value === '1';
 }
