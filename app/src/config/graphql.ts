@@ -21,4 +21,12 @@ const authLink = setContext(async (_, { headers }) => {
 export const apolloClient = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  defaultOptions: {
+    query: {
+      fetchPolicy: 'no-cache',
+    },
+    mutate: {
+      fetchPolicy: 'no-cache',
+    },
+  },
 });
