@@ -4,15 +4,15 @@ import {
   FlatList,
   ListRenderItem,
   StyleSheet,
-  ToastAndroid,
 } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
-import { OutageNavigation } from '../navigator';
+import { OutageNavigation, header } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
 
 export function OutageItemList() {
@@ -36,10 +36,7 @@ export function OutageItemList() {
     (item: ItemDetailsInfo) => {
       if (item.sku) {
         removeItem(item.sku);
-        ToastAndroid.show(
-          `${item.partDesc} removed from Outage list`,
-          ToastAndroid.LONG,
-        );
+        toastService.showInfoToast(`${item.partDesc} removed from Outage list`);
       }
     },
     [removeItem],
@@ -48,6 +45,7 @@ export function OutageItemList() {
   const submitOutageCount = useCallback(() => {
     setIsShrinkageModalVisible(false);
     submitOutage();
+    toastService.showInfoToast('Outage List Complete');
   }, [submitOutage]);
 
   const bottomBarActions: Action[] = useMemo(
@@ -83,7 +81,7 @@ export function OutageItemList() {
 
   return (
     <>
-      <FixedLayout>
+      <FixedLayout header={header}>
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}
