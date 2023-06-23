@@ -1,43 +1,45 @@
 import { Container } from '@components/Container';
 import { useCallback } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { NumberInput } from '@components/NumberInput';
 import { MinusIcon, PlusIcon } from '@assets/icons';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { TextInput } from '@components/TextInput';
 
 export interface QuantityAdjusterProps {
-  quantity: number;
-  setQuantity: (quantity: number) => void;
-  minimum?: number;
+  quantity: string;
+  setQuantity: (quantity: string) => void;
   maximum?: number;
+  invalid?: boolean;
 }
 
 export function QuantityAdjuster({
   quantity,
   setQuantity,
-  minimum = 0,
   maximum,
+  invalid = false,
 }: QuantityAdjusterProps) {
   const setQuantityWithRestrictions = useCallback(
-    (qty: number) => {
-      if (minimum && qty < minimum) {
-        return setQuantity(minimum);
+    (qty: string, difference = 0) => {
+      const inputNumber = parseInt(qty, 10) + difference;
+      if (Number.isNaN(inputNumber)) {
+        return setQuantity(qty);
       }
-      if (maximum && qty > maximum) {
-        return setQuantity(maximum);
+      if (maximum && inputNumber > maximum) {
+        return setQuantity(maximum.toString());
       }
-      setQuantity(qty);
+      setQuantity(inputNumber.toString());
     },
-    [maximum, minimum, setQuantity],
+    [maximum, setQuantity],
   );
 
   const decreaseQuantity = useCallback(
-    () => setQuantityWithRestrictions(quantity - 1),
+    () => setQuantityWithRestrictions(quantity, -1),
     [quantity, setQuantityWithRestrictions],
   );
+
   const increaseQuantity = useCallback(
-    () => setQuantityWithRestrictions(quantity + 1),
+    () => setQuantityWithRestrictions(quantity, +1),
     [quantity, setQuantityWithRestrictions],
   );
 
@@ -48,14 +50,16 @@ export function QuantityAdjuster({
         onPress={decreaseQuantity}>
         <MinusIcon />
       </Pressable>
-      <NumberInput
-        value={quantity}
-        setValue={setQuantityWithRestrictions}
-        onSubmit={setQuantityWithRestrictions}
-        inputStyle={[styles.square, styles.inputContainer]}
-        containerStyle={styles.inputContainer}
+      <TextInput
+        style={[
+          styles.inputContainer,
+          styles.square,
+          invalid && styles.inlavidValue,
+        ]}
         accessibilityLabel="adjust quantity"
-        placeholder={quantity.toString()}
+        value={quantity}
+        onChangeText={setQuantityWithRestrictions}
+        keyboardType="number-pad"
       />
       <Pressable
         accessibilityLabel="increase quantity"
@@ -83,5 +87,19 @@ const styles = StyleSheet.create({
     padding: 2,
     justifyContent: 'center',
     fontWeight: FontWeight.Bold,
+    textAlign: 'center',
+
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: Colors.gray,
+
+    color: Colors.advanceVoid,
+    fontSize: 16,
+  },
+  inlavidValue: {
+    borderColor: Colors.advanceRed,
+    borderWidth: 2,
+
+    color: Colors.advanceRed,
   },
 });

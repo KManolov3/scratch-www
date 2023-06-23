@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
@@ -18,7 +18,7 @@ import {
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { useMap } from '@hooks/useMap';
 import { ItemDetails } from 'src/types/ItemLookup';
-import { compact, countBy, every, sumBy } from 'lodash-es';
+import { compact, countBy, every, some, sumBy } from 'lodash-es';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { indexOfEnumValue } from '@lib/array';
 import { toastService } from 'src/services/ToastService';
@@ -28,6 +28,7 @@ import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { Separator } from '@components/Separator';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -44,10 +45,11 @@ const PRINT_FRONT_TAG = gql(`
 `);
 
 const TRIGGER_CONFIRMATION_QUANTITY = 11;
+const MINIMUM_VALID_FRONT_TAG_QUANTITY = 1;
 
 interface LocationStatus {
   checked: boolean;
-  qty: number;
+  qty: string;
   id: string;
   seqNum: number;
 }
@@ -59,7 +61,7 @@ function createInitialValueMap(locations: ItemDetails['planograms']) {
       // but the types say they can
       planogramId ?? '',
       {
-        qty: 1,
+        qty: '1',
         checked: true,
         id: planogramId ?? '',
         seqNum: seqNum ?? 0,
@@ -73,7 +75,7 @@ export function PrintFrontTagScreen({
     params: { itemDetails },
   },
 }: ItemLookupScreenProps<'PrintFrontTag'>) {
-  const { map: locationsStatusMap, update } = useMap<string, LocationStatus>(
+  const { values: locationStatuses, update } = useMap<string, LocationStatus>(
     createInitialValueMap(itemDetails.planograms),
   );
 
@@ -104,29 +106,27 @@ export function PrintFrontTagScreen({
   const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
     hideConfirmationModal();
     const promises = compact(
-      Array.from(locationsStatusMap.values()).map(
-        ({ id, seqNum, checked, qty }) => {
-          if (!checked) {
-            return undefined;
-          }
-          const printerToStringValue = String(
-            indexOfEnumValue(PrinterOptions, printer) + 1,
-          );
+      locationStatuses.map(({ id, seqNum, checked, qty }) => {
+        if (!checked) {
+          return undefined;
+        }
+        const printerToStringValue = String(
+          indexOfEnumValue(PrinterOptions, printer) + 1,
+        );
 
-          return printFrontTag({
-            variables: {
-              storeNumber,
-              printer: printerToStringValue,
-              data: {
-                sku: itemDetails.sku,
-                count: qty,
-                planogramId: id,
-                sequence: seqNum,
-              },
+        return printFrontTag({
+          variables: {
+            storeNumber,
+            printer: printerToStringValue,
+            data: {
+              sku: itemDetails.sku,
+              count: parseInt(qty, 10),
+              planogramId: id,
+              sequence: seqNum,
             },
-          });
-        },
-      ),
+          },
+        });
+      }),
     );
 
     const data = await Promise.allSettled(promises);
@@ -153,11 +153,19 @@ export function PrintFrontTagScreen({
 
   const frontTagsForPrintingQty = useMemo(
     () =>
-      sumBy(Array.from(locationsStatusMap.values()), ({ qty, checked }) =>
-        checked ? qty : 0,
+      sumBy(locationStatuses, ({ qty, checked }) =>
+        checked ? parseInt(qty, 10) : 0,
       ),
-    [locationsStatusMap],
+    [locationStatuses],
   );
+
+  const isQuantityInvalid = useCallback((qty: string) => {
+    const quantityNumber = parseInt(qty, 10);
+    return (
+      !!Number.isNaN(quantityNumber) ||
+      quantityNumber < MINIMUM_VALID_FRONT_TAG_QUANTITY
+    );
+  }, []);
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
@@ -169,16 +177,19 @@ export function PrintFrontTagScreen({
             : sendTagsForPrinting,
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
-        disabled: every(Array.from(locationsStatusMap.values()), [
-          'checked',
-          false,
-        ]),
+        disabled:
+          every(locationStatuses, ['checked', false]) ||
+          some(
+            locationStatuses,
+            ({ qty, checked }) => checked && isQuantityInvalid(qty),
+          ),
       },
     ],
     [
       frontTagsForPrintingQty,
+      isQuantityInvalid,
       loading,
-      locationsStatusMap,
+      locationStatuses,
       sendTagsForPrinting,
       showConfirmationModal,
     ],
@@ -188,10 +199,10 @@ export function PrintFrontTagScreen({
     (location: LocationStatus) => {
       const { id, qty, checked } = location;
       return (
-        <Fragment key={id}>
+        <View style={styles.planogramsContainer} key={id}>
           <View style={styles.table}>
             <View style={styles.flexRow}>
-              {locationsStatusMap.size > 1 && (
+              {locationStatuses.length > 1 && (
                 <Pressable
                   style={styles.checkIcon}
                   onPress={() => update(id, { checked: !checked })}>
@@ -205,17 +216,19 @@ export function PrintFrontTagScreen({
               <Text style={styles.text}>{id}</Text>
             </View>
             <QuantityAdjuster
-              minimum={1}
               maximum={99}
               quantity={qty}
-              setQuantity={quantity => update(id, { qty: quantity })}
+              setQuantity={quantity => {
+                update(id, { qty: quantity });
+              }}
+              invalid={isQuantityInvalid(qty)}
             />
           </View>
-          <View style={styles.separator} />
-        </Fragment>
+          <Separator />
+        </View>
       );
     },
-    [locationsStatusMap, update],
+    [isQuantityInvalid, locationStatuses.length, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
@@ -254,7 +267,7 @@ export function PrintFrontTagScreen({
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
       <ScrollView style={styles.planogramContainer}>
-        {Array.from(locationsStatusMap.values()).map(renderPlanogram)}
+        {locationStatuses.map(renderPlanogram)}
       </ScrollView>
       <BottomActionBar
         actions={bottomBarActions}
