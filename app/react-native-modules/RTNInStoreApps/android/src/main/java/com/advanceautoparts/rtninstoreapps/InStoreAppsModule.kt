@@ -136,4 +136,22 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
             }
         }
     }
+
+    private var syncStorage: SyncStorage = SyncStorage(reactContext)
+
+    override fun getPreference(key: String): String? {
+        return syncStorage.getItem((key))
+    }
+
+    override fun setPreference(key: String, value: String) {
+        syncStorage.setItem(key, value)
+    }
+
+    override fun removePreference(key: String) {
+        syncStorage.removeItem(key)
+    }
+
+    override fun clearPreferences() {
+        syncStorage.clear()
+    }
 }

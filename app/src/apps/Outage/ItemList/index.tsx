@@ -15,7 +15,7 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
-import { OutageNavigation } from '../navigator';
+import { OutageNavigation, header } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
 
 export function OutageItemList() {
@@ -96,6 +96,7 @@ export function OutageItemList() {
   const submitOutageCount = useCallback(() => {
     hideShrinkageModal();
     submitOutage();
+    toastService.showInfoToast('Outage List Complete');
   }, [hideShrinkageModal, submitOutage]);
 
   const bottomBarActions: Action[] = useMemo(
@@ -131,7 +132,7 @@ export function OutageItemList() {
 
   return (
     <>
-      <FixedLayout>
+      <FixedLayout header={header}>
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}
