@@ -221,7 +221,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   useScanCodeListener(code => {
     switch (code.type) {
       case 'front-tag':
-      case 'backroom-tag':
+      case 'sku':
         return searchBySku({
           variables: { sku: code.sku, storeNumber },
         });

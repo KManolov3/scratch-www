@@ -8,7 +8,7 @@ type ScannedCode =
       frontTagPrice: number;
     }
   | {
-      type: 'backroom-tag';
+      type: 'sku';
       sku: string;
     }
   | { type: 'UPC'; upc: string }
@@ -41,8 +41,9 @@ class ScanCodeService {
           return { type: 'UPC', upc: code };
         }
 
-        // If all else fails, then it's a backroom tag containing just the SKU and no other markers
-        return { type: 'backroom-tag', sku: code };
+        // If all else fails, then it's probably a backroom tag containing just the SKU
+        // and no other markers
+        return { type: 'sku', sku: code };
       }
     }
   }

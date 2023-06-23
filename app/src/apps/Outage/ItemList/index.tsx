@@ -58,7 +58,7 @@ export function OutageItemList() {
   useScanCodeListener(code => {
     switch (code.type) {
       case 'front-tag':
-      case 'backroom-tag':
+      case 'sku':
         addItem(code.sku);
         break;
 
