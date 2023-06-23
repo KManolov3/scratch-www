@@ -166,19 +166,21 @@ const styles = StyleSheet.create({
   },
   shrinkageLabel: {
     fontSize: 16,
-    lineHeight: 22,
+    lineHeight: 24,
     fontWeight: FontWeight.Medium,
   },
   shrinkageAndOverageLabel: {
     fontSize: 14,
+    lineHeight: 22,
   },
   shrinkageValue: {
     fontSize: 24,
-    lineHeight: 24,
+    lineHeight: 32,
     fontWeight: FontWeight.Bold,
   },
   shrinkageAndOverageValue: {
     fontSize: 16,
+    lineHeight: 24,
   },
   redText: {
     color: Colors.advanceRed,
