@@ -17,6 +17,7 @@ import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
 import { OutageNavigation, header } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
+import { useConfirmation } from '@hooks/useConfirmation';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -26,13 +27,9 @@ export function OutageItemList() {
     outageCountItems,
     removeItem,
     submit: submitOutage,
-    submitLoading,
   } = useOutageState();
-  const {
-    state: isShrinkageModalVisible,
-    enable: showShrinkageModal,
-    disable: hideShrinkageModal,
-  } = useBooleanState(false);
+
+  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
 
   const { requestToAddItem } = useOutageState();
 
@@ -45,7 +42,7 @@ export function OutageItemList() {
       // TODO: Don't assume that it's "No results found"
       // TODO: Duplication of the text with the batch count
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
         {
           props: { containerStyle: styles.toast },
         },
@@ -93,20 +90,24 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  const submitOutageCount = useCallback(() => {
-    hideShrinkageModal();
-    submitOutage();
-    toastService.showInfoToast('Outage List Complete');
-  }, [hideShrinkageModal, submitOutage]);
+  // TODO: Use the `error`
+  const { trigger: submit, loading: submitLoading } = useAsyncAction(
+    async () => {
+      if (await confirm()) {
+        await submitOutage();
+        navigate('Home');
+      }
+    },
+  );
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Complete Outage Count',
-        onPress: showShrinkageModal,
+        onPress: submit,
       },
     ],
-    [showShrinkageModal],
+    [submit],
   );
 
   const items = useMemo(
@@ -144,11 +145,11 @@ export function OutageItemList() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={shouldConfirm}
         countType="Outage"
         items={items}
-        onConfirm={submitOutageCount}
-        onCancel={hideShrinkageModal}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );

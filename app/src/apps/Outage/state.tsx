@@ -44,8 +44,7 @@ interface OutageState {
   requestToAddItem: (sku: string) => Promise<void>;
   removeItem: (sku: string) => void;
 
-  submit: () => void;
-  submitLoading: boolean;
+  submit: () => Promise<void>;
 }
 
 const Context = createContext<OutageState | undefined>(undefined);
@@ -63,8 +62,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
 
-  const [submitOutageCount, { loading: submitLoading }] =
-    useMutation(SUBMIT_OUTAGE_COUNT);
+  const [submitOutageCount] = useMutation(SUBMIT_OUTAGE_COUNT);
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -104,10 +102,16 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const submit = useCallback(() => {
-    submitOutageCount({
+  const submit = useCallback(async () => {
+    const response = await submitOutageCount({
       variables: { request: buildOutageCount(outageCountItems, storeNumber) },
     });
+
+    // TODO: Does this reject on error?
+    if (response.errors) {
+      throw response.errors;
+    }
+
     setOutageCountItems([]);
   }, [outageCountItems, submitOutageCount, storeNumber]);
 
@@ -117,9 +121,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       requestToAddItem,
       removeItem,
       submit,
-      submitLoading,
     }),
-    [outageCountItems, requestToAddItem, removeItem, submit, submitLoading],
+    [outageCountItems, requestToAddItem, removeItem, submit],
   );
 
   return (

@@ -95,6 +95,7 @@ export function PrintFrontTagScreen({
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
+  // TODO: Use `useConfirmation`
   const {
     state: confirmationModalOpen,
     enable: showConfirmationModal,

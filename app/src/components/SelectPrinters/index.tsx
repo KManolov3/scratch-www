@@ -29,6 +29,7 @@ export function SelectPrinters({
 }: DrawerScreenProps<'SelectPrinter'>) {
   const { replace } = useNavigation<DrawerNavigation>();
 
+  // TODO: Use `useConfirmation`
   const {
     state: confirmationModalVisible,
     disable: closeConfirmationModal,

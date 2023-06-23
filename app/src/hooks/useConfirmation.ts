@@ -1,13 +1,14 @@
 import { Deferred } from '@lib/deferred';
 import { useCallback, useState } from 'react';
 
-export function useConfirmation<T>() {
+export function useConfirmation<T = void>() {
   const [confirmation, setConfirmation] = useState<{
     item: T;
     deferred: Deferred<boolean>;
   }>();
 
   return {
+    shouldConfirm: !!confirmation,
     itemToConfirm: confirmation?.item,
 
     confirm: useCallback(

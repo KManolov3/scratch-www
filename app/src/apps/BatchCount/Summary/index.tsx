@@ -31,6 +31,7 @@ export function BatchCountSummary() {
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
+  // TODO: Use `useConfirmation`
   const {
     state: isShrinkageModalVisible,
     enable: enableShrinkageModal,
