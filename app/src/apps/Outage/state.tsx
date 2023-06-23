@@ -14,6 +14,7 @@ import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from '@services/ToastService';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
 import { OutageNavigation } from './navigator';
 
@@ -57,24 +58,13 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  // TODO: Better abstraction for this confirmation, probably `useConfirmation`
-  const [itemToConfirm, setItemToConfirm] = useState<OutageItemInfo>();
+  const { itemToConfirm, confirm, accept, reject } =
+    useConfirmation<OutageItemInfo>();
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
 
   const [submitOutageCount, { loading: submitLoading }] =
     useMutation(SUBMIT_OUTAGE_COUNT);
-
-  const addItemAndContinue = useCallback(
-    (item: OutageItemInfo) => {
-      setOutageCountItems(currentItems => [item, ...currentItems]);
-      setItemToConfirm(undefined);
-
-      // TODO: Move this navigate to the caller
-      navigate('Item List');
-    },
-    [navigate],
-  );
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -98,13 +88,14 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Item not found');
       }
 
-      if (item.backStockSlots?.length) {
-        setItemToConfirm(item);
-      } else {
-        addItemAndContinue(item);
+      if (item.backStockSlots?.length && !(await confirm(item))) {
+        return;
       }
+
+      setOutageCountItems(currentItems => [item, ...currentItems]);
+      navigate('Item List');
     },
-    [outageCountItems, getItemBySku, addItemAndContinue, storeNumber],
+    [outageCountItems, getItemBySku, confirm, navigate, storeNumber],
   );
 
   const removeItem = useCallback((sku: string) => {
@@ -136,10 +127,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       <BackstockWarningModal
         isVisible={!!itemToConfirm}
         item={itemToConfirm}
-        onConfirm={() => {
-          itemToConfirm && addItemAndContinue(itemToConfirm);
-        }}
-        onCancel={() => setItemToConfirm(undefined)}
+        onConfirm={accept}
+        onCancel={reject}
       />
 
       <Context.Provider value={value}>{children}</Context.Provider>
@@ -162,7 +151,6 @@ function buildOutageCount(items: OutageItemInfo[], storeNumber: string) {
   const now = DateTime.now().toISO();
 
   if (!now) {
-    // TODO: hande this case
     throw new Error('Cannot get current time');
   }
 
