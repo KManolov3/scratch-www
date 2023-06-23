@@ -1,112 +1,66 @@
-import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { gql } from 'src/__generated__';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useScanCodeListener } from '@services/ScanCode';
+import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
-import { OutageNavigation, header } from '../navigator';
-import { BackstockWarningModal } from '../components/BackstockWarningModal';
-
-const ITEM_BY_SKU_QUERY = gql(`
-  query ItemLookupBySku($sku: String!, $storeNumber: String!) {
-    itemBySku(sku: $sku, storeNumber: $storeNumber) {
-      ...ItemInfoHeaderFields
-      ...BackstockSlotFields
-    },
-  }
-`);
-
-type ErrorType = 'Not Found Error';
+import { header } from '../navigator';
 
 export function OutageHome() {
-  const { navigate } = useNavigation<OutageNavigation>();
-  const { addItem } = useOutageState();
+  const { requestToAddItem } = useOutageState();
 
-  const { storeNumber } = useCurrentSessionInfo();
+  const {
+    trigger: addItem,
+    loading,
 
-  const [itemWithBackstock, setItemWithBackstock] = useState<ItemDetailsInfo>();
+    // TODO: Reset this when going back to this screen?
+    error,
+  } = useAsyncAction((sku: string) => requestToAddItem(sku));
 
-  const [errorType, setErrorType] = useState<ErrorType>();
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        addItem(code.sku);
+        break;
 
-  const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
-    onCompleted: item => {
-      if (item?.itemBySku) {
-        if (item?.itemBySku.backStockSlots?.length) {
-          setItemWithBackstock(item.itemBySku);
-        } else {
-          addItemAndContinue(item.itemBySku);
-        }
-      } else {
-        // TODO: this error should be based on what
-        // the backend has returned
-        setErrorType('Not Found Error');
-      }
-    },
-    onError: () => {
-      // TODO: this error should be based on what
-      // the backend has returned
-      setErrorType('Not Found Error');
-    },
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+        );
+    }
   });
 
-  const addItemAndContinue = useCallback(
-    (item: ItemDetailsInfo) => {
-      setErrorType(undefined);
-      addItem(item);
-      setItemWithBackstock(undefined);
-      navigate('Item List');
-    },
-    [addItem, navigate],
-  );
-
-  const onSubmit = useCallback(
-    (sku: string) => {
-      getItemBySku({ variables: { sku, storeNumber } });
-    },
-    [getItemBySku, storeNumber],
-  );
-
   return (
-    <>
-      <FixedLayout style={styles.container} header={header}>
-        <SkuSearchBar onSubmit={onSubmit} />
-        {loading && (
-          <ActivityIndicator
-            size="large"
-            color={Colors.mediumVoid}
-            style={styles.loadingIndicator}
-          />
-        )}
-        {!errorType && !loading && (
-          <ScanBarcodeLabel
-            label="Scan For Outage"
-            style={styles.scanBarcode}
-          />
-        )}
-        {errorType && !loading && (
-          <ErrorContainer
-            title="No Results Found"
-            message="Try searching for another SKU or scanning another front tag"
-          />
-        )}
-      </FixedLayout>
-      <BackstockWarningModal
-        isVisible={!!itemWithBackstock}
-        item={itemWithBackstock}
-        onConfirm={() => {
-          itemWithBackstock && addItemAndContinue(itemWithBackstock);
-        }}
-        onCancel={() => setItemWithBackstock(undefined)}
-      />
-    </>
+    <FixedLayout style={styles.container} header={header}>
+      <SkuSearchBar onSubmit={addItem} />
+
+      {loading && (
+        <ActivityIndicator
+          size="large"
+          color={Colors.mediumVoid}
+          style={styles.loadingIndicator}
+        />
+      )}
+
+      {!error && !loading && (
+        <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
+      )}
+
+      {/* TODO: Distinguish between not found and other errors */}
+      {!!error && !loading && (
+        <ErrorContainer
+          title="No Results Found"
+          message="Try searching for another SKU or scanning another front tag"
+        />
+      )}
+    </FixedLayout>
   );
 }
 

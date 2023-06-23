@@ -17,7 +17,7 @@ const innerSchema = makeExecutableSchema({
   ]),
 });
 
-const skuRegex = /\d{1,9}/;
+const skuRegex = /^\d{1,9}$/;
 
 const storeNumberFaker = () => faker.random.numeric(4);
 const skuFaker = () => faker.random.numeric(8);
@@ -158,10 +158,26 @@ export const schema = addMocksToSchema({
       },
     },
     Query: {
-      itemBySku(_, { sku }) {
-        if (skuRegex.test(sku)) {
-          return store.get('Item');
+      itemBySku(_, args) {
+        if (skuRegex.test(args.sku)) {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: args,
+            value: {
+              sku: args.sku,
+            },
+          });
+
+          return store.get({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: args,
+          });
         }
+
         throw new Error('SKU must contain 1-9 digits.');
       },
     },

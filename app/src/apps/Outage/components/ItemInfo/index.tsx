@@ -27,11 +27,11 @@ export const OutageItemInfoFragment = gql(`
   }
 `);
 
-export interface OutageItemCardProps {
+export interface OutageItemInfoProps {
   outageItem: DocumentType<typeof OutageItemInfoFragment>;
 }
 
-export function OutageItemInfo({ outageItem }: OutageItemCardProps) {
+export function OutageItemInfo({ outageItem }: OutageItemInfoProps) {
   const { partDesc, mfrPartNum, retailPrice, onHand } = outageItem;
 
   return (

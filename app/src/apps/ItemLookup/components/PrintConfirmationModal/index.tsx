@@ -37,6 +37,7 @@ export function PrintConfirmationModal({
     </ConfirmationModal>
   );
 }
+
 const styles = StyleSheet.create({
   text: {
     color: Colors.black,
