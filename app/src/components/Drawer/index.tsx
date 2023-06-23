@@ -147,8 +147,8 @@ export function Drawer({
             ]}>
             <Text style={styles.drawerHeaderText}>Settings</Text>
             <Text style={styles.version}>
-              ver. {config.version}
-              {config.build ? `-${config.build}` : ''}
+              ver. {config.versionName}
+              {config.showDebugUI ? `-${config.buildInfo}` : ''}
             </Text>
           </View>
         ),

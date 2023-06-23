@@ -3,13 +3,13 @@ import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
+import { header } from '../navigator';
 
 export function OutageHome() {
   const { requestToAddItem } = useOutageState();
@@ -38,7 +38,7 @@ export function OutageHome() {
   });
 
   return (
-    <FixedLayout style={styles.container} header={<Header title="Outage" />}>
+    <FixedLayout style={styles.container} header={header}>
       <SkuSearchBar onSubmit={addItem} />
 
       {loading && (
