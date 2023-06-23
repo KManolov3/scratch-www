@@ -96,7 +96,7 @@ export function BatchCountList() {
     (item: BatchCountItem['item']) => {
       removeItem(item.sku);
       toastService.showInfoToast(
-        `${item.partDesc} removed from Batch count list`,
+        `${item.partDesc} removed from batch count list`,
         {
           props: { containerStyle: styles.toast },
         },
