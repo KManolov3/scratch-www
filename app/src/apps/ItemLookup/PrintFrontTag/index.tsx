@@ -45,11 +45,10 @@ const PRINT_FRONT_TAG = gql(`
 `);
 
 const TRIGGER_CONFIRMATION_QUANTITY = 11;
-const MINIMUM_VALID_FRONT_TAG_QUANTITY = 1;
 
 interface LocationStatus {
   checked: boolean;
-  qty: string;
+  qty: number | undefined;
   id: string;
   seqNum: number;
 }
@@ -61,7 +60,7 @@ function createInitialValueMap(locations: ItemDetails['planograms']) {
       // but the types say they can
       planogramId ?? '',
       {
-        qty: '1',
+        qty: 1,
         checked: true,
         id: planogramId ?? '',
         seqNum: seqNum ?? 0,
@@ -120,7 +119,7 @@ export function PrintFrontTagScreen({
             printer: printerToStringValue,
             data: {
               sku: itemDetails.sku,
-              count: parseInt(qty, 10),
+              count: qty,
               planogramId: id,
               sequence: seqNum,
             },
@@ -153,19 +152,9 @@ export function PrintFrontTagScreen({
 
   const frontTagsForPrintingQty = useMemo(
     () =>
-      sumBy(locationStatuses, ({ qty, checked }) =>
-        checked ? parseInt(qty, 10) : 0,
-      ),
+      sumBy(locationStatuses, ({ qty, checked }) => (checked ? qty ?? 0 : 0)),
     [locationStatuses],
   );
-
-  const isQuantityInvalid = useCallback((qty: string) => {
-    const quantityNumber = parseInt(qty, 10);
-    return (
-      !!Number.isNaN(quantityNumber) ||
-      quantityNumber < MINIMUM_VALID_FRONT_TAG_QUANTITY
-    );
-  }, []);
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
@@ -179,15 +168,11 @@ export function PrintFrontTagScreen({
         textStyle: [styles.bottomBarActionText, styles.bold],
         disabled:
           every(locationStatuses, ['checked', false]) ||
-          some(
-            locationStatuses,
-            ({ qty, checked }) => checked && isQuantityInvalid(qty),
-          ),
+          some(locationStatuses, ({ qty, checked }) => checked && !qty),
       },
     ],
     [
       frontTagsForPrintingQty,
-      isQuantityInvalid,
       loading,
       locationStatuses,
       sendTagsForPrinting,
@@ -216,19 +201,19 @@ export function PrintFrontTagScreen({
               <Text style={styles.text}>{id}</Text>
             </View>
             <QuantityAdjuster
+              minimum={1}
               maximum={99}
               quantity={qty}
               setQuantity={quantity => {
                 update(id, { qty: quantity });
               }}
-              invalid={isQuantityInvalid(qty)}
             />
           </View>
           <Separator />
         </View>
       );
     },
-    [isQuantityInvalid, locationStatuses.length, update],
+    [locationStatuses.length, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
