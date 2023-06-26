@@ -7,7 +7,8 @@ import {
 import { LightHeader } from '@components/LightHeader';
 import { RadioButtonsList } from '@components/RadioButtonsList';
 import { Text } from '@components/Text';
-import { useBooleanState } from '@hooks/useBooleanState';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
@@ -15,7 +16,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 
 export interface SelectPrinterProps {
@@ -29,26 +30,18 @@ export function SelectPrinters({
 }: DrawerScreenProps<'SelectPrinter'>) {
   const { replace } = useNavigation<DrawerNavigation>();
 
-  // TODO: Use `useConfirmation`
   const {
-    state: confirmationModalVisible,
-    disable: closeConfirmationModal,
-    enable: openConfirmationModal,
-  } = useBooleanState();
+    shouldConfirm,
+    itemToConfirm: printerToConfirm,
+    confirm,
+    accept,
+    reject,
+  } = useConfirmation<PrinterOptions>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const { data: defaultPrinterOption, set } = useDefaultSettings(
-    'defaultPrinterOption',
-    storeNumber,
-    userId,
-  );
-  const printerToBeSelected = useRef(defaultPrinterOption);
-
-  const confirm = useCallback(() => {
-    set(printerToBeSelected.current);
-    closeConfirmationModal();
-  }, [closeConfirmationModal, set]);
+  const { data: defaultPrinterOption, set: setDefaultPrinter } =
+    useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
   const onBackPress = useCallback(
     () => replace('DrawerHome', { title }),
@@ -60,12 +53,12 @@ export function SelectPrinters({
     [defaultPrinterOption],
   );
 
-  const onPress = useCallback(
-    (item: PrinterOptions) => {
-      printerToBeSelected.current = item;
-      openConfirmationModal();
+  const { trigger: setPrinter } = useAsyncAction(
+    async (printer: PrinterOptions) => {
+      if (await confirm(printer)) {
+        setDefaultPrinter(printer);
+      }
     },
-    [openConfirmationModal],
   );
 
   return (
@@ -75,17 +68,18 @@ export function SelectPrinters({
         <RadioButtonsList
           items={Array.from(Object.values(PrinterOptions))}
           checked={checked}
-          onRadioButtonPress={onPress}
+          onRadioButtonPress={setPrinter}
           withDefault
           bold
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
         />
       </FixedLayout>
+
       <ConfirmationModal
-        isVisible={confirmationModalVisible}
-        onCancel={closeConfirmationModal}
-        onConfirm={confirm}
+        isVisible={shouldConfirm}
+        onCancel={reject}
+        onConfirm={accept}
         confirmationLabel="Continue"
         title="Default Printer"
         Icon={BlackAttentionIcon}
@@ -95,8 +89,8 @@ export function SelectPrinters({
           Are you sure you want to set{' '}
         </Text>
         <Text style={styles.confirmationModalText}>
-          <Text style={styles.bold}>{printerToBeSelected.current}</Text> as the
-          default printer?
+          <Text style={styles.bold}>{printerToConfirm}</Text> as the default
+          printer?
         </Text>
       </ConfirmationModal>
     </>
