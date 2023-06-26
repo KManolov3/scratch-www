@@ -1,10 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  ListRenderItem,
-  StyleSheet,
-} from 'react-native';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
@@ -114,9 +109,10 @@ export function OutageItemList() {
       {
         label: 'Complete Outage Count',
         onPress: submit,
+        isLoading: submitLoading,
       },
     ],
-    [submit],
+    [submit, submitLoading],
   );
 
   const items = useMemo(
@@ -135,10 +131,6 @@ export function OutageItemList() {
     ),
     [outageCountItems.length, removeOutageItem],
   );
-
-  if (submitLoading) {
-    return <ActivityIndicator size="large" style={styles.loading} />;
-  }
 
   return (
     <>
