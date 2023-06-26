@@ -81,6 +81,7 @@
     "@graphql-codegen/client-preset": "^3.0.0",
     "@react-native-community/eslint-config": "^3.2.0",
     "@rnx-kit/metro-resolver-symlinks": "^0.1.28",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@tsconfig/react-native": "^2.0.2",
     "@types/jest": "^29.2.1",
     "@types/lodash-es": "^4.17.7",
