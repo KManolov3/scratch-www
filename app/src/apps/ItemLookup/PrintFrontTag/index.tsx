@@ -97,43 +97,41 @@ export function PrintFrontTagScreen({
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
-  const {
-    shouldConfirm,
-    itemToConfirm: quantityToConfirm,
-    confirm,
-    accept,
-    reject,
-  } = useConfirmation<{ quantity: number }>();
+  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
+
+  const totalPrintQuantity = useMemo(() => {
+    const checkedLocations = locationStatuses.filter(_ => _.checked);
+    return sumBy(checkedLocations, ({ qty }) => qty ?? 0);
+  }, [locationStatuses]);
 
   const { loading, trigger: printTags } = useAsyncAction(async () => {
-    const checkedLocations = locationStatuses.filter(_ => _.checked);
-    const totalPrintQuantity = sumBy(checkedLocations, ({ qty }) => qty ?? 0);
-
     if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
-      const shouldPrint = await confirm({ quantity: totalPrintQuantity });
+      const shouldPrint = await confirm();
       if (!shouldPrint) {
         return;
       }
     }
 
-    const promises = checkedLocations.map(({ id, seqNum, qty }) => {
-      const printerToStringValue = String(
-        indexOfEnumValue(PrinterOptions, printer) + 1,
-      );
+    const promises = locationStatuses
+      .filter(_ => _.checked)
+      .map(({ id, seqNum, qty }) => {
+        const printerToStringValue = String(
+          indexOfEnumValue(PrinterOptions, printer) + 1,
+        );
 
-      return printFrontTag({
-        variables: {
-          storeNumber,
-          printer: printerToStringValue,
-          data: {
-            sku: itemDetails.sku,
-            count: qty,
-            planogramId: id,
-            sequence: seqNum,
+        return printFrontTag({
+          variables: {
+            storeNumber,
+            printer: printerToStringValue,
+            data: {
+              sku: itemDetails.sku,
+              count: qty,
+              planogramId: id,
+              sequence: seqNum,
+            },
           },
-        },
+        });
       });
-    });
 
     const data = await Promise.allSettled(promises);
 
@@ -165,7 +163,7 @@ export function PrintFrontTagScreen({
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
         disabled:
-          every(locationStatuses, _ => _.checked) ||
+          every(locationStatuses, _ => !_.checked) ||
           some(locationStatuses, _ => _.checked && !_.qty),
       },
     ],
@@ -279,7 +277,7 @@ export function PrintFrontTagScreen({
         isVisible={shouldConfirm}
         onCancel={reject}
         onConfirm={accept}
-        quantity={quantityToConfirm?.quantity ?? 0}
+        quantity={totalPrintQuantity}
       />
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
