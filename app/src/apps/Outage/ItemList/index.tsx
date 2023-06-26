@@ -1,22 +1,22 @@
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useScanCodeListener } from '@services/ScanCode';
+import { toastService } from '@services/ToastService';
+import { useCallback, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   ListRenderItem,
   StyleSheet,
 } from 'react-native';
-import { useCallback, useMemo, useRef } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useScanCodeListener } from '@services/ScanCode';
-import { useAsyncAction } from '@hooks/useAsyncAction';
-import { toastService } from '@services/ToastService';
-import { useConfirmation } from '@hooks/useConfirmation';
-import { useOutageState } from '../state';
-import { OutageNavigation, header } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
+import { OutageNavigation, header } from '../navigator';
+import { useOutageState } from '../state';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -89,12 +89,22 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  // TODO: Use the `error`
   const { trigger: submit, loading: submitLoading } = useAsyncAction(
     async () => {
-      if (await confirm()) {
-        await submitOutage();
-        navigate('Home');
+      try {
+        if (await confirm()) {
+          await submitOutage();
+          navigate('Home');
+        }
+      } catch (error) {
+        toastService.showInfoToast(
+          'Could not submit the outage count due to an error',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+
+        throw error;
       }
     },
   );

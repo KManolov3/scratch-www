@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
+import { WhiteSearchIcon } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { Header } from '@components/Header';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { Header } from '@components/Header';
-import { soundService } from 'src/services/SoundService';
-import { BottomRegularTray } from '@components/BottomRegularTray';
-import { WhiteSearchIcon } from '@assets/icons';
+import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
 import { toastService } from '@services/ToastService';
-import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { soundService } from 'src/services/SoundService';
 import { ItemLookupHome } from '../components/Home';
+import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 
 export function ItemLookupScreen({
   route: {

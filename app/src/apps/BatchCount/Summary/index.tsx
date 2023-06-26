@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ListRenderItem, FlatList, StyleSheet } from 'react-native';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { Header } from '@components/Header';
 import { WhiteBackArrow } from '@assets/icons';
-import { useNavigation } from '@react-navigation/native';
-import { toastService } from 'src/services/ToastService';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { Header } from '@components/Header';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
-import { useConfirmation } from '@hooks/useConfirmation';
-import { useAsyncAction } from '@hooks/useAsyncAction';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
 import { sortBy } from 'lodash-es';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
-import { BatchCountItem, useBatchCountState } from '../state';
+import { toastService } from 'src/services/ToastService';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
+import { BatchCountItem, useBatchCountState } from '../state';
 
 // TODO: Think about extracting part of the shared code between this screen and BatchCountList
 // They are nearly the same component, differing only in the `isSummary` property and the action bar

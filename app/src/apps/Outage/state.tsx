@@ -1,3 +1,9 @@
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { toastService } from '@services/ToastService';
+import { DateTime } from 'luxon';
 import {
   ReactNode,
   createContext,
@@ -6,15 +12,9 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
 import { DocumentType, gql } from 'src/__generated__';
-import { v4 as uuid } from 'uuid';
-import { DateTime } from 'luxon';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { useNavigation } from '@react-navigation/native';
-import { toastService } from '@services/ToastService';
-import { useConfirmation } from '@hooks/useConfirmation';
+import { v4 as uuid } from 'uuid';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
 import { OutageNavigation } from './navigator';
 
@@ -24,11 +24,10 @@ const SUBMIT_OUTAGE_COUNT = gql(`
   }
 `);
 
-// TODO: ItemInfoHeaderFields wtf
 const ITEM_BY_SKU_QUERY = gql(`
   query ItemLookupBySku($sku: String!, $storeNumber: String!) {
     itemBySku(sku: $sku, storeNumber: $storeNumber) {
-      ...ItemInfoHeaderFields
+      ...OutageItemInfoFields
       ...BackstockSlotFields
     },
   }
@@ -74,8 +73,6 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
 
       const response = await getItemBySku({ variables: { sku, storeNumber } });
 
-      // TODO: The stupid function doesn't reject its promise...
-      //       We need to keep this in mind everywhere we use `useLazyQuery`
       if (response.error) {
         throw response.error;
       }

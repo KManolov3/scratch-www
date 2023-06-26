@@ -1,11 +1,11 @@
-import { View } from 'react-native';
-import { Text } from '@components/Text';
-import { DocumentType, gql } from 'src/__generated__';
-import { convertCurrencyToString } from '@lib/currency';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
-import { styles } from './styles';
+import { Text } from '@components/Text';
+import { convertCurrencyToString } from '@lib/currency';
+import { View } from 'react-native';
+import { DocumentType, gql } from 'src/__generated__';
 import { WarningMessage } from '../WarningMessage';
+import { styles } from './styles';
 
 function formatBackstockSlots(slots: BackstockSlotsInfo['backStockSlots']) {
   return `Slot: ${slots
@@ -14,8 +14,8 @@ function formatBackstockSlots(slots: BackstockSlotsInfo['backStockSlots']) {
     .join(', ')}`;
 }
 
-export const OutageItemInfoFragment = gql(`
-  fragment OutageItemCard on Item {
+const OUTAGE_ITEM_INFO_FIELDS = gql(`
+  fragment OutageItemInfoFields on Item {
     partDesc
     mfrPartNum
     sku
@@ -28,7 +28,7 @@ export const OutageItemInfoFragment = gql(`
 `);
 
 export interface OutageItemInfoProps {
-  outageItem: DocumentType<typeof OutageItemInfoFragment>;
+  outageItem: DocumentType<typeof OUTAGE_ITEM_INFO_FIELDS>;
 }
 
 export function OutageItemInfo({ outageItem }: OutageItemInfoProps) {

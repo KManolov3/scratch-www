@@ -1,6 +1,17 @@
-import { useMemo } from 'react';
+import { BlackCrossIcon, BookmarkBlack, BookmarkWhite } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { ItemPropertyInput } from '@components/ItemPropertyInput';
+import { Locations } from '@components/Locations';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
+import { PlanogramsInfo } from '@components/Locations/PlanogramList';
+import { Text } from '@components/Text';
+import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
+import { getBackstockQuantity } from '@lib/common';
+import { convertCurrencyToString } from '@lib/currency';
+import { FontWeight } from '@lib/font';
+import { noop } from 'lodash-es';
+import { useMemo } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -8,18 +19,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { PlanogramsInfo } from '@components/Locations/PlanogramList';
-import { Colors } from '@lib/colors';
-import { ItemPropertyInput } from '@components/ItemPropertyInput';
-import { BaseStyles } from '@lib/baseStyles';
-import { convertCurrencyToString } from '@lib/currency';
-import { Locations } from '@components/Locations';
-import { Text } from '@components/Text';
-import { BookmarkBlack, BookmarkWhite, BlackCrossIcon } from '@assets/icons';
-import { FontWeight } from '@lib/font';
 import { DocumentType, gql } from 'src/__generated__';
-import { getBackstockQuantity } from '@lib/common';
-import { noop } from 'lodash-es';
 
 const ITEM_INFO_FIELDS = gql(`
   fragment ItemInfoFields on Item {
@@ -49,9 +49,6 @@ interface BatchCountItemCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-// TODO: Can this component be cleaner? It has grown quite large, and has
-// several ternaries in the JSX. However, having different components for the List and Summary
-// screens will result in a lot of duplication.
 export function BatchCountItemCard({
   item,
   newQuantity,
