@@ -4,7 +4,7 @@ import { ItemDetails } from 'src/types/ItemLookup';
 
 interface ContextValue {
   selectedItem?: ItemDetails;
-  setItem(item: ItemDetails | undefined): void;
+  setSlecetedItem(item: ItemDetails | undefined): void;
   applicationName: ApplicationName;
 }
 
@@ -17,11 +17,11 @@ export function GlobalStateProvider({
   children: ReactNode;
   applicationName: ApplicationName;
 }) {
-  const [item, setItem] = useState<ItemDetails>();
+  const [selectedItem, setSlecetedItem] = useState<ItemDetails>();
 
   const value = useMemo(
-    () => ({ selectedItem: item, setItem, applicationName }),
-    [applicationName, item],
+    () => ({ selectedItem, setSlecetedItem, applicationName }),
+    [applicationName, selectedItem],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

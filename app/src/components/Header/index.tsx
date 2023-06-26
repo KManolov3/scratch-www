@@ -34,7 +34,7 @@ export function Header({
   item,
 }: HeaderProps) {
   const { navigate } = useNavigation<RootNavigation>();
-  const { applicationName, setItem } = useGlobalState();
+  const { applicationName, setSlecetedItem } = useGlobalState();
 
   return (
     <View style={styles.container}>
@@ -43,7 +43,7 @@ export function Header({
           onPress={
             onClickLeft ??
             (() => {
-              setItem(item);
+              setSlecetedItem(item);
               navigate('Drawer', {
                 screen: 'DrawerHome',
               });
