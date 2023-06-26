@@ -4,12 +4,13 @@ import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { Header } from '@components/Header';
-import { useBooleanState } from '@hooks/useBooleanState';
 import { WhiteBackArrow } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { useAsyncAction } from '@hooks/useAsyncAction';
 import { sortBy } from 'lodash-es';
 import { Item } from 'src/__generated__/graphql';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -31,12 +32,7 @@ export function BatchCountSummary() {
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
-  // TODO: Use `useConfirmation`
-  const {
-    state: isShrinkageModalVisible,
-    enable: enableShrinkageModal,
-    disable: disableShrinkageModal,
-  } = useBooleanState(false);
+  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
 
   const sortFn = useCallback(
     (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
@@ -137,20 +133,21 @@ export function BatchCountSummary() {
     [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
-  const submitBatchCount = useCallback(() => {
-    disableShrinkageModal();
-    submitBatch();
-  }, [disableShrinkageModal, submitBatch]);
+  const { trigger: submitBatchCount } = useAsyncAction(async () => {
+    if (await confirm()) {
+      submitBatch();
+    }
+  });
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Approve Count',
-        onPress: enableShrinkageModal,
+        onPress: submitBatchCount,
         isLoading: submitLoading,
       },
     ],
-    [enableShrinkageModal, submitLoading],
+    [submitBatchCount, submitLoading],
   );
 
   useEffect(() => {
@@ -165,7 +162,7 @@ export function BatchCountSummary() {
   }, [submitError]);
 
   useFocusEventBus('search-error', () => {
-    disableShrinkageModal();
+    reject();
     toastService.showInfoToast(
       'No results found. Try searching for another SKU or scanning another barcode.',
       {
@@ -175,7 +172,7 @@ export function BatchCountSummary() {
   });
 
   useFocusEventBus('search-success', (item?: Item) => {
-    disableShrinkageModal();
+    reject();
     if (item && item.sku !== expandedSku) {
       setExpandedSku(undefined);
     }
@@ -209,11 +206,11 @@ export function BatchCountSummary() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={shouldConfirm}
         countType="Batch Count"
         items={items}
-        onConfirm={submitBatchCount}
-        onCancel={disableShrinkageModal}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );

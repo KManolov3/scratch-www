@@ -180,7 +180,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       batchCountItems,
       storeNumber,
     );
+
+    // TODO: Does this reject on error?
     await submitBatchCount({ variables: { request: batchCountRequest } });
+
     setBatchCountItems([]);
 
     toastService.showInfoToast('Batch count completed');
@@ -194,6 +197,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       submit,
+
+      // TODO: Make these part of the user useAsyncAction and just make `submit` return a promise
       submitLoading: loading,
       submitError: error,
     }),
