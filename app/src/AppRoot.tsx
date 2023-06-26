@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-max-depth */
 import { useCallback, useMemo, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { ApolloProvider } from '@apollo/client';
@@ -7,6 +8,7 @@ import { RootNavigator, RootRouteName } from '@apps/navigator';
 import { ScannerConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 import { ScannerProvider } from '@services/Scanner';
 import { DrawerHeader } from '@components/Drawer/DrawerHeader';
+import { GlobalStateProvider } from '@apps/state';
 import { toastConfig } from './services/ToastService';
 import { apolloClient } from './config/graphql';
 import { AuthProvider } from './services/Auth';
@@ -46,21 +48,22 @@ export function AppRoot({
   );
 
   const app = (
-    <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
-      <LaunchDarklyProvider applicationName={applicationName}>
-        <ApolloProvider client={apolloClient}>
-          <NavigationContainer>
-            <RootNavigator
-              initialRoute={initialRoute}
-              screenOptions={screenOptions}
-              screenListeners={screenListeners}
-            />
-
-            <Toast config={toastConfig} />
-          </NavigationContainer>
-        </ApolloProvider>
-      </LaunchDarklyProvider>
-    </AuthProvider>
+    <GlobalStateProvider applicationName={applicationName}>
+      <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
+        <LaunchDarklyProvider applicationName={applicationName}>
+          <ApolloProvider client={apolloClient}>
+            <NavigationContainer>
+              <RootNavigator
+                initialRoute={initialRoute}
+                screenOptions={screenOptions}
+                screenListeners={screenListeners}
+              />
+              <Toast config={toastConfig} />
+            </NavigationContainer>
+          </ApolloProvider>
+        </LaunchDarklyProvider>
+      </AuthProvider>
+    </GlobalStateProvider>
   );
 
   if (scannerConfig) {

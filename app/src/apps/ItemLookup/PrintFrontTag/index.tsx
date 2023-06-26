@@ -1,13 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { Fragment, useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import { gql } from 'src/__generated__';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
-import { Text } from '@components/Text';
-import { ConfirmationModal } from '@components/ConfirmationModal';
 import {
   EmptySquareCheckBox,
   PrinterIcon,
@@ -15,24 +6,34 @@ import {
   WhiteBackArrow,
   WhiteSearchIcon,
 } from '@assets/icons';
-import { QuantityAdjuster } from '@components/QuantityAdjuster';
-import { useMap } from '@hooks/useMap';
-import { ItemDetails } from 'src/types/ItemLookup';
-import { compact, countBy, every, sumBy } from 'lodash-es';
-import { useAsyncAction } from '@hooks/useAsyncAction';
-import { indexOfEnumValue } from '@lib/array';
-import { toastService } from 'src/services/ToastService';
-import { useNavigation } from '@react-navigation/native';
-import { RadioButtonsList } from '@components/RadioButtonsList';
-import { Header } from '@components/Header';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { BottomRegularTray } from '@components/BottomRegularTray';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { ConfirmationModal } from '@components/ConfirmationModal';
+import { Header } from '@components/Header';
+import { QuantityAdjuster } from '@components/QuantityAdjuster';
+import { RadioButtonsList } from '@components/RadioButtonsList';
+import { Separator } from '@components/Separator';
+import { Text } from '@components/Text';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { useMap } from '@hooks/useMap';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { indexOfEnumValue } from '@lib/array';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { compact, countBy, every, some, sumBy } from 'lodash-es';
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+import { gql } from 'src/__generated__';
+import { toastService } from 'src/services/ToastService';
+import { ItemDetails } from 'src/types/ItemLookup';
+import { ItemLookupHome } from '../components/Home';
+import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
-import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
-import { ItemLookupHome } from '../components/Home';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -48,7 +49,7 @@ const TRIGGER_CONFIRMATION_QUANTITY = 11;
 
 interface LocationStatus {
   checked: boolean;
-  qty: number;
+  qty: number | undefined;
   id: string;
   seqNum: number;
 }
@@ -74,7 +75,7 @@ export function PrintFrontTagScreen({
     params: { itemDetails },
   },
 }: ItemLookupScreenProps<'PrintFrontTag'>) {
-  const { map: locationsStatusMap, update } = useMap<string, LocationStatus>(
+  const { values: locationStatuses, update } = useMap<string, LocationStatus>(
     createInitialValueMap(itemDetails.planograms),
   );
 
@@ -105,10 +106,8 @@ export function PrintFrontTagScreen({
   } = useConfirmation<{ quantity: number }>();
 
   const { loading, trigger: printTags } = useAsyncAction(async () => {
-    const totalPrintQuantity = sumBy(
-      Array.from(locationsStatusMap.values()),
-      ({ qty, checked }) => (checked ? qty : 0),
-    );
+    const checkedLocations = locationStatuses.filter(_ => _.checked);
+    const totalPrintQuantity = sumBy(checkedLocations, ({ qty }) => qty ?? 0);
 
     if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
       const shouldPrint = await confirm({ quantity: totalPrintQuantity });
@@ -117,26 +116,24 @@ export function PrintFrontTagScreen({
       }
     }
 
-    const promises = Array.from(locationsStatusMap.values())
-      .filter(_ => _.checked)
-      .map(({ id, seqNum, qty }) => {
-        const printerToStringValue = String(
-          indexOfEnumValue(PrinterOptions, printer) + 1,
-        );
+    const promises = checkedLocations.map(({ id, seqNum, qty }) => {
+      const printerToStringValue = String(
+        indexOfEnumValue(PrinterOptions, printer) + 1,
+      );
 
-        return printFrontTag({
-          variables: {
-            storeNumber,
-            printer: printerToStringValue,
-            data: {
-              sku: itemDetails.sku,
-              count: qty,
-              planogramId: id,
-              sequence: seqNum,
-            },
+      return printFrontTag({
+        variables: {
+          storeNumber,
+          printer: printerToStringValue,
+          data: {
+            sku: itemDetails.sku,
+            count: qty,
+            planogramId: id,
+            sequence: seqNum,
           },
-        });
+        },
       });
+    });
 
     const data = await Promise.allSettled(promises);
 
@@ -167,23 +164,22 @@ export function PrintFrontTagScreen({
         onPress: printTags,
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
-        disabled: every(Array.from(locationsStatusMap.values()), [
-          'checked',
-          false,
-        ]),
+        disabled:
+          every(locationStatuses, _ => _.checked) ||
+          some(locationStatuses, _ => _.checked && !_.qty),
       },
     ],
-    [printTags, loading, locationsStatusMap],
+    [printTags, loading, locationStatuses],
   );
 
   const renderPlanogram = useCallback(
     (location: LocationStatus) => {
       const { id, qty, checked } = location;
       return (
-        <Fragment key={id}>
+        <View style={styles.planogramsContainer} key={id}>
           <View style={styles.table}>
             <View style={styles.flexRow}>
-              {locationsStatusMap.size > 1 && (
+              {locationStatuses.length > 1 && (
                 <Pressable
                   style={styles.checkIcon}
                   onPress={() => update(id, { checked: !checked })}>
@@ -200,14 +196,16 @@ export function PrintFrontTagScreen({
               minimum={1}
               maximum={99}
               quantity={qty}
-              setQuantity={quantity => update(id, { qty: quantity })}
+              setQuantity={quantity => {
+                update(id, { qty: quantity });
+              }}
             />
           </View>
-          <View style={styles.separator} />
-        </Fragment>
+          <Separator />
+        </View>
       );
     },
-    [locationsStatusMap, update],
+    [locationStatuses.length, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
@@ -215,24 +213,23 @@ export function PrintFrontTagScreen({
   useEventBus('search-error', () => {
     if (!searchTrayOpen) {
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
       );
     }
   });
 
-  const header = (
-    <Header
-      title="Item Lookup"
-      item={itemDetails}
-      rightIcon={<WhiteSearchIcon />}
-      onClickRight={enable}
-      leftIcon={<WhiteBackArrow />}
-      onClickLeft={goBack}
-    />
-  );
-
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout
+      style={styles.container}
+      header={
+        <Header
+          item={itemDetails}
+          rightIcon={<WhiteSearchIcon />}
+          onClickRight={enable}
+          leftIcon={<WhiteBackArrow />}
+          onClickLeft={goBack}
+        />
+      }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>
@@ -247,7 +244,7 @@ export function PrintFrontTagScreen({
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
       <ScrollView style={styles.planogramContainer}>
-        {Array.from(locationsStatusMap.values()).map(renderPlanogram)}
+        {locationStatuses.map(renderPlanogram)}
       </ScrollView>
       <BottomActionBar
         actions={bottomBarActions}

@@ -1,21 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, FlatList, ListRenderItem } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useNavigation } from '@react-navigation/native';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { Colors } from '@lib/colors';
-import { compact, sortBy } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { Header } from '@components/Header';
-import { toastService } from 'src/services/ToastService';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
-import { useConfirmation } from '@hooks/useConfirmation';
-import { useAsyncAction } from '@hooks/useAsyncAction';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { useNavigation } from '@react-navigation/native';
+import { compact, sortBy } from 'lodash-es';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
+import { toastService } from 'src/services/ToastService';
+import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
-import { BatchCountItemCard } from '../components/BatchCountItemCard';
 
 export function BatchCountList() {
   const {
@@ -114,8 +113,8 @@ export function BatchCountList() {
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
-        setNewQuantity={(quantity: number) =>
-          setNewQuantity(item.sku, quantity)
+        setNewQuantity={(quantity: number | undefined) =>
+          setNewQuantity(item.sku, quantity ?? 0)
         }
         isExpanded={expandedSku === item.sku}
         isBookmarked={!!isBookmarked}
@@ -170,7 +169,7 @@ export function BatchCountList() {
   useFocusEventBus('search-error', () => {
     reject();
     toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning another barcode.',
+      'No results found. Try searching for another SKU or scanning a barcode.',
       {
         props: { containerStyle: styles.toast },
       },
@@ -188,11 +187,9 @@ export function BatchCountList() {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   });
 
-  const header = <Header title="Batch Count" />;
-
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout>
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}

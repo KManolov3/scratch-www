@@ -8,7 +8,6 @@ import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { header } from '../navigator';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
@@ -38,7 +37,7 @@ export function OutageHome() {
   });
 
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={addItem} />
 
       {loading && (

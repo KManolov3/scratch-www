@@ -15,7 +15,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { OutageItemCard } from '../components/ItemCard';
-import { OutageNavigation, header } from '../navigator';
+import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
 export function OutageItemList() {
@@ -142,7 +142,7 @@ export function OutageItemList() {
 
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout>
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}

@@ -39,7 +39,7 @@ type ItemInfo = NonNullable<DocumentType<typeof ITEM_INFO_FIELDS>>;
 interface BatchCountItemCardProps {
   item: ItemInfo & PlanogramsInfo & BackstockSlotsInfo;
   newQuantity: number;
-  setNewQuantity: (quantity: number) => void;
+  setNewQuantity: (quantity: number | undefined) => void;
   isExpanded: boolean;
   isBookmarked: boolean;
   isSummary?: boolean;

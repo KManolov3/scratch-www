@@ -9,7 +9,6 @@ import {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
-import { Header } from '@components/Header';
 import { OutageHome } from './Home';
 import { OutageItemList } from './ItemList';
 import { OutageStateProvider } from './state';
@@ -18,8 +17,6 @@ type Routes = {
   Home: undefined;
   'Item List': undefined;
 };
-
-export const header = <Header title="Outage" />;
 
 const Stack = createNativeStackNavigator<Routes>();
 
