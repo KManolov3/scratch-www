@@ -28,6 +28,7 @@ import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -95,40 +96,47 @@ export function PrintFrontTagScreen({
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
-  // TODO: Use `useConfirmation`
   const {
-    state: confirmationModalOpen,
-    enable: showConfirmationModal,
-    disable: hideConfirmationModal,
-  } = useBooleanState();
+    shouldConfirm,
+    itemToConfirm: quantityToConfirm,
+    confirm,
+    accept,
+    reject,
+  } = useConfirmation<{ quantity: number }>();
 
-  const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
-    hideConfirmationModal();
-    const promises = compact(
-      Array.from(locationsStatusMap.values()).map(
-        ({ id, seqNum, checked, qty }) => {
-          if (!checked) {
-            return undefined;
-          }
-          const printerToStringValue = String(
-            indexOfEnumValue(PrinterOptions, printer) + 1,
-          );
-
-          return printFrontTag({
-            variables: {
-              storeNumber,
-              printer: printerToStringValue,
-              data: {
-                sku: itemDetails.sku,
-                count: qty,
-                planogramId: id,
-                sequence: seqNum,
-              },
-            },
-          });
-        },
-      ),
+  const { loading, trigger: printTags } = useAsyncAction(async () => {
+    const totalPrintQuantity = sumBy(
+      Array.from(locationsStatusMap.values()),
+      ({ qty, checked }) => (checked ? qty : 0),
     );
+
+    if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
+      const shouldPrint = await confirm({ quantity: totalPrintQuantity });
+      if (!shouldPrint) {
+        return;
+      }
+    }
+
+    const promises = Array.from(locationsStatusMap.values())
+      .filter(_ => _.checked)
+      .map(({ id, seqNum, qty }) => {
+        const printerToStringValue = String(
+          indexOfEnumValue(PrinterOptions, printer) + 1,
+        );
+
+        return printFrontTag({
+          variables: {
+            storeNumber,
+            printer: printerToStringValue,
+            data: {
+              sku: itemDetails.sku,
+              count: qty,
+              planogramId: id,
+              sequence: seqNum,
+            },
+          },
+        });
+      });
 
     const data = await Promise.allSettled(promises);
 
@@ -152,22 +160,11 @@ export function PrintFrontTagScreen({
     goBack();
   });
 
-  const frontTagsForPrintingQty = useMemo(
-    () =>
-      sumBy(Array.from(locationsStatusMap.values()), ({ qty, checked }) =>
-        checked ? qty : 0,
-      ),
-    [locationsStatusMap],
-  );
-
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tags',
-        onPress:
-          frontTagsForPrintingQty >= TRIGGER_CONFIRMATION_QUANTITY
-            ? showConfirmationModal
-            : sendTagsForPrinting,
+        onPress: printTags,
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
         disabled: every(Array.from(locationsStatusMap.values()), [
@@ -176,13 +173,7 @@ export function PrintFrontTagScreen({
         ]),
       },
     ],
-    [
-      frontTagsForPrintingQty,
-      loading,
-      locationsStatusMap,
-      sendTagsForPrinting,
-      showConfirmationModal,
-    ],
+    [printTags, loading, locationsStatusMap],
   );
 
   const renderPlanogram = useCallback(
@@ -288,10 +279,10 @@ export function PrintFrontTagScreen({
       </ConfirmationModal>
 
       <PrintConfirmationModal
-        isVisible={confirmationModalOpen}
-        onCancel={hideConfirmationModal}
-        onConfirm={sendTagsForPrinting}
-        quantity={frontTagsForPrintingQty}
+        isVisible={shouldConfirm}
+        onCancel={reject}
+        onConfirm={accept}
+        quantity={quantityToConfirm?.quantity ?? 0}
       />
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
