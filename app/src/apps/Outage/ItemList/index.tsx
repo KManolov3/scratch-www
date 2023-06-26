@@ -12,12 +12,11 @@ import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { useScanCodeListener } from '@services/ScanCode';
 import { useAsyncAction } from '@hooks/useAsyncAction';
-import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from '@services/ToastService';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useOutageState } from '../state';
 import { OutageNavigation, header } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
-import { useConfirmation } from '@hooks/useConfirmation';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();

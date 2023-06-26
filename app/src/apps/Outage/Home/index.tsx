@@ -57,7 +57,7 @@ export function OutageHome() {
       {!!error && !loading && (
         <ErrorContainer
           title="No Results Found"
-          message="Try searching for another SKU or scanning another front tag"
+          message="Try searching for another SKU or scanning a front tag"
         />
       )}
     </FixedLayout>
