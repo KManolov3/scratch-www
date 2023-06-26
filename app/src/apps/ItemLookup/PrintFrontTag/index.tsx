@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
@@ -18,7 +18,7 @@ import {
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { useMap } from '@hooks/useMap';
 import { ItemDetails } from 'src/types/ItemLookup';
-import { compact, countBy, every, sumBy } from 'lodash-es';
+import { compact, countBy, every, some, sumBy } from 'lodash-es';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { indexOfEnumValue } from '@lib/array';
 import { toastService } from 'src/services/ToastService';
@@ -28,6 +28,7 @@ import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { Separator } from '@components/Separator';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -47,7 +48,7 @@ const TRIGGER_CONFIRMATION_QUANTITY = 11;
 
 interface LocationStatus {
   checked: boolean;
-  qty: number;
+  qty: number | undefined;
   id: string;
   seqNum: number;
 }
@@ -73,7 +74,7 @@ export function PrintFrontTagScreen({
     params: { itemDetails },
   },
 }: ItemLookupScreenProps<'PrintFrontTag'>) {
-  const { map: locationsStatusMap, update } = useMap<string, LocationStatus>(
+  const { values: locationStatuses, update } = useMap<string, LocationStatus>(
     createInitialValueMap(itemDetails.planograms),
   );
 
@@ -104,29 +105,27 @@ export function PrintFrontTagScreen({
   const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
     hideConfirmationModal();
     const promises = compact(
-      Array.from(locationsStatusMap.values()).map(
-        ({ id, seqNum, checked, qty }) => {
-          if (!checked) {
-            return undefined;
-          }
-          const printerToStringValue = String(
-            indexOfEnumValue(PrinterOptions, printer) + 1,
-          );
+      locationStatuses.map(({ id, seqNum, checked, qty }) => {
+        if (!checked) {
+          return undefined;
+        }
+        const printerToStringValue = String(
+          indexOfEnumValue(PrinterOptions, printer) + 1,
+        );
 
-          return printFrontTag({
-            variables: {
-              storeNumber,
-              printer: printerToStringValue,
-              data: {
-                sku: itemDetails.sku,
-                count: qty,
-                planogramId: id,
-                sequence: seqNum,
-              },
+        return printFrontTag({
+          variables: {
+            storeNumber,
+            printer: printerToStringValue,
+            data: {
+              sku: itemDetails.sku,
+              count: qty,
+              planogramId: id,
+              sequence: seqNum,
             },
-          });
-        },
-      ),
+          },
+        });
+      }),
     );
 
     const data = await Promise.allSettled(promises);
@@ -153,10 +152,8 @@ export function PrintFrontTagScreen({
 
   const frontTagsForPrintingQty = useMemo(
     () =>
-      sumBy(Array.from(locationsStatusMap.values()), ({ qty, checked }) =>
-        checked ? qty : 0,
-      ),
-    [locationsStatusMap],
+      sumBy(locationStatuses, ({ qty, checked }) => (checked ? qty ?? 0 : 0)),
+    [locationStatuses],
   );
 
   const bottomBarActions = useMemo<Action[]>(
@@ -169,16 +166,15 @@ export function PrintFrontTagScreen({
             : sendTagsForPrinting,
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
-        disabled: every(Array.from(locationsStatusMap.values()), [
-          'checked',
-          false,
-        ]),
+        disabled:
+          every(locationStatuses, ['checked', false]) ||
+          some(locationStatuses, ({ qty, checked }) => checked && !qty),
       },
     ],
     [
       frontTagsForPrintingQty,
       loading,
-      locationsStatusMap,
+      locationStatuses,
       sendTagsForPrinting,
       showConfirmationModal,
     ],
@@ -188,10 +184,10 @@ export function PrintFrontTagScreen({
     (location: LocationStatus) => {
       const { id, qty, checked } = location;
       return (
-        <Fragment key={id}>
+        <View style={styles.planogramsContainer} key={id}>
           <View style={styles.table}>
             <View style={styles.flexRow}>
-              {locationsStatusMap.size > 1 && (
+              {locationStatuses.length > 1 && (
                 <Pressable
                   style={styles.checkIcon}
                   onPress={() => update(id, { checked: !checked })}>
@@ -208,14 +204,16 @@ export function PrintFrontTagScreen({
               minimum={1}
               maximum={99}
               quantity={qty}
-              setQuantity={quantity => update(id, { qty: quantity })}
+              setQuantity={quantity => {
+                update(id, { qty: quantity });
+              }}
             />
           </View>
-          <View style={styles.separator} />
-        </Fragment>
+          <Separator />
+        </View>
       );
     },
-    [locationsStatusMap, update],
+    [locationStatuses.length, update],
   );
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
@@ -223,24 +221,23 @@ export function PrintFrontTagScreen({
   useEventBus('search-error', () => {
     if (!searchTrayOpen) {
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
       );
     }
   });
 
-  const header = (
-    <Header
-      title="Item Lookup"
-      item={itemDetails}
-      rightIcon={<WhiteSearchIcon />}
-      onClickRight={enable}
-      leftIcon={<WhiteBackArrow />}
-      onClickLeft={goBack}
-    />
-  );
-
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout
+      style={styles.container}
+      header={
+        <Header
+          item={itemDetails}
+          rightIcon={<WhiteSearchIcon />}
+          onClickRight={enable}
+          leftIcon={<WhiteBackArrow />}
+          onClickLeft={goBack}
+        />
+      }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>
@@ -255,7 +252,7 @@ export function PrintFrontTagScreen({
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
       <ScrollView style={styles.planogramContainer}>
-        {Array.from(locationsStatusMap.values()).map(renderPlanogram)}
+        {locationStatuses.map(renderPlanogram)}
       </ScrollView>
       <BottomActionBar
         actions={bottomBarActions}

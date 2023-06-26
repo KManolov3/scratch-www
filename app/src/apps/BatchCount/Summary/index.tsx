@@ -121,8 +121,8 @@ export function BatchCountSummary() {
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
-        setNewQuantity={(quantity: number) =>
-          setNewQuantity(item.sku, quantity)
+        setNewQuantity={(quantity: number | undefined) =>
+          setNewQuantity(item.sku, quantity ?? 0)
         }
         isExpanded={expandedSku === item.sku}
         isBookmarked={!!isBookmarked}
@@ -166,7 +166,7 @@ export function BatchCountSummary() {
   useFocusEventBus('search-error', () => {
     disableShrinkageModal();
     toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning another barcode.',
+      'No results found. Try searching for another SKU or scanning a barcode.',
       {
         props: { containerStyle: styles.toast },
       },
@@ -184,17 +184,16 @@ export function BatchCountSummary() {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   });
 
-  const header = (
-    <Header
-      title="Summary"
-      leftIcon={<WhiteBackArrow />}
-      onClickLeft={goBack}
-    />
-  );
-
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout
+        header={
+          <Header
+            title="Summary"
+            leftIcon={<WhiteBackArrow />}
+            onClickLeft={goBack}
+          />
+        }>
         <FlatList
           contentContainerStyle={styles.list}
           data={batchCountItemsSorted}

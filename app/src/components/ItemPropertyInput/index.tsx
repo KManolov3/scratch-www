@@ -14,7 +14,7 @@ import { useMemo } from 'react';
 interface ItemPropertyInputProps {
   label: string;
   value?: number;
-  setValue: (newValue: number) => void;
+  setValue: (newValue: number | undefined) => void;
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   inputStyle?: StyleProp<TextStyle>;

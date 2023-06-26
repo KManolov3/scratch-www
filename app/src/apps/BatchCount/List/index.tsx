@@ -6,7 +6,6 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { compact, sortBy } from 'lodash-es';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { Header } from '@components/Header';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from 'src/services/ToastService';
 import { useFocusEventBus } from '@hooks/useEventBus';
@@ -117,8 +116,8 @@ export function BatchCountList() {
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
-        setNewQuantity={(quantity: number) =>
-          setNewQuantity(item.sku, quantity)
+        setNewQuantity={(quantity: number | undefined) =>
+          setNewQuantity(item.sku, quantity ?? 0)
         }
         isExpanded={expandedSku === item.sku}
         isBookmarked={!!isBookmarked}
@@ -172,7 +171,7 @@ export function BatchCountList() {
   useFocusEventBus('search-error', () => {
     disableShrinkageModal();
     toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning another barcode.',
+      'No results found. Try searching for another SKU or scanning a barcode.',
       {
         props: { containerStyle: styles.toast },
       },
@@ -190,11 +189,9 @@ export function BatchCountList() {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   });
 
-  const header = <Header title="Batch Count" />;
-
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout>
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}

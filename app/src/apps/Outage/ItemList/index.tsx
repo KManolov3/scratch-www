@@ -15,7 +15,7 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
-import { OutageNavigation, header } from '../navigator';
+import { OutageNavigation } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
 
 export function OutageItemList() {
@@ -132,7 +132,7 @@ export function OutageItemList() {
 
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout>
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}

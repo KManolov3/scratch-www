@@ -9,7 +9,6 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
-import { header } from '../navigator';
 
 export function OutageHome() {
   const { requestToAddItem } = useOutageState();
@@ -38,7 +37,7 @@ export function OutageHome() {
   });
 
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={addItem} />
 
       {loading && (

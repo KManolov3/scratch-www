@@ -7,15 +7,22 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
+import { Header } from '@components/Header';
 import { Colors } from '../lib/colors';
 
 export interface FixedLayoutProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   header?: ReactNode;
+  withoutHeader?: boolean;
 }
 
-export function FixedLayout({ header, children, style }: FixedLayoutProps) {
+export function FixedLayout({
+  header = <Header />,
+  withoutHeader = false,
+  children,
+  style,
+}: FixedLayoutProps) {
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar
@@ -24,7 +31,7 @@ export function FixedLayout({ header, children, style }: FixedLayoutProps) {
         backgroundColor={Colors.advanceBlack}
       />
 
-      {header}
+      {!withoutHeader && header}
       <KeyboardAvoidingView
         style={StyleSheet.compose(styles.keyboardAvoidingView, style)}>
         {children}
