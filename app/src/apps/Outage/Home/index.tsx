@@ -1,3 +1,4 @@
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SearchBar';
@@ -7,7 +8,6 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useOutageState } from '../state';
 
 export function OutageHome() {

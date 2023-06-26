@@ -1,3 +1,10 @@
+import { useCallback, useMemo, useRef } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  ListRenderItem,
+  StyleSheet,
+} from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
@@ -7,13 +14,6 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { useCallback, useMemo, useRef } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  ListRenderItem,
-  StyleSheet,
-} from 'react-native';
 import { OutageItemCard } from '../components/ItemCard';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';

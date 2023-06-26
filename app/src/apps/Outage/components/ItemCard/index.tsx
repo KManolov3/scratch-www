@@ -1,7 +1,7 @@
+import { Pressable, View } from 'react-native';
 import { BlackCrossIcon } from '@assets/icons';
 import { Separator } from '@components/Separator';
 import { Text } from '@components/Text';
-import { Pressable, View } from 'react-native';
 import { OutageItemInfo, OutageItemInfoProps } from '../ItemInfo';
 import { styles } from './styles';
 

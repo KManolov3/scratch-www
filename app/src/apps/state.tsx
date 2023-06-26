@@ -1,6 +1,6 @@
-import { ApplicationName } from '@services/LaunchDarkly';
 import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
 import { ItemDetails } from 'src/types/ItemLookup';
+import { ApplicationName } from '@services/LaunchDarkly';
 
 interface ContextValue {
   selectedItem?: ItemDetails;

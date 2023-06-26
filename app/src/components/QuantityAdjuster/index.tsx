@@ -1,10 +1,10 @@
-import { Container } from '@components/Container';
 import { useCallback } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { MinusIcon, PlusIcon } from '@assets/icons';
+import { Container } from '@components/Container';
+import { NumberInput } from '@components/NumberInput';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { NumberInput } from '@components/NumberInput';
 
 export interface QuantityAdjusterProps {
   quantity: number | undefined;

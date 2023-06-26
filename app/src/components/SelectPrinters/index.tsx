@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
@@ -13,8 +15,6 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback } from 'react';
-import { StyleSheet } from 'react-native';
 
 export interface SelectPrinterProps {
   title?: string;

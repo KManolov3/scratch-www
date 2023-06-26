@@ -1,3 +1,5 @@
+import { gql } from 'src/__generated__';
+import { ItemDetails } from 'src/types/ItemLookup';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import { EventBus } from '@hooks/useEventBus';
@@ -15,8 +17,6 @@ import {
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { gql } from 'src/__generated__';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 import { PrintFrontTagScreen } from './PrintFrontTag';

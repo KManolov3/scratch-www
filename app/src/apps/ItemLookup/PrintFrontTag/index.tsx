@@ -1,3 +1,9 @@
+import { compact, countBy, every, some, sumBy } from 'lodash-es';
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+import { gql } from 'src/__generated__';
+import { toastService } from 'src/services/ToastService';
+import { ItemDetails } from 'src/types/ItemLookup';
 import { useMutation } from '@apollo/client';
 import {
   EmptySquareCheckBox,
@@ -24,12 +30,6 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { indexOfEnumValue } from '@lib/array';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { compact, countBy, every, some, sumBy } from 'lodash-es';
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import { gql } from 'src/__generated__';
-import { toastService } from 'src/services/ToastService';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { ItemLookupHome } from '../components/Home';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';

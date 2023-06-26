@@ -1,7 +1,4 @@
-import { FontWeight } from '@lib/font';
-import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
-import { Text } from '@components/Text';
-import { Colors } from '@lib/colors';
+import { compact } from 'lodash-es';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
   SectionList,
@@ -11,19 +8,22 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useNavigation } from '@react-navigation/native';
+import type Svg from 'react-native-svg';
 import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
+import { config } from 'src/config';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { useGlobalState } from '@apps/state';
-import { compact } from 'lodash-es';
-import { config } from 'src/config';
-import { SvgType } from '*.svg';
+import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigation } from './navigator';
 
 interface DrawerSectionData {
   label: string;
-  Icon?: SvgType;
+  Icon?: typeof Svg;
   backgroundColor?: string;
   onPress?: () => void;
 }

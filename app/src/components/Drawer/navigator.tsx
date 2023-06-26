@@ -1,4 +1,7 @@
 import { RootScreenProps, RootNavigation } from '@apps/navigator';
+import { Drawer } from '@components/Drawer';
+import { HelpRequest } from '@components/HelpRequest';
+import { SelectPrinters } from '@components/SelectPrinters';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
@@ -9,9 +12,6 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { Drawer } from '@components/Drawer';
-import { HelpRequest } from '@components/HelpRequest';
-import { SelectPrinters } from '@components/SelectPrinters';
 
 type Routes = {
   DrawerHome: undefined;

@@ -1,10 +1,10 @@
 import { StyleSheet, View } from 'react-native';
-import { Text } from '@components/Text';
 import { AttentionIcon } from '@assets/icons';
-import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { convertCurrencyToString } from '@lib/currency';
-import { BaseStyles } from '@lib/baseStyles';
 import { ConfirmationModal } from '@components/ConfirmationModal';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { Text } from '@components/Text';
+import { BaseStyles } from '@lib/baseStyles';
+import { convertCurrencyToString } from '@lib/currency';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
