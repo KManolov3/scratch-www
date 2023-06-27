@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
-import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
+import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
@@ -13,10 +13,11 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
+import { useEventBus } from '@hooks/useEventBus';
 import { toastService } from '@services/ToastService';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { ItemLookupHome } from '../components/Home';
+import { useItemLookupScanCodeListener } from '../hooks/useItemLookuSscanCodeListener';
 
 export function ItemLookupScreen({
   route: {
@@ -28,6 +29,10 @@ export function ItemLookupScreen({
   const [hasPriceDiscrepancy, setHasPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
+
+  useEventBus('print-success', () => {
+    setHasPriceDiscrepancy(false);
+  });
 
   const {
     state: priceDiscrepancyModalVisible,
@@ -75,28 +80,22 @@ export function ItemLookupScreen({
     ],
     [itemDetails, navigate],
   );
+
   const {
     state: searchTrayOpen,
     enable: showSearchTray,
     disable: hideSearchTray,
   } = useBooleanState();
 
-  useFocusEventBus('search-error', () => {
-    if (!searchTrayOpen) {
-      hidePriceDiscrepancyModal();
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning a barcode.',
-      );
-    }
-  });
-
-  useFocusEventBus('search-success', () => {
-    hidePriceDiscrepancyModal();
-    hideSearchTray();
-  });
-
-  useEventBus('print-success', () => {
-    setHasPriceDiscrepancy(false);
+  const { error, loading } = useItemLookupScanCodeListener({
+    onError() {
+      if (!searchTrayOpen) {
+        hidePriceDiscrepancyModal();
+        toastService.showInfoToast(
+          'No results found. Try searching for another SKU or scanning a barcode.',
+        );
+      }
+    },
   });
 
   return (
@@ -136,6 +135,8 @@ export function ItemLookupScreen({
         <ItemLookupHome
           onSubmit={hideSearchTray}
           searchBarStyle={styles.container}
+          error={error}
+          loading={loading}
         />
       </BottomRegularTray>
     </FixedLayout>

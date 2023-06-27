@@ -9,12 +9,17 @@ export enum PrinterOptions {
   Portable = 'Portable',
 }
 
+export type PrinterOption = {
+  printerOption: PrinterOptions;
+  portablePrinter?: string;
+};
+
 export interface DefaultSettings {
-  defaultPrinterOption: PrinterOptions;
+  defaultPrinterOption: PrinterOption;
 }
 
 const DefaultSettingValues: DefaultSettings = {
-  defaultPrinterOption: PrinterOptions.Counter1,
+  defaultPrinterOption: { printerOption: PrinterOptions.Counter1 },
 };
 
 export function useDefaultSettings<Key extends keyof DefaultSettings>(

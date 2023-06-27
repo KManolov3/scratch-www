@@ -1,6 +1,6 @@
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SkuSearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SkuSearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useCallback, useState } from 'react';

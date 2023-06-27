@@ -29,18 +29,12 @@ class ToastService {
     });
   }
 
-  showErrorToast(text: string, configuration: ToastProps = {}) {
-    this.hideToast();
-    Toast.show({
-      text1: text,
-      // TODO: rn we are using the built in error toast,
-      // we probably want to create a custom layout later
-      type: 'error',
-      position: 'bottom',
-      visibilityTime: TOAST_DEFAULT_DURATION,
-      autoHide: true,
-      ...configuration,
-    });
+  showUnsupportedScanCodeToast(configuration: ToastProps = {}) {
+    // TODO: better message?
+    this.showInfoToast(
+      'The scanned code type is not supported. Try again with another.',
+      configuration,
+    );
   }
 }
 

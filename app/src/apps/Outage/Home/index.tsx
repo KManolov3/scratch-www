@@ -1,5 +1,5 @@
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SkuSearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SkuSearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
@@ -21,19 +21,13 @@ export function OutageHome() {
     error,
   } = useAsyncAction((sku: string) => requestToAddItem(sku));
 
-  useScanCodeListener(code => {
-    switch (code.type) {
-      case 'front-tag':
-      case 'sku':
-        addItem(code.sku);
-        break;
-
-      default:
-        // TODO: Duplication with the other Outage screen
-        toastService.showInfoToast(
-          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
-        );
-    }
+  useScanCodeListener({
+    onSku: ({ sku }) => addItem(sku),
+    onUnsupportedCode() {
+      toastService.showInfoToast(
+        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+      );
+    },
   });
 
   return (

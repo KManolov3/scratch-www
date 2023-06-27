@@ -36,41 +36,37 @@ export function OutageItemList() {
 
   const { requestToAddItem } = useOutageState();
 
-  const { trigger: addItem } = useAsyncAction(async (sku: string) => {
-    try {
-      await requestToAddItem(sku);
+  const { trigger: addItem } = useAsyncAction(
+    async ({ sku }: { sku: string }) => {
+      try {
+        await requestToAddItem(sku);
 
-      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-    } catch (error) {
-      // TODO: Don't assume that it's "No results found"
-      // TODO: Duplication of the text with the batch count
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
-
-      throw error;
-    }
-  });
-
-  useScanCodeListener(code => {
-    switch (code.type) {
-      case 'front-tag':
-      case 'sku':
-        addItem(code.sku);
-        break;
-
-      default:
-        // TODO: Duplication with the other Outage screen
+        flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+      } catch (error) {
+        // TODO: Don't assume that it's "No results found"
+        // TODO: Duplication of the text with the batch count
         toastService.showInfoToast(
-          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+          'No results found. Try searching for another SKU or scanning another barcode.',
           {
             props: { containerStyle: styles.toast },
           },
         );
-    }
+
+        throw error;
+      }
+    },
+  );
+
+  useScanCodeListener({
+    onSku: addItem,
+    onUnsupportedCode() {
+      toastService.showInfoToast(
+        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+    },
   });
 
   const removeOutageItem = useCallback(
