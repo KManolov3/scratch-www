@@ -116,8 +116,8 @@ export function PrintFrontTagScreen({
 
   const {
     state: portablePrinterModalOpen,
-    disable: openPortablePrinterModal,
-    enable: closePortablePrinterModal,
+    enable: openPortablePrinterModal,
+    disable: closePortablePrinterModal,
   } = useBooleanState();
 
   const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
@@ -160,7 +160,10 @@ export function PrintFrontTagScreen({
     }
 
     toastService.showInfoToast(
-      `Front tag sent to ${printer.printerOption} ${printer.portablePrinter}`,
+      `Front tag sent to ${printer.printerOption} ${
+        printer.printerOption === PrinterOptions.Portable &&
+        printer.portablePrinter
+      }`,
       {
         props: { containerStyle: styles.toast },
       },
@@ -258,20 +261,19 @@ export function PrintFrontTagScreen({
     [disable, navigate, queryBySku, storeNumber],
   );
 
+  const [lastUsedPortablePrinterValue, setLastUsedPortablePrinterValue] =
+    useState(defaultPrinterOption.portablePrinter);
+
   const confirm = useCallback(
     (printerCode: string) => {
-      setPrinter({
+      setLastUsedPortablePrinterValue(printerCode);
+      setSelectPrinter({
         printerOption: PrinterOptions.Portable,
         portablePrinter: printerCode,
       });
       closePortablePrinterModal();
     },
     [closePortablePrinterModal],
-  );
-
-  const portablePrinterValue = useMemo(
-    () => printer.portablePrinter ?? defaultPrinterOption.portablePrinter,
-    [defaultPrinterOption.portablePrinter, printer.portablePrinter],
   );
 
   return (
@@ -346,13 +348,14 @@ export function PrintFrontTagScreen({
                 printerOption: item,
                 portablePrinter:
                   item === PrinterOptions.Portable
-                    ? portablePrinterValue
+                    ? lastUsedPortablePrinterValue
                     : undefined,
               });
             }}
             containerStyles={styles.radioButtons}
-            portablePrinter={portablePrinterValue}
-            replacePortablePritner={openPortablePrinterModal}
+            portablePrinter={lastUsedPortablePrinterValue}
+            portablePrinterStyles={styles.portablePrinter}
+            replacePortablePrinter={openPortablePrinterModal}
           />
         </View>
       </ConfirmationModal>

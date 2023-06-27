@@ -2,9 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
 import { BarcodeIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
-import { useScanCodeListener } from '@services/ScanCode';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TextInput } from '@components/TextInput';
+import { useScanListener } from '@services/Scanner';
 
 export interface AddPortablePrinterModalProps {
   isVisible: boolean;
@@ -17,21 +17,24 @@ export function AddPortablePrinterModal({
   onConfirm,
   onCancel,
 }: AddPortablePrinterModalProps) {
-  useScanCodeListener({
-    onSku({ sku }) {
-      onConfirm(sku);
-    },
-  });
+  const [portablePrinterInput, setPortablePrinterInput] = useState('');
 
-  const [pp, setPp] = useState('');
+  const confirm = useCallback(() => {
+    onConfirm(portablePrinterInput);
+    setPortablePrinterInput('');
+  }, [onConfirm, portablePrinterInput]);
+
+  useScanListener(({ code }) => {
+    if (code.startsWith('APQL')) {
+      return onConfirm(code);
+    }
+    setPortablePrinterInput(code);
+  });
 
   return (
     <ConfirmationModal
       isVisible={isVisible}
-      onConfirm={() => {
-        onConfirm(pp);
-        setPp('');
-      }}
+      onConfirm={confirm}
       onCancel={onCancel}
       confirmationLabel="Add Portable"
       Icon={BarcodeIcon}
@@ -41,13 +44,13 @@ export function AddPortablePrinterModal({
         Scan to connect or enter in the alphanumeric code to add a portable
         printer
       </Text>
-      <View>
+      <View style={styles.input}>
         <Text>Portable Printer Number</Text>
         <TextInput
           placeholder="XXXXXX - XX - XXXX"
-          value={pp}
+          value={portablePrinterInput}
           onChangeText={value => {
-            setPp(value);
+            setPortablePrinterInput(value);
           }}
         />
       </View>
@@ -62,4 +65,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontSize: 16,
   },
+  input: { marginTop: 70 },
 });

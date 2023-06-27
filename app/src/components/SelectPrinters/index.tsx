@@ -72,7 +72,7 @@ export function SelectPrinters() {
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
           portablePrinter={portablePrinter}
-          replacePortablePritner={openConfirmationModal}
+          replacePortablePrinter={openConfirmationModal}
         />
       </FixedLayout>
       <AddPortablePrinterModal

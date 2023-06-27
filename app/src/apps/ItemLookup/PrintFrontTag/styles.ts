@@ -58,4 +58,5 @@ export const styles = StyleSheet.create({
   },
   planogramContainer: { flex: 1 },
   radioButtons: { width: 170, marginTop: 14 },
+  portablePrinter: { paddingLeft: 33 },
 });

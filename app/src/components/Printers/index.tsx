@@ -1,7 +1,9 @@
 import { RadioButton } from '@components/Button/Radio';
 import { Text } from '@components/Text';
 import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { Fragment } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -14,39 +16,19 @@ import {
 interface RadioButtonsListProps {
   onRadioButtonPress(item: PrinterOptions): void;
   checked(item: PrinterOptions): boolean;
-  replacePortablePritner(): void;
+  replacePortablePrinter(): void;
   withDefault?: boolean;
   portablePrinter: string | undefined;
   containerStyles?: StyleProp<ViewStyle>;
   textStyles?: StyleProp<TextStyle>;
+  portablePrinterStyles?: StyleProp<ViewStyle>;
 }
 
-function PrinterRow({
-  item,
-  portablePrinter,
-  replacePortablePrinter,
-}: {
-  item: PrinterOptions;
-  portablePrinter: string | undefined;
-  replacePortablePrinter: () => void;
-}) {
-  if (item !== PrinterOptions.Portable) {
-    return item;
+function getPrinterOptionText(printerOptions: PrinterOptions) {
+  if (printerOptions !== PrinterOptions.Portable) {
+    return printerOptions;
   }
-
-  return (
-    <View>
-      <Text>{portablePrinter ? 'Portable' : 'Add a Portable'}</Text>
-      {portablePrinter && (
-        <View>
-          <Text>{portablePrinter}</Text>
-          <Pressable onPress={replacePortablePrinter}>
-            <Text>Replace</Text>
-          </Pressable>
-        </View>
-      )}
-    </View>
-  );
+  return printerOptions ? 'Portable' : 'Add a Portable';
 }
 
 export function Printers({
@@ -55,38 +37,59 @@ export function Printers({
   containerStyles,
   textStyles,
   portablePrinter,
-  replacePortablePritner,
+  replacePortablePrinter,
+  portablePrinterStyles,
   withDefault = false,
 }: RadioButtonsListProps) {
   return (
     <View style={containerStyles}>
       {Array.from(Object.values(PrinterOptions)).map(item => (
-        <RadioButton
-          key={item}
-          checked={checked(item)}
-          onPress={() => onRadioButtonPress(item)}>
-          <View style={styles.radioButtonText}>
-            <Text
-              style={[
-                styles.text,
-                textStyles,
-                {
-                  fontWeight: checked(item)
-                    ? FontWeight.Bold
-                    : FontWeight.Medium,
-                },
-              ]}>
-              {PrinterRow({
-                item,
-                portablePrinter,
-                replacePortablePrinter: replacePortablePritner,
-              })}
-            </Text>
-            {withDefault && checked(item) ? (
-              <Text style={styles.default}>Default</Text>
-            ) : null}
-          </View>
-        </RadioButton>
+        <Fragment key={item}>
+          <RadioButton
+            checked={checked(item)}
+            onPress={() => onRadioButtonPress(item)}
+            buttonStyle={styles.radioButton}>
+            <View style={styles.radioButtonContainer}>
+              <Text
+                style={[
+                  styles.text,
+                  textStyles,
+                  {
+                    fontWeight: checked(item)
+                      ? FontWeight.Bold
+                      : FontWeight.Medium,
+                  },
+                ]}>
+                {getPrinterOptionText(item)}
+              </Text>
+              {withDefault && checked(item) ? (
+                <Text style={styles.default}>Default</Text>
+              ) : null}
+              {!withDefault &&
+                item === PrinterOptions.Portable &&
+                portablePrinter && (
+                  <Pressable
+                    onPress={replacePortablePrinter}
+                    style={styles.replaceContainer}>
+                    <Text style={styles.replace}>Replace</Text>
+                  </Pressable>
+                )}
+            </View>
+          </RadioButton>
+          {item === PrinterOptions.Portable && portablePrinter && (
+            <Pressable
+              style={[styles.portablePrinterRow, portablePrinterStyles]}>
+              <View style={styles.radioButtonContainer}>
+                <Text>{portablePrinter}</Text>
+                {withDefault && (
+                  <Pressable onPress={replacePortablePrinter}>
+                    <Text style={styles.replace}>Replace</Text>
+                  </Pressable>
+                )}
+              </View>
+            </Pressable>
+          )}
+        </Fragment>
       ))}
     </View>
   );
@@ -95,9 +98,24 @@ export function Printers({
 const styles = StyleSheet.create({
   text: { fontSize: 16 },
   default: { fontSize: 10, fontWeight: FontWeight.Book },
-  radioButtonText: {
+  radioButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 1,
   },
+  radioButton: { paddingBottom: 0 },
+  portablePrinterRow: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    padding: 8,
+    paddingLeft: 45,
+    paddingTop: 0,
+  },
+  replace: {
+    color: Colors.blue,
+    fontWeight: FontWeight.Bold,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  replaceContainer: { marginLeft: 50 },
 });
