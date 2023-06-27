@@ -9,14 +9,14 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { Drawer, DrawerProps } from '@components/Drawer';
-import { HelpRequest, HelpRequestProps } from '@components/HelpRequest';
-import { SelectPrinterProps, SelectPrinters } from '@components/SelectPrinters';
+import { Drawer } from '@components/Drawer';
+import { HelpRequest } from '@components/HelpRequest';
+import { SelectPrinters } from '@components/SelectPrinters';
 
 type Routes = {
-  DrawerHome: DrawerProps;
-  SelectPrinter: SelectPrinterProps;
-  HelpRequest: HelpRequestProps;
+  DrawerHome: undefined;
+  SelectPrinter: undefined;
+  HelpRequest: undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();

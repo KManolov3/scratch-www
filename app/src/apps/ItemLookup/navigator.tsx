@@ -12,8 +12,7 @@ import {
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { scanCodeService } from '@services/ScanCode';
-import { useScanListener } from '@services/Scanner';
+import { useScanCodeListener } from '@services/ScanCode';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { EventBus } from '@hooks/useEventBus';
@@ -64,35 +63,40 @@ export function ItemLookupNavigator() {
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, { onError });
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, { onError });
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        return searchBySku({
+          variables: { sku: code.sku, storeNumber },
+          onCompleted: itemDetails => {
+            onCompleted();
+            if (itemDetails.itemBySku) {
+              navigation.navigate('ItemLookup', {
+                frontTagPrice:
+                  code.type === 'front-tag' ? code.frontTagPrice : undefined,
+                itemDetails: itemDetails.itemBySku,
+              });
+            }
+          },
+        });
 
-    if (scanCode.type === 'SKU') {
-      return searchBySku({
-        variables: { sku: scanCode.sku, storeNumber },
-        onCompleted: itemDetails => {
-          onCompleted();
-          if (itemDetails.itemBySku) {
-            navigation.navigate('ItemLookup', {
-              frontTagPrice: scanCode.frontTagPrice,
-              itemDetails: itemDetails.itemBySku,
-            });
-          }
-        },
-      });
+      case 'UPC':
+        return searchByUpc({
+          variables: { upc: code.upc, storeNumber },
+          onCompleted: itemDetails => {
+            onCompleted();
+            if (itemDetails.itemByUpc) {
+              navigation.navigate('ItemLookup', {
+                itemDetails: itemDetails.itemByUpc,
+              });
+            }
+          },
+        });
+
+      default:
+      // TODO: Show toast that the scanned code is unsupported
     }
-
-    return searchByUpc({
-      variables: { upc: scanCode.upc, storeNumber },
-      onCompleted: itemDetails => {
-        onCompleted();
-        if (itemDetails.itemByUpc) {
-          navigation.navigate('ItemLookup', {
-            itemDetails: itemDetails.itemByUpc,
-          });
-        }
-      },
-    });
   });
 
   return (

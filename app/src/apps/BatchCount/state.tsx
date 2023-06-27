@@ -20,9 +20,8 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
-import { scanCodeService } from 'src/services/ScanCode';
+import { useScanCodeListener } from 'src/services/ScanCode';
 import { EventBus } from '@hooks/useEventBus';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
@@ -146,6 +145,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
             },
             ...batchCountItems,
           ]);
+          EventBus.emit('add-new-item');
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -203,7 +203,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
@@ -212,24 +212,28 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
   });
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        return searchBySku({
+          variables: { sku: code.sku, storeNumber },
+        });
 
-    if (scanCode.type === 'SKU') {
-      return searchBySku({
-        variables: { sku: scanCode.sku, storeNumber },
-      });
+      case 'UPC':
+        return searchByUpc({
+          variables: { upc: code.upc, storeNumber },
+        });
+
+      default:
+      // TODO: Show toast that the scanned code is unsupported
     }
-
-    return searchByUpc({
-      variables: { upc: scanCode.upc, storeNumber },
-    });
   });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

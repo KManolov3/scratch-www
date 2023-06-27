@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { ItemDetails } from '@components/ItemDetails';
+import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
@@ -81,20 +81,11 @@ export function ItemLookupScreen({
     disable: hideSearchTray,
   } = useBooleanState();
 
-  const header = (
-    <Header
-      title="Item Lookup"
-      item={itemDetails}
-      rightIcon={<WhiteSearchIcon />}
-      onClickRight={showSearchTray}
-    />
-  );
-
   useFocusEventBus('search-error', () => {
     if (!searchTrayOpen) {
       hidePriceDiscrepancyModal();
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
       );
     }
   });
@@ -109,7 +100,15 @@ export function ItemLookupScreen({
   });
 
   return (
-    <FixedLayout style={styles.container} header={header}>
+    <FixedLayout
+      style={styles.container}
+      header={
+        <Header
+          item={itemDetails}
+          rightIcon={<WhiteSearchIcon />}
+          onClickRight={showSearchTray}
+        />
+      }>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}

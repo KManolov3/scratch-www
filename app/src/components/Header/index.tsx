@@ -7,6 +7,7 @@ import { HamburgerMenu } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { RootNavigation } from '@apps/navigator';
+import { useGlobalState } from '@apps/state';
 
 type HeaderProps = {
   title?: string;
@@ -33,6 +34,7 @@ export function Header({
   item,
 }: HeaderProps) {
   const { navigate } = useNavigation<RootNavigation>();
+  const { applicationName, setSlecetedItem } = useGlobalState();
 
   return (
     <View style={styles.container}>
@@ -41,15 +43,15 @@ export function Header({
           onPress={
             onClickLeft ??
             (() => {
+              setSlecetedItem(item);
               navigate('Drawer', {
                 screen: 'DrawerHome',
-                params: { title, item },
               });
             })
           }>
           {leftIcon}
         </Pressable>
-        <Text style={styles.text}>{title}</Text>
+        <Text style={styles.text}>{title ?? applicationName}</Text>
       </View>
       <View style={styles.right}>
         <Pressable onPress={onClickRight}>{rightIcon}</Pressable>

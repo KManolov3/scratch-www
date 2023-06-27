@@ -27,11 +27,11 @@ export const OutageItemInfoFragment = gql(`
   }
 `);
 
-export interface OutageItemCardProps {
+export interface OutageItemInfoProps {
   outageItem: DocumentType<typeof OutageItemInfoFragment>;
 }
 
-export function OutageItemInfo({ outageItem }: OutageItemCardProps) {
+export function OutageItemInfo({ outageItem }: OutageItemInfoProps) {
   const { partDesc, mfrPartNum, retailPrice, onHand } = outageItem;
 
   return (
@@ -61,11 +61,11 @@ export function OutageItemInfo({ outageItem }: OutageItemCardProps) {
         <ItemPropertyDisplay label="New" value={0} style={styles.property} />
       </View>
 
-      {outageItem.backStockSlots?.length && (
+      {outageItem?.backStockSlots?.length ? (
         <WarningMessage
           warningText={formatBackstockSlots(outageItem.backStockSlots)}
         />
-      )}
+      ) : null}
     </View>
   );
 }

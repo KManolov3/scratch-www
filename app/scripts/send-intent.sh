@@ -20,6 +20,9 @@ case "$CURRENT_ACTIVITY" in
     *BatchCountActivity*)
         CATEGORY="com.advanceautoparts.instoreapps.batchcount.SCANNER"
         ;;
+    *OutageActivity*)
+        CATEGORY="com.advanceautoparts.instoreapps.outage.SCANNER"
+        ;;
     *TruckDetailScanActivity*)
         CATEGORY="com.advanceautoparts.instoreapps.truckscan.SCANNER"
         ;;
