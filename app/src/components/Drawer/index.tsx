@@ -71,8 +71,6 @@ export function Drawer() {
 
   const { configHamburgerMenuAppFunctions } = useFlags();
 
-  console.log({ configHamburgerMenuAppFunctions, currentActivityName });
-
   const sections = useMemo(
     () => [
       {
