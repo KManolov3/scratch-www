@@ -10,6 +10,7 @@ export function BatchCountApp() {
   return (
     <AppRoot
       applicationName="Batch Count"
+      activityName=".activities.BatchCountActivity"
       initialRoute="BatchCountHome"
       scannerConfig={scannerConfig}
     />
