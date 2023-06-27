@@ -1,13 +1,10 @@
-import { useMutation } from '@apollo/client';
+import { compact, countBy, every, some, sumBy } from 'lodash-es';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
-import { Text } from '@components/Text';
-import { ConfirmationModal } from '@components/ConfirmationModal';
+import { toastService } from 'src/services/ToastService';
+import { ItemDetails } from 'src/types/ItemLookup';
+import { useMutation } from '@apollo/client';
 import {
   EmptySquareCheckBox,
   PrinterIcon,
@@ -15,24 +12,28 @@ import {
   WhiteBackArrow,
   WhiteSearchIcon,
 } from '@assets/icons';
-import { QuantityAdjuster } from '@components/QuantityAdjuster';
-import { useMap } from '@hooks/useMap';
-import { ItemDetails } from 'src/types/ItemLookup';
-import { compact, countBy, every, some, sumBy } from 'lodash-es';
-import { useAsyncAction } from '@hooks/useAsyncAction';
-import { toastService } from 'src/services/ToastService';
-import { useNavigation } from '@react-navigation/native';
-import { Header } from '@components/Header';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { BottomRegularTray } from '@components/BottomRegularTray';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { EventBus } from '@hooks/useEventBus';
-import { Separator } from '@components/Separator';
+import { ConfirmationModal } from '@components/ConfirmationModal';
+import { Header } from '@components/Header';
 import { Printers } from '@components/Printers';
+import { QuantityAdjuster } from '@components/QuantityAdjuster';
+import { Separator } from '@components/Separator';
+import { Text } from '@components/Text';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useBooleanState } from '@hooks/useBooleanState';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { EventBus } from '@hooks/useEventBus';
+import { useMap } from '@hooks/useMap';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { ItemLookupHome } from '../components/Home';
+import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
+import { useItemLookup } from '../hooks/useItemLookup';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { getTextContainerStyles, styles } from './styles';
-import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
-import { ItemLookupHome } from '../components/Home';
-import { useItemLookup } from '../hooks/useItemLookup';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -99,20 +100,25 @@ export function PrintFrontTagScreen({
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
-  const {
-    state: confirmationModalOpen,
-    enable: showConfirmationModal,
-    disable: closeConfirmationModal,
-  } = useBooleanState();
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
-  const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
-    closeConfirmationModal();
-    const promises = compact(
-      locationStatuses.map(({ id, seqNum, checked, qty }) => {
-        if (!checked) {
-          return undefined;
-        }
+  const totalPrintQuantity = useMemo(() => {
+    const checkedLocations = locationStatuses.filter(_ => _.checked);
+    return sumBy(checkedLocations, ({ qty }) => qty ?? 0);
+  }, [locationStatuses]);
 
+  const { loading, trigger: printTags } = useAsyncAction(async () => {
+    if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
+      const shouldPrint = await askForConfirmation();
+      if (!shouldPrint) {
+        return;
+      }
+    }
+
+    const promises = locationStatuses
+      .filter(_ => _.checked)
+      .map(({ id, seqNum, qty }) => {
         return printFrontTag({
           variables: {
             storeNumber,
@@ -127,8 +133,7 @@ export function PrintFrontTagScreen({
             },
           },
         });
-      }),
-    );
+      });
 
     const data = await Promise.allSettled(promises);
 
@@ -159,34 +164,19 @@ export function PrintFrontTagScreen({
     goBack();
   });
 
-  const frontTagsForPrintingQty = useMemo(
-    () =>
-      sumBy(locationStatuses, ({ qty, checked }) => (checked ? qty ?? 0 : 0)),
-    [locationStatuses],
-  );
-
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tags',
-        onPress:
-          frontTagsForPrintingQty >= TRIGGER_CONFIRMATION_QUANTITY
-            ? showConfirmationModal
-            : sendTagsForPrinting,
+        onPress: printTags,
         isLoading: loading,
         textStyle: [styles.bottomBarActionText, styles.bold],
         disabled:
-          every(locationStatuses, ['checked', false]) ||
-          some(locationStatuses, ({ qty, checked }) => checked && !qty),
+          every(locationStatuses, _ => !_.checked) ||
+          some(locationStatuses, _ => _.checked && !_.qty),
       },
     ],
-    [
-      frontTagsForPrintingQty,
-      loading,
-      locationStatuses,
-      sendTagsForPrinting,
-      showConfirmationModal,
-    ],
+    [printTags, loading, locationStatuses],
   );
 
   const renderPlanogram = useCallback(
@@ -326,10 +316,10 @@ export function PrintFrontTagScreen({
       </ConfirmationModal>
 
       <PrintConfirmationModal
-        isVisible={confirmationModalOpen}
-        onCancel={closeConfirmationModal}
-        onConfirm={sendTagsForPrinting}
-        quantity={frontTagsForPrintingQty}
+        isVisible={confirmationRequested}
+        onCancel={reject}
+        onConfirm={accept}
+        quantity={totalPrintQuantity}
       />
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>

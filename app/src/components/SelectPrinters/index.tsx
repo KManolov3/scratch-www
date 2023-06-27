@@ -1,10 +1,13 @@
+import { useCallback } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
 import { Printers } from '@components/Printers';
 import { Text } from '@components/Text';
-import { useBooleanState } from '@hooks/useBooleanState';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
@@ -12,20 +15,24 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback, useRef } from 'react';
-import { StyleSheet } from 'react-native';
 
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
+
+  const {
+    confirmationRequested,
+    itemToConfirm: printerToConfirm,
+    askForConfirmation,
+    accept,
+    reject,
+  } = useConfirmation<PrinterOptions>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
   const {
     data: { printerOption, portablePrinter },
-    set,
+    set: setDefaultPrinter,
   } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
-
-  const printerToBeSelected = useRef(printerOption);
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
@@ -34,24 +41,13 @@ export function SelectPrinters() {
     [printerOption],
   );
 
-  const {
-    state: confirmationModalVisible,
-    disable: closeConfirmationModal,
-    enable: openConfirmationModal,
-  } = useBooleanState();
-
-  const onPress = useCallback(
-    (item: PrinterOptions) => {
-      printerToBeSelected.current = item;
-      openConfirmationModal();
+  const { trigger: setPrinter } = useAsyncAction(
+    async (printer: PrinterOptions) => {
+      if (await askForConfirmation(printer)) {
+        setDefaultPrinter({ printerOption: printer, portablePrinter });
+      }
     },
-    [openConfirmationModal],
   );
-
-  const confirmSetDefaultPritner = useCallback(() => {
-    set({ printerOption: printerToBeSelected.current, portablePrinter });
-    closeConfirmationModal();
-  }, [closeConfirmationModal, portablePrinter, set]);
 
   return (
     <>
@@ -59,13 +55,13 @@ export function SelectPrinters() {
         <LightHeader label="Printers" onPress={onBackPress} />
         <Printers
           checked={checked}
-          onRadioButtonPress={onPress}
+          onRadioButtonPress={setPrinter}
           withDefault
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
           portablePrinter={portablePrinter}
           setPortablePrinter={printerCode =>
-            set({
+            setDefaultPrinter({
               printerOption: PrinterOptions.Portable,
               portablePrinter: printerCode,
             })
@@ -74,9 +70,9 @@ export function SelectPrinters() {
       </FixedLayout>
 
       <ConfirmationModal
-        isVisible={confirmationModalVisible}
-        onCancel={closeConfirmationModal}
-        onConfirm={confirmSetDefaultPritner}
+        isVisible={confirmationRequested}
+        onCancel={reject}
+        onConfirm={accept}
         confirmationLabel="Continue"
         title="Default Printer"
         Icon={BlackAttentionIcon}
@@ -86,8 +82,8 @@ export function SelectPrinters() {
           Are you sure you want to set{' '}
         </Text>
         <Text style={styles.confirmationModalText}>
-          <Text style={styles.bold}>{printerToBeSelected.current}</Text> as the
-          default printer?
+          <Text style={styles.bold}>{printerToConfirm}</Text> as the default
+          printer?
         </Text>
       </ConfirmationModal>
     </>

@@ -1,8 +1,8 @@
-import { FontWeight } from '@lib/font';
-import { Text } from '@components/Text';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Text } from '@components/Text';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 
 interface ItemPropertyDisplayProps {
   label: string;

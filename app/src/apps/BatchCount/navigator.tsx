@@ -10,8 +10,8 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from './Home';
-import { BatchCountSummary } from './Summary';
 import { BatchCountList } from './List';
+import { BatchCountSummary } from './Summary';
 import { BatchCountStateProvider } from './state';
 
 type Routes = {

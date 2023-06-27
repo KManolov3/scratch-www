@@ -6,12 +6,12 @@ import {
   View,
 } from 'react-native';
 import { useQuery } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
-import { FixedLayout } from '@layouts/FixedLayout';
+import { RootNavigation } from '@apps/navigator';
 import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
-import { RootNavigation } from '@apps/navigator';
+import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';

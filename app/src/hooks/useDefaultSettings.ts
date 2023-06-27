@@ -1,6 +1,6 @@
+import { useCallback, useState } from 'react';
 import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
-import { useCallback, useState } from 'react';
 
 export enum PrinterOptions {
   Counter1 = 'Printer Counter 1',

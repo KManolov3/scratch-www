@@ -1,14 +1,14 @@
-import { StyleSheet, View } from 'react-native';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
-import { convertCurrencyToString } from '@lib/currency';
-import { Text } from '@components/Text';
-import { BlackAttentionIcon } from '@assets/icons';
-import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { BaseStyles } from '@lib/baseStyles';
-import { ConfirmationModal } from '@components/ConfirmationModal';
-import { useMemo } from 'react';
 import { sumBy } from 'lodash-es';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { BlackAttentionIcon } from '@assets/icons';
+import { ConfirmationModal } from '@components/ConfirmationModal';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { Text } from '@components/Text';
+import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
+import { convertCurrencyToString } from '@lib/currency';
+import { FontWeight } from '@lib/font';
 
 interface Item {
   onHand?: number | null;

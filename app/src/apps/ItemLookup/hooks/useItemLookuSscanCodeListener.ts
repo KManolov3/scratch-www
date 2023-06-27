@@ -1,7 +1,7 @@
-import { useNavigation } from '@react-navigation/native';
-import { useScanCodeListener } from '@services/ScanCode';
 import { ApolloError } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { ItemLookupNavigation } from '../navigator';
 import { useItemLookup } from './useItemLookup';

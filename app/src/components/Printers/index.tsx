@@ -1,10 +1,3 @@
-import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
-import { RadioButton } from '@components/Button/Radio';
-import { Text } from '@components/Text';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions } from '@hooks/useDefaultSettings';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
 import { Fragment } from 'react';
 import {
   Pressable,
@@ -14,6 +7,13 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
+import { RadioButton } from '@components/Button/Radio';
+import { Text } from '@components/Text';
+import { useBooleanState } from '@hooks/useBooleanState';
+import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 
 interface RadioButtonsListProps {
   onRadioButtonPress(item: PrinterOptions): void;

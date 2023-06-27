@@ -1,6 +1,6 @@
+import { useMemo } from 'react';
 import { DocumentType, gql } from 'src/__generated__';
 import { ListWithHeaders } from '@components/ListWithHeaders';
-import { useMemo } from 'react';
 
 export const PLANOGRAM_FIELDS = gql(`
   fragment PlanogramFields on Item {

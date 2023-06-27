@@ -1,6 +1,6 @@
-import { SelectedRadioButton, EmptyRadioButton } from '@assets/icons';
 import { ReactNode, useMemo } from 'react';
 import { Pressable, StyleProp, ViewStyle, StyleSheet } from 'react-native';
+import { SelectedRadioButton, EmptyRadioButton } from '@assets/icons';
 import { FontWeight } from '@lib/font';
 
 interface Props {

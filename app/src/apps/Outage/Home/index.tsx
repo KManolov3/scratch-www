@@ -1,11 +1,11 @@
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Colors } from '@lib/colors';
-import { ErrorContainer } from '@components/ErrorContainer';
-import { FontWeight } from '@lib/font';
 import { useAsyncAction } from '@hooks/useAsyncAction';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
@@ -55,7 +55,7 @@ export function OutageHome() {
       {!!error && !loading && (
         <ErrorContainer
           title="No Results Found"
-          message="Try searching for another SKU or scanning another front tag"
+          message="Try searching for another SKU or scanning a front tag"
         />
       )}
     </FixedLayout>

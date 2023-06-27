@@ -1,22 +1,17 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import {
-  ActivityIndicator,
-  FlatList,
-  ListRenderItem,
-  StyleSheet,
-} from 'react-native';
 import { useCallback, useMemo, useRef } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useScanCodeListener } from '@services/ScanCode';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
-import { useBooleanState } from '@hooks/useBooleanState';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { useOutageState } from '../state';
-import { OutageNavigation } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
+import { OutageNavigation } from '../navigator';
+import { useOutageState } from '../state';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
@@ -26,13 +21,10 @@ export function OutageItemList() {
     outageCountItems,
     removeItem,
     submit: submitOutage,
-    submitLoading,
   } = useOutageState();
-  const {
-    state: isShrinkageModalVisible,
-    enable: showShrinkageModal,
-    disable: hideShrinkageModal,
-  } = useBooleanState(false);
+
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const { requestToAddItem } = useOutageState();
 
@@ -45,7 +37,7 @@ export function OutageItemList() {
       // TODO: Don't assume that it's "No results found"
       // TODO: Duplication of the text with the batch count
       toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning another barcode.',
+        'No results found. Try searching for another SKU or scanning a barcode.',
         {
           props: { containerStyle: styles.toast },
         },
@@ -86,20 +78,35 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  const submitOutageCount = useCallback(() => {
-    hideShrinkageModal();
-    submitOutage();
-    toastService.showInfoToast('Outage List Complete');
-  }, [hideShrinkageModal, submitOutage]);
+  const { trigger: submit, loading: submitLoading } = useAsyncAction(
+    async () => {
+      try {
+        if (await askForConfirmation()) {
+          await submitOutage();
+          navigate('Home');
+        }
+      } catch (error) {
+        toastService.showInfoToast(
+          'Could not submit the outage count due to an error',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+
+        throw error;
+      }
+    },
+  );
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Complete Outage Count',
-        onPress: showShrinkageModal,
+        onPress: submit,
+        isLoading: submitLoading,
       },
     ],
-    [showShrinkageModal],
+    [submit, submitLoading],
   );
 
   const items = useMemo(
@@ -119,10 +126,6 @@ export function OutageItemList() {
     [outageCountItems.length, removeOutageItem],
   );
 
-  if (submitLoading) {
-    return <ActivityIndicator size="large" style={styles.loading} />;
-  }
-
   return (
     <>
       <FixedLayout>
@@ -137,11 +140,11 @@ export function OutageItemList() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={confirmationRequested}
         countType="Outage"
         items={items}
-        onConfirm={submitOutageCount}
-        onCancel={hideShrinkageModal}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );

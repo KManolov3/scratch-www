@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
-import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
-import { BottomRegularTray } from '@components/BottomRegularTray';
+import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
+import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
 import { WhiteSearchIcon } from '@assets/icons';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { Header } from '@components/Header';
+import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
+import { useBooleanState } from '@hooks/useBooleanState';
+import { useEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useEventBus } from '@hooks/useEventBus';
-import { toastService } from '@services/ToastService';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
+import { toastService } from '@services/ToastService';
 import { ItemLookupHome } from '../components/Home';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookuSscanCodeListener';
+import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 
 export function ItemLookupScreen({
   route: {

@@ -1,6 +1,6 @@
+import { useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { ApolloError, useLazyQuery } from '@apollo/client';
-import { useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ItemLookupNavigation } from '../navigator';
 

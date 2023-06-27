@@ -1,3 +1,4 @@
+import { ItemDetails } from 'src/types/ItemLookup';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
@@ -9,7 +10,6 @@ import {
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 import { PrintFrontTagScreen } from './PrintFrontTag';

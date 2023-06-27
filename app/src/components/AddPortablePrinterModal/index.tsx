@@ -1,12 +1,12 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from '@components/Text';
 import { BarcodeIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
-import { useCallback, useState } from 'react';
+import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
-import { useScanListener } from '@services/Scanner';
-import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useScanListener } from '@services/Scanner';
 
 export interface AddPortablePrinterModalProps {
   isVisible: boolean;

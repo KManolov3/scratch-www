@@ -1,5 +1,5 @@
-import Toast, { ToastShowParams } from 'react-native-toast-message';
 import { StyleProp, ViewStyle } from 'react-native';
+import Toast, { ToastShowParams } from 'react-native-toast-message';
 import { InfoToast } from './InfoToast';
 
 export const TOAST_DEFAULT_DURATION = 5000;

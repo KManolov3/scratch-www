@@ -1,5 +1,3 @@
-import { SkuSearchBar } from '@components/SkuSearchBar';
-import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import {
   ActivityIndicator,
   StyleProp,
@@ -7,6 +5,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { ErrorContainer } from '@components/ErrorContainer';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SkuSearchBar } from '@components/SkuSearchBar';
 import { Colors } from '@lib/colors';
 
 interface ItemLookupHomeProps {
