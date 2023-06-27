@@ -52,7 +52,6 @@ export function QuantityAdjuster({
       <NumberInput
         value={quantity}
         setValue={setQuantityWithRestrictions}
-        onSubmit={setQuantityWithRestrictions}
         inputStyle={[
           styles.square,
           styles.inputContainer,

@@ -60,8 +60,7 @@ export function Printers({
                 return openPortablePrinterModal();
               }
               onRadioButtonPress(item);
-            }}
-            buttonStyle={styles.radioButton}>
+            }}>
             <View style={styles.radioButtonContainer}>
               <Text
                 style={[
@@ -125,7 +124,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flex: 1,
   },
-  radioButton: { paddingBottom: 0 },
   portablePrinterRow: {
     justifyContent: 'space-between',
     flexDirection: 'row',
