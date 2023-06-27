@@ -218,15 +218,20 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       EventBus.emit('search-error', searchError),
   });
 
-  useScanCodeListener({
-    onSku: ({ sku }) =>
-      searchBySku({
-        variables: { sku, storeNumber },
-      }),
-    onUpc: ({ upc }) =>
-      searchByUpc({
-        variables: { upc, storeNumber },
-      }),
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        return searchBySku({
+          variables: { sku: code.sku, storeNumber },
+        });
+      case 'UPC':
+        return searchByUpc({
+          variables: { upc: code.upc, storeNumber },
+        });
+      default:
+      // TODO: Show toast that the scanned code is unsupported
+    }
   });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -28,14 +28,6 @@ class ToastService {
       ...configuration,
     });
   }
-
-  showUnsupportedScanCodeToast(configuration: ToastProps = {}) {
-    // TODO: better message?
-    this.showInfoToast(
-      'The scanned code type is not supported. Try again with another.',
-      configuration,
-    );
-  }
 }
 
 export const toastService = new ToastService();

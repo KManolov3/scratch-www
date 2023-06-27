@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
@@ -32,6 +32,7 @@ import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { getTextContainerStyles, styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { ItemLookupHome } from '../components/Home';
+import { useItemLookup } from '../hooks/useItemLookup';
 
 const PRINT_FRONT_TAG = gql(`
   mutation PrintFrontTag(
@@ -41,16 +42,6 @@ const PRINT_FRONT_TAG = gql(`
   ) {
     frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)
   }
-`);
-
-const ITEM_BY_SKU = gql(`
-query ManualItemLookup($sku: String!, $storeNumber: String!) {
-  itemBySku(sku: $sku, storeNumber: $storeNumber) {
-    ...ItemInfoHeaderFields
-    ...PlanogramFields
-    ...BackstockSlotFields
-  },
-}
 `);
 
 const TRIGGER_CONFIRMATION_QUANTITY = 11;
@@ -83,8 +74,6 @@ export function PrintFrontTagScreen({
     params: { itemDetails },
   },
 }: ItemLookupScreenProps<'PrintFrontTag'>) {
-  const { navigate } = useNavigation<ItemLookupNavigation>();
-
   const { values: locationStatuses, update } = useMap<string, LocationStatus>(
     createInitialValueMap(itemDetails.planograms),
   );
@@ -238,25 +227,13 @@ export function PrintFrontTagScreen({
 
   const { state: searchTrayOpen, enable, disable } = useBooleanState();
 
-  const [queryBySku, { loading: isLoadingItemBySku, error: skuError }] =
-    useLazyQuery(ITEM_BY_SKU);
-
-  const submit = useCallback(
-    (sku: string) => {
-      queryBySku({
-        variables: { sku, storeNumber },
-        onCompleted(queryBySkuResult) {
-          if (queryBySkuResult.itemBySku) {
-            disable();
-            navigate('ItemLookup', {
-              itemDetails: queryBySkuResult.itemBySku,
-            });
-          }
-        },
-      });
-    },
-    [disable, navigate, queryBySku, storeNumber],
-  );
+  const {
+    searchBySku,
+    error: skuError,
+    loading: isLoadingItemBySku,
+  } = useItemLookup({
+    onComplete: disable,
+  });
 
   const [lastUsedPortablePrinterValue, setLastUsedPortablePrinterValue] =
     useState(defaultPrinterOption.portablePrinter);
@@ -357,7 +334,11 @@ export function PrintFrontTagScreen({
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
         <ItemLookupHome
-          onSubmit={submit}
+          onSubmit={sku => {
+            searchBySku({
+              variables: { sku, storeNumber },
+            });
+          }}
           searchBarStyle={styles.searchBar}
           loading={isLoadingItemBySku}
           error={skuError}

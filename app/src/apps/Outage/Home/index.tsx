@@ -21,13 +21,18 @@ export function OutageHome() {
     error,
   } = useAsyncAction((sku: string) => requestToAddItem(sku));
 
-  useScanCodeListener({
-    onSku: ({ sku }) => addItem(sku),
-    onUnsupportedCode() {
-      toastService.showInfoToast(
-        'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
-      );
-    },
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        addItem(code.sku);
+        break;
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+        );
+    }
   });
 
   return (

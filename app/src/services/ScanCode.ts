@@ -1,29 +1,21 @@
 import { ScanInfo, ScanLabelType } from 'rtn-in-store-apps';
 import { useScanListener } from './Scanner';
-import { toastService } from './ToastService';
 
-type FrontTag = {
-  type: 'front-tag';
-  sku: string;
-  frontTagPrice: number;
-};
-
-type Sku = {
-  type: 'sku';
-  sku: string;
-};
-
-type Upc = { type: 'UPC'; upc: string };
-
-type ContaienerLabel = {
-  type: 'container-label';
-  storeNumber: string;
-  containerNumber: number;
-};
-
-type BackstockSlot = { type: 'backstock-slot'; slotNumber: number };
-
-type ScannedCode = FrontTag | Sku | Upc | ContaienerLabel | BackstockSlot;
+type ScannedCode =
+  | {
+      type: 'front-tag';
+      sku: string;
+      frontTagPrice: number;
+    }
+  | {
+      type: 'sku';
+      sku: string;
+    }
+  | { type: 'UPC'; upc: string }
+  // TODO: Should any of these be a number?
+  | { type: 'container-label'; storeNumber: string; containerNumber: number }
+  // TODO: Should this be a number?
+  | { type: 'backstock-slot'; slotNumber: number };
 
 class ScanCodeService {
   parse({ code, type }: ScanInfo): ScannedCode {
@@ -134,47 +126,6 @@ class ScanCodeService {
 
 const scanCodeService = new ScanCodeService();
 
-interface ScanActions {
-  onFrontTag?: (frontTag: FrontTag) => void;
-  onSku?: (sku: Sku) => void;
-  onUpc?: (upc: Upc) => void;
-  onContainerLabel?: (contaienerLabel: ContaienerLabel) => void;
-  onBackstockSlot?: (backstockSlot: BackstockSlot) => void;
-  onUnsupportedCode?: (scannedCode: ScannedCode) => void;
-}
-
-export function useScanCodeListener({
-  onUnsupportedCode = () => toastService.showUnsupportedScanCodeToast(),
-  onBackstockSlot = onUnsupportedCode,
-  onContainerLabel = onUnsupportedCode,
-  onSku = onUnsupportedCode,
-  onUpc = onUnsupportedCode,
-  onFrontTag = onSku
-    ? ({ sku }) => onSku({ sku, type: 'sku' })
-    : onUnsupportedCode,
-}: ScanActions) {
-  useScanListener(scan => {
-    const parsedScanCode = scanCodeService.parse(scan);
-    switch (parsedScanCode.type) {
-      case 'sku':
-        onSku(parsedScanCode);
-        break;
-
-      case 'UPC':
-        onUpc(parsedScanCode);
-        break;
-
-      case 'backstock-slot':
-        onBackstockSlot(parsedScanCode);
-        break;
-
-      case 'container-label':
-        onContainerLabel(parsedScanCode);
-        break;
-
-      case 'front-tag':
-        onFrontTag(parsedScanCode);
-        break;
-    }
-  });
+export function useScanCodeListener(onScan: (scan: ScannedCode) => void) {
+  useScanListener(scan => onScan(scanCodeService.parse(scan)));
 }

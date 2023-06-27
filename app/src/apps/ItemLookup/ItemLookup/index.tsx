@@ -15,6 +15,7 @@ import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useEventBus } from '@hooks/useEventBus';
 import { toastService } from '@services/ToastService';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { ItemLookupHome } from '../components/Home';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookuSscanCodeListener';
@@ -87,7 +88,7 @@ export function ItemLookupScreen({
     disable: hideSearchTray,
   } = useBooleanState();
 
-  const { error, loading } = useItemLookupScanCodeListener({
+  const { searchBySku, error, loading } = useItemLookupScanCodeListener({
     onError() {
       if (!searchTrayOpen) {
         hidePriceDiscrepancyModal();
@@ -96,7 +97,10 @@ export function ItemLookupScreen({
         );
       }
     },
+    onComplete: hideSearchTray,
   });
+
+  const { storeNumber } = useCurrentSessionInfo();
 
   return (
     <FixedLayout
@@ -133,7 +137,11 @@ export function ItemLookupScreen({
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
         <ItemLookupHome
-          onSubmit={hideSearchTray}
+          onSubmit={sku => {
+            searchBySku({
+              variables: { sku, storeNumber },
+            });
+          }}
           searchBarStyle={styles.container}
           error={error}
           loading={loading}
