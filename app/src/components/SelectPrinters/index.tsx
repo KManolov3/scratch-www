@@ -24,9 +24,9 @@ export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
 
   const {
-    shouldConfirm,
+    confirmationRequested,
     itemToConfirm: printerToConfirm,
-    confirm,
+    askForConfirmation,
     accept,
     reject,
   } = useConfirmation<PrinterOptions>();
@@ -45,7 +45,7 @@ export function SelectPrinters() {
 
   const { trigger: setPrinter } = useAsyncAction(
     async (printer: PrinterOptions) => {
-      if (await confirm(printer)) {
+      if (await askForConfirmation(printer)) {
         setDefaultPrinter(printer);
       }
     },
@@ -67,7 +67,7 @@ export function SelectPrinters() {
       </FixedLayout>
 
       <ConfirmationModal
-        isVisible={shouldConfirm}
+        isVisible={confirmationRequested}
         onCancel={reject}
         onConfirm={accept}
         confirmationLabel="Continue"

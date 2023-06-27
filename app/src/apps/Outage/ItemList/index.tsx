@@ -23,7 +23,8 @@ export function OutageItemList() {
     submit: submitOutage,
   } = useOutageState();
 
-  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const { requestToAddItem } = useOutageState();
 
@@ -87,7 +88,7 @@ export function OutageItemList() {
   const { trigger: submit, loading: submitLoading } = useAsyncAction(
     async () => {
       try {
-        if (await confirm()) {
+        if (await askForConfirmation()) {
           await submitOutage();
           navigate('Home');
         }
@@ -146,7 +147,7 @@ export function OutageItemList() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={shouldConfirm}
+        isVisible={confirmationRequested}
         countType="Outage"
         items={items}
         onConfirm={accept}

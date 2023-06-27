@@ -97,7 +97,8 @@ export function PrintFrontTagScreen({
   const [printer, setPrinter] = useState(defaultPrinterOption);
   const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
 
-  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const totalPrintQuantity = useMemo(() => {
     const checkedLocations = locationStatuses.filter(_ => _.checked);
@@ -106,7 +107,7 @@ export function PrintFrontTagScreen({
 
   const { loading, trigger: printTags } = useAsyncAction(async () => {
     if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
-      const shouldPrint = await confirm();
+      const shouldPrint = await askForConfirmation();
       if (!shouldPrint) {
         return;
       }
@@ -274,7 +275,7 @@ export function PrintFrontTagScreen({
       </ConfirmationModal>
 
       <PrintConfirmationModal
-        isVisible={shouldConfirm}
+        isVisible={confirmationRequested}
         onCancel={reject}
         onConfirm={accept}
         quantity={totalPrintQuantity}

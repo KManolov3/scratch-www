@@ -56,7 +56,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const { itemToConfirm, confirm, accept, reject } =
+  const { itemToConfirm, askForConfirmation, accept, reject } =
     useConfirmation<OutageItemInfo>();
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
@@ -83,14 +83,14 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Item not found');
       }
 
-      if (item.backStockSlots?.length && !(await confirm(item))) {
+      if (item.backStockSlots?.length && !(await askForConfirmation(item))) {
         return;
       }
 
       setOutageCountItems(currentItems => [item, ...currentItems]);
       navigate('Item List');
     },
-    [outageCountItems, getItemBySku, confirm, navigate, storeNumber],
+    [outageCountItems, getItemBySku, askForConfirmation, navigate, storeNumber],
   );
 
   const removeItem = useCallback((sku: string) => {

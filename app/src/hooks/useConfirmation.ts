@@ -8,10 +8,10 @@ export function useConfirmation<T = void>() {
   }>();
 
   return {
-    shouldConfirm: !!confirmation,
+    confirmationRequested: !!confirmation,
     itemToConfirm: confirmation?.item,
 
-    confirm: useCallback(
+    askForConfirmation: useCallback(
       (item: T) => {
         if (confirmation) {
           confirmation.deferred.resolve(false);

@@ -27,7 +27,8 @@ export function BatchCountList() {
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
-  const { shouldConfirm, confirm, accept, reject } = useConfirmation();
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const sortFn = useCallback(
     (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
@@ -128,7 +129,7 @@ export function BatchCountList() {
   );
 
   const { trigger: submitBatchCount } = useAsyncAction(async () => {
-    if (await confirm()) {
+    if (await askForConfirmation()) {
       submitBatch();
     }
   });
@@ -204,7 +205,7 @@ export function BatchCountList() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={shouldConfirm}
+        isVisible={confirmationRequested}
         countType="Batch Count"
         items={items}
         onConfirm={accept}
