@@ -1,10 +1,10 @@
+import { uniqBy } from 'lodash-es';
+import { useMemo } from 'react';
+import { View } from 'react-native';
+import { CycleCountScreenProps } from '@apps/CycleCount/navigator';
 import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { View } from 'react-native';
-import { useMemo } from 'react';
-import { uniqBy } from 'lodash-es';
 import { filterNotNull } from '@lib/array';
-import { CycleCountScreenProps } from '@apps/CycleCount/navigator';
 import { useCycleCountState } from '../../state';
 
 export function CycleCountPlanogram({

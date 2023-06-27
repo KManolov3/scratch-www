@@ -1,14 +1,14 @@
-import {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
   NavigatorScreenParams,
 } from '@react-navigation/native';
-import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import { OutageHome } from './Home';
 import { OutageItemList } from './ItemList';
 import { OutageStateProvider } from './state';

@@ -1,8 +1,8 @@
-import { useQuery } from '@apollo/client';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { CycleCountContextQuery } from 'src/__generated__/graphql';
+import { useQuery } from '@apollo/client';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 interface ContextValue {
   cycleCounts: CycleCountContextQuery['cycleCounts'];

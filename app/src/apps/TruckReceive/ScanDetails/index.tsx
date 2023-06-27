@@ -1,8 +1,8 @@
 import { ActivityIndicator, View } from 'react-native';
 import { useQuery } from '@apollo/client';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { Text } from '@components/Text';
 import { RootScreenProps } from '@apps/navigator';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { gql } from '../../../__generated__';
 import { styles } from './styles';
 

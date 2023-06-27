@@ -1,6 +1,3 @@
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
@@ -12,7 +9,6 @@ import {
   useState,
 } from 'react';
 import 'react-native-get-random-values';
-import { toastService } from 'src/services/ToastService';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -20,9 +16,13 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { v4 as uuid } from 'uuid';
 import { useScanCodeListener } from 'src/services/ScanCode';
+import { toastService } from 'src/services/ToastService';
+import { v4 as uuid } from 'uuid';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -99,8 +99,6 @@ function buildBatchCountRequest(
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
-  // TODO: Experiment implementing the state with `useMap`
-  // https://usehooks-ts.com/react-hook/use-map
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
   const [submitBatchCount, { error, loading }] =
     useMutation(SUBMIT_BATCH_COUNT);
@@ -180,7 +178,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       batchCountItems,
       storeNumber,
     );
+
+    // TODO: Does this reject on error?
     await submitBatchCount({ variables: { request: batchCountRequest } });
+
     setBatchCountItems([]);
 
     toastService.showInfoToast('Batch count completed');
@@ -194,6 +195,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       submit,
+
+      // TODO: Make these part of the user useAsyncAction and just make `submit` return a promise?
       submitLoading: loading,
       submitError: error,
     }),
@@ -232,7 +235,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         });
 
       default:
-      // TODO: Show toast that the scanned code is unsupported
+        toastService.showErrorToast('Scanned barcode is not supported');
     }
   });
 

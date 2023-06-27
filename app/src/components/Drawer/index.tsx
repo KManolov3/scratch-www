@@ -1,4 +1,3 @@
-import type Svg from 'react-native-svg';
 import { compact } from 'lodash-es';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
@@ -9,17 +8,18 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import type Svg from 'react-native-svg';
 import { InStoreAppsNative } from 'rtn-in-store-apps';
+import { config } from 'src/config';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { useGlobalState } from '@apps/state';
-import { EmptyRadioButton, RightArrowIcon } from '@assets/icons';
+import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useFlags } from '@services/LaunchDarkly';
-import { config } from 'src/config';
 import { DrawerNavigation } from './navigator';
 
 interface DrawerSectionData {
@@ -91,12 +91,12 @@ export function Drawer() {
         title: 'Functions',
         data: configHamburgerMenuAppFunctions
           .filter(_ => _.activity !== currentActivityName)
-          .map(config => ({
-            label: config.label,
+          .map(({ label, activity }) => ({
+            label,
             Icon: EmptyRadioButton,
             onPress: () => {
               goBack();
-              InStoreAppsNative.navigateTo(config.activity);
+              InStoreAppsNative.navigateTo(activity);
             },
           })),
       },
@@ -132,7 +132,14 @@ export function Drawer() {
         ],
       },
     ],
-    [configHamburgerMenuAppFunctions, navigate, goBack, replace, selectedItem],
+    [
+      configHamburgerMenuAppFunctions,
+      navigate,
+      goBack,
+      replace,
+      selectedItem,
+      currentActivityName,
+    ],
   );
 
   const renderSectionItem = useCallback(

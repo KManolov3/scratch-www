@@ -1,7 +1,3 @@
-import { BlockButton } from '@components/Button/Block';
-import { Container } from '@components/Container';
-import { BaseStyles } from '@lib/baseStyles';
-import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
 import {
   StyleProp,
@@ -10,6 +6,10 @@ import {
   TextStyle,
   View,
 } from 'react-native';
+import { BlockButton } from '@components/Button/Block';
+import { Container } from '@components/Container';
+import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
 
 export interface Action {
   label: string;

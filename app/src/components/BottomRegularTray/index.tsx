@@ -1,9 +1,9 @@
-import ReactNativeModal from 'react-native-modal';
 import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
+import ReactNativeModal from 'react-native-modal';
 import { TrayIndicator } from '@assets/icons';
-import { Colors } from '@lib/colors';
-import { BaseStyles } from '@lib/baseStyles';
 import { ModalProps } from '@components/Modal';
+import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
 
 export type BottomRegularTrayProps = ModalProps & { hideTray(): void };
 

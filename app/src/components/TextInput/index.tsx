@@ -1,9 +1,7 @@
 import React from 'react';
 import {
-  StyleSheet,
-  // eslint-disable-next-line no-restricted-syntax
-  TextInputProps,
-  // eslint-disable-next-line no-restricted-syntax
+  StyleSheet, // eslint-disable-next-line no-restricted-syntax
+  TextInputProps, // eslint-disable-next-line no-restricted-syntax
   TextInput as RNTextInput,
   Keyboard,
   KeyboardTypeOptions,

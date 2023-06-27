@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
-import { Text } from '@components/Text';
 import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { Text } from '@components/Text';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 import { OutageItemInfo } from '../ItemInfo';
 
 export interface BackstockWarningModalProps {

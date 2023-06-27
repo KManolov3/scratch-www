@@ -1,6 +1,6 @@
-import { BackArrowIcon } from '@assets/icons';
 import { Pressable } from 'react-native';
 import { RootNavigation } from '@apps/navigator';
+import { BackArrowIcon } from '@assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { styles, iconHeight, iconWidth } from './styles';
 

@@ -1,5 +1,4 @@
-import { FontWeight } from '@lib/font';
-import { Text } from '@components/Text';
+import { useMemo } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -8,8 +7,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { NumberInput } from '@components/NumberInput';
+import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
-import { useMemo } from 'react';
+import { FontWeight } from '@lib/font';
 
 interface ItemPropertyInputProps {
   label: string;

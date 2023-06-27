@@ -1,0 +1,9 @@
+# Don't try to format auto-generated json files
+android/
+react-native-modules/RTNInStoreApps/android/
+
+# Don't try to format auto-generated TS
+src/__generated__/
+
+# We want to keep formatting - empty lines, etc.
+package.json
