@@ -1,27 +1,34 @@
 import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
 import { ItemDetails } from 'src/types/ItemLookup';
-import { ApplicationName } from '@services/LaunchDarkly';
 
 interface ContextValue {
   selectedItem?: ItemDetails;
-  setSlecetedItem(item: ItemDetails | undefined): void;
-  applicationName: ApplicationName;
+  setSelectedItem(item: ItemDetails | undefined): void;
+  applicationName: string;
+  activityName: string;
 }
 
 const Context = createContext<ContextValue | undefined>(undefined);
 
 export function GlobalStateProvider({
   children,
+  activityName,
   applicationName,
 }: {
   children: ReactNode;
-  applicationName: ApplicationName;
+  activityName: string;
+  applicationName: string;
 }) {
-  const [selectedItem, setSlecetedItem] = useState<ItemDetails>();
+  const [selectedItem, setSelectedItem] = useState<ItemDetails>();
 
   const value = useMemo(
-    () => ({ selectedItem, setSlecetedItem, applicationName }),
-    [applicationName, selectedItem],
+    () => ({
+      selectedItem,
+      setSelectedItem,
+      applicationName,
+      activityName,
+    }),
+    [activityName, applicationName, selectedItem],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

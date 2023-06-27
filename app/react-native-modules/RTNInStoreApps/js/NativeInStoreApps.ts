@@ -20,13 +20,6 @@ export type SessionInfo = {
   storeNumber: string;
 };
 
-export enum Activity {
-  ItemLookupActivity = 'ItemLookupActivity',
-  BatchCountActivity = 'BatchCountActivity',
-  CycleCountActivity = 'CycleCountActivity',
-  OutageActivity = 'OutageActivity',
-}
-
 export interface Spec extends TurboModule {
   /* Loading Screen */
   hideLoadingScreen(): void;
@@ -43,7 +36,7 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 
   /* Navigating to another activity */
-  navigateTo(activityName: Activity): void;
+  navigateTo(activityName: string): void;
 
   /* Shared preferences as local storage */
   getPreference(key: string): string | undefined;

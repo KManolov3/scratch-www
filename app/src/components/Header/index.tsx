@@ -34,7 +34,8 @@ export function Header({
   item,
 }: HeaderProps) {
   const { navigate } = useNavigation<RootNavigation>();
-  const { applicationName, setSlecetedItem } = useGlobalState();
+  const { applicationName, setSelectedItem: setSlecetedItem } =
+    useGlobalState();
 
   return (
     <View style={styles.container}>

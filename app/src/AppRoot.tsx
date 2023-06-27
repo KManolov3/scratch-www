@@ -17,12 +17,14 @@ import { toastConfig } from './services/ToastService';
 
 export type AppRootProps = {
   applicationName: ApplicationName;
+  activityName: string;
   initialRoute: RootRouteName;
   scannerConfig?: ScannerConfig;
 };
 
 export function AppRoot({
   applicationName,
+  activityName,
   initialRoute,
   scannerConfig,
 }: AppRootProps) {
@@ -48,7 +50,9 @@ export function AppRoot({
   );
 
   const app = (
-    <GlobalStateProvider applicationName={applicationName}>
+    <GlobalStateProvider
+      applicationName={applicationName}
+      activityName={activityName}>
       <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
         <LaunchDarklyProvider applicationName={applicationName}>
           <ApolloProvider client={apolloClient}>

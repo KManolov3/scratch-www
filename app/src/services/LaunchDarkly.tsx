@@ -10,17 +10,13 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import { config } from 'src/config';
 import { Text } from '@components/Text';
+import {
+  FEATURE_FLAG_DEFAULTS,
+  SupportedFeatureFlags,
+} from '@config/featureFlags';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
 import { useCurrentSessionInfo } from './Auth';
-
-interface SupportedFlags {
-  testFlagRemoveMe: 'a' | 'b' | 'c';
-}
-
-const FLAG_DEFAULTS: SupportedFlags = {
-  testFlagRemoveMe: 'a',
-};
 
 const LAUNCH_DARKLY_CONFIGURE_TIMEOUT = 4000;
 
@@ -66,13 +62,13 @@ class LaunchDarklyService {
     await this.client.identify(launchDarklyContext);
   }
 
-  async allFlags(): Promise<SupportedFlags> {
+  async allFlags(): Promise<SupportedFeatureFlags> {
     const allFlags = await this.client.allFlags();
 
     const flags = Object.entries(allFlags).map(([name, value]) => {
-      const key = camelCase(name) as keyof SupportedFlags;
+      const key = camelCase(name) as keyof SupportedFeatureFlags;
 
-      return [key, value ?? FLAG_DEFAULTS[key]];
+      return [key, value ?? FEATURE_FLAG_DEFAULTS[key]];
     });
 
     return Object.fromEntries(flags);
@@ -148,7 +144,7 @@ const launchDarkly = new LaunchDarklySingleton();
 
 interface ContextValue {
   loading: boolean;
-  flags: SupportedFlags;
+  flags: SupportedFeatureFlags;
 }
 
 const Context = createContext<ContextValue | undefined>(undefined);
@@ -179,7 +175,7 @@ export function LaunchDarklyProvider({
   );
 
   const {
-    data: flags = FLAG_DEFAULTS,
+    data: flags = FEATURE_FLAG_DEFAULTS,
     loading: loadingFlags,
     reload: reloadFlags,
   } = useAsync(

@@ -1,15 +1,15 @@
 import { compact } from 'lodash-es';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
+  Pressable,
   SectionList,
   SectionListData,
   SectionListRenderItemInfo,
-  View,
   StyleSheet,
-  Pressable,
+  View,
 } from 'react-native';
 import type Svg from 'react-native-svg';
-import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
+import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { config } from 'src/config';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { useGlobalState } from '@apps/state';
@@ -19,6 +19,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
+import { useFlags } from '@services/LaunchDarkly';
 import { DrawerNavigation } from './navigator';
 
 interface DrawerSectionData {
@@ -42,7 +43,7 @@ export function Drawer() {
   const { replace, goBack } = useNavigation<DrawerNavigation>();
   const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  const { selectedItem, applicationName } = useGlobalState();
+  const { selectedItem, activityName: currentActivityName } = useGlobalState();
 
   const renderSectionHeader = useCallback<
     (sections: DrawerSectionHeader) => ReactElement | null
@@ -68,13 +69,7 @@ export function Drawer() {
     return sectionTitle;
   }, []);
 
-  const navigateTo = useCallback(
-    (activityName: Activity) => {
-      goBack();
-      InStoreAppsNative.navigateTo(activityName);
-    },
-    [goBack],
-  );
+  const { configHamburgerMenuAppFunctions } = useFlags();
 
   const sections = useMemo(
     () => [
@@ -93,40 +88,17 @@ export function Drawer() {
         ]),
       },
       {
-        // TODO: These should be based on access level
         title: 'Functions',
-        data: [
-          {
-            label: 'Item Lookup',
+        data: configHamburgerMenuAppFunctions
+          .filter(_ => _.activity !== currentActivityName)
+          .map(({ label, activity }) => ({
+            label,
             Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.ItemLookupActivity),
-          },
-          { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
-          {
-            label: 'Batch Count',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.BatchCountActivity),
-          },
-          { label: 'New Return Request', Icon: EmptyRadioButton },
-          {
-            label: 'Cycle Count',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.CycleCountActivity),
-          },
-          {
-            label: 'Receiving',
-            Icon: EmptyRadioButton,
-          },
-          {
-            label: 'Backstock Managment',
-            Icon: EmptyRadioButton,
-          },
-          {
-            label: 'Outage',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.OutageActivity),
-          },
-        ].filter(({ label }) => label !== applicationName),
+            onPress: () => {
+              goBack();
+              InStoreAppsNative.navigateTo(activity);
+            },
+          })),
       },
       {
         title: (
@@ -160,7 +132,14 @@ export function Drawer() {
         ],
       },
     ],
-    [applicationName, navigate, navigateTo, replace, selectedItem],
+    [
+      configHamburgerMenuAppFunctions,
+      navigate,
+      goBack,
+      replace,
+      selectedItem,
+      currentActivityName,
+    ],
   );
 
   const renderSectionItem = useCallback(
