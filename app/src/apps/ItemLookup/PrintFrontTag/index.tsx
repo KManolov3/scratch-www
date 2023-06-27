@@ -94,8 +94,11 @@ export function PrintFrontTagScreen({
 
   const [printFrontTag] = useMutation(PRINT_FRONT_TAG);
 
-  const { state: printerModalVisible, toggle: togglePrintModal } =
-    useBooleanState();
+  const {
+    state: printerModalVisible,
+    enable: openPrinterModal,
+    disable: closePrinterModal,
+  } = useBooleanState();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
@@ -111,7 +114,7 @@ export function PrintFrontTagScreen({
   const {
     state: confirmationModalOpen,
     enable: showConfirmationModal,
-    disable: hideConfirmationModal,
+    disable: closeConfirmationModal,
   } = useBooleanState();
 
   const {
@@ -121,7 +124,7 @@ export function PrintFrontTagScreen({
   } = useBooleanState();
 
   const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
-    hideConfirmationModal();
+    closeConfirmationModal();
     const promises = compact(
       locationStatuses.map(({ id, seqNum, checked, qty }) => {
         if (!checked) {
@@ -267,13 +270,14 @@ export function PrintFrontTagScreen({
   const confirm = useCallback(
     (printerCode: string) => {
       setLastUsedPortablePrinterValue(printerCode);
-      setSelectPrinter({
+      setPrinter({
         printerOption: PrinterOptions.Portable,
         portablePrinter: printerCode,
       });
       closePortablePrinterModal();
+      closePrinterModal();
     },
-    [closePortablePrinterModal],
+    [closePortablePrinterModal, closePrinterModal],
   );
 
   return (
@@ -301,7 +305,7 @@ export function PrintFrontTagScreen({
             {printer.printerOption} {printer.portablePrinter}
           </Text>
         </Text>
-        <Pressable onPress={togglePrintModal}>
+        <Pressable onPress={openPrinterModal}>
           <Text style={[styles.viewOptions, styles.bold]}>View Options</Text>
         </Pressable>
       </View>
@@ -319,9 +323,9 @@ export function PrintFrontTagScreen({
 
       <ConfirmationModal
         isVisible={printerModalVisible}
-        onCancel={togglePrintModal}
+        onCancel={closePrinterModal}
         onConfirm={() => {
-          togglePrintModal();
+          closePrinterModal();
           setPrinter(selectPrinter);
         }}
         title="Print Front Tags"
@@ -368,7 +372,7 @@ export function PrintFrontTagScreen({
 
       <PrintConfirmationModal
         isVisible={confirmationModalOpen}
-        onCancel={hideConfirmationModal}
+        onCancel={closeConfirmationModal}
         onConfirm={sendTagsForPrinting}
         quantity={frontTagsForPrintingQty}
       />

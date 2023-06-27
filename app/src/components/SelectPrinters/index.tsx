@@ -1,7 +1,10 @@
+import { BlackAttentionIcon } from '@assets/icons';
 import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
+import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
 import { Printers } from '@components/Printers';
+import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -10,7 +13,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 
 export interface SelectPrinterProps {
@@ -21,9 +24,9 @@ export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
 
   const {
-    state: confirmationModalVisible,
-    disable: closeConfirmationModal,
-    enable: openConfirmationModal,
+    state: portablePrinterModalOpen,
+    disable: closePortablePrinterModalOpen,
+    enable: openPortablePrinterModalOpen,
   } = useBooleanState();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
@@ -33,15 +36,17 @@ export function SelectPrinters() {
     set,
   } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
+  const printerToBeSelected = useRef(printerOption);
+
   const confirm = useCallback(
     (printerCode: string) => {
       set({
         printerOption: PrinterOptions.Portable,
         portablePrinter: printerCode,
       });
-      closeConfirmationModal();
+      closePortablePrinterModalOpen();
     },
-    [closeConfirmationModal, set],
+    [closePortablePrinterModalOpen, set],
   );
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
@@ -51,15 +56,27 @@ export function SelectPrinters() {
     [printerOption],
   );
 
+  const {
+    state: confirmationModalVisible,
+    disable: closeConfirmationModal,
+    enable: openConfirmationModal,
+  } = useBooleanState();
+
   const onPress = useCallback(
     (item: PrinterOptions) => {
       if (item === PrinterOptions.Portable && !portablePrinter) {
-        return openConfirmationModal();
+        return openPortablePrinterModalOpen();
       }
-      set({ portablePrinter, printerOption: item });
+      printerToBeSelected.current = item;
+      openConfirmationModal();
     },
-    [openConfirmationModal, portablePrinter, set],
+    [openConfirmationModal, openPortablePrinterModalOpen, portablePrinter],
   );
+
+  const confirmSetDefaultPritner = useCallback(() => {
+    set({ printerOption: printerToBeSelected.current, portablePrinter });
+    closeConfirmationModal();
+  }, [closeConfirmationModal, portablePrinter, set]);
 
   return (
     <>
@@ -72,14 +89,33 @@ export function SelectPrinters() {
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
           portablePrinter={portablePrinter}
-          replacePortablePrinter={openConfirmationModal}
+          replacePortablePrinter={openPortablePrinterModalOpen}
         />
       </FixedLayout>
+
       <AddPortablePrinterModal
-        isVisible={confirmationModalVisible}
-        onCancel={closeConfirmationModal}
+        isVisible={portablePrinterModalOpen}
+        onCancel={closePortablePrinterModalOpen}
         onConfirm={confirm}
       />
+
+      <ConfirmationModal
+        isVisible={confirmationModalVisible}
+        onCancel={closeConfirmationModal}
+        onConfirm={confirmSetDefaultPritner}
+        confirmationLabel="Continue"
+        title="Default Printer"
+        Icon={BlackAttentionIcon}
+        iconStyles={styles.icon}
+        buttonsStyle={styles.buttons}>
+        <Text style={styles.confirmationModalText}>
+          Are you sure you want to set{' '}
+        </Text>
+        <Text style={styles.confirmationModalText}>
+          <Text style={styles.bold}>{printerToBeSelected.current}</Text> as the
+          default printer?
+        </Text>
+      </ConfirmationModal>
     </>
   );
 }
