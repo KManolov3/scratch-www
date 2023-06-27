@@ -1,7 +1,7 @@
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupHome as Home } from '../components/Home';
-import { useItemLookupScanCodeListener } from '../hooks/useItemLookuSscanCodeListener';
+import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
 
 export function ItemLookupHome() {
   const { error, loading, searchBySku } = useItemLookupScanCodeListener();

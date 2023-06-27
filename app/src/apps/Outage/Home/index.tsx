@@ -27,6 +27,7 @@ export function OutageHome() {
       case 'sku':
         addItem(code.sku);
         break;
+
       default:
         // TODO: Duplication with the other Outage screen
         toastService.showInfoToast(

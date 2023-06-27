@@ -54,7 +54,13 @@ export function OutageItemList() {
         addItem(code.sku);
         break;
       default:
-      // TODO: Duplication with the other Outage screen
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
     }
   });
 

@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { ItemLookupHome } from '../components/Home';
-import { useItemLookupScanCodeListener } from '../hooks/useItemLookuSscanCodeListener';
+import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 
 export function ItemLookupScreen({
