@@ -100,8 +100,8 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
             addCategory(Intent.CATEGORY_LAUNCHER)
 
             component = ComponentName(
-                "com.advanceautoparts.instoreapps",
-                "com.advanceautoparts.instoreapps.activities.$appName"
+                reactContext.packageName,
+                "${reactContext.packageName}.activities.$appName"
             )
             flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
@@ -135,5 +135,23 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
                 promise.reject(throwable)
             }
         }
+    }
+
+    private var syncStorage: SyncStorage = SyncStorage(reactContext)
+
+    override fun getPreference(key: String): String? {
+        return syncStorage.getItem((key))
+    }
+
+    override fun setPreference(key: String, value: String) {
+        syncStorage.setItem(key, value)
+    }
+
+    override fun removePreference(key: String) {
+        syncStorage.removeItem(key)
+    }
+
+    override fun clearPreferences() {
+        syncStorage.clear()
     }
 }

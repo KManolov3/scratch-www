@@ -14,7 +14,7 @@ export class ItemLookupPrintFrontTagPage {
       printerWithName: (printerName: PrinterName = 'Printer Counter 1') =>
         `[text=${printerName}]`,
       cancelButton: '[text=Cancel]',
-      acceptButton: '[text=Accept]',
+      selectButton: '[text=Select]',
     };
   }
 

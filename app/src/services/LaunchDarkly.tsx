@@ -103,8 +103,9 @@ class LaunchDarklyService {
 
         applicationName: context.applicationName,
         androidVersion: DeviceInfo.getSystemVersion(),
-        buildInfo: config.build,
-        version: config.version,
+        buildInfo: config.buildInfo,
+        version: config.versionName,
+        versionCode: config.versionCode,
       },
       store: {
         kind: 'store',

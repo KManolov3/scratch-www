@@ -13,10 +13,10 @@ import { noop } from 'lodash-es';
 import { Container } from '@components/Container';
 
 export interface NumberInputProps {
-  placeholder: string | number;
+  placeholder?: string | number;
   placeholderTextColor?: ColorValue;
-  value: number;
-  setValue: (newValue: number) => void;
+  value?: number;
+  setValue: (newValue: number | undefined) => void;
   accessibilityLabel?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
@@ -41,6 +41,9 @@ export function NumberInput({
 }: NumberInputProps) {
   const onChangeText = useCallback(
     (input: string) => {
+      if (input === '') {
+        return setValue(undefined);
+      }
       const formattedInput = input.replace(/[^0-9]/g, '');
       setValue(Number(formattedInput));
     },
@@ -51,8 +54,7 @@ export function NumberInput({
     [value, onSubmit],
   );
   const placeholderToVisualise = useMemo(
-    () =>
-      typeof placeholder === 'string' ? placeholder : placeholder.toString(),
+    () => placeholder?.toString(),
     [placeholder],
   );
   return (
@@ -62,7 +64,7 @@ export function NumberInput({
         placeholder={placeholderToVisualise}
         placeholderTextColor={placeholderTextColor ?? Colors.lightVoid}
         accessibilityLabel={accessibilityLabel}
-        value={value.toString()}
+        value={(value ?? '').toString()}
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}

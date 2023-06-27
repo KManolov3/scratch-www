@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-export function useMap<Key, Value>(initialValue?: Map<Key, Value>) {
-  const [map, setMap] = useState(initialValue ?? new Map<Key, Value>());
+export function useMap<Key, Value>(initialValue = new Map<Key, Value>()) {
+  const [map, setMap] = useState(initialValue);
+
   const set = useCallback(
     (key: Key, value: Value) => {
       map.set(key, value);
@@ -9,6 +10,7 @@ export function useMap<Key, Value>(initialValue?: Map<Key, Value>) {
     },
     [map],
   );
+
   const update = useCallback(
     (key: Key, value: Partial<Value>) => {
       const currentValue = map.get(key);
@@ -20,6 +22,7 @@ export function useMap<Key, Value>(initialValue?: Map<Key, Value>) {
     },
     [map],
   );
+
   const remove = useCallback(
     (key: Key) => {
       map.delete(key);
@@ -27,5 +30,8 @@ export function useMap<Key, Value>(initialValue?: Map<Key, Value>) {
     },
     [map],
   );
-  return { map, set, remove, update };
+
+  const values = useMemo(() => Array.from(map.values()), [map]);
+
+  return { values, set, remove, update };
 }

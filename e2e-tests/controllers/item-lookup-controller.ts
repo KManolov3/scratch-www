@@ -44,7 +44,7 @@ export class ItemLookupController extends BaseController {
       );
 
       await waitAndClick(
-        this.itemLookupPages.printFrontTagPage.selectPrinterModal.acceptButton
+        this.itemLookupPages.printFrontTagPage.selectPrinterModal.selectButton
       );
     }
 

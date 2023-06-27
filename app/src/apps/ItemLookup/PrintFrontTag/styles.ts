@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   bottomActionBar: {
     paddingTop: 8,
   },
-  text: { fontSize: 16 },
+  text: { fontSize: 16, lineHeight: 22 },
   textContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -33,22 +33,22 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     padding: 10,
-    marginHorizontal: 12,
     alignItems: 'center',
   },
   headers: {
-    padding: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
     backgroundColor: Colors.lightGray,
     borderRadius: 8,
     fontWeight: FontWeight.Demi,
     marginTop: 20,
+    marginHorizontal: 12,
   },
-  separator: {
-    backgroundColor: Colors.grayer,
-    height: 1,
+  planogramsContainer: {
+    marginHorizontal: 13,
   },
   qty: {
-    marginRight: 41,
+    marginRight: 46,
   },
   toast: {
     marginBottom: '10%',
@@ -57,4 +57,5 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
   },
   planogramContainer: { flex: 1 },
+  radioButtons: { width: 170, marginTop: 14 },
 });

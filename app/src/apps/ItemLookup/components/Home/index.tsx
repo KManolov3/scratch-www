@@ -91,7 +91,7 @@ export function ItemLookupHome({
       {error && !isLoadingItemBySku && (
         <ErrorContainer
           title="No Results Found"
-          message="Try searching for another SKU or scanning another barcode"
+          message="Try searching for another SKU or scanning a barcode"
         />
       )}
     </>
