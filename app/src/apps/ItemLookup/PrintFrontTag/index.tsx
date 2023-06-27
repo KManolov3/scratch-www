@@ -30,7 +30,7 @@ import { Separator } from '@components/Separator';
 import { Printers } from '@components/Printers';
 import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
-import { styles } from './styles';
+import { getTextContainerStyles, styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { ItemLookupHome } from '../components/Home';
 
@@ -164,8 +164,9 @@ export function PrintFrontTagScreen({
 
     toastService.showInfoToast(
       `Front tag sent to ${printer.printerOption} ${
-        printer.printerOption === PrinterOptions.Portable &&
-        printer.portablePrinter
+        printer.printerOption === PrinterOptions.Portable
+          ? printer.portablePrinter
+          : ''
       }`,
       {
         props: { containerStyle: styles.toast },
@@ -270,6 +271,10 @@ export function PrintFrontTagScreen({
   const confirm = useCallback(
     (printerCode: string) => {
       setLastUsedPortablePrinterValue(printerCode);
+      setSelectPrinter({
+        printerOption: PrinterOptions.Portable,
+        portablePrinter: printerCode,
+      });
       setPrinter({
         printerOption: PrinterOptions.Portable,
         portablePrinter: printerCode,
@@ -296,8 +301,7 @@ export function PrintFrontTagScreen({
       <View
         style={[
           styles.textContainer,
-          // eslint-disable-next-line react-native/no-inline-styles
-          { flexDirection: printer.portablePrinter ? 'column' : 'row' },
+          getTextContainerStyles(!!printer.portablePrinter),
         ]}>
         <Text style={styles.text}>
           Print to{' '}

@@ -5,6 +5,8 @@ import { ConfirmationModal } from '@components/ConfirmationModal';
 import { useCallback, useState } from 'react';
 import { TextInput } from '@components/TextInput';
 import { useScanListener } from '@services/Scanner';
+import { FontWeight } from '@lib/font';
+import { Colors } from '@lib/colors';
 
 export interface AddPortablePrinterModalProps {
   isVisible: boolean;
@@ -40,18 +42,21 @@ export function AddPortablePrinterModal({
       Icon={BarcodeIcon}
       iconStyles={styles.icon}
       title="Scan to Add Portable Printer">
-      <Text style={styles.informationText}>
-        Scan to connect or enter in the alphanumeric code to add a portable
-        printer
-      </Text>
-      <View style={styles.input}>
-        <Text>Portable Printer Number</Text>
+      <View style={styles.informationTextContainer}>
+        <Text style={styles.informationText}>
+          Scan to connect or enter in the alphanumeric code to add a portable
+          printer
+        </Text>
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Portable Printer Number</Text>
         <TextInput
           placeholder="XXXXXX - XX - XXXX"
           value={portablePrinterInput}
           onChangeText={value => {
             setPortablePrinterInput(value);
           }}
+          style={styles.input}
         />
       </View>
     </ConfirmationModal>
@@ -64,6 +69,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     fontSize: 16,
+    maxWidth: 180,
   },
-  input: { marginTop: 70 },
+  informationTextContainer: { justifyContent: 'center', flexDirection: 'row' },
+  inputContainer: { marginTop: 70, paddingHorizontal: 30, marginBottom: 30 },
+  label: { fontWeight: FontWeight.Demi, fontSize: 16, lineHeight: 24 },
+  input: {
+    backgroundColor: Colors.mediumGray,
+    borderRadius: 4,
+    paddingHorizontal: 16,
+  },
 });
