@@ -56,7 +56,7 @@ export class BaseController {
     if (product.retailPrice) {
       await expectElementText(
         this.commonPages.itemDetailsPage.price,
-        `$${product.retailPrice}`
+        `$${product.retailPrice.toFixed(2)}`
       );
     }
 
