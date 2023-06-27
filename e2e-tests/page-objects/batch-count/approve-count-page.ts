@@ -6,7 +6,8 @@ export class BatchCountApprovePage {
   productDetails(partNumber: string) {
     return {
       partNumber: `[text=${partNumber}]`,
-      currentQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Total Qty value"]`,
+      totalQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Total Qty value"]`,
+      currentQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Current value"]`,
       variance: `//*[@text="${partNumber}"]//..//*[@content-desc="Variance value"]`,
       itemName: `//*[@text="${partNumber}"]//..//*[@content-desc="Item Name value"]`,
       newQtyInput: `//*[@text="${partNumber}"]//..//*[@class="android.widget.EditText"]`,

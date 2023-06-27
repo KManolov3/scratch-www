@@ -38,6 +38,14 @@ export class BatchCountController extends BaseController {
       );
     }
 
+    if (product.partDesc) {
+      await expectElementText(
+        this.batchCountPages.itemDetailsPage.productDetails(product.partDesc)
+          .itemName,
+        product.partDesc
+      );
+    }
+
     await super.expectProductInfo(product);
   }
 
@@ -46,11 +54,7 @@ export class BatchCountController extends BaseController {
       data.item.mfrPartNum
     );
 
-    await waitAndClick(
-      this.batchCountPages.approveCountPage.productDetails(
-        productDetails.partNumber
-      ).partNumber
-    );
+    await waitAndClick(productDetails.partNumber);
 
     if (data.item.partDesc) {
       await expectElementText(productDetails.itemName, data.item.partDesc);
@@ -145,6 +149,15 @@ export class BatchCountController extends BaseController {
       await this.expectProductInfo(data.item);
 
       if (data.bookmarked) {
+        const coordinateX = await $(
+          this.batchCountPages.itemDetailsPage.pogLocationsButton
+        ).getLocation('x');
+        const coordinateY = await $(
+          this.batchCountPages.itemDetailsPage.pogLocationsButton
+        ).getLocation('y');
+
+        await this.verticalScroll(coordinateX, coordinateY, -500);
+
         await waitAndClick(
           this.batchCountPages.itemDetailsPage.productDetails(
             data.item.mfrPartNum

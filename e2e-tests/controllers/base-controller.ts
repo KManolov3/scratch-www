@@ -40,17 +40,10 @@ export class BaseController {
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
     await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
-    await waitFor(this.commonPages.itemDetailsPage.sku);
+    await waitFor(this.commonPages.itemDetailsPage.partNumber);
   }
 
   async expectProductInfo(product: TestItemInput) {
-    if (product.partDesc) {
-      await expectElementText(
-        this.commonPages.itemDetailsPage.productName,
-        product.partDesc
-      );
-    }
-
     if (product.mfrPartNum) {
       await expectElementText(
         this.commonPages.itemDetailsPage.partNumber,
