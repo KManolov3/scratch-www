@@ -8,7 +8,7 @@
     - [NodeJS](#nodejs)
     - [Java OpenJDK](#java-openjdk)
     - [Android Studio](#android-studio)
-    - [Environment variables ANDROID\_HOME and JAVA\_HOME](#environment-variables-android_home-and-java_home)
+    - [Environment variables ANDROID_HOME and JAVA_HOME](#environment-variables-android_home-and-java_home)
     - [Appium Inspector](#appium-inspector)
   - [Automation tests setup](#automation-tests-setup)
   - [Execution of e2e tests](#execution-of-e2e-tests)
@@ -121,8 +121,18 @@ with the app.
 
 1. Inside `app` folder run: `npm start` which will start React Native.
 2. Inside `mock-server` folder run: `npm start` which will start Apollo Server.
-3. Inside `e2e-tests` folder run: `npm run appium` which will start Appium Server.
+3. Inside `e2e-tests` folder run: `npm run appium` which will start Appium
+   Server.
 4. Open Android Studio and start the virtual device.
+
+Starting all of the servers can be done by executing script (in `/e2e-tests`
+folder) `npm run start-all-servers`. This will open 4 new terminals and will
+execute the commands from the steps above.
+
+For Windows only - windows terminal should be installed. Download link:
+https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701
+
+To stop the servers can be used `npm run stop-all-servers`.
 
 ### Execution scripts
 
@@ -137,8 +147,8 @@ should be executed inside `e2e-tests` folder):
    `e2e:<app-name>`. To execute a script use for example
    `npm run e2e:cycle-count` which will run all spec files in `cycle-count`
    directory. If you want to execute only one spec file pass it as an argument
-   to the script - `npm run e2e:cycle-count <file-name>`. 
-   **Note:** here we need exact file name without the `.ts` extension
+   to the script - `npm run e2e:cycle-count <file-name>`. **Note:** here we need
+   exact file name without the `.ts` extension
 
 2. Run the tests for multiple/all applications: again there is a script defined
    in `package.json` file `e2e:multiple-apps`. Running
