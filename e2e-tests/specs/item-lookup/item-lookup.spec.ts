@@ -128,6 +128,6 @@ describe('Item Lookup', () => {
       },
     ];
 
-    await itemLookup.printFrontTag(printData, 'Portable');
+    await itemLookup.printFrontTag(printData, 'Printer Counter 2');
   });
 });

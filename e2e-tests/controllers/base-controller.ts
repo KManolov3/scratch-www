@@ -109,12 +109,12 @@ export class BaseController {
     if (product.backStockSlots) {
       for (const [index, slot] of product.backStockSlots.entries()) {
         const backstockSlotLocX = await $(
-          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId
         ).getLocation('x');
 
         const backstockSlotLocY = await $(
-          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId
         ).getLocation('y');
 

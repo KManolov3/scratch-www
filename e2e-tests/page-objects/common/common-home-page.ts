@@ -1,5 +1,5 @@
 export class CommonHomePage {
   get searchForSkuInput() {
-    return '.android.widget.EditText';
+    return '[text=Search for a SKU]';
   }
 }

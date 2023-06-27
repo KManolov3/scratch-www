@@ -12,7 +12,7 @@ export class ItemLookupItemDetailsPage extends CommonItemDetailsPage {
 
   get priceDiscrepancyModal() {
     return {
-      warningText: '[text=Price Discrepancy Detected.]',
+      warningText: '[text=Price Discrepancy Detected]',
       scannedPrice: '~Scanned value',
       systemPrice: '~System value',
       cancelButton: '[text=Cancel]',
