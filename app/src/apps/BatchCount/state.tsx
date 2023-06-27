@@ -1,7 +1,3 @@
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
-import { EventBus } from '@hooks/useEventBus';
-import { useNavigation } from '@react-navigation/native';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
@@ -23,6 +19,10 @@ import {
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import { EventBus } from '@hooks/useEventBus';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 

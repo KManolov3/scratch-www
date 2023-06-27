@@ -15,9 +15,11 @@
 
     "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337; adb reverse tcp:8097 tcp:8097",
 
-    "check": "npm run eslint && npm run tsc",
+    "check": "npm run eslint && npm run tsc && npm run prettier:check",
     "tsc": "tsc -p ./ --noEmit",
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.tsx,.js,.jsx",
+    "prettier:check": "prettier -c .",
+    "prettier:fix": "prettier -w .",
 
     "test": "jest",
 

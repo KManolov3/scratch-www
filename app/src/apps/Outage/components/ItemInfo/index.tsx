@@ -1,9 +1,9 @@
+import { View } from 'react-native';
+import { DocumentType, gql } from 'src/__generated__';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 import { Text } from '@components/Text';
 import { convertCurrencyToString } from '@lib/currency';
-import { View } from 'react-native';
-import { DocumentType, gql } from 'src/__generated__';
 import { WarningMessage } from '../WarningMessage';
 import { styles } from './styles';
 

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { Text } from '@components/Text';
 import { AttentionIcon } from '@assets/icons';
+import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';

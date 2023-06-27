@@ -1,3 +1,13 @@
+import { noop } from 'lodash-es';
+import { useMemo } from 'react';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { DocumentType, gql } from 'src/__generated__';
 import { BlackCrossIcon, BookmarkBlack, BookmarkWhite } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { ItemPropertyInput } from '@components/ItemPropertyInput';
@@ -10,16 +20,6 @@ import { Colors } from '@lib/colors';
 import { getBackstockQuantity } from '@lib/common';
 import { convertCurrencyToString } from '@lib/currency';
 import { FontWeight } from '@lib/font';
-import { noop } from 'lodash-es';
-import { useMemo } from 'react';
-import {
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
-import { DocumentType, gql } from 'src/__generated__';
 
 const ITEM_INFO_FIELDS = gql(`
   fragment ItemInfoFields on Item {

@@ -1,6 +1,3 @@
-import { Text } from '@components/Text';
-import { useAppStateChange } from '@hooks/useAppStateChange';
-import { useAsync } from '@hooks/useAsync';
 import LDClient, { LDContext } from 'launchdarkly-react-native-client-sdk';
 import { camelCase, uniqueId } from 'lodash-es';
 import {
@@ -12,6 +9,9 @@ import {
 } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import { config } from 'src/config';
+import { Text } from '@components/Text';
+import { useAppStateChange } from '@hooks/useAppStateChange';
+import { useAsync } from '@hooks/useAsync';
 import { useCurrentSessionInfo } from './Auth';
 
 interface SupportedFlags {

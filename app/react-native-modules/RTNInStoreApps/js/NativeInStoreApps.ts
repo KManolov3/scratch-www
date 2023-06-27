@@ -1,5 +1,5 @@
-import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 import { TurboModuleRegistry } from 'react-native';
+import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
 /* Current version of the React Native codegen doesn't support interfaces except Spec, only types */
 

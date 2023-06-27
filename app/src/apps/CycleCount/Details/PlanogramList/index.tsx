@@ -1,14 +1,14 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { FlatList, ListRenderItem, Pressable } from 'react-native';
-import { useCallback, useMemo } from 'react';
-import { filterNotNull } from '@lib/array';
 import { uniqBy } from 'lodash-es';
-import { Text } from '@components/Text';
-import { useNavigation } from '@react-navigation/native';
+import { useCallback, useMemo } from 'react';
+import { FlatList, ListRenderItem, Pressable } from 'react-native';
 import {
   CycleCountNavigation,
   CycleCountScreenProps,
 } from '@apps/CycleCount/navigator';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { filterNotNull } from '@lib/array';
+import { useNavigation } from '@react-navigation/native';
 import { useCycleCountState } from '../../state';
 
 export function CycleCountPlanogramList({

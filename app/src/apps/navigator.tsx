@@ -4,16 +4,14 @@ import {
   CycleCountNavigatorScreenParams,
 } from '@apps/CycleCount/navigator';
 import {
-  NativeStackScreenProps,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
-import {
   DrawerNavigator,
   DrawerNavigatorScreenParams,
 } from '@components/Drawer/navigator';
+import {
+  NativeStackScreenProps,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
-import { TruckReceiveHome } from './TruckReceive/Home';
-import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import {
   BatchCountNavigator,
   BatchCountNavigatorScreenParams,
@@ -26,6 +24,8 @@ import {
   OutageNavigator,
   OutageNavigatorScreenParams,
 } from './Outage/navigator';
+import { TruckReceiveHome } from './TruckReceive/Home';
+import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;

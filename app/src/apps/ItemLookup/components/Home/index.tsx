@@ -1,20 +1,20 @@
 import { useCallback, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { ApolloError, useLazyQuery } from '@apollo/client';
-import { SkuSearchBar } from '@components/SearchBar';
-import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { gql } from 'src/__generated__';
 import {
   ActivityIndicator,
   StyleProp,
   StyleSheet,
   ViewStyle,
 } from 'react-native';
+import { gql } from 'src/__generated__';
+import { ApolloError, useLazyQuery } from '@apollo/client';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { ErrorContainer } from '@components/ErrorContainer';
-import { Colors } from '@lib/colors';
-import { useCurrentSessionInfo } from '@services/Auth';
+import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
+import { SkuSearchBar } from '@components/SearchBar';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { Colors } from '@lib/colors';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 const ITEM_BY_SKU = gql(`
   query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {

@@ -1,8 +1,8 @@
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { SearchIcon } from '@assets/icons';
 import { TextField } from '@components/TextField';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 export interface SkuSearchBarProps {
   onFocus?: () => void;

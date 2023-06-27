@@ -1,7 +1,7 @@
+import { StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
 import { ToastProps } from '.';
 
 export function InfoToast({ text1, props }: ToastProps) {
