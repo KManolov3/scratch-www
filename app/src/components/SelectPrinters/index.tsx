@@ -1,5 +1,4 @@
 import { BlackAttentionIcon } from '@assets/icons';
-import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
@@ -16,18 +15,8 @@ import { useCurrentSessionInfo } from '@services/Auth';
 import { useCallback, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 
-export interface SelectPrinterProps {
-  title?: string;
-}
-
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
-
-  const {
-    state: portablePrinterModalOpen,
-    disable: closePortablePrinterModalOpen,
-    enable: openPortablePrinterModalOpen,
-  } = useBooleanState();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
@@ -37,17 +26,6 @@ export function SelectPrinters() {
   } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
   const printerToBeSelected = useRef(printerOption);
-
-  const confirm = useCallback(
-    (printerCode: string) => {
-      set({
-        printerOption: PrinterOptions.Portable,
-        portablePrinter: printerCode,
-      });
-      closePortablePrinterModalOpen();
-    },
-    [closePortablePrinterModalOpen, set],
-  );
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
@@ -64,13 +42,10 @@ export function SelectPrinters() {
 
   const onPress = useCallback(
     (item: PrinterOptions) => {
-      if (item === PrinterOptions.Portable && !portablePrinter) {
-        return openPortablePrinterModalOpen();
-      }
       printerToBeSelected.current = item;
       openConfirmationModal();
     },
-    [openConfirmationModal, openPortablePrinterModalOpen, portablePrinter],
+    [openConfirmationModal],
   );
 
   const confirmSetDefaultPritner = useCallback(() => {
@@ -89,15 +64,14 @@ export function SelectPrinters() {
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
           portablePrinter={portablePrinter}
-          replacePortablePrinter={openPortablePrinterModalOpen}
+          setPortablePrinter={printerCode =>
+            set({
+              printerOption: PrinterOptions.Portable,
+              portablePrinter: printerCode,
+            })
+          }
         />
       </FixedLayout>
-
-      <AddPortablePrinterModal
-        isVisible={portablePrinterModalOpen}
-        onCancel={closePortablePrinterModalOpen}
-        onConfirm={confirm}
-      />
 
       <ConfirmationModal
         isVisible={confirmationModalVisible}

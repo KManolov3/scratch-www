@@ -28,7 +28,6 @@ import { useCurrentSessionInfo } from '@services/Auth';
 import { EventBus } from '@hooks/useEventBus';
 import { Separator } from '@components/Separator';
 import { Printers } from '@components/Printers';
-import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { getTextContainerStyles, styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -115,12 +114,6 @@ export function PrintFrontTagScreen({
     state: confirmationModalOpen,
     enable: showConfirmationModal,
     disable: closeConfirmationModal,
-  } = useBooleanState();
-
-  const {
-    state: portablePrinterModalOpen,
-    enable: openPortablePrinterModal,
-    disable: closePortablePrinterModal,
   } = useBooleanState();
 
   const { loading, trigger: sendTagsForPrinting } = useAsyncAction(async () => {
@@ -268,23 +261,6 @@ export function PrintFrontTagScreen({
   const [lastUsedPortablePrinterValue, setLastUsedPortablePrinterValue] =
     useState(defaultPrinterOption.portablePrinter);
 
-  const confirm = useCallback(
-    (printerCode: string) => {
-      setLastUsedPortablePrinterValue(printerCode);
-      setSelectPrinter({
-        printerOption: PrinterOptions.Portable,
-        portablePrinter: printerCode,
-      });
-      setPrinter({
-        printerOption: PrinterOptions.Portable,
-        portablePrinter: printerCode,
-      });
-      closePortablePrinterModal();
-      closePrinterModal();
-    },
-    [closePortablePrinterModal, closePrinterModal],
-  );
-
   return (
     <FixedLayout
       style={styles.container}
@@ -345,13 +321,6 @@ export function PrintFrontTagScreen({
           <Printers
             checked={item => item === selectPrinter.printerOption}
             onRadioButtonPress={item => {
-              if (
-                item === PrinterOptions.Portable &&
-                !defaultPrinterOption.portablePrinter
-              ) {
-                return openPortablePrinterModal();
-              }
-
               setSelectPrinter({
                 printerOption: item,
                 portablePrinter:
@@ -363,16 +332,21 @@ export function PrintFrontTagScreen({
             containerStyles={styles.radioButtons}
             portablePrinter={lastUsedPortablePrinterValue}
             portablePrinterStyles={styles.portablePrinter}
-            replacePortablePrinter={openPortablePrinterModal}
+            setPortablePrinter={(printerCode: string) => {
+              closePrinterModal();
+              setLastUsedPortablePrinterValue(printerCode);
+              setSelectPrinter({
+                printerOption: PrinterOptions.Portable,
+                portablePrinter: printerCode,
+              });
+              setPrinter({
+                printerOption: PrinterOptions.Portable,
+                portablePrinter: printerCode,
+              });
+            }}
           />
         </View>
       </ConfirmationModal>
-
-      <AddPortablePrinterModal
-        isVisible={portablePrinterModalOpen}
-        onCancel={closePortablePrinterModal}
-        onConfirm={confirm}
-      />
 
       <PrintConfirmationModal
         isVisible={confirmationModalOpen}

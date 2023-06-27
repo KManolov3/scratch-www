@@ -1,5 +1,7 @@
+import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { RadioButton } from '@components/Button/Radio';
 import { Text } from '@components/Text';
+import { useBooleanState } from '@hooks/useBooleanState';
 import { PrinterOptions } from '@hooks/useDefaultSettings';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
@@ -16,7 +18,7 @@ import {
 interface RadioButtonsListProps {
   onRadioButtonPress(item: PrinterOptions): void;
   checked(item: PrinterOptions): boolean;
-  replacePortablePrinter(): void;
+  setPortablePrinter(portablePrinter: string): void;
   withDefault?: boolean;
   portablePrinter: string | undefined;
   containerStyles?: StyleProp<ViewStyle>;
@@ -37,17 +39,28 @@ export function Printers({
   containerStyles,
   textStyles,
   portablePrinter,
-  replacePortablePrinter,
+  setPortablePrinter,
   portablePrinterStyles,
   withDefault = false,
 }: RadioButtonsListProps) {
+  const {
+    state: portablePrinterModalOpen,
+    enable: openPortablePrinterModal,
+    disable: closePortablePrinterModal,
+  } = useBooleanState();
+
   return (
     <View style={containerStyles}>
       {Array.from(Object.values(PrinterOptions)).map(item => (
         <Fragment key={item}>
           <RadioButton
             checked={checked(item)}
-            onPress={() => onRadioButtonPress(item)}
+            onPress={() => {
+              if (item === PrinterOptions.Portable && !portablePrinter) {
+                return openPortablePrinterModal();
+              }
+              onRadioButtonPress(item);
+            }}
             buttonStyle={styles.radioButton}>
             <View style={styles.radioButtonContainer}>
               <Text
@@ -69,7 +82,7 @@ export function Printers({
                 item === PrinterOptions.Portable &&
                 portablePrinter && (
                   <Pressable
-                    onPress={replacePortablePrinter}
+                    onPress={openPortablePrinterModal}
                     style={styles.replaceContainer}>
                     <Text style={styles.replace}>Replace</Text>
                   </Pressable>
@@ -82,7 +95,7 @@ export function Printers({
               <View style={styles.radioButtonContainer}>
                 <Text>{portablePrinter}</Text>
                 {withDefault && (
-                  <Pressable onPress={replacePortablePrinter}>
+                  <Pressable onPress={openPortablePrinterModal}>
                     <Text style={styles.replace}>Replace</Text>
                   </Pressable>
                 )}
@@ -91,6 +104,15 @@ export function Printers({
           )}
         </Fragment>
       ))}
+
+      <AddPortablePrinterModal
+        isVisible={portablePrinterModalOpen}
+        onCancel={closePortablePrinterModal}
+        onConfirm={printerCode => {
+          closePortablePrinterModal();
+          setPortablePrinter(printerCode);
+        }}
+      />
     </View>
   );
 }
