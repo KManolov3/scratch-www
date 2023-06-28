@@ -5,6 +5,7 @@ import { CommonHomePage } from '../page-objects/common/common-home-page.ts';
 import { CommonItemDetailsPage } from '../page-objects/common/common-item-details-page.ts';
 import { ItemLookupHomePage } from '../page-objects/item-lookup/home-page.ts';
 import { ItemLookupItemDetailsPage } from '../page-objects/item-lookup/item-details-page.ts';
+import { ItemLookupPrintFrontTagPage } from '../page-objects/item-lookup/print-front-tag-page.ts';
 
 export interface CommonPages {
   homePage: CommonHomePage;
@@ -19,4 +20,5 @@ export interface BatchCountPages {
 export interface ItemLookupPages {
   homePage: ItemLookupHomePage;
   itemDetailsPage: ItemLookupItemDetailsPage;
+  printFrontTagPage: ItemLookupPrintFrontTagPage;
 }

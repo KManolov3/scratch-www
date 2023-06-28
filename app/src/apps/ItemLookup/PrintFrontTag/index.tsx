@@ -177,21 +177,18 @@ export function PrintFrontTagScreen({
       return (
         <View style={styles.planogramsContainer} key={id}>
           <View style={styles.table}>
-            <View style={styles.flexRow}>
-              {locationStatuses.length > 1 && (
-                <Pressable
-                  style={styles.checkIcon}
-                  onPress={() => update(id, { checked: !checked })}>
-                  {checked ? (
-                    <SquareCheckBox width={20} height={20} />
-                  ) : (
-                    <EmptySquareCheckBox width={20} height={20} />
-                  )}
-                </Pressable>
-              )}
-              <Text style={styles.text}>{id}</Text>
-            </View>
+            <Pressable onPress={() => update(id, { checked: !checked })}>
+              <View style={styles.flexRow}>
+                {locationStatuses.length > 1 && checked ? (
+                  <SquareCheckBox width={20} height={20} />
+                ) : (
+                  <EmptySquareCheckBox width={20} height={20} />
+                )}
+                <Text style={[styles.text, styles.planogramId]}>{id}</Text>
+              </View>
+            </Pressable>
             <QuantityAdjuster
+              uniqueAccessibilityLabel={id}
               minimum={1}
               maximum={99}
               quantity={qty}

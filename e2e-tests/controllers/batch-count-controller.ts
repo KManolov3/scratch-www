@@ -94,7 +94,7 @@ export class BatchCountController extends BaseController {
       );
 
       if (index !== batchCounts.length - 1) {
-        await waitAndClick(this.batchCountPages.itemDetailsPage.backButton);
+        await driver.back();
       }
     }
 
