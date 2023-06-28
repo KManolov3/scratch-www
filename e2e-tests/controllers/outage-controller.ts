@@ -60,11 +60,7 @@ export class OutageController extends BaseController {
   }
 
   calculateShrinkageValue(items: TestItemInput[]) {
-    let shrinkage = 0;
-    for (const item of items) {
-      shrinkage += item.onHand * item.retailPrice;
-    }
-    return shrinkage;
+    return sum(items.map((item) => item.onHand * item.retailPrice));
   }
 
   async completeOutageCount(items: TestItemInput[]) {
@@ -104,7 +100,7 @@ export class OutageController extends BaseController {
       this.outagePages.completeOutagePage.shrinkageModal.approveButton
     );
 
-    await waitFor(this.outagePages.homePage.searchForSkuInput);
+    await waitFor(this.outagePages.homePage.searchForSkuInput, 5000);
 
     expect(this.outagePages.homePage.completedOutageListToast).toBeDisplayed();
   }

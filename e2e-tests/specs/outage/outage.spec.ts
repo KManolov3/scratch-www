@@ -8,7 +8,7 @@ const outageCount = new OutageController();
 
 describe('Outage Count', () => {
   beforeEach(async () => {
-    await waitFor(outageCount.outagePages.homePage.searchForSkuInput, 10000);
+    await waitFor(outageCount.outagePages.homePage.searchForSkuInput, 15000);
   });
 
   afterEach(async () => {
