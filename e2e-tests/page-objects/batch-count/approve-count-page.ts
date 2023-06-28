@@ -1,4 +1,4 @@
-export class BatchCountApprovePage {
+export class BatchCountSummaryPage {
   get headerText() {
     return '[text=Summary]';
   }

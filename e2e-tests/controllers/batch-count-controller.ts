@@ -6,10 +6,10 @@ import {
 import { BatchCountPages } from './page-access.ts';
 import { BatchCountHomePage } from '../page-objects/batch-count/home-page.ts';
 import { TestItemInput } from '../__generated__/graphql.ts';
-import { BatchCountItemDetailsPage } from '../page-objects/batch-count/item-details-page.ts';
+import { BatchCountListPage } from '../page-objects/batch-count/item-details-page.ts';
 import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
-import { BatchCountApprovePage } from '../page-objects/batch-count/approve-count-page.ts';
+import { BatchCountSummaryPage } from '../page-objects/batch-count/approve-count-page.ts';
 
 type BatchCountData = {
   item: TestItemInput;
@@ -24,23 +24,24 @@ export class BatchCountController extends BaseController {
     super();
     this.batchCountPages = {
       homePage: new BatchCountHomePage(),
-      itemDetailsPage: new BatchCountItemDetailsPage(),
-      approveCountPage: new BatchCountApprovePage(),
+      batchCountListPage: new BatchCountListPage(),
+      summaryPage: new BatchCountSummaryPage(),
     };
   }
 
   async expectProductInfo(product: TestItemInput) {
     if (product.onHand) {
       await expectElementText(
-        this.batchCountPages.itemDetailsPage.productDetails(product.mfrPartNum)
-          .currentQuantity,
+        this.batchCountPages.batchCountListPage.productDetails(
+          product.mfrPartNum
+        ).currentQuantity,
         `${product.onHand}`
       );
     }
 
     if (product.partDesc) {
       await expectElementText(
-        this.batchCountPages.itemDetailsPage.productDetails(product.partDesc)
+        this.batchCountPages.batchCountListPage.productDetails(product.partDesc)
           .itemName,
         product.partDesc
       );
@@ -50,7 +51,7 @@ export class BatchCountController extends BaseController {
   }
 
   async confirmProductInfo(data: BatchCountData) {
-    const productDetails = this.batchCountPages.approveCountPage.productDetails(
+    const productDetails = this.batchCountPages.summaryPage.productDetails(
       data.item.mfrPartNum
     );
 
@@ -85,16 +86,16 @@ export class BatchCountController extends BaseController {
     }
   }
 
-  async calculateShrinkageAndOverage(batchCounts: BatchCountData[]) {
+  async calculateShrinkageAndOverage(batchCountData: BatchCountData[]) {
     let shrinkage = 0;
     let overage = 0;
     let netDollars = 0;
 
     await waitFor(
-      this.batchCountPages.approveCountPage.shrinkageOverageModal.infoText
+      this.batchCountPages.summaryPage.shrinkageOverageModal.infoText
     );
 
-    batchCounts.forEach((data) => {
+    batchCountData.forEach((data) => {
       if (data.newQuantity < data.item.onHand) {
         shrinkage = +(
           shrinkage +
@@ -109,22 +110,21 @@ export class BatchCountController extends BaseController {
         ).toFixed(2);
       }
 
-      netDollars = overage - Math.abs(shrinkage);
+      netDollars = overage - shrinkage;
     });
 
     await expectElementText(
-      this.batchCountPages.approveCountPage.shrinkageOverageModal
-        .shrinkageValue,
+      this.batchCountPages.summaryPage.shrinkageOverageModal.shrinkageValue,
       `$${shrinkage}` === '$0' ? '$0.00' : `-$${shrinkage}`
     );
 
     await expectElementText(
-      this.batchCountPages.approveCountPage.shrinkageOverageModal.overageValue,
+      this.batchCountPages.summaryPage.shrinkageOverageModal.overageValue,
       `$${overage}` === '$0' ? '$0.00' : `$${overage}`
     );
 
     await expectElementText(
-      this.batchCountPages.approveCountPage.shrinkageOverageModal.netDollars,
+      this.batchCountPages.summaryPage.shrinkageOverageModal.netDollars,
       shrinkage > overage ? `-$${netDollars}` : `$${netDollars}`
     );
   }
@@ -134,14 +134,14 @@ export class BatchCountController extends BaseController {
       await this.searchForSku(data.item);
 
       await setValue(
-        this.batchCountPages.itemDetailsPage.productDetails(
+        this.batchCountPages.batchCountListPage.productDetails(
           data.item.mfrPartNum
         ).newQtyInput,
         data.newQuantity
       );
 
       await waitAndClick(
-        this.batchCountPages.itemDetailsPage.productDetails(
+        this.batchCountPages.batchCountListPage.productDetails(
           data.item.mfrPartNum
         ).partNumber
       );
@@ -150,16 +150,16 @@ export class BatchCountController extends BaseController {
 
       if (data.bookmarked) {
         const coordinateX = await $(
-          this.batchCountPages.itemDetailsPage.pogLocationsButton
+          this.batchCountPages.batchCountListPage.pogLocationsButton
         ).getLocation('x');
         const coordinateY = await $(
-          this.batchCountPages.itemDetailsPage.pogLocationsButton
+          this.batchCountPages.batchCountListPage.pogLocationsButton
         ).getLocation('y');
 
         await this.verticalScroll(coordinateX, coordinateY, -500);
 
         await waitAndClick(
-          this.batchCountPages.itemDetailsPage.productDetails(
+          this.batchCountPages.batchCountListPage.productDetails(
             data.item.mfrPartNum
           ).bookmarkItemButton
         );
@@ -171,21 +171,19 @@ export class BatchCountController extends BaseController {
     }
 
     await waitAndClick(
-      this.batchCountPages.itemDetailsPage.createSummaryButton
+      this.batchCountPages.batchCountListPage.createSummaryButton
     );
 
     for (const data of batchCounts) {
       await this.confirmProductInfo(data);
     }
 
-    await waitAndClick(
-      this.batchCountPages.approveCountPage.approveCountButton
-    );
+    await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
 
     await this.calculateShrinkageAndOverage(batchCounts);
 
     await waitAndClick(
-      this.batchCountPages.approveCountPage.shrinkageOverageModal.approveButton
+      this.batchCountPages.summaryPage.shrinkageOverageModal.approveButton
     );
 
     await waitFor(this.batchCountPages.homePage.searchForSkuInput);

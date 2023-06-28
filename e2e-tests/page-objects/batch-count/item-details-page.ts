@@ -1,6 +1,6 @@
 import { CommonItemDetailsPage } from '../common/common-item-details-page.ts';
 
-export class BatchCountItemDetailsPage extends CommonItemDetailsPage {
+export class BatchCountListPage extends CommonItemDetailsPage {
   get headerText() {
     return '[text=Batch Count]';
   }
