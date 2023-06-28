@@ -91,14 +91,19 @@ export function PrintFrontTagScreen({
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const { data: defaultPrinterOption } = useDefaultSettings(
-    'defaultPrinterOption',
-    storeNumber,
-    userId,
-  );
+  const {
+    data: { printerOption, portablePrinter },
+  } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
-  const [printer, setPrinter] = useState(defaultPrinterOption);
-  const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
+  const [printer, setPrinter] = useState({
+    printerOption,
+    portablePrinter:
+      printerOption === PrinterOptions.Portable ? portablePrinter : undefined,
+  });
+  const [selectPrinter, setSelectPrinter] = useState(printer);
+
+  const [lastUsedPortablePrinter, setLastUsedPortablePrinter] =
+    useState(portablePrinter);
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -148,11 +153,7 @@ export function PrintFrontTagScreen({
     }
 
     toastService.showInfoToast(
-      `Front tag sent to ${printer.printerOption} ${
-        printer.printerOption === PrinterOptions.Portable
-          ? printer.portablePrinter
-          : ''
-      }`,
+      `Front tag sent to ${printer.printerOption} ${printer.portablePrinter}`,
       {
         props: { containerStyle: styles.toast },
       },
@@ -226,10 +227,6 @@ export function PrintFrontTagScreen({
   } = useItemLookup({
     onComplete: closeSearchTray,
   });
-
-  const [lastUsedPortablePrinter, setLastUsedPortablePrinter] = useState(
-    defaultPrinterOption.portablePrinter,
-  );
 
   return (
     <FixedLayout
