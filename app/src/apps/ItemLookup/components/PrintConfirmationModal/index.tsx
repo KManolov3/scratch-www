@@ -1,9 +1,9 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Modal } from '@components/Modal';
+import { StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { BlackAttentionIcon } from '@assets/icons';
+import { ConfirmationModal } from '@components/ConfirmationModal';
 
 export interface PrintConfirmationModalProps {
   isVisible: boolean;
@@ -19,38 +19,26 @@ export function PrintConfirmationModal({
   quantity,
 }: PrintConfirmationModalProps) {
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <View style={styles.headerSvg}>
-        <BlackAttentionIcon height={40} width={40} />
-      </View>
-      <Text style={styles.header}>Quantity Confirmation</Text>
+    <ConfirmationModal
+      isVisible={isVisible}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+      Icon={BlackAttentionIcon}
+      title="Quantity Confirmation"
+      cancellationLabel="Edit Quantity"
+      confirmationLabel={`Print ${quantity} Tags`}
+      iconStyles={styles.icon}>
       <View style={styles.confirmationText}>
         <View style={styles.tagsInformation}>
           <Text style={styles.text}>Are you sure you want to print</Text>
           <Text style={styles.bold}>{quantity} front tags?</Text>
         </View>
       </View>
-      <View style={styles.container}>
-        <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Edit Quantity</Text>
-        </Pressable>
-        <Pressable
-          onPress={onConfirm}
-          style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Print {quantity} Tags</Text>
-        </Pressable>
-      </View>
-    </Modal>
+    </ConfirmationModal>
   );
 }
+
 const styles = StyleSheet.create({
-  header: {
-    fontWeight: FontWeight.Bold,
-    marginTop: 12,
-    marginBottom: 30,
-    fontSize: 20,
-    textAlign: 'center',
-  },
   text: {
     color: Colors.black,
     textAlign: 'center',
@@ -63,35 +51,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 16,
-    gap: 8,
-  },
-  button: {
-    flex: 1,
-    borderRadius: 4,
-    padding: 12,
-    fontSize: 16,
-    fontWeight: FontWeight.Bold,
-    backgroundColor: Colors.lightGray,
-  },
-  confirmationButton: {
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontWeight: FontWeight.Demi,
-    textAlign: 'center',
-  },
-  headerSvg: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 30,
-  },
   bold: { fontWeight: FontWeight.Bold },
   confirmationText: {
     padding: 16,
     marginBottom: 12,
+  },
+  icon: { marginTop: 30 },
+  buttons: {
+    marginBottom: 24,
   },
 });

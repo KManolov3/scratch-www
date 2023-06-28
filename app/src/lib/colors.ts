@@ -8,16 +8,25 @@ export const Colors = {
   backdropBlack: '#00000082',
   backdropVoid: '#37373740',
 
+  lightYellow: '#fffbf2',
+
   // grays
   lightGray: '#f5f5f5',
+  mediumGray: '#f2f2f2',
   gray: '#e4e4e4',
+  gray100: '#eeeeee',
   grayer: '#dadada',
   darkGray: '#9a9a9a',
-  gray100: '#eeeeee',
   darkerGray: '#1f1f1f',
+  drawerGray: '#D9D9D9',
+
   lightVoid: '#767676',
+  darkVoid: '#1D192b',
   mediumVoid: '#666666',
   advanceVoid: '#373737',
+
+  // Please sync this with the color defined in styles.xml in the native android project
+  // because it's used in the status bar color
   advanceBlack: '#1e1e1e',
 
   // blues

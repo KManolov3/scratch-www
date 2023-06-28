@@ -1,4 +1,5 @@
-import { RootScreenProps, RootNavigation } from '@apps/navigator';
+import { ApolloError, useLazyQuery } from '@apollo/client';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
@@ -6,21 +7,22 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {
-  createNativeStackNavigator,
   NativeStackNavigationProp,
   NativeStackScreenProps,
+  createNativeStackNavigator,
 } from '@react-navigation/native-stack';
-import { useScanListener } from '@hooks/useScanListener';
-import { scanCodeService } from 'src/services/ScanCode';
-import { useLazyQuery } from '@apollo/client';
-import { ItemDetails } from 'src/types/ItemLookup';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { useScanCodeListener } from '@services/ScanCode';
 import { gql } from 'src/__generated__';
+import { ItemDetails } from 'src/types/ItemLookup';
+import { EventBus } from '@hooks/useEventBus';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
+import { PrintFrontTagScreen } from './PrintFrontTag';
 
 const ITEM_BY_SKU = gql(`
-  query ManualItemLookup($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
+  query ManualItemLookup($sku: String!, $storeNumber: String!) {
+    itemBySku(sku: $sku, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -29,8 +31,8 @@ const ITEM_BY_SKU = gql(`
 `);
 
 const ITEM_BY_UPC = gql(`
-  query AutomaticItemLookup($upc: String!) {
-    itemByUpc(upc: $upc, storeNumber: "0363") {
+  query AutomaticItemLookup($upc: String!, $storeNumber: String!) {
+    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
       ...ItemInfoHeaderFields
       ...PlanogramFields
       ...BackstockSlotFields
@@ -41,47 +43,70 @@ const ITEM_BY_UPC = gql(`
 type Routes = {
   Home: undefined;
   ItemLookup: { itemDetails: ItemDetails; frontTagPrice?: number };
+  PrintFrontTag: { itemDetails: ItemDetails };
 };
 
 const Stack = createNativeStackNavigator<Routes>();
 
 export function ItemLookupNavigator() {
   const navigation = useNavigation<ItemLookupNavigation>();
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU);
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC);
+  const { storeNumber } = useCurrentSessionInfo();
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
-    if (scanCode.type === 'SKU') {
-      return searchBySku({
-        variables: { sku: scanCode.sku },
-        onCompleted: itemDetails => {
-          if (itemDetails.itemBySku) {
-            navigation.navigate('ItemLookup', {
-              frontTagPrice: scanCode.frontTagPrice,
-              itemDetails: itemDetails.itemBySku,
-            });
-          }
-        },
-      });
+  function onError(error: ApolloError) {
+    EventBus.emit('search-error', error);
+  }
+
+  function onCompleted() {
+    EventBus.emit('search-success');
+  }
+
+  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, { onError });
+  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, { onError });
+
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        return searchBySku({
+          variables: { sku: code.sku, storeNumber },
+          onCompleted: itemDetails => {
+            onCompleted();
+            if (itemDetails.itemBySku) {
+              navigation.navigate('ItemLookup', {
+                frontTagPrice:
+                  code.type === 'front-tag' ? code.frontTagPrice : undefined,
+                itemDetails: itemDetails.itemBySku,
+              });
+            }
+          },
+        });
+
+      case 'UPC':
+        return searchByUpc({
+          variables: { upc: code.upc, storeNumber },
+          onCompleted: itemDetails => {
+            onCompleted();
+            if (itemDetails.itemByUpc) {
+              navigation.navigate('ItemLookup', {
+                itemDetails: itemDetails.itemByUpc,
+              });
+            }
+          },
+        });
+
+      default:
+      // TODO: Show toast that the scanned code is unsupported
     }
-    return searchByUpc({
-      variables: { upc: scanCode.upc },
-      onCompleted: itemDetails => {
-        if (itemDetails.itemByUpc) {
-          navigation.navigate('ItemLookup', {
-            itemDetails: itemDetails.itemByUpc,
-          });
-        }
-      },
-    });
   });
 
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={ItemLookupHome} />
 
       <Stack.Screen name="ItemLookup" component={ItemLookupScreen} />
+      <Stack.Screen name="PrintFrontTag" component={PrintFrontTagScreen} />
     </Stack.Navigator>
   );
 }

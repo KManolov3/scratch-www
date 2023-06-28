@@ -31,8 +31,7 @@
     "randomstring": "^1.2.3",
     "ttab": "^0.8.0",
     "wdio-html-nice-reporter": "^8.1.0",
-    "webdriverio": "^8.8.0",
-    "wttab": "^1.2.2"
+    "webdriverio": "^8.8.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.3.1",

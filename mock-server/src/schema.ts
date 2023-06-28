@@ -17,6 +17,8 @@ const innerSchema = makeExecutableSchema({
   ]),
 });
 
+const skuRegex = /^\d{1,9}$/;
+
 const storeNumberFaker = () => faker.random.numeric(4);
 const skuFaker = () => faker.random.numeric(8);
 const planogramIdFaker = () => faker.random.numeric(5);
@@ -35,6 +37,8 @@ const mocks: IMocks = {
 
   Item: {
     ...itemFakes,
+
+    // planograms: () => new MockList(1),
 
     retailPrice: () =>
       faker.datatype.float({ min: 10, max: 100, precision: 0.01 }),
@@ -151,6 +155,30 @@ export const schema = addMocksToSchema({
       testClearData() {
         store.reset();
         return true;
+      },
+    },
+    Query: {
+      itemBySku(_, args) {
+        if (skuRegex.test(args.sku)) {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: args,
+            value: {
+              sku: args.sku,
+            },
+          });
+
+          return store.get({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemBySku',
+            fieldArgs: args,
+          });
+        }
+
+        throw new Error('SKU must contain 1-9 digits.');
       },
     },
   }),

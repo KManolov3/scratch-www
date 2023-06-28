@@ -1,94 +1,64 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useCallback, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { SearchBar } from '@components/SearchBar';
-import { useLazyQuery } from '@apollo/client';
-import { gql } from 'src/__generated__';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SkuSearchBar } from '@components/SearchBar';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
-import { Text } from '@components/Text';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
-import { OutageNavigation } from '../navigator';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useScanCodeListener } from '@services/ScanCode';
+import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
 
-const ITEM_BY_SKU_QUERY = gql(`
-  query ItemLookupBySku($sku: String!) {
-    itemBySku(sku: $sku, storeNumber: "0363") {
-      ...ItemInfoHeaderFields
-    },
-  }
-`);
-
-type ErrorType = 'Not Found Error';
-
-interface ErrorInformation {
-  title: string;
-  message: string;
-}
-
-const errorInformation: Record<ErrorType, ErrorInformation> = {
-  'Not Found Error': {
-    title: 'No Results Found',
-    message: 'Try searching for another SKU or scanning another front tag',
-  },
-};
-
 export function OutageHome() {
-  const { navigate } = useNavigation<OutageNavigation>();
-  const { addItem } = useOutageState();
+  const { requestToAddItem } = useOutageState();
 
-  const [errorType, setErrorType] = useState<ErrorType>();
+  const {
+    trigger: addItem,
+    loading,
 
-  const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
-    onCompleted: item => {
-      if (item?.itemBySku) {
-        setErrorType(undefined);
-        addItem(item.itemBySku);
-        navigate('Item List');
-      } else {
-        // TODO: this error should be based on what
-        // the backend has returned
-        setErrorType('Not Found Error');
-      }
-    },
-    onError: () => {
-      // TODO: this error should be based on what
-      // the backend has returned
-      setErrorType('Not Found Error');
-    },
+    // TODO: Reset this when going back to this screen?
+    error,
+  } = useAsyncAction((sku: string) => requestToAddItem(sku));
+
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        addItem(code.sku);
+        break;
+
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+        );
+    }
   });
-
-  const onSubmit = useCallback(
-    (sku: string) => {
-      getItemBySku({ variables: { sku } });
-    },
-    [getItemBySku],
-  );
 
   return (
     <FixedLayout style={styles.container}>
-      <SearchBar onSubmit={onSubmit} />
-      {loading ? (
+      <SkuSearchBar onSubmit={addItem} />
+
+      {loading && (
         <ActivityIndicator
           size="large"
           color={Colors.mediumVoid}
           style={styles.loadingIndicator}
         />
-      ) : null}
-      {!errorType && !loading ? (
-        <ScanBarcodeLabel label="Scan Front Tag" style={styles.scanBarcode} />
-      ) : null}
-      {errorType && !loading ? (
-        <View style={styles.error}>
-          <Text style={styles.errorTitle}>
-            {errorInformation[errorType].title}
-          </Text>
-          <Text style={styles.errorMessage}>
-            {errorInformation[errorType].message}
-          </Text>
-        </View>
-      ) : null}
+      )}
+
+      {!error && !loading && (
+        <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
+      )}
+
+      {/* TODO: Distinguish between not found and other errors */}
+      {!!error && !loading && (
+        <ErrorContainer
+          title="No Results Found"
+          message="Try searching for another SKU or scanning another front tag"
+        />
+      )}
     </FixedLayout>
   );
 }
@@ -98,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
   },
   loadingIndicator: {
-    marginTop: 88,
+    marginTop: 144,
   },
   scanBarcode: {
     marginTop: 88,

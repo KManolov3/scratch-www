@@ -1,4 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
@@ -9,22 +15,26 @@ import { SvgType } from '*.svg';
 export interface ConfirmationModalProps {
   isVisible: boolean;
   Icon?: SvgType;
+  iconStyles?: StyleProp<ViewStyle>;
   title?: string;
   confirmationLabel?: string;
   onConfirm: () => void;
   cancellationLabel?: string;
   onCancel: () => void;
   children?: ReactNode;
+  buttonsStyle?: StyleProp<ViewStyle>;
 }
 
 export function ConfirmationModal({
   isVisible,
   Icon,
+  iconStyles,
   title,
   cancellationLabel = 'Cancel',
   onCancel,
   confirmationLabel = 'Accept',
   onConfirm,
+  buttonsStyle,
   children,
 }: ConfirmationModalProps) {
   return (
@@ -32,11 +42,13 @@ export function ConfirmationModal({
       isVisible={isVisible}
       onBackdropPress={onCancel}
       style={styles.modal}>
-      <>
-        {Icon ? <Icon height={40} width={40} style={styles.icon} /> : null}
+      <View style={styles.container}>
+        {Icon ? (
+          <Icon height={40} width={40} style={[styles.icon, iconStyles]} />
+        ) : null}
         {title ? <Text style={styles.title}>{title}</Text> : null}
         {children}
-        <View style={styles.buttons}>
+        <View style={[styles.buttons, buttonsStyle]}>
           <Pressable onPress={onCancel} style={styles.button}>
             <Text style={styles.buttonText}>{cancellationLabel}</Text>
           </Pressable>
@@ -46,7 +58,7 @@ export function ConfirmationModal({
             <Text style={styles.buttonText}>{confirmationLabel}</Text>
           </Pressable>
         </View>
-      </>
+      </View>
     </Modal>
   );
 }
@@ -56,6 +68,12 @@ const styles = StyleSheet.create({
     paddingTop: 29,
     paddingHorizontal: 8,
     paddingBottom: 22,
+  },
+  container: {
+    paddingTop: 20,
+    paddingBottom: 10,
+    // TODO: Find out why the outer part of the modal is not the specified background color here
+    backgroundColor: Colors.pure,
   },
   icon: {
     justifyContent: 'center',

@@ -9,6 +9,7 @@ interface ItemPropertyDisplayProps {
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<Text>;
   valueStyle?: StyleProp<Text>;
 }
@@ -18,12 +19,13 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
+  containerStyle,
   labelStyle,
   valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
     <View style={[styles.root, style]}>
-      <View>
+      <View style={containerStyle}>
         <Text
           accessibilityLabel={`${label} label`}
           style={[styles.label, labelStyle]}>
@@ -35,7 +37,7 @@ export function ItemPropertyDisplay({
           {value}
         </Text>
       </View>
-      <View style={styles.icon}>{icon}</View>
+      {icon && <View style={styles.icon}>{icon}</View>}
     </View>
   );
 }

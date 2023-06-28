@@ -70,3 +70,15 @@ yarn-error.log
 !.env.example
 
 .eslintcache
+
+# React Native bundle artifacts
+android/app/src/main/assets/*.bundle
+android/app/src/main/res/drawable-*/node_modules_*
+android/app/src/main/res/drawable-*/src_assets_*
+android/app/src/main/res/raw/src_assets_*
+
+# Built apks
+/builds/
+
+# Generated from the .env files
+android/app/src/main/res/values/env_strings.xml

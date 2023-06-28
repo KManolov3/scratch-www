@@ -1,44 +1,31 @@
-// The store is hardcoded until the launcher can start providing an authentication
-// token to the app, containing the current active store.
-
-import { useMutation } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { gql } from 'src/__generated__';
-import { ItemDetails } from '@components/ItemDetails';
+import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FontWeight } from '@lib/font';
-import { Colors } from '@lib/colors';
-import { FixedLayout } from '@layouts/FixedLayout';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { PriceDiscrepancyModal } from '@components/PriceDiscrepancyModal';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
-import { indexOfEnumValue } from '@lib/array';
+import { Header } from '@components/Header';
 import { soundService } from 'src/services/SoundService';
-import { toastService } from 'src/services/ToastService';
-import { countBy } from 'lodash-es';
-import { ItemLookupScreenProps } from '../navigator';
-import { PrintModal } from '../components/PrintModal';
-
-const PRINT_FRONT_TAG = gql(`
-  mutation PrintFrontTag(
-    $storeNumber: String!
-    $printer: String! = "1"
-    $data: [FrontTagItem]
-  ) {
-    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)
-  }
-`);
+import { BottomRegularTray } from '@components/BottomRegularTray';
+import { WhiteSearchIcon } from '@assets/icons';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useNavigation } from '@react-navigation/native';
+import { useEventBus, useFocusEventBus } from '@hooks/useEventBus';
+import { toastService } from '@services/ToastService';
+import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
+import { ItemLookupHome } from '../components/Home';
 
 export function ItemLookupScreen({
   route: {
     params: { itemDetails, frontTagPrice },
   },
 }: ItemLookupScreenProps<'ItemLookup'>) {
-  const [printFrontTag, { loading }] = useMutation(PRINT_FRONT_TAG);
+  const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  const [hasPriceDiscrepancy, setPriceDiscrepancy] = useState(
+  const [hasPriceDiscrepancy, setHasPriceDiscrepancy] = useState(
     !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
   );
 
@@ -46,108 +33,86 @@ export function ItemLookupScreen({
     state: priceDiscrepancyModalVisible,
     toggle: toggleModal,
     enable: showPriceDiscrepancyModal,
+    disable: hidePriceDiscrepancyModal,
   } = useBooleanState(hasPriceDiscrepancy);
 
   useEffect(() => {
-    if (hasPriceDiscrepancy) {
+    const priceDiscrepancy =
+      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
+    setHasPriceDiscrepancy(priceDiscrepancy);
+
+    if (priceDiscrepancy) {
       showPriceDiscrepancyModal();
+
       soundService
         .playSound('error')
         // eslint-disable-next-line no-console
         .catch(soundError => console.log('Error playing sound.', soundError));
+    } else {
+      // TODO: This is done on the second render, thus the modal changes values first, then hides.
+      //       Maybe we want to hide it directly somehow?
+      hidePriceDiscrepancyModal();
     }
   }, [
-    hasPriceDiscrepancy,
-    showPriceDiscrepancyModal,
     frontTagPrice,
     itemDetails?.retailPrice,
+    showPriceDiscrepancyModal,
+    hidePriceDiscrepancyModal,
   ]);
-
-  const { state: printModalVisible, toggle: togglePrintModal } =
-    useBooleanState();
-
-  useEffect(() => {
-    setPriceDiscrepancy(
-      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice,
-    );
-  }, [frontTagPrice, itemDetails?.retailPrice]);
 
   const onPriceDiscrepancyConfirm = useCallback(() => {
     toggleModal();
-    togglePrintModal();
-  }, [toggleModal, togglePrintModal]);
-
-  const { storeNumber } = useDefaultSettings();
-
-  const onPrintConfirm = useCallback(
-    async (printer: PrinterOptions, qty: number) => {
-      if (!itemDetails?.planograms) {
-        return;
-      }
-      const printerToStringValue = String(
-        indexOfEnumValue(PrinterOptions, printer) + 1,
-      );
-
-      const results = await Promise.allSettled(
-        itemDetails?.planograms?.map(planogram =>
-          printFrontTag({
-            variables: {
-              storeNumber,
-              data: {
-                planogramId: planogram?.planogramId,
-                sequence: planogram?.seqNum,
-                sku: itemDetails?.sku,
-                count: qty,
-              },
-              printer: printerToStringValue,
-            },
-          }),
-        ),
-      );
-      const requestsByStatus = countBy(
-        results,
-        ({ status }) => status === 'rejected',
-      );
-      const numberOfFailedRequests = requestsByStatus.rejected;
-
-      if (numberOfFailedRequests && numberOfFailedRequests > 0) {
-        return toastService.showErrorToast(
-          `${numberOfFailedRequests} out of ${results.length} requests failed.`,
-        );
-      }
-
-      toastService.showInfoToast(`Front tag sent to ${printer}`, {
-        props: { containerStyle: styles.toast },
-      });
-      togglePrintModal();
-      setPriceDiscrepancy(false);
-    },
-    [
-      itemDetails?.planograms,
-      itemDetails?.sku,
-      printFrontTag,
-      storeNumber,
-      togglePrintModal,
-    ],
-  );
+    navigate('PrintFrontTag', { itemDetails });
+  }, [itemDetails, navigate, toggleModal]);
 
   const bottomBarActions = useMemo<Action[]>(
     () => [
       {
         label: 'Print Front Tag',
-        onPress: togglePrintModal,
-        isLoading: loading,
+        onPress: () => navigate('PrintFrontTag', { itemDetails }),
         textStyle: styles.bottomBarActionText,
       },
     ],
-    [loading, togglePrintModal],
+    [itemDetails, navigate],
   );
+  const {
+    state: searchTrayOpen,
+    enable: showSearchTray,
+    disable: hideSearchTray,
+  } = useBooleanState();
+
+  useFocusEventBus('search-error', () => {
+    if (!searchTrayOpen) {
+      hidePriceDiscrepancyModal();
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning a barcode.',
+      );
+    }
+  });
+
+  useFocusEventBus('search-success', () => {
+    hidePriceDiscrepancyModal();
+    hideSearchTray();
+  });
+
+  useEventBus('print-success', () => {
+    setHasPriceDiscrepancy(false);
+  });
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout
+      style={styles.container}
+      header={
+        <Header
+          item={itemDetails}
+          rightIcon={<WhiteSearchIcon />}
+          onClickRight={showSearchTray}
+        />
+      }>
       <ItemDetails
         itemDetails={itemDetails}
         hasPriceDiscrepancy={hasPriceDiscrepancy}
+        frontTagPrice={frontTagPrice}
         togglePriceDiscrepancyModal={toggleModal}
       />
       <BottomActionBar
@@ -156,11 +121,6 @@ export function ItemLookupScreen({
           hasPriceDiscrepancy ? <PriceDiscrepancyAttention /> : null
         }
         style={styles.bottomActionBar}
-      />
-      <PrintModal
-        isVisible={printModalVisible}
-        onCancel={togglePrintModal}
-        onConfirm={onPrintConfirm}
       />
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
@@ -171,20 +131,26 @@ export function ItemLookupScreen({
           onConfirm={onPriceDiscrepancyConfirm}
         />
       )}
+
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
+        <ItemLookupHome
+          onSubmit={hideSearchTray}
+          searchBarStyle={styles.container}
+        />
+      </BottomRegularTray>
     </FixedLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: Colors.pure },
+  container: {
+    backgroundColor: Colors.pure,
+  },
   bottomBarActionText: {
     color: Colors.advanceBlack,
     fontWeight: FontWeight.Bold,
   },
   bottomActionBar: {
     paddingTop: 8,
-  },
-  toast: {
-    marginBottom: '20%',
   },
 });

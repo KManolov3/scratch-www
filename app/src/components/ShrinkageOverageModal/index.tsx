@@ -3,11 +3,11 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { convertCurrencyToString } from '@lib/currency';
 import { Text } from '@components/Text';
-import { AttentionIcon } from '@assets/icons';
+import { BlackAttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { BaseStyles } from '@lib/baseStyles';
 import { ConfirmationModal } from '@components/ConfirmationModal';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { sumBy } from 'lodash-es';
 
 interface Item {
@@ -47,42 +47,68 @@ export function ShrinkageOverageModal({
   onConfirm,
   onCancel,
 }: ShrinkageOverageModalProps) {
-  const displayingOutageInformation = countType === 'Outage';
+  const isOutageCount = countType === 'Outage';
 
   const shrinkage = useMemo(() => calculateShrinkage(items), [items]);
   const overage = useMemo(() => calculateOverage(items), [items]);
-
-  const constructActionButton = useCallback(
-    (label: string, value: number) => (
-      <ItemPropertyDisplay
-        label={label}
-        value={convertCurrencyToString(value)}
-        style={[
-          styles.itemProperties,
-          !displayingOutageInformation && styles.fullWidth,
-        ]}
-        labelStyle={styles.propertyLabel}
-        valueStyle={styles.propertyValue}
-      />
-    ),
-    [displayingOutageInformation],
-  );
+  const netDollars = overage - shrinkage;
 
   return (
     <ConfirmationModal
       isVisible={isVisible}
-      Icon={AttentionIcon}
-      title={`Shrinkage${displayingOutageInformation ? '' : ' & Overage'}`}
+      Icon={BlackAttentionIcon}
+      title={`Shrinkage${isOutageCount ? '' : ' & Overage'}`}
       onConfirm={onConfirm}
-      onCancel={onCancel}>
+      onCancel={onCancel}
+      confirmationLabel="Approve">
       <Text style={styles.informationText}>
         This {countType} will result in a change at retail of:
       </Text>
-      <View style={styles.container}>
-        {constructActionButton('Shrinkage', shrinkage)}
-        {displayingOutageInformation
-          ? null
-          : constructActionButton('Net Dollars', overage)}
+      {!isOutageCount && (
+        <ItemPropertyDisplay
+          label="Net Dollars"
+          value={convertCurrencyToString(netDollars)}
+          style={styles.netDollars}
+          labelStyle={styles.netDollarsLabel}
+          valueStyle={[
+            styles.netDollarsValue,
+            netDollars < 0 && styles.redText,
+          ]}
+        />
+      )}
+      <View
+        style={[
+          styles.shrinkage,
+          !isOutageCount && styles.shrinkageAndOverage,
+        ]}>
+        <ItemPropertyDisplay
+          label="Shrinkage"
+          value={convertCurrencyToString(-shrinkage)}
+          containerStyle={isOutageCount && styles.shrinkageOnlyContainer}
+          labelStyle={[
+            styles.shrinkageLabel,
+            !isOutageCount && styles.shrinkageAndOverageLabel,
+          ]}
+          valueStyle={[
+            styles.shrinkageValue,
+            styles.redText,
+            !isOutageCount && styles.shrinkageAndOverageValue,
+          ]}
+        />
+        {!isOutageCount && (
+          <ItemPropertyDisplay
+            label="Overage"
+            value={convertCurrencyToString(overage)}
+            labelStyle={[
+              styles.shrinkageLabel,
+              styles.shrinkageAndOverageLabel,
+            ]}
+            valueStyle={[
+              styles.shrinkageValue,
+              styles.shrinkageAndOverageValue,
+            ]}
+          />
+        )}
       </View>
     </ConfirmationModal>
   );
@@ -96,30 +122,68 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     lineHeight: 24,
     fontSize: 16,
+    marginBottom: 12,
     fontWeight: FontWeight.Book,
   },
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 12,
-    gap: 8,
-  },
-  itemProperties: {
-    borderRadius: 8,
+  netDollars: {
+    marginHorizontal: 50,
+    marginBottom: 8,
     paddingVertical: 11,
-    paddingHorizontal: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    justifyContent: 'center',
     ...BaseStyles.shadow,
   },
-  fullWidth: {
-    flex: 1,
+  netDollarsLabel: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+    fontWeight: FontWeight.Medium,
   },
-  propertyLabel: {
+  netDollarsValue: {
+    fontSize: 24,
+    lineHeight: 32,
+    textAlign: 'center',
+    fontWeight: FontWeight.Demi,
+  },
+  shrinkage: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: Colors.pure,
+    borderRadius: 8,
+    marginHorizontal: 50,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    ...BaseStyles.shadow,
+  },
+  shrinkageAndOverage: {
+    justifyContent: 'space-between',
+  },
+  shrinkageOnlyContainer: {
+    flexDirection: 'column',
+    gap: 8,
+    alignItems: 'center',
+  },
+  shrinkageLabel: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: FontWeight.Medium,
+  },
+  shrinkageAndOverageLabel: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  shrinkageValue: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: FontWeight.Bold,
+  },
+  shrinkageAndOverageValue: {
     fontSize: 16,
     lineHeight: 24,
   },
-  propertyValue: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: FontWeight.Demi,
+  redText: {
+    color: Colors.advanceRed,
+    alignSelf: 'center',
   },
 });

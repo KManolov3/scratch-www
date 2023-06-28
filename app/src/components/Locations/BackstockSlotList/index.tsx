@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { DocumentType, gql } from 'src/__generated__';
-import { List } from '@components/List';
+import { ListWithHeaders } from '@components/ListWithHeaders';
 
 export const BACKSTOCK_SLOT_FIELDS = gql(`
   fragment BackstockSlotFields on Item {
@@ -10,9 +10,11 @@ export const BACKSTOCK_SLOT_FIELDS = gql(`
     }
   }
 `);
+
 export type BackstockSlotsInfo = NonNullable<
   DocumentType<typeof BACKSTOCK_SLOT_FIELDS>
 >;
+
 type BackstockSlot = NonNullable<
   NonNullable<
     DocumentType<typeof BACKSTOCK_SLOT_FIELDS>['backStockSlots']
@@ -20,7 +22,6 @@ type BackstockSlot = NonNullable<
 >;
 
 export interface BackstockSlotListProps {
-  // TODO: define fragment
   backstockSlots: BackstockSlot[];
 }
 
@@ -29,8 +30,6 @@ export function BackstockSlotList({ backstockSlots }: BackstockSlotListProps) {
     () => [
       {
         label: 'Slot Location',
-        // TODO: Check if slotId is the field that should be used here -
-        // can cross-reference with the code of BlueFletch apps
         getValue: (item: BackstockSlot) => item.slotId ?? 'undefined',
       },
       {
@@ -40,5 +39,5 @@ export function BackstockSlotList({ backstockSlots }: BackstockSlotListProps) {
     ],
     [],
   );
-  return <List itemInfo={listItemInfo} data={backstockSlots} />;
+  return <ListWithHeaders itemInfo={listItemInfo} data={backstockSlots} />;
 }

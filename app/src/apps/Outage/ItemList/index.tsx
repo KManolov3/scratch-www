@@ -4,19 +4,23 @@ import {
   FlatList,
   ListRenderItem,
   StyleSheet,
-  ToastAndroid,
 } from 'react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { useScanCodeListener } from '@services/ScanCode';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useBooleanState } from '@hooks/useBooleanState';
+import { toastService } from '@services/ToastService';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
 import { OutageItemCard } from '../components/ItemCard';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
+  const flatListRef = useRef<FlatList>(null);
 
   const {
     outageCountItems,
@@ -24,49 +28,85 @@ export function OutageItemList() {
     submit: submitOutage,
     submitLoading,
   } = useOutageState();
+  const {
+    state: isShrinkageModalVisible,
+    enable: showShrinkageModal,
+    disable: hideShrinkageModal,
+  } = useBooleanState(false);
 
-  const [activeItem, setActiveItem] = useState<ItemDetailsInfo>();
+  const { requestToAddItem } = useOutageState();
 
-  const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
+  const { trigger: addItem } = useAsyncAction(async (sku: string) => {
+    try {
+      await requestToAddItem(sku);
 
-  useEffect(() => {
-    if (outageCountItems.length > 0) {
-      setActiveItem(outageCountItems[outageCountItems.length - 1]);
+      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    } catch (error) {
+      // TODO: Don't assume that it's "No results found"
+      // TODO: Duplication of the text with the batch count
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning another barcode.',
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+
+      throw error;
     }
-  }, [outageCountItems]);
+  });
 
-  useEffect(() => {
-    if (outageCountItems.length === 0) {
-      navigate('Home');
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        addItem(code.sku);
+        break;
+
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
     }
-  }, [navigate, outageCountItems.length]);
+  });
 
   const removeOutageItem = useCallback(
     (item: ItemDetailsInfo) => {
       if (item.sku) {
         removeItem(item.sku);
-        ToastAndroid.show(
+
+        if (outageCountItems.length === 1) {
+          navigate('Home');
+        }
+
+        toastService.showInfoToast(
           `${item.partDesc} removed from Outage list`,
-          ToastAndroid.LONG,
+          {
+            props: { containerStyle: styles.toast },
+          },
         );
       }
     },
-    [removeItem],
+    [removeItem, outageCountItems, navigate],
   );
 
   const submitOutageCount = useCallback(() => {
-    setIsShrinkageModalVisible(false);
+    hideShrinkageModal();
     submitOutage();
-  }, [submitOutage]);
+    toastService.showInfoToast('Outage List Complete');
+  }, [hideShrinkageModal, submitOutage]);
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Complete Outage Count',
-        onPress: () => setIsShrinkageModalVisible(true),
+        onPress: showShrinkageModal,
       },
     ],
-    [],
+    [showShrinkageModal],
   );
 
   const items = useMemo(
@@ -79,13 +119,11 @@ export function OutageItemList() {
       <OutageItemCard
         key={item.sku}
         outageItem={item}
-        active={activeItem?.sku === item.sku}
         isLast={index === outageCountItems.length - 1}
-        onPress={() => setActiveItem(item)}
-        removeItem={() => removeOutageItem(item)}
+        onRemove={() => removeOutageItem(item)}
       />
     ),
-    [activeItem?.sku, outageCountItems.length, removeOutageItem],
+    [outageCountItems.length, removeOutageItem],
   );
 
   if (submitLoading) {
@@ -98,7 +136,8 @@ export function OutageItemList() {
         <FlatList
           data={outageCountItems}
           renderItem={renderItem}
-          style={styles.list}
+          contentContainerStyle={styles.list}
+          ref={flatListRef}
         />
 
         <BottomActionBar actions={bottomBarActions} />
@@ -109,7 +148,7 @@ export function OutageItemList() {
         countType="Outage"
         items={items}
         onConfirm={submitOutageCount}
-        onCancel={() => setIsShrinkageModalVisible(false)}
+        onCancel={hideShrinkageModal}
       />
     </>
   );
@@ -121,5 +160,9 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 6,
+  },
+  // TODO: Duplication with batch count
+  toast: {
+    marginBottom: '10%',
   },
 });

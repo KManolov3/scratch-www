@@ -8,7 +8,7 @@ export DEVICE_NAME=${ALL_DEVICES[0]}
   start_servers() {
     $(
       $1 -t 'virtual-device' 'emulator @'$DEVICE_NAME'' &&
-      $1 -t 'react-native' 'cd ../app; npm start' && 
+      $1 -t 'react-native' 'cd ../app; npm start' &&
       $1 -t 'mock-server' 'cd ../mock-server; npm start' &&
       $1 -t 'appium-server' 'npm run appium'
     )
@@ -21,11 +21,18 @@ fi
 
 if [[ $OS == "Windows" ]]
 then
-  start_servers wttab
+  wt --title virtual-device -- emulator -avd $DEVICE_NAME
+  wt --title react-native --suppressApplicationTitle -d ~/**/in-store-mobile-app/app -- npm.cmd start
+  wt --title mock-server --suppressApplicationTitle -d ~/**/in-store-mobile-app/mock-server -- npm.cmd start
+  wt --title appium-server --suppressApplicationTitle -d ~/**/in-store-mobile-app/e2e-tests -- npm.cmd run appium
 fi
 
-# waiting the emulator to start
-sleep 2
+cd ../app
 
-cd ../app && npm run adb:reverse
+while ! npm run adb:reverse
+do
+    echo Waiting for emulator to start
+    sleep 2
+done
+
 cd ../e2e-tests

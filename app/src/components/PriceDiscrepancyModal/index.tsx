@@ -1,11 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Modal } from '@components/Modal';
+import { StyleSheet, View } from 'react-native';
 import { Text } from '@components/Text';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
 import { convertCurrencyToString } from '@lib/currency';
+import { BaseStyles } from '@lib/baseStyles';
+import { ConfirmationModal } from '@components/ConfirmationModal';
 
 export interface PriceDiscrepancyModalModalProps {
   isVisible: boolean;
@@ -23,11 +22,14 @@ export function PriceDiscrepancyModal({
   onCancel,
 }: PriceDiscrepancyModalModalProps) {
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onCancel}>
-      <View style={styles.attention}>
-        <AttentionIcon height={40} width={40} />
-      </View>
-      <Text style={styles.confirmationText}>Price Discrepancy Detected.</Text>
+    <ConfirmationModal
+      isVisible={isVisible}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+      confirmationLabel="Print Front Tag"
+      Icon={AttentionIcon}
+      iconStyles={styles.icon}
+      title="Price Discrepancy Detected">
       <Text style={styles.informationText}>Print updated front tag</Text>
       <View style={styles.container}>
         <ItemPropertyDisplay
@@ -41,38 +43,12 @@ export function PriceDiscrepancyModal({
           value={convertCurrencyToString(system)}
         />
       </View>
-      <View style={styles.container}>
-        <Pressable onPress={onCancel} style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
-        </Pressable>
-        <Pressable
-          onPress={onConfirm}
-          style={[styles.button, styles.confirmationButton]}>
-          <Text style={styles.buttonText}>Print Front Tag</Text>
-        </Pressable>
-      </View>
-    </Modal>
+    </ConfirmationModal>
   );
 }
 
 const styles = StyleSheet.create({
-  confirmationText: {
-    fontWeight: FontWeight.Bold,
-    text: {
-      marginVertical: 8,
-    },
-    bold: {
-      fontWeight: FontWeight.Demi,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: Colors.darkGray,
-      marginVertical: 8,
-    },
-    marginTop: 12,
-    fontSize: 20,
-    textAlign: 'center',
-  },
+  icon: { marginTop: 30 },
   informationText: {
     textAlign: 'center',
     lineHeight: 24,
@@ -84,27 +60,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
     gap: 8,
   },
-  button: {
-    flex: 1,
-    borderRadius: 4,
-    padding: 12,
-    fontSize: 16,
-    fontWeight: FontWeight.Bold,
-    backgroundColor: Colors.lightGray,
-  },
-  confirmationButton: {
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontWeight: FontWeight.Demi,
-    textAlign: 'center',
-  },
-  attention: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 30,
-  },
   itemProperties: {
     flex: 1,
+    ...BaseStyles.shadow,
+    padding: 12,
+    borderRadius: 8,
   },
 });

@@ -1,12 +1,16 @@
+import { ComponentProps } from 'react';
 import {
   CycleCountNavigator,
   CycleCountNavigatorScreenParams,
 } from '@apps/CycleCount/navigator';
 import {
-  NativeStackNavigationOptions,
   NativeStackScreenProps,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
+import {
+  DrawerNavigator,
+  DrawerNavigatorScreenParams,
+} from '@components/Drawer/navigator';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
@@ -30,6 +34,7 @@ type Routes = {
   TruckDetailHome: undefined;
   TruckScanDetails: { asn: string };
   ItemLookupHome: ItemLookupNavigatorScreenParams;
+  Drawer: DrawerNavigatorScreenParams;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -42,17 +47,22 @@ export type RootScreenProps<K extends RootRouteName> = NativeStackScreenProps<
 export type RootNavigation<K extends RootRouteName = keyof Routes> =
   NativeStackNavigationProp<Routes, K>;
 
+type NavigatorProps = ComponentProps<typeof Stack.Navigator>;
+
 export function RootNavigator({
   initialRoute,
   screenOptions,
+  screenListeners,
 }: {
   initialRoute: RootRouteName;
-  screenOptions: NativeStackNavigationOptions;
+  screenOptions: NavigatorProps['screenOptions'];
+  screenListeners?: NavigatorProps['screenListeners'];
 }) {
   return (
     <Stack.Navigator
       initialRouteName={initialRoute}
-      screenOptions={screenOptions}>
+      screenOptions={screenOptions}
+      screenListeners={screenListeners}>
       <Stack.Screen
         name="CycleCountHome"
         options={{ headerShown: false }}
@@ -63,6 +73,12 @@ export function RootNavigator({
         name="BatchCountHome"
         options={{ headerShown: false }}
         component={BatchCountNavigator}
+      />
+
+      <Stack.Screen
+        name="Drawer"
+        options={{ animation: 'slide_from_left' }}
+        component={DrawerNavigator}
       />
 
       <Stack.Screen

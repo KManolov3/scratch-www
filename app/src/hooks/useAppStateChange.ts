@@ -2,24 +2,26 @@ import { useRef, useCallback, useEffect } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 export function useAppStateChange(
-  targetStates: AppStateStatus[],
+  targetState: AppStateStatus,
   callback: (nextAppState: AppStateStatus) => void,
 ) {
   const appState = useRef(AppState.currentState);
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
   const handleAppStateChange = useCallback(
     (nextAppState: AppStateStatus) => {
       if (
         appState.current.match(/active|background/) &&
         nextAppState !== appState.current &&
-        targetStates.includes(nextAppState)
+        targetState === nextAppState
       ) {
-        callback(nextAppState);
+        callbackRef.current(nextAppState);
       }
 
       appState.current = nextAppState;
     },
-    [callback, targetStates],
+    [targetState],
   );
 
   useEffect(() => {

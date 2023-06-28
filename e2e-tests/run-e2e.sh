@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ../../.env
-
 GREEN="\e[32m"
 WHITE="\e[0m"
 
@@ -27,7 +25,7 @@ cd ../e2e-tests
 echo -e "${GREEN}> Launching app: $APP_ACTIVITY${WHITE}"
 echo  -e "${GREEN}> Used device: $DEVICE_NAME${WHITE}"
 
-npm run e2e -- --spec "./specs/$WORK_DIR/$TEST_SUITE.ts"
+npm run e2e -- --spec ./specs/$WORK_DIR/$TEST_SUITE.spec.ts
 
 if [[ $STOP_SERVERS == true ]]
 then

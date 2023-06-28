@@ -1,15 +1,22 @@
 import { useCallback, useMemo } from 'react';
 import { TextInput, TextInputRef } from '@components/TextInput';
-import { StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import {
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
+  ColorValue,
+} from 'react-native';
 import { FontWeight } from '@lib/font';
 import { Colors } from '@lib/colors';
-import { Container } from '@components/Container';
 import { noop } from 'lodash-es';
+import { Container } from '@components/Container';
 
 export interface NumberInputProps {
-  placeholder: string | number;
-  value: number;
-  setValue: (newValue: number) => void;
+  placeholder?: string | number;
+  placeholderTextColor?: ColorValue;
+  value?: number;
+  setValue: (newValue: number | undefined) => void;
   accessibilityLabel?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
@@ -21,6 +28,7 @@ export interface NumberInputProps {
 
 export function NumberInput({
   placeholder,
+  placeholderTextColor,
   accessibilityLabel,
   containerStyle,
   inputStyle,
@@ -33,6 +41,9 @@ export function NumberInput({
 }: NumberInputProps) {
   const onChangeText = useCallback(
     (input: string) => {
+      if (input === '') {
+        return setValue(undefined);
+      }
       const formattedInput = input.replace(/[^0-9]/g, '');
       setValue(Number(formattedInput));
     },
@@ -43,8 +54,7 @@ export function NumberInput({
     [value, onSubmit],
   );
   const placeholderToVisualise = useMemo(
-    () =>
-      typeof placeholder === 'string' ? placeholder : placeholder.toString(),
+    () => placeholder?.toString(),
     [placeholder],
   );
   return (
@@ -52,9 +62,9 @@ export function NumberInput({
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholderToVisualise}
-        placeholderTextColor={Colors.lightVoid}
+        placeholderTextColor={placeholderTextColor ?? Colors.lightVoid}
         accessibilityLabel={accessibilityLabel}
-        value={value.toString()}
+        value={(value ?? '').toString()}
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -68,9 +78,6 @@ export function NumberInput({
 
 const styles = StyleSheet.create({
   input: {
-    height: 48,
-    marginVertical: 8,
-
     textAlign: 'center',
 
     borderWidth: 1,

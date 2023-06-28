@@ -10,14 +10,14 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { BatchCountHome } from './Home';
-import { BatchCountConfirm } from './Confirm';
-import { BatchCountItemDetails } from './ItemDetails';
+import { BatchCountSummary } from './Summary';
+import { BatchCountList } from './List';
 import { BatchCountStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
-  ItemDetails: { selectedItemSku: string };
-  Confirm: undefined;
+  List: undefined;
+  Summary: undefined;
 };
 
 const Stack = createNativeStackNavigator<Routes>();
@@ -25,10 +25,12 @@ const Stack = createNativeStackNavigator<Routes>();
 export function BatchCountNavigator() {
   return (
     <BatchCountStateProvider>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={BatchCountHome} />
-        <Stack.Screen name="ItemDetails" component={BatchCountItemDetails} />
-        <Stack.Screen name="Confirm" component={BatchCountConfirm} />
+        <Stack.Screen name="List" component={BatchCountList} />
+        <Stack.Screen name="Summary" component={BatchCountSummary} />
       </Stack.Navigator>
     </BatchCountStateProvider>
   );

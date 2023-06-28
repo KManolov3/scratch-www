@@ -17,12 +17,8 @@ fi
 
 if [[ $OS == "Windows" ]]
 then
-  stop_servers="$(
-    Stop-Process -Name "cd ../app; npm start" -Force
-    Stop-Process -Name "cd ../mock-server; npm start" -Force
-    Stop-Process -Name "appium" -Force
-    Stop-Process -Name "emulator @" -Force
-  )"
+      TASKKILL //FI "WINDOWTITLE eq virtual-device" //F
+      TASKKILL //FI "WINDOWTITLE eq react-native" //T //F
+      TASKKILL //FI "WINDOWTITLE eq mock-server" //T //F
+      TASKKILL //FI "WINDOWTITLE eq appium-server" //T //F
 fi
-
-

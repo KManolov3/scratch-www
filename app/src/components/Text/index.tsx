@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 // eslint-disable-next-line no-restricted-syntax
 import { Text as RNText, TextProps, StyleSheet } from 'react-native';
-import { getFontFamily } from 'src/lib/font';
+import { FontFamily } from '@lib/font';
 import { styles } from './styles';
 
 export interface Props extends TextProps {
@@ -13,15 +13,14 @@ export type TextRef = RNText;
 export const Text = React.forwardRef<TextRef, Props>(
   ({ children, style, ...rest }, ref) => {
     const resolvedStyle = StyleSheet.flatten(style) || {};
-    const { fontWeight, fontFamily, fontStyle, ...restOfStyle } = resolvedStyle;
 
-    const customStyle = {
-      fontFamily: getFontFamily({ fontWeight, fontFamily, fontStyle }),
+    const fontFamily = {
+      fontFamily: FontFamily.OpenSans,
     };
 
     return (
       <RNText
-        style={[styles.default, restOfStyle, customStyle]}
+        style={[styles.default, resolvedStyle, fontFamily]}
         {...rest}
         allowFontScaling={false}
         ref={ref}>
