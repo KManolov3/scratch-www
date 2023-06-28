@@ -89,9 +89,8 @@ export function PrintFrontTagScreen({
   const { storeNumber, userId } = useCurrentSessionInfo();
 
   const { data: defaultPrinterOption } = useDefaultSettings(
+    [userId, storeNumber],
     'defaultPrinterOption',
-    storeNumber,
-    userId,
   );
 
   const [printer, setPrinter] = useState(defaultPrinterOption);

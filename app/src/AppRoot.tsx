@@ -6,6 +6,7 @@ import { ApolloProvider } from '@apollo/client';
 import { RootNavigator, RootRouteName } from '@apps/navigator';
 import { GlobalStateProvider } from '@apps/state';
 import { DrawerHeader } from '@components/Drawer/DrawerHeader';
+import { useAppStateChange } from '@hooks/useAppStateChange';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { ScannerProvider } from '@services/Scanner';
@@ -47,6 +48,10 @@ export function AppRoot({
   const screenListeners = useMemo(
     () => ({ focus: hideLoadingScreenIfVisible }),
     [hideLoadingScreenIfVisible],
+  );
+
+  useAppStateChange('active', () =>
+    InStoreAppsNative.checkForPreferenceChangesByOtherProcesses(),
   );
 
   const app = (

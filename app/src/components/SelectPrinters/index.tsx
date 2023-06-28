@@ -34,7 +34,7 @@ export function SelectPrinters() {
   const { storeNumber, userId } = useCurrentSessionInfo();
 
   const { data: defaultPrinterOption, set: setDefaultPrinter } =
-    useDefaultSettings('defaultPrinterOption', storeNumber, userId);
+    useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 

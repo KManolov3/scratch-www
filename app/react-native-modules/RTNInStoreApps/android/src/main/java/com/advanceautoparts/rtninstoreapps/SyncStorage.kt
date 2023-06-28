@@ -25,4 +25,16 @@ class SyncStorage(reactContext: ReactApplicationContext) {
     fun clear() {
         storage.clear()
     }
+
+    fun checkForChangesByOtherProcesses() {
+        storage.checkContentChangedByOuterProcess()
+    }
+
+    fun watchForChanges(onChange: () -> Unit) {
+        MMKV.registerContentChangeNotify {
+            if (it == storage.mmapID()) {
+                onChange()
+            }
+        }
+    }
 }

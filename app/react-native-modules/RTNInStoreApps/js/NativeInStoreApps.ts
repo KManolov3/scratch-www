@@ -43,6 +43,7 @@ export interface Spec extends TurboModule {
   setPreference(key: string, value: string): void;
   removePreference(key: string): void;
   clearPreferences(): void;
+  checkForPreferenceChangesByOtherProcesses(): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('RTNInStoreApps') as Spec | null;
