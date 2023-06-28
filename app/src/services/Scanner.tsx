@@ -1,4 +1,3 @@
-import { useFocusEffect } from '@react-navigation/native';
 import { ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   InStoreAppsEventEmitter,
@@ -6,6 +5,7 @@ import {
   ScannerConfig,
   ScanInfo,
 } from 'rtn-in-store-apps';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type ScanListener = (scan: ScanInfo) => void;
 

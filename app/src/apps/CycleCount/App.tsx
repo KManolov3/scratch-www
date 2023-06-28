@@ -10,6 +10,7 @@ export function CycleCountApp() {
   return (
     <AppRoot
       applicationName="Cycle Count"
+      activityName=".activities.CycleCountActivity"
       initialRoute="CycleCountHome"
       scannerConfig={scannerConfig}
     />

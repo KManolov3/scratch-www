@@ -1,6 +1,5 @@
-import { ClearButton } from '@components/Button/Clear';
+import { noop } from 'lodash-es';
 import { ReactNode, useCallback, useState } from 'react';
-import { TextInput, TextInputRef } from '@components/TextInput';
 import {
   StyleProp,
   ViewStyle,
@@ -9,11 +8,12 @@ import {
   View,
   KeyboardTypeOptions,
 } from 'react-native';
-import { FontWeight } from '@lib/font';
+import { ClearButton } from '@components/Button/Clear';
+import { Container } from '@components/Container';
+import { TextInput, TextInputRef } from '@components/TextInput';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
-import { Container } from '@components/Container';
-import { noop } from 'lodash-es';
+import { FontWeight } from '@lib/font';
 
 export interface TextFieldProps {
   keyboardType?: KeyboardTypeOptions;

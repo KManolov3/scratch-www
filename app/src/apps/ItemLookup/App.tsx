@@ -10,6 +10,7 @@ export function ItemLookupApp() {
   return (
     <AppRoot
       applicationName="Item Lookup"
+      activityName=".activities.ItemLookupActivity"
       initialRoute="ItemLookupHome"
       scannerConfig={scannerConfig}
     />

@@ -1,6 +1,6 @@
+import { StyleSheet } from 'react-native';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   bold: {

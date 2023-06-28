@@ -1,5 +1,5 @@
-import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 import _ from 'lodash-es';
+import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 
 export function getBackstockQuantity(
   backstockSlots: BackstockSlotsInfo['backStockSlots'],

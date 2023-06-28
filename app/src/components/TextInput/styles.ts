@@ -1,5 +1,5 @@
-import { Colors } from '@lib/colors';
 import { StyleSheet } from 'react-native';
+import { Colors } from '@lib/colors';
 
 export const placeholderColor = Colors.mediumVoid;
 

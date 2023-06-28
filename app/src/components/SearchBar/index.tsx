@@ -1,8 +1,8 @@
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { SearchIcon } from '@assets/icons';
-import { Colors } from '@lib/colors';
 import { TextField } from '@components/TextField';
 import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
 
 export interface SkuSearchBarProps {
   onFocus?: () => void;
@@ -19,8 +19,6 @@ export function SkuSearchBar({
 }: SkuSearchBarProps) {
   return (
     <TextField
-      // TODO: The component is called SearchBar, not SKUSearchBar,
-      //       extract this placeholder and the keyboardType
       placeholder="Search for a SKU"
       keyboardType="number-pad"
       icon={
