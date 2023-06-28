@@ -1,29 +1,28 @@
 package com.advanceautoparts.rtninstoreapps
 
-import android.content.Context
-import android.content.SharedPreferences
-
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableArray
-import com.facebook.react.bridge.WritableNativeArray
+import com.tencent.mmkv.MMKV
 
 class SyncStorage(reactContext: ReactApplicationContext) {
-    private val preferences = reactContext.getSharedPreferences("com.advanceautoparts.rtninstoreapps.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE)
-    private val editor = preferences.edit()
+    init {
+        MMKV.initialize(reactContext)
+    }
+
+    private val storage = MMKV.mmkvWithID("com.advanceautoparts.rtninstoreapps.PREFERENCE_FILE_KEY", MMKV.MULTI_PROCESS_MODE)
 
     fun getItem(key: String): String? {
-        return preferences.getString(key, null)
+        return storage.getString(key, null)
     }
 
     fun setItem(key: String, value: String) {
-        editor.putString(key, value).apply()
+        storage.putString(key, value)
     }
 
     fun removeItem(key: String) {
-        editor.remove(key).apply()
+        storage.remove(key)
     }
 
     fun clear() {
-        editor.clear().apply()
+        storage.clear()
     }
 }
