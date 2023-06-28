@@ -1,3 +1,4 @@
+import { sum } from 'lodash-es';
 import { TestItemInput } from '../__generated__/graphql.ts';
 import {
   expectElementText,
@@ -21,12 +22,41 @@ export class OutageController extends BaseController {
   }
 
   async expectProductInfo(item: TestItemInput) {
-    await super.expectProductInfo(item);
+    if (item.mfrPartNum) {
+      await expectElementText(
+        this.outagePages.completeOutagePage.partNumber,
+        item.mfrPartNum
+      );
+    }
+
+    if (item.retailPrice) {
+      await expectElementText(
+        this.outagePages.completeOutagePage.price,
+        `$${item.retailPrice.toFixed(2)}`
+      );
+    }
+
+    if (item.onHand) {
+      await expectElementText(
+        this.outagePages.completeOutagePage.currentQuantity,
+        `${item.onHand}`
+      );
+    }
 
     await expectElementText(
       this.outagePages.completeOutagePage.newQuantity,
       '0'
     );
+
+    const backstockQty = sum(item.backStockSlots.map((slot) => slot.qty));
+
+    if (backstockQty > 0) {
+      const slotIds = item.backStockSlots.map((slot) => slot.slotId).join(', ');
+      await expectElementText(
+        this.outagePages.completeOutagePage.itemInBackstockModal.warningBanner,
+        `Slot: ${slotIds}`
+      );
+    }
   }
 
   calculateShrinkageValue(items: TestItemInput[]) {
@@ -41,10 +71,19 @@ export class OutageController extends BaseController {
     for (const [index, item] of items.entries()) {
       await this.searchForSku(item);
 
+      const backstockQty = sum(item.backStockSlots.map((slot) => slot.qty));
+
+      if (backstockQty > 0) {
+        await waitAndClick(
+          this.outagePages.completeOutagePage.itemInBackstockModal
+            .addToOutageButton
+        );
+      }
+
       await this.expectProductInfo(item);
 
       if (index !== items.length - 1) {
-        await waitAndClick(this.outagePages.completeOutagePage.backButton);
+        await driver.back();
       }
     }
 
@@ -58,13 +97,15 @@ export class OutageController extends BaseController {
 
     await expectElementText(
       this.outagePages.completeOutagePage.shrinkageModal.shrinkageValue,
-      `$${expectedShrinkageValue}`
+      `-$${expectedShrinkageValue.toFixed(2)}`
     );
 
     await waitAndClick(
-      this.outagePages.completeOutagePage.shrinkageModal.acceptButton
+      this.outagePages.completeOutagePage.shrinkageModal.approveButton
     );
 
-    expect(this.outagePages.homePage.searchForSkuInput).toBeDisplayed();
+    await waitFor(this.outagePages.homePage.searchForSkuInput);
+
+    expect(this.outagePages.homePage.completedOutageListToast).toBeDisplayed();
   }
 }

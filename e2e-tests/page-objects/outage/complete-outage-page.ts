@@ -1,6 +1,10 @@
 export class OutageCompleteCountPage {
-  get backButton() {
-    return '~Navigate up';
+  get partNumber() {
+    return '~Part Number value';
+  }
+
+  get price() {
+    return '~Price value';
   }
 
   get currentQuantity() {
@@ -18,16 +22,16 @@ export class OutageCompleteCountPage {
   get shrinkageModal() {
     return {
       infoText: '[text=Shrinkage]',
-      shrinkageValue: '~shrinkage value',
+      shrinkageValue: '~Shrinkage value',
       cancelButton: '[text=Cancel]',
-      acceptButton: '[text=Accept]',
+      approveButton: '[text=Approve]',
     };
   }
 
   get itemInBackstockModal() {
     return {
       infoText: '[text=Backstock]',
-      warningBanner: (slots: string[]) => `[text=Slot: ${slots.join(', ')}]`,
+      warningBanner: '//*[contains(@text,"Slot:")]',
       cancelButton: '[text=Cancel]',
       addToOutageButton: '[text=Add to Outage]',
     };
