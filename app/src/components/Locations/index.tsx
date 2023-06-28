@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { TabSelector } from '@components/TabSelector';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { compact } from 'lodash-es';
+import { useState } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { TabSelector } from '@components/TabSelector';
 import { FontWeight } from '@lib/font';
-import { PlanogramsInfo, PlanogramList } from './PlanogramList';
 import { BackstockSlotList, BackstockSlotsInfo } from './BackstockSlotList';
+import { PlanogramsInfo, PlanogramList } from './PlanogramList';
 
 const locationTypes = ['POG Locations', 'Slot Locations'] as const;
 type LocationTypes = (typeof locationTypes)[number];

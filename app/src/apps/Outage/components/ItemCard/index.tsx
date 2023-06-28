@@ -1,9 +1,9 @@
 import { Pressable, View } from 'react-native';
-import { Text } from '@components/Text';
 import { BlackCrossIcon } from '@assets/icons';
 import { Separator } from '@components/Separator';
-import { styles } from './styles';
+import { Text } from '@components/Text';
 import { OutageItemInfo, OutageItemInfoProps } from '../ItemInfo';
+import { styles } from './styles';
 
 export interface OutageItemCardProps {
   outageItem: OutageItemInfoProps['outageItem'];

@@ -1,6 +1,6 @@
+import { useGlobalState } from '@apps/state';
 import { WhiteCrossIcon } from '@assets/icons';
 import { Header } from '@components/Header';
-import { useGlobalState } from '@apps/state';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigation } from './navigator';
 

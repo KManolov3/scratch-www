@@ -1,7 +1,7 @@
+import { Pressable, StyleSheet } from 'react-native';
 import { BackArrowIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { Pressable, StyleSheet } from 'react-native';
 
 interface LightHeaderProps {
   onPress: () => void;

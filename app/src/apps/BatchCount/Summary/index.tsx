@@ -1,20 +1,21 @@
+import { sortBy } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ListRenderItem, FlatList, StyleSheet } from 'react-native';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { Header } from '@components/Header';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { WhiteBackArrow } from '@assets/icons';
-import { useNavigation } from '@react-navigation/native';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
+import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
+import { WhiteBackArrow } from '@assets/icons';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { Header } from '@components/Header';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
-import { sortBy } from 'lodash-es';
-import { Item } from 'src/__generated__/graphql';
-import { BatchCountItem, useBatchCountState } from '../state';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
+import { BatchCountItem, useBatchCountState } from '../state';
 
 // TODO: Think about extracting part of the shared code between this screen and BatchCountList
 // They are nearly the same component, differing only in the `isSummary` property and the action bar
@@ -31,11 +32,8 @@ export function BatchCountSummary() {
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
-  const {
-    state: isShrinkageModalVisible,
-    enable: enableShrinkageModal,
-    disable: disableShrinkageModal,
-  } = useBooleanState(false);
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const sortFn = useCallback(
     (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
@@ -136,20 +134,21 @@ export function BatchCountSummary() {
     [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
-  const submitBatchCount = useCallback(() => {
-    disableShrinkageModal();
-    submitBatch();
-  }, [disableShrinkageModal, submitBatch]);
+  const { trigger: submitBatchCount } = useAsyncAction(async () => {
+    if (await askForConfirmation()) {
+      submitBatch();
+    }
+  });
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Approve Count',
-        onPress: enableShrinkageModal,
+        onPress: submitBatchCount,
         isLoading: submitLoading,
       },
     ],
-    [enableShrinkageModal, submitLoading],
+    [submitBatchCount, submitLoading],
   );
 
   useEffect(() => {
@@ -164,7 +163,7 @@ export function BatchCountSummary() {
   }, [submitError]);
 
   useFocusEventBus('search-error', () => {
-    disableShrinkageModal();
+    reject();
     toastService.showInfoToast(
       'No results found. Try searching for another SKU or scanning a barcode.',
       {
@@ -174,7 +173,7 @@ export function BatchCountSummary() {
   });
 
   useFocusEventBus('search-success', (item?: Item) => {
-    disableShrinkageModal();
+    reject();
     if (item && item.sku !== expandedSku) {
       setExpandedSku(undefined);
     }
@@ -207,11 +206,11 @@ export function BatchCountSummary() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={confirmationRequested}
         countType="Batch Count"
         items={items}
-        onConfirm={submitBatchCount}
-        onCancel={disableShrinkageModal}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );

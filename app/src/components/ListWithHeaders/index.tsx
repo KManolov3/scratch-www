@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
+import { Separator } from '@components/Separator';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { Separator } from '@components/Separator';
 
 export interface ListWithHeadersProps<T> {
   itemInfo: {

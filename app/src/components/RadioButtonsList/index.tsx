@@ -1,6 +1,3 @@
-import { RadioButton } from '@components/Button/Radio';
-import { Text } from '@components/Text';
-import { FontWeight } from '@lib/font';
 import {
   StyleProp,
   StyleSheet,
@@ -8,6 +5,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { RadioButton } from '@components/Button/Radio';
+import { Text } from '@components/Text';
+import { FontWeight } from '@lib/font';
 
 interface RadioButtonsListProps<T extends string> {
   onRadioButtonPress(item: T): void;

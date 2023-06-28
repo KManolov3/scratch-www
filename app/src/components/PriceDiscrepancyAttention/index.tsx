@@ -1,7 +1,7 @@
+import { StyleSheet, View } from 'react-native';
 import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
 
 export function PriceDiscrepancyAttention() {
   return (

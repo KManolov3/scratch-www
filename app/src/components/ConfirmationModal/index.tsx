@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -5,16 +6,15 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import type Svg from 'react-native-svg';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { ReactNode } from 'react';
-import { SvgType } from '*.svg';
 
 export interface ConfirmationModalProps {
   isVisible: boolean;
-  Icon?: SvgType;
+  Icon?: typeof Svg;
   iconStyles?: StyleProp<ViewStyle>;
   title?: string;
   confirmationLabel?: string;
