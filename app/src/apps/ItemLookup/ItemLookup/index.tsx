@@ -14,7 +14,6 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { ItemLookupHome } from '../components/Home';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
@@ -88,8 +87,8 @@ export function ItemLookupScreen({
     disable: hideSearchTray,
   } = useBooleanState();
 
-  const { searchBySku, error, loading } = useItemLookupScanCodeListener({
-    onError() {
+  const { search, error, loading } = useItemLookupScanCodeListener({
+    onError: () => {
       if (!searchTrayOpen) {
         hidePriceDiscrepancyModal();
         toastService.showInfoToast(
@@ -99,8 +98,6 @@ export function ItemLookupScreen({
     },
     onComplete: hideSearchTray,
   });
-
-  const { storeNumber } = useCurrentSessionInfo();
 
   return (
     <FixedLayout
@@ -137,11 +134,7 @@ export function ItemLookupScreen({
 
       <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
         <ItemLookupHome
-          onSubmit={sku => {
-            searchBySku({
-              variables: { sku, storeNumber },
-            });
-          }}
+          onSubmit={sku => search({ sku })}
           searchBarStyle={styles.container}
           error={error}
           loading={loading}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
 
@@ -29,23 +29,18 @@ export function useDefaultSettings<Key extends keyof DefaultSettings>(
   data: DefaultSettings[Key];
   set: (value: DefaultSettings[Key]) => void;
 } {
-  const set = useCallback(
-    (value: DefaultSettings[Key]) => {
-      LocalStorageService.set(
-        [key, ...additionalArgs].join('.'),
-        JSON.stringify(value),
-      );
-      setSetting(value);
-    },
-    [additionalArgs, key],
-  );
-
   const [setting, setSetting] = useState<DefaultSettings[Key] | undefined>(
     safeParseJson(LocalStorageService.get([key, ...additionalArgs].join('.'))),
   );
 
   return {
     data: setting ?? DefaultSettingValues[key],
-    set,
+    set: (value: DefaultSettings[Key]) => {
+      LocalStorageService.set(
+        [key, ...additionalArgs].join('.'),
+        JSON.stringify(value),
+      );
+      setSetting(value);
+    },
   };
 }

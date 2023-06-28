@@ -122,9 +122,7 @@ export function PrintFrontTagScreen({
         return printFrontTag({
           variables: {
             storeNumber,
-            printer:
-              defaultPrinterOption.portablePrinter ??
-              defaultPrinterOption.printerOption,
+            printer: printer.portablePrinter ?? printer.printerOption,
             data: {
               sku: itemDetails.sku,
               count: qty,
@@ -215,18 +213,23 @@ export function PrintFrontTagScreen({
     [locationStatuses.length, update],
   );
 
-  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+  const {
+    state: searchTrayOpen,
+    enable: openSearchTray,
+    disable: closeSearchTray,
+  } = useBooleanState();
 
   const {
-    searchBySku,
+    search,
     error: skuError,
     loading: isLoadingItemBySku,
   } = useItemLookup({
-    onComplete: disable,
+    onComplete: closeSearchTray,
   });
 
-  const [lastUsedPortablePrinterValue, setLastUsedPortablePrinterValue] =
-    useState(defaultPrinterOption.portablePrinter);
+  const [lastUsedPortablePrinter, setLastUsedPortablePrinter] = useState(
+    defaultPrinterOption.portablePrinter,
+  );
 
   return (
     <FixedLayout
@@ -235,7 +238,7 @@ export function PrintFrontTagScreen({
         <Header
           item={itemDetails}
           rightIcon={<WhiteSearchIcon />}
-          onClickRight={enable}
+          onClickRight={openSearchTray}
           leftIcon={<WhiteBackArrow />}
           onClickLeft={goBack}
         />
@@ -292,16 +295,16 @@ export function PrintFrontTagScreen({
                 printerOption: item,
                 portablePrinter:
                   item === PrinterOptions.Portable
-                    ? lastUsedPortablePrinterValue
+                    ? lastUsedPortablePrinter
                     : undefined,
               });
             }}
             containerStyles={styles.radioButtons}
-            portablePrinter={lastUsedPortablePrinterValue}
+            portablePrinter={lastUsedPortablePrinter}
             portablePrinterStyles={styles.portablePrinter}
             setPortablePrinter={(printerCode: string) => {
               closePrinterModal();
-              setLastUsedPortablePrinterValue(printerCode);
+              setLastUsedPortablePrinter(printerCode);
               setSelectPrinter({
                 printerOption: PrinterOptions.Portable,
                 portablePrinter: printerCode,
@@ -322,13 +325,9 @@ export function PrintFrontTagScreen({
         quantity={totalPrintQuantity}
       />
 
-      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
+      <BottomRegularTray isVisible={searchTrayOpen} hideTray={closeSearchTray}>
         <ItemLookupHome
-          onSubmit={sku => {
-            searchBySku({
-              variables: { sku, storeNumber },
-            });
-          }}
+          onSubmit={sku => search({ sku })}
           searchBarStyle={styles.searchBar}
           loading={isLoadingItemBySku}
           error={skuError}

@@ -1,23 +1,13 @@
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupHome as Home } from '../components/Home';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
 
 export function ItemLookupHome() {
-  const { error, loading, searchBySku } = useItemLookupScanCodeListener();
-  const { storeNumber } = useCurrentSessionInfo();
+  const { error, loading, search } = useItemLookupScanCodeListener();
 
   return (
     <FixedLayout>
-      <Home
-        onSubmit={sku =>
-          searchBySku({
-            variables: { sku, storeNumber },
-          })
-        }
-        error={error}
-        loading={loading}
-      />
+      <Home onSubmit={sku => search({ sku })} error={error} loading={loading} />
     </FixedLayout>
   );
 }
