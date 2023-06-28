@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   ReactNode,
   createContext,
@@ -6,13 +7,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
 import { DocumentType, gql } from 'src/__generated__';
-import { v4 as uuid } from 'uuid';
-import { DateTime } from 'luxon';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
-import { useCurrentSessionInfo } from '@services/Auth';
+import { v4 as uuid } from 'uuid';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
 import { OutageNavigation } from './navigator';
@@ -23,11 +24,10 @@ const SUBMIT_OUTAGE_COUNT = gql(`
   }
 `);
 
-// TODO: ItemInfoHeaderFields wtf
 const ITEM_BY_SKU_QUERY = gql(`
   query ItemLookupBySku($sku: String!, $storeNumber: String!) {
     itemBySku(sku: $sku, storeNumber: $storeNumber) {
-      ...ItemInfoHeaderFields
+      ...OutageItemInfoFields
       ...BackstockSlotFields
     },
   }
@@ -43,8 +43,7 @@ interface OutageState {
   requestToAddItem: (sku: string) => Promise<void>;
   removeItem: (sku: string) => void;
 
-  submit: () => void;
-  submitLoading: boolean;
+  submit: () => Promise<void>;
 }
 
 const Context = createContext<OutageState | undefined>(undefined);
@@ -57,24 +56,12 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  // TODO: Better abstraction for this confirmation, probably `useConfirmation`
-  const [itemToConfirm, setItemToConfirm] = useState<OutageItemInfo>();
+  const { itemToConfirm, askForConfirmation, accept, reject } =
+    useConfirmation<OutageItemInfo>();
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
 
-  const [submitOutageCount, { loading: submitLoading }] =
-    useMutation(SUBMIT_OUTAGE_COUNT);
-
-  const addItemAndContinue = useCallback(
-    (item: OutageItemInfo) => {
-      setOutageCountItems(currentItems => [item, ...currentItems]);
-      setItemToConfirm(undefined);
-
-      // TODO: Move this navigate to the caller
-      navigate('Item List');
-    },
-    [navigate],
-  );
+  const [submitOutageCount] = useMutation(SUBMIT_OUTAGE_COUNT);
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -86,8 +73,6 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
 
       const response = await getItemBySku({ variables: { sku, storeNumber } });
 
-      // TODO: The stupid function doesn't reject its promise...
-      //       We need to keep this in mind everywhere we use `useLazyQuery`
       if (response.error) {
         throw response.error;
       }
@@ -98,13 +83,14 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Item not found');
       }
 
-      if (item.backStockSlots?.length) {
-        setItemToConfirm(item);
-      } else {
-        addItemAndContinue(item);
+      if (item.backStockSlots?.length && !(await askForConfirmation(item))) {
+        return;
       }
+
+      setOutageCountItems(currentItems => [item, ...currentItems]);
+      navigate('Item List');
     },
-    [outageCountItems, getItemBySku, addItemAndContinue, storeNumber],
+    [outageCountItems, getItemBySku, askForConfirmation, navigate, storeNumber],
   );
 
   const removeItem = useCallback((sku: string) => {
@@ -113,10 +99,16 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const submit = useCallback(() => {
-    submitOutageCount({
+  const submit = useCallback(async () => {
+    const response = await submitOutageCount({
       variables: { request: buildOutageCount(outageCountItems, storeNumber) },
     });
+
+    // TODO: Does this reject on error?
+    if (response.errors) {
+      throw response.errors;
+    }
+
     setOutageCountItems([]);
   }, [outageCountItems, submitOutageCount, storeNumber]);
 
@@ -126,9 +118,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       requestToAddItem,
       removeItem,
       submit,
-      submitLoading,
     }),
-    [outageCountItems, requestToAddItem, removeItem, submit, submitLoading],
+    [outageCountItems, requestToAddItem, removeItem, submit],
   );
 
   return (
@@ -136,10 +127,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       <BackstockWarningModal
         isVisible={!!itemToConfirm}
         item={itemToConfirm}
-        onConfirm={() => {
-          itemToConfirm && addItemAndContinue(itemToConfirm);
-        }}
-        onCancel={() => setItemToConfirm(undefined)}
+        onConfirm={accept}
+        onCancel={reject}
       />
 
       <Context.Provider value={value}>{children}</Context.Provider>
@@ -162,7 +151,6 @@ function buildOutageCount(items: OutageItemInfo[], storeNumber: string) {
   const now = DateTime.now().toISO();
 
   if (!now) {
-    // TODO: hande this case
     throw new Error('Cannot get current time');
   }
 

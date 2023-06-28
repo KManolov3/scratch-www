@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
 import { sortBy } from 'lodash-es';
+import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 /**

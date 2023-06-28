@@ -1,6 +1,6 @@
-import { Colors } from '@lib/colors';
 import { StyleSheet, View } from 'react-native';
 import { ViewProps } from 'react-native/types';
+import { Colors } from '@lib/colors';
 
 export function Container({ style, ...restProps }: ViewProps) {
   return <View style={[styles.container, style]} {...restProps} />;

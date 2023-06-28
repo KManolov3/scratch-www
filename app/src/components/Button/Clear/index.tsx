@@ -1,5 +1,3 @@
-import { CloseCircleIcon } from '@assets/icons';
-import { generateHitSlop } from '@lib/baseStyles';
 import React from 'react';
 import {
   StyleProp,
@@ -7,6 +5,8 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
+import { CloseCircleIcon } from '@assets/icons';
+import { generateHitSlop } from '@lib/baseStyles';
 
 interface Props {
   value: string;

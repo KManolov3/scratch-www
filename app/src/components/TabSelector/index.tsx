@@ -1,9 +1,9 @@
+import { useMemo } from 'react';
+import { StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { BlockButton } from '@components/Button/Block';
 import { Container } from '@components/Container';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
-import { useMemo } from 'react';
-import { StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 
 type DefinableStringArray = ReadonlyArray<string>;
 

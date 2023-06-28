@@ -1,10 +1,10 @@
-import { Pressable, View } from 'react-native';
-import { useMemo } from 'react';
 import { DateTime } from 'luxon';
-import { Text } from '@components/Text';
-import { pluralize, pluralizeLabel } from '@lib/pluralize';
+import { useMemo } from 'react';
+import { Pressable, View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
+import { Text } from '@components/Text';
 import { useDateTime } from '@hooks/useDateTime';
+import { pluralize, pluralizeLabel } from '@lib/pluralize';
 import { styles } from './styles';
 
 export const CycleCountCardFragment = gql(`

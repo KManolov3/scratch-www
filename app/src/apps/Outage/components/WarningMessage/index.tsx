@@ -1,8 +1,8 @@
+import { StyleSheet, View } from 'react-native';
 import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
 
 export interface WarningMessageProps {
   warningText: string;

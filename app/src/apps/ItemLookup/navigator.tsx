@@ -1,5 +1,8 @@
+import { gql } from 'src/__generated__';
+import { ItemDetails } from 'src/types/ItemLookup';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import { EventBus } from '@hooks/useEventBus';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
@@ -13,9 +16,7 @@ import {
 } from '@react-navigation/native-stack';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useScanCodeListener } from '@services/ScanCode';
-import { gql } from 'src/__generated__';
-import { ItemDetails } from 'src/types/ItemLookup';
-import { EventBus } from '@hooks/useEventBus';
+import { toastService } from '@services/ToastService';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 import { PrintFrontTagScreen } from './PrintFrontTag';
@@ -95,7 +96,7 @@ export function ItemLookupNavigator() {
         });
 
       default:
-      // TODO: Show toast that the scanned code is unsupported
+        toastService.showErrorToast('Scanned barcode is not supported');
     }
   });
 

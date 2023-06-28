@@ -95,13 +95,18 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
-    override fun navigateTo(appName: String) {
+    override fun navigateTo(activity: String) {
         reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)
 
+            val fullActivityName =
+                if (activity.startsWith(".")) {
+                    "${reactContext.packageName}$activity"
+                } else activity
+
             component = ComponentName(
                 reactContext.packageName,
-                "${reactContext.packageName}.activities.$appName"
+                fullActivityName
             )
             flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })

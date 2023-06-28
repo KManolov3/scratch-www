@@ -1,7 +1,7 @@
+import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import ReactNativeModal, {
   ModalProps as ReactNativeModalProps,
 } from 'react-native-modal';
-import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { Colors } from '@lib/colors';
 
 export type ModalProps = Partial<

@@ -1,13 +1,13 @@
-import { Text } from '@components/Text';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
 import { ReactNode } from 'react';
-import { HamburgerMenu } from '@assets/icons';
-import { useNavigation } from '@react-navigation/native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { RootNavigation } from '@apps/navigator';
 import { useGlobalState } from '@apps/state';
+import { HamburgerMenu } from '@assets/icons';
+import { Text } from '@components/Text';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useNavigation } from '@react-navigation/native';
 
 type HeaderProps = {
   title?: string;
@@ -34,7 +34,8 @@ export function Header({
   item,
 }: HeaderProps) {
   const { navigate } = useNavigation<RootNavigation>();
-  const { applicationName, setSlecetedItem } = useGlobalState();
+  const { applicationName, setSelectedItem: setSlecetedItem } =
+    useGlobalState();
 
   return (
     <View style={styles.container}>

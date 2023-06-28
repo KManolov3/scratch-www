@@ -1,5 +1,5 @@
+import { noop } from 'lodash-es';
 import { useCallback, useMemo } from 'react';
-import { TextInput, TextInputRef } from '@components/TextInput';
 import {
   StyleProp,
   ViewStyle,
@@ -7,10 +7,10 @@ import {
   StyleSheet,
   ColorValue,
 } from 'react-native';
-import { FontWeight } from '@lib/font';
-import { Colors } from '@lib/colors';
-import { noop } from 'lodash-es';
 import { Container } from '@components/Container';
+import { TextInput, TextInputRef } from '@components/TextInput';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 
 export interface NumberInputProps {
   placeholder?: string | number;

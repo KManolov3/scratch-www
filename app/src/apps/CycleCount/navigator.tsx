@@ -1,18 +1,18 @@
-import {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
+import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
   NavigatorScreenParams,
 } from '@react-navigation/native';
-import { RootNavigation, RootScreenProps } from '@apps/navigator';
-import { CycleCountStateProvider } from './state';
-import { CycleCountHome } from './Home';
-import { CycleCountPlanogramList } from './Details/PlanogramList';
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import { CycleCountPlanogram } from './Details/Planogram';
+import { CycleCountPlanogramList } from './Details/PlanogramList';
+import { CycleCountHome } from './Home';
+import { CycleCountStateProvider } from './state';
 
 type Routes = {
   Home: undefined;
