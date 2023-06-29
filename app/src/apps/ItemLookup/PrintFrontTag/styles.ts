@@ -5,7 +5,7 @@ import { FontWeight } from '@lib/font';
 export const styles = StyleSheet.create({
   bold: { fontWeight: FontWeight.Bold },
   flexRow: { flexDirection: 'row', alignItems: 'center' },
-  checkIcon: { marginRight: 13 },
+  planogramId: { marginLeft: 13 },
   header: {
     fontSize: 20,
     textAlign: 'center',

@@ -1,10 +1,16 @@
 import { TestDataInput } from '../../__generated__/graphql.ts';
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
+import { waitFor } from '../../methods/helpers.ts';
 
+const batchCount = new BatchCountController();
 const testData = new TestDataController();
 
 describe('Batch Count', () => {
+  beforeEach(async () => {
+    await waitFor(batchCount.batchCountPages.homePage.searchForSkuInput, 10000);
+  });
+
   afterEach(async () => {
     await driver.reloadSession();
     await testData.clearData();
@@ -50,7 +56,6 @@ describe('Batch Count', () => {
       items,
     });
 
-    const batchCount = new BatchCountController();
     const batchCountData = [
       { item: items[0], newQuantity: 11 },
       { item: items[1], newQuantity: 14 },
