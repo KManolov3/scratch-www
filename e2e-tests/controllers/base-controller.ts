@@ -62,15 +62,12 @@ export class BaseController {
 
     if (product.planograms) {
       for (const [index, planogram] of product.planograms.entries()) {
-        const planogramLocX = await $(
+        const planogramsTable = await $(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
             .locationId
-        ).getLocation('x');
-
-        const planogramLocY = await $(
-          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
-            .locationId
-        ).getLocation('y');
+        );
+        const planogramLocX = await planogramsTable.getLocation('x');
+        const planogramLocY = await planogramsTable.getLocation('y');
 
         await expectElementText(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
@@ -101,15 +98,12 @@ export class BaseController {
 
     if (product.backStockSlots) {
       for (const [index, slot] of product.backStockSlots.entries()) {
-        const backstockSlotLocX = await $(
+        const slotsTable = await $(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId
-        ).getLocation('x');
-
-        const backstockSlotLocY = await $(
-          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
-            .locationId
-        ).getLocation('y');
+        );
+        const backstockSlotLocX = await slotsTable.getLocation('x');
+        const backstockSlotLocY = await slotsTable.getLocation('y');
 
         await expectElementText(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
