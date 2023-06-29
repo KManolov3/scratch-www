@@ -1,3 +1,4 @@
+import { trimStart } from 'lodash-es';
 import { ScanInfo, ScanLabelType } from 'rtn-in-store-apps';
 import { useScanListener } from './Scanner';
 
@@ -43,7 +44,7 @@ class ScanCodeService {
 
         // If all else fails, then it's probably a backroom tag containing just the SKU
         // and no other markers
-        return { type: 'sku', sku: code };
+        return { type: 'sku', sku: this.trimLeadingZeroes(code) };
       }
     }
   }
@@ -62,7 +63,7 @@ class ScanCodeService {
 
     return {
       type: 'front-tag',
-      sku: match[1],
+      sku: this.trimLeadingZeroes(match[1]),
       frontTagPrice: parseInt(match[2], 10) / 100,
     } as const;
   }
@@ -81,7 +82,7 @@ class ScanCodeService {
 
     return {
       type: 'container-label',
-      storeNumber: match[1],
+      storeNumber: this.trimLeadingZeroes(match[1]),
       containerNumber: parseInt(match[2], 10),
     } as const;
   }
@@ -118,9 +119,13 @@ class ScanCodeService {
 
     return {
       type: 'front-tag',
-      sku: match[1],
+      sku: this.trimLeadingZeroes(match[1]),
       frontTagPrice: parseInt(match[2], 10) / 100,
     } as const;
+  }
+
+  private trimLeadingZeroes(sku: string): string {
+    return trimStart(sku, '0');
   }
 }
 
