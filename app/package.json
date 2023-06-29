@@ -50,7 +50,7 @@
     "package:install:production": "adb install -r builds/in-store-apps-production.apk",
     "package:build:production": "(cd android && ENVFILE=.env.production ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-production.apk",
 
-    "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
+    "send-intent": "scripts/send-intent.sh"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",

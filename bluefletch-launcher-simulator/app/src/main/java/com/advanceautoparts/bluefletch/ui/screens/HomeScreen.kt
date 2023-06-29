@@ -7,15 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.advanceautoparts.bluefletch.provider.AuthProvider
 
 data class LauncherActivity(
     val label: String,
@@ -30,6 +28,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     var activities by remember { mutableStateOf(emptyList<LauncherActivity>()) }
+    var storeNumber by remember { mutableStateOf(AuthProvider.current.currentStoreNumber()) }
 
     LaunchedEffect(null) {
         val mainActivities = Intent(Intent.ACTION_MAIN).apply {
@@ -57,7 +56,17 @@ fun HomeScreen(
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Hello, World!")
+        Row(modifier = Modifier.padding(10.dp).fillMaxWidth()) {
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Store Number") },
+                value = storeNumber,
+                onValueChange = {
+                    storeNumber = it
+                    AuthProvider.current.setCurrentStoreNumber(it)
+                }
+            )
+        }
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(activities) { activity ->
