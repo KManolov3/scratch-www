@@ -3,6 +3,7 @@ import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
 import { ReactNode, createContext, useContext } from 'react';
 import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
+import { BehaviourOnFailure } from './ErrorState/types';
 
 export interface SessionInfo {
   userId: string;
@@ -31,6 +32,13 @@ export function AuthProvider({
   } = useAsync(
     () => InStoreAppsNative.reloadAuthFromLauncher({ clientId, authServerURL }),
     [clientId, authServerURL],
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    },
   );
 
   useAppStateChange('active', reloadAuth);

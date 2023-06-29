@@ -1,4 +1,3 @@
-import { useLazyQuery } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -12,6 +11,8 @@ import { Header } from '@components/Header';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { FontWeight } from '@lib/font';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { useOutageState } from '../state';
 import { OutageNavigation } from '../navigator';
 import { BackstockWarningModal } from '../components/BackstockWarningModal';
@@ -37,26 +38,34 @@ export function OutageHome() {
 
   const [errorType, setErrorType] = useState<ErrorType>();
 
-  const [getItemBySku, { loading }] = useLazyQuery(ITEM_BY_SKU_QUERY, {
-    onCompleted: item => {
-      if (item?.itemBySku) {
-        if (item?.itemBySku.backStockSlots?.length) {
-          setItemWithBackstock(item.itemBySku);
+  const { perform: getItemBySku, loading } = useManagedLazyQuery(
+    ITEM_BY_SKU_QUERY,
+    {
+      onCompleted: item => {
+        if (item?.itemBySku) {
+          if (item?.itemBySku.backStockSlots?.length) {
+            setItemWithBackstock(item.itemBySku);
+          } else {
+            addItemAndContinue(item.itemBySku);
+          }
         } else {
-          addItemAndContinue(item.itemBySku);
+          // TODO: this error should be based on what
+          // the backend has returned
+          setErrorType('Not Found Error');
         }
-      } else {
+      },
+      onError: () => {
         // TODO: this error should be based on what
         // the backend has returned
         setErrorType('Not Found Error');
-      }
+      },
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
     },
-    onError: () => {
-      // TODO: this error should be based on what
-      // the backend has returned
-      setErrorType('Not Found Error');
-    },
-  });
+  );
 
   const addItemAndContinue = useCallback(
     (item: ItemDetailsInfo) => {

@@ -13,6 +13,7 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import { config } from 'src/config';
 import { useCurrentSessionInfo } from './Auth';
+import { BehaviourOnFailure } from './ErrorState/types';
 
 interface SupportedFlags {
   testFlagRemoveMe: 'a' | 'b' | 'c';
@@ -175,6 +176,14 @@ export function LaunchDarklyProvider({
   const { data: service, loading: configuring } = useAsync(
     () => launchDarkly.configure({ applicationName, userId, storeNumber }),
     [applicationName, userId, storeNumber],
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+          customMessage: 'Could not configure LaunchDarkly.',
+        }),
+      },
+    },
   );
 
   const {
@@ -186,6 +195,14 @@ export function LaunchDarklyProvider({
     // eslint-disable-next-line require-await
     async () => service?.allFlags(),
     [service],
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+          customMessage: 'Could not load flag defaults.',
+        }),
+      },
+    },
   );
 
   useEffect(() => {

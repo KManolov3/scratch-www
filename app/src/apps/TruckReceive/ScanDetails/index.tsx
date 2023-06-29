@@ -1,8 +1,9 @@
 import { ActivityIndicator, View } from 'react-native';
-import { useQuery } from '@apollo/client';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Text } from '@components/Text';
 import { RootScreenProps } from '@apps/navigator';
+import { useManagedQuery } from '@hooks/useManagedQuery';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { gql } from '../../../__generated__';
 import { styles } from './styles';
 
@@ -24,8 +25,14 @@ const QUERY = gql(`
 export function TruckReceiveScanDetails({
   route,
 }: RootScreenProps<'TruckScanDetails'>) {
-  const { loading, data, error } = useQuery(QUERY, {
+  const { loading, data, error } = useManagedQuery(QUERY, {
     variables: { asn: route.params.asn },
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Modal,
+        shouldRetryRequest: true,
+      }),
+    },
   });
 
   if (loading) {

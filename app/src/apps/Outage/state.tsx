@@ -7,12 +7,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useMutation } from '@apollo/client';
 import { gql } from 'src/__generated__';
 import { v4 as uuid } from 'uuid';
 import { DateTime } from 'luxon';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
   mutation SubmitOutageCount($request: CycleCountList!) {
@@ -67,7 +68,16 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   const { storeNumber } = useCurrentSessionInfo();
 
   // TODO: show a toast with an error message
-  const [submitOutageCount, { loading }] = useMutation(SUBMIT_OUTAGE_COUNT);
+  const { perform: submitOutageCount, loading } = useManagedMutation(
+    SUBMIT_OUTAGE_COUNT,
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    },
+  );
 
   const addItem = useCallback((item: ItemDetailsInfo) => {
     setOutageCountItems(currentItems => [

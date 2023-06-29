@@ -152,7 +152,9 @@ export function BatchCountSummary() {
   useEffect(() => {
     if (submitError) {
       toastService.showInfoToast(
-        `Error while submitting batch count. ${submitError.message}`,
+        `Error while submitting batch count. ${
+          submitError instanceof Error ? submitError.message : 'Unknown Error'
+        }`,
         {
           props: { containerStyle: styles.toast },
         },

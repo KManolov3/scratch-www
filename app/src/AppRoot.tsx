@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-max-depth */
 import { useMemo } from 'react';
 import Toast from 'react-native-toast-message';
 import { ApolloProvider } from '@apollo/client';
@@ -7,6 +8,7 @@ import { RootNavigator, RootRouteName } from '@apps/navigator';
 import { ScannerConfig } from 'rtn-in-store-apps';
 import { ScannerProvider } from '@services/Scanner';
 import { DrawerHeader } from '@components/Drawer/DrawerHeader';
+import { ErrorStateProvider } from '@services/ErrorState/';
 import { toastConfig } from './services/ToastService';
 import { apolloClient } from './config/graphql';
 import { AuthProvider } from './services/Auth';
@@ -32,20 +34,21 @@ export function AppRoot({
   );
 
   const app = (
-    <AuthProvider config={config.okta}>
-      <LaunchDarklyProvider applicationName={applicationName}>
-        <ApolloProvider client={apolloClient}>
-          <NavigationContainer>
-            <RootNavigator
-              initialRoute={initialRoute}
-              screenOptions={screenOptions}
-            />
-
-            <Toast config={toastConfig} />
-          </NavigationContainer>
-        </ApolloProvider>
-      </LaunchDarklyProvider>
-    </AuthProvider>
+    <ErrorStateProvider>
+      <AuthProvider config={config.okta}>
+        <LaunchDarklyProvider applicationName={applicationName}>
+          <ApolloProvider client={apolloClient}>
+            <NavigationContainer>
+              <RootNavigator
+                initialRoute={initialRoute}
+                screenOptions={screenOptions}
+              />
+              <Toast config={toastConfig} />
+            </NavigationContainer>
+          </ApolloProvider>
+        </LaunchDarklyProvider>
+      </AuthProvider>
+    </ErrorStateProvider>
   );
 
   if (scannerConfig) {

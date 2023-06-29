@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ApolloError, useLazyQuery } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { SkuSearchBar } from '@components/SearchBar';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { gql } from 'src/__generated__';
@@ -15,6 +15,8 @@ import { ErrorContainer } from '@components/ErrorContainer';
 import { Colors } from '@lib/colors';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 
 const ITEM_BY_SKU = gql(`
   query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {
@@ -38,9 +40,8 @@ export function ItemLookupHome({
   const { navigate } = useNavigation<ItemLookupNavigation>();
   const [error, setError] = useState<ApolloError>();
 
-  const [searchBySku, { loading: isLoadingItemBySku }] = useLazyQuery(
-    ITEM_BY_SKU,
-    {
+  const { perform: searchBySku, loading: isLoadingItemBySku } =
+    useManagedLazyQuery(ITEM_BY_SKU, {
       onError(searchError) {
         setError(searchError);
       },
@@ -53,8 +54,12 @@ export function ItemLookupHome({
           });
         }
       },
-    },
-  );
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    });
 
   const { storeNumber } = useCurrentSessionInfo();
 

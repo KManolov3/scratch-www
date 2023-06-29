@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SearchBar';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -9,6 +9,8 @@ import { ErrorContainer } from '@components/ErrorContainer';
 import { Colors } from '@lib/colors';
 import { Header } from '@components/Header';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
 
 export function BatchCountHome() {
@@ -16,9 +18,8 @@ export function BatchCountHome() {
   const { storeNumber } = useCurrentSessionInfo();
   const [error, setError] = useState<ApolloError>();
 
-  const [searchBySku, { loading: isLoadingItemBySku }] = useLazyQuery(
-    ITEM_BY_SKU,
-    {
+  const { perform: searchBySku, loading: isLoadingItemBySku } =
+    useManagedLazyQuery(ITEM_BY_SKU, {
       onError(searchError) {
         setError(searchError);
       },
@@ -26,8 +27,12 @@ export function BatchCountHome() {
         addItem(item.itemBySku ?? undefined, false);
         setError(undefined);
       },
-    },
-  );
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    });
 
   const onSubmit = useCallback(
     (sku: string) => {

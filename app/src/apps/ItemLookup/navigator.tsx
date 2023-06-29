@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
 import {
   CompositeNavigationProp,
@@ -17,6 +17,8 @@ import { useScanListener } from '@services/Scanner';
 import { gql } from 'src/__generated__';
 import { ItemDetails } from 'src/types/ItemLookup';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ItemLookupHome } from './Home';
 import { ItemLookupScreen } from './ItemLookup';
 import { PrintFrontTagScreen } from './PrintFrontTag';
@@ -61,8 +63,23 @@ export function ItemLookupNavigator() {
     EventBus.emit('search-success');
   }
 
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, { onError });
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, { onError });
+  const { perform: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
+    // TODO: Should we use interceptError for such side effects as well?
+    onError,
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
+  });
+  const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
+    onError,
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
+  });
 
   useScanListener(scan => {
     const scanCode = scanCodeService.parse(scan);

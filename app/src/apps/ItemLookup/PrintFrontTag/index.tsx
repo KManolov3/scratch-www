@@ -1,4 +1,3 @@
-import { useMutation } from '@apollo/client';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
@@ -29,6 +28,8 @@ import { Header } from '@components/Header';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { EventBus, useEventBus } from '@hooks/useEventBus';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
@@ -80,7 +81,13 @@ export function PrintFrontTagScreen({
 
   const { goBack, replace, getState } = useNavigation<ItemLookupNavigation>();
 
-  const [printFrontTag] = useMutation(PRINT_FRONT_TAG);
+  const { perform: printFrontTag } = useManagedMutation(PRINT_FRONT_TAG, {
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
+  });
 
   const { state: printerModalVisible, toggle: togglePrintModal } =
     useBooleanState();
@@ -101,34 +108,39 @@ export function PrintFrontTagScreen({
     data,
     loading,
     trigger: sendTagsForPrinting,
-  } = useAsyncAction(() => {
-    hideConfirmationModal();
-    const promises = compact(
-      Array.from(map.values()).map(({ id, seqNum, checked, qty }) => {
-        if (!checked) {
-          return undefined;
-        }
-        const printerToStringValue = String(
-          indexOfEnumValue(PrinterOptions, printer) + 1,
-        );
+  } = useAsyncAction(
+    () => {
+      hideConfirmationModal();
+      const promises = compact(
+        Array.from(map.values()).map(({ id, seqNum, checked, qty }) => {
+          if (!checked) {
+            return undefined;
+          }
+          const printerToStringValue = String(
+            indexOfEnumValue(PrinterOptions, printer) + 1,
+          );
 
-        return printFrontTag({
-          variables: {
-            storeNumber,
-            printer: printerToStringValue,
-            data: {
-              sku: itemDetails.sku,
-              count: qty,
-              planogramId: id,
-              sequence: seqNum,
+          return printFrontTag({
+            variables: {
+              storeNumber,
+              printer: printerToStringValue,
+              data: {
+                sku: itemDetails.sku,
+                count: qty,
+                planogramId: id,
+                sequence: seqNum,
+              },
             },
-          },
-        });
-      }),
-    );
+          });
+        }),
+      );
 
-    return Promise.allSettled(promises);
-  });
+      return Promise.allSettled(promises);
+    },
+    {
+      globalErrorHandling: 'disabled',
+    },
+  );
 
   useEffect(() => {
     if (data) {

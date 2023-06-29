@@ -1,11 +1,12 @@
 import { DependencyList, useEffect } from 'react';
-import { useAsyncAction } from './useAsyncAction';
+import { AsyncActionOptions, useAsyncAction } from './useAsyncAction';
 
 export function useAsync<T>(
   action: () => Promise<T>,
   dependencies: DependencyList,
+  options: AsyncActionOptions,
 ) {
-  const { trigger, data, loading, error } = useAsyncAction(action, {
+  const { trigger, data, loading, error } = useAsyncAction(action, options, {
     loading: true,
   });
 

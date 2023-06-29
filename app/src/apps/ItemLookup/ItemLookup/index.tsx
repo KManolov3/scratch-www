@@ -37,8 +37,7 @@ export function ItemLookupScreen({
   } = useBooleanState(hasPriceDiscrepancy);
 
   useEffect(() => {
-    const priceDiscrepancy =
-      !!frontTagPrice && frontTagPrice !== itemDetails?.retailPrice;
+    const priceDiscrepancy = true;
     setHasPriceDiscrepancy(priceDiscrepancy);
 
     if (priceDiscrepancy) {
@@ -123,9 +122,9 @@ export function ItemLookupScreen({
         }
         style={styles.bottomActionBar}
       />
-      {frontTagPrice && itemDetails.retailPrice && (
+      {itemDetails.retailPrice && (
         <PriceDiscrepancyModal
-          scanned={frontTagPrice}
+          scanned={itemDetails.retailPrice}
           system={itemDetails.retailPrice}
           isVisible={priceDiscrepancyModalVisible}
           onCancel={toggleModal}

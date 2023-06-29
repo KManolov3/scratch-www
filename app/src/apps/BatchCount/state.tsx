@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
@@ -24,6 +24,9 @@ import { useScanListener } from 'src/services/Scanner';
 import { v4 as uuid } from 'uuid';
 import { scanCodeService } from 'src/services/ScanCode';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -34,7 +37,7 @@ interface ContextValue {
   removeItem: (sku: string) => void;
   submit: () => void;
   submitLoading?: boolean;
-  submitError?: ApolloError;
+  submitError?: unknown;
 }
 
 export const ITEM_BY_SKU = gql(`
@@ -103,8 +106,17 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   // TODO: Experiment implementing the state with `useMap`
   // https://usehooks-ts.com/react-hook/use-map
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
-  const [submitBatchCount, { error, loading }] =
-    useMutation(SUBMIT_BATCH_COUNT);
+  const {
+    perform: submitBatchCount,
+    error,
+    loading,
+  } = useManagedMutation(SUBMIT_BATCH_COUNT, {
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
+  });
   const navigation = useNavigation<BatchCountNavigation>();
 
   const { storeNumber } = useCurrentSessionInfo();
@@ -200,22 +212,32 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+  const { perform: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
       EventBus.emit('search-success');
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
   });
 
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+  const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
       EventBus.emit('search-success');
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
+    globalErrorHandling: {
+      interceptError: () => ({
+        behaviourOnFailure: BehaviourOnFailure.Toast,
+      }),
+    },
   });
 
   useScanListener(scan => {
