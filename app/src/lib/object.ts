@@ -7,7 +7,7 @@ export function safeParseJson(data: string | undefined) {
     return JSON.parse(data);
   } catch {
     // eslint-disable-next-line no-console
-    console.error('Could not parse ', data);
+    console.warn('Could not parse', data);
     return undefined;
   }
 }

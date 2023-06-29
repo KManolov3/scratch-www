@@ -4,11 +4,11 @@ import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
-import { Printers } from '@components/Printers';
+import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { PrinterOption, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
@@ -25,26 +25,26 @@ export function SelectPrinters() {
     askForConfirmation,
     accept,
     reject,
-  } = useConfirmation<PrinterOptions>();
+  } = useConfirmation<PrinterOption>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
   const {
-    data: { printerOption, portablePrinter },
+    data: { printerOption, lastUsedPortablePrinter },
     set: setDefaultPrinter,
   } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   const checked = useCallback(
-    (item: PrinterOptions) => item === printerOption,
+    (item: PrinterOption) => item === printerOption,
     [printerOption],
   );
 
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: PrinterOptions) => {
+    async (printer: PrinterOption) => {
       if (await askForConfirmation(printer)) {
-        setDefaultPrinter({ printerOption: printer, portablePrinter });
+        setDefaultPrinter({ printerOption: printer, lastUsedPortablePrinter });
       }
     },
   );
@@ -53,17 +53,17 @@ export function SelectPrinters() {
     <>
       <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
-        <Printers
+        <PrinterList
           checked={checked}
           onRadioButtonPress={setPrinter}
           withDefault
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
-          portablePrinter={portablePrinter}
+          portablePrinter={lastUsedPortablePrinter}
           setPortablePrinter={printerCode =>
             setDefaultPrinter({
-              printerOption: PrinterOptions.Portable,
-              portablePrinter: printerCode,
+              printerOption: PrinterOption.Portable,
+              lastUsedPortablePrinter: printerCode,
             })
           }
         />

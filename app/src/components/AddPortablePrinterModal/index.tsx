@@ -6,6 +6,7 @@ import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { scanCodeService } from '@services/ScanCode';
 import { useScanListener } from '@services/Scanner';
 
 export interface AddPortablePrinterModalProps {
@@ -26,11 +27,17 @@ export function AddPortablePrinterModal({
     setPortablePrinterInput('');
   }, [onConfirm, portablePrinterInput]);
 
-  useScanListener(({ code }) => {
-    if (code.startsWith('APQL')) {
-      return onConfirm(code);
+  useScanListener(scan => {
+    const parsedScan = scanCodeService.parseExpectingPrinter(scan);
+    switch (parsedScan.type) {
+      case 'pritner':
+        onConfirm(parsedScan.code);
+        break;
+
+      case 'unknown':
+        setPortablePrinterInput(parsedScan.code);
+        break;
     }
-    setPortablePrinterInput(code);
   });
 
   return (
@@ -51,7 +58,7 @@ export function AddPortablePrinterModal({
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Portable Printer Number</Text>
         <TextInput
-          placeholder="XXXXXX - XX - XXXX"
+          placeholder="XXXXXX-XX-XXXX"
           value={portablePrinterInput}
           onChangeText={value => {
             setPortablePrinterInput(value);

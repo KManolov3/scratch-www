@@ -5,7 +5,6 @@ import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
 import { WhiteSearchIcon } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { BottomRegularTray } from '@components/BottomRegularTray';
 import { Header } from '@components/Header';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { useBooleanState } from '@hooks/useBooleanState';
@@ -15,7 +14,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from '@services/ToastService';
-import { ItemLookupHome } from '../components/Home';
+import { SearchBottomTray } from '../components/SearchBottomTray';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 
@@ -99,6 +98,8 @@ export function ItemLookupScreen({
     onComplete: hideSearchTray,
   });
 
+  const searchItem = useCallback((sku: string) => search({ sku }), [search]);
+
   return (
     <FixedLayout
       style={styles.container}
@@ -132,14 +133,13 @@ export function ItemLookupScreen({
         />
       )}
 
-      <BottomRegularTray isVisible={searchTrayOpen} hideTray={hideSearchTray}>
-        <ItemLookupHome
-          onSubmit={sku => search({ sku })}
-          searchBarStyle={styles.container}
-          error={error}
-          loading={loading}
-        />
-      </BottomRegularTray>
+      <SearchBottomTray
+        error={error}
+        loading={loading}
+        isVisible={searchTrayOpen}
+        hideTray={hideSearchTray}
+        onSubmit={searchItem}
+      />
     </FixedLayout>
   );
 }

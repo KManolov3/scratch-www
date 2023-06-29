@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { gql } from 'src/__generated__';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
@@ -29,7 +29,7 @@ type SearchProps = {
   frontTagPrice?: number;
 } & ({ sku?: undefined; upc: string } | { sku: string; upc?: undefined });
 
-export interface useItemLookupProps {
+export interface UseItemLookupProps {
   onError?: (error: ApolloError) => void;
   onComplete?: () => void;
 }
@@ -37,7 +37,12 @@ export interface useItemLookupProps {
 export function useItemLookup({
   onError,
   onComplete,
-}: useItemLookupProps = {}) {
+}: UseItemLookupProps = {}) {
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   const { navigate } = useNavigation<ItemLookupNavigation>();
   const { storeNumber } = useCurrentSessionInfo();
 
@@ -58,10 +63,10 @@ export function useItemLookup({
       if (sku) {
         return searchBySku({
           variables: { sku, storeNumber },
-          onError,
+          onError: onErrorRef.current,
           onCompleted: itemDetails => {
             if (itemDetails.itemBySku) {
-              onComplete?.();
+              onCompleteRef.current?.();
               navigate('ItemLookup', {
                 itemDetails: itemDetails.itemBySku,
                 frontTagPrice,
@@ -70,13 +75,14 @@ export function useItemLookup({
           },
         });
       }
+
       if (upc) {
         return searchByUpc({
           variables: { upc, storeNumber },
-          onError,
+          onError: onErrorRef.current,
           onCompleted: itemDetails => {
             if (itemDetails.itemByUpc) {
-              onComplete?.();
+              onCompleteRef.current?.();
               navigate('ItemLookup', {
                 itemDetails: itemDetails.itemByUpc,
               });
@@ -85,7 +91,7 @@ export function useItemLookup({
         });
       }
     },
-    [navigate, onComplete, onError, searchBySku, searchByUpc, storeNumber],
+    [navigate, searchBySku, searchByUpc, storeNumber],
   );
 
   return { search, loading, error };

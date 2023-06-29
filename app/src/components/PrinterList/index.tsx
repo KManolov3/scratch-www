@@ -11,13 +11,13 @@ import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { RadioButton } from '@components/Button/Radio';
 import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions } from '@hooks/useDefaultSettings';
+import { PrinterOption } from '@hooks/useDefaultSettings';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 
-interface RadioButtonsListProps {
-  onRadioButtonPress(item: PrinterOptions): void;
-  checked(item: PrinterOptions): boolean;
+interface PrinterListProps {
+  onRadioButtonPress(item: PrinterOption): void;
+  checked(item: PrinterOption): boolean;
   setPortablePrinter(portablePrinter: string): void;
   withDefault?: boolean;
   portablePrinter: string | undefined;
@@ -26,14 +26,14 @@ interface RadioButtonsListProps {
   portablePrinterStyles?: StyleProp<ViewStyle>;
 }
 
-function getPrinterOptionText(printerOptions: PrinterOptions) {
-  if (printerOptions !== PrinterOptions.Portable) {
-    return printerOptions;
+function getPrinterOptionText(printerOption: PrinterOption) {
+  if (printerOption !== PrinterOption.Portable) {
+    return printerOption;
   }
-  return printerOptions ? 'Portable' : 'Add a Portable';
+  return printerOption ? 'Portable' : 'Add a Portable';
 }
 
-export function Printers({
+export function PrinterList({
   checked,
   onRadioButtonPress,
   containerStyles,
@@ -42,7 +42,7 @@ export function Printers({
   setPortablePrinter,
   portablePrinterStyles,
   withDefault = false,
-}: RadioButtonsListProps) {
+}: PrinterListProps) {
   const {
     state: portablePrinterModalOpen,
     enable: openPortablePrinterModal,
@@ -51,12 +51,12 @@ export function Printers({
 
   return (
     <View style={containerStyles}>
-      {Array.from(Object.values(PrinterOptions)).map(item => (
+      {Array.from(Object.values(PrinterOption)).map(item => (
         <Fragment key={item}>
           <RadioButton
             checked={checked(item)}
             onPress={() => {
-              if (item === PrinterOptions.Portable && !portablePrinter) {
+              if (item === PrinterOption.Portable && !portablePrinter) {
                 return openPortablePrinterModal();
               }
               onRadioButtonPress(item);
@@ -64,13 +64,8 @@ export function Printers({
             <View style={styles.radioButtonContainer}>
               <Text
                 style={[
-                  styles.text,
+                  checked(item) ? styles.bold : styles.medium,
                   textStyles,
-                  {
-                    fontWeight: checked(item)
-                      ? FontWeight.Bold
-                      : FontWeight.Medium,
-                  },
                 ]}>
                 {getPrinterOptionText(item)}
               </Text>
@@ -78,7 +73,7 @@ export function Printers({
                 <Text style={styles.default}>Default</Text>
               ) : null}
               {!withDefault &&
-                item === PrinterOptions.Portable &&
+                item === PrinterOption.Portable &&
                 portablePrinter && (
                   <Pressable
                     onPress={openPortablePrinterModal}
@@ -88,7 +83,7 @@ export function Printers({
                 )}
             </View>
           </RadioButton>
-          {item === PrinterOptions.Portable && portablePrinter && (
+          {item === PrinterOption.Portable && portablePrinter && (
             <Pressable
               style={[styles.portablePrinterRow, portablePrinterStyles]}>
               <View style={styles.radioButtonContainer}>
@@ -117,7 +112,8 @@ export function Printers({
 }
 
 const styles = StyleSheet.create({
-  text: { fontSize: 16 },
+  bold: { fontSize: 16, fontWeight: FontWeight.Bold },
+  medium: { fontSize: 16, fontWeight: FontWeight.Medium },
   default: { fontSize: 10, fontWeight: FontWeight.Book },
   radioButtonContainer: {
     flexDirection: 'row',

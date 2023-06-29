@@ -1,11 +1,11 @@
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { useItemLookup, useItemLookupProps } from './useItemLookup';
+import { useItemLookup, UseItemLookupProps } from './useItemLookup';
 
 export function useItemLookupScanCodeListener({
   onError,
   onComplete,
-}: useItemLookupProps = {}) {
+}: UseItemLookupProps = {}) {
   const { search, loading, error } = useItemLookup({
     onError,
     onComplete,

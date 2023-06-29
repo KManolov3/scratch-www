@@ -2,24 +2,24 @@ import { useState } from 'react';
 import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
 
-export enum PrinterOptions {
+export enum PrinterOption {
   Counter1 = 'Printer Counter 1',
   Counter2 = 'Printer Counter 2',
   Counter3 = 'Printer Counter 3',
   Portable = 'Portable',
 }
 
-export type PrinterOption = {
-  printerOption: PrinterOptions;
-  portablePrinter?: string;
+export type SelectedPrinter = {
+  printerOption: PrinterOption;
+  lastUsedPortablePrinter?: string;
 };
 
 export interface DefaultSettings {
-  defaultPrinterOption: PrinterOption;
+  defaultPrinterOption: SelectedPrinter;
 }
 
 const DefaultSettingValues: DefaultSettings = {
-  defaultPrinterOption: { printerOption: PrinterOptions.Counter1 },
+  defaultPrinterOption: { printerOption: PrinterOption.Counter1 },
 };
 
 export function useDefaultSettings<Key extends keyof DefaultSettings>(
