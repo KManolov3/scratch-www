@@ -1,11 +1,12 @@
-#!/bin/sh
+#!/bin/bash -e
 
-if [[ $# != 1 ]]; then
-    echo "Usage: $0 <barcode>"
+if [[ $# != 1 && $# != 2 ]]; then
+    echo "Usage: $0 <barcode> [<barcode-type (default 'LABEL-TYPE-CODE128')>]"
     exit -1
 fi
 
 BARCODE="$1"
+BARCODE_TYPE="${2:-'LABEL-TYPE-CODE128'}"
 
 # Example output: "    mResumedActivity: ActivityRecord{b365d00 u0 com.advanceautoparts.instoreapps/.activities.ItemLookupActivity t60}"
 CURRENT_ACTIVITY="$(adb shell dumpsys activity activities | grep mResumedActivity)"
@@ -36,6 +37,6 @@ adb shell \
     am start \
         -a "com.advanceautoparts.instoreapps.SCAN" \
         -c "$CATEGORY" \
-        --es com.symbol.datawedge.label_type "LABEL-TYPE-CODE128" \
+        --es com.symbol.datawedge.label_type "$BARCODE_TYPE" \
         --es com.symbol.datawedge.data_string "$BARCODE" \
         --activity-single-top
