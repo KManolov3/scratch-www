@@ -5,6 +5,7 @@ import {
   ItemLookupController,
   PrintData,
 } from '../../controllers/item-lookup-controller.ts';
+import { testStoreNumber } from '../../test-data/test-data.ts';
 
 const testData = new TestDataController();
 const itemLookup = new ItemLookupController();
@@ -54,8 +55,7 @@ describe('Item Lookup', () => {
     ];
 
     await testData.setData({
-      // storeNumber must be exactly '0363' because for now it is hardcoded in the app
-      storeNumber: '0363',
+      storeNumber: testStoreNumber,
       items,
     });
 
@@ -83,8 +83,7 @@ describe('Item Lookup', () => {
     ];
 
     await testData.setData({
-      // storeNumber must be exactly '0363' because for now it is hardcoded in the app
-      storeNumber: '0363',
+      storeNumber: testStoreNumber,
       items: itemWithPriceDiscrepancy,
     });
 
@@ -129,5 +128,57 @@ describe('Item Lookup', () => {
     ];
 
     await itemLookup.printFrontTag(printData, 'Printer Counter 2');
+  });
+
+  it('scanning item UPC should provide: description, P/N, SKU, price, current and backstock quantity', async () => {
+    const items: TestDataInput['items'] = [
+      {
+        partDesc: 'Mobil 1 5W-30 Motor Oil',
+        sku: '10069908',
+        retailPrice: 36.99,
+        mfrPartNum: '44899',
+        onHand: 10,
+        planograms: [
+          { planogramId: '35899', seqNum: 44 },
+          { planogramId: '12456', seqNum: 22 },
+        ],
+        backStockSlots: [
+          { slotId: 47457, qty: 7 },
+          { slotId: 87802, qty: 3 },
+        ],
+      },
+    ];
+
+    await testData.setData({
+      storeNumber: testStoreNumber,
+      items,
+    });
+
+    itemLookup.sendBarcodeScanIntent(items[0].sku);
+    await itemLookup.expectProductInfo(items[0]);
+  });
+
+  it('should display No Results Found when searching for missing SKU', async () => {
+    const itemWithMissingSku: TestDataInput['items'] = [
+      {
+        sku: '12345',
+      },
+    ];
+
+    await testData.setData({
+      storeNumber: testStoreNumber,
+      items: [],
+      missingItemSkus: [itemWithMissingSku[0].sku],
+    });
+
+    await itemLookup.searchForSku(itemWithMissingSku[0]);
+
+    await expect(
+      $(itemLookup.commonPages.homePage.noResultsFound)
+    ).toBeDisplayed();
+
+    await expect(
+      $(itemLookup.commonPages.homePage.trySearchingForAnotherSKU)
+    ).toBeDisplayed();
   });
 });
