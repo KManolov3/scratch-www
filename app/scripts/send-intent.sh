@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 if [[ $# != 1 && $# != 2 ]]; then
+    # See https://techdocs.zebra.com/datawedge/latest/guide/output/intent/ for the available barcode types
     echo "Usage: $0 <barcode> [<barcode-type (default 'LABEL-TYPE-CODE128')>]"
     exit -1
 fi
