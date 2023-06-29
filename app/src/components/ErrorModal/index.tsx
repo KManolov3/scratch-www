@@ -81,7 +81,7 @@ export function ErrorModal({
     <Modal isVisible={isVisible} onBackdropPress={noop} style={styles.modal}>
       <View style={styles.container}>
         <AttentionIcon height={40} width={40} style={styles.icon} />
-        <Text style={styles.title}>{title}r</Text>
+        <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
         {errorCode && (
           <Text style={[styles.description, styles.bold]}>
