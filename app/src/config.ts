@@ -18,6 +18,8 @@ export const config = {
     clientId: required('OKTA_CLIENT_ID'),
     authServerURL: required('OKTA_AUTH_SERVER_URL'),
   },
+
+  newRelicApplicationToken: required('NEW_RELIC_APPLICATION_TOKEN'),
 };
 
 function required<K extends keyof typeof env>(name: K): string {

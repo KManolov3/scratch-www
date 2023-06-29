@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-max-depth */
+import NewRelic from 'newrelic-react-native-agent';
 import { useCallback, useMemo, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { ScannerConfig, InStoreAppsNative } from 'rtn-in-store-apps';
@@ -56,7 +57,7 @@ export function AppRoot({
       <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
         <LaunchDarklyProvider applicationName={applicationName}>
           <ApolloProvider client={apolloClient}>
-            <NavigationContainer>
+            <NavigationContainer onStateChange={NewRelic.onStateChange}>
               <RootNavigator
                 initialRoute={initialRoute}
                 screenOptions={screenOptions}
