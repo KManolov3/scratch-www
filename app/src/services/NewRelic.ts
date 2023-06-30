@@ -34,8 +34,15 @@ class ErrorBecauseNewRelicIsStupid extends Error {
 }
 
 class NewRelicService {
-  onAppStart({ applicationName }: { applicationName: string }) {
+  onAppStart({
+    applicationName,
+    buildInfo,
+  }: {
+    applicationName: string;
+    buildInfo: string;
+  }) {
     NewRelic.setAttribute('applicationName', applicationName);
+    NewRelic.setAttribute('buildInfo', buildInfo);
   }
 
   onAppFocus() {

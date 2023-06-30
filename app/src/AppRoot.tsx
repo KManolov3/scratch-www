@@ -37,7 +37,11 @@ export function AppRoot({
   }, []);
 
   useEffect(
-    () => newRelicService.onAppStart({ applicationName }),
+    () =>
+      newRelicService.onAppStart({
+        applicationName,
+        buildInfo: config.buildInfo,
+      }),
     [applicationName],
   );
 
