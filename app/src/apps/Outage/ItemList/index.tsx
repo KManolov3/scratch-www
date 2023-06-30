@@ -53,7 +53,6 @@ export function OutageItemList() {
       case 'sku':
         addItem(code.sku);
         break;
-
       default:
         // TODO: Duplication with the other Outage screen
         toastService.showInfoToast(
@@ -90,6 +89,7 @@ export function OutageItemList() {
       try {
         if (await askForConfirmation()) {
           await submitOutage();
+          toastService.showInfoToast('Outage List Complete');
           navigate('Home');
         }
       } catch (error) {

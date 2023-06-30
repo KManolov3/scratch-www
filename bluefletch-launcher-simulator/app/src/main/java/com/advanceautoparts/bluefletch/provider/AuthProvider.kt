@@ -1,18 +1,31 @@
 package com.advanceautoparts.bluefletch.provider
 
+import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.SharedPreferences
 import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import com.advanceautoparts.bluefletch.MainApplication
+import androidx.core.content.edit
 import com.advanceautoparts.bluefletch.OktaNativeSSOLogin
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class AuthProvider: ContentProvider() {
+    companion object {
+        lateinit var current: AuthProvider
+
+        private const val DEFAULT_STORE_NUMBER = "501"
+    }
+
+    init { current = this }
+
+    lateinit var okta: OktaNativeSSOLogin
+    private lateinit var preferences: SharedPreferences
+
     enum class UriMatch {
         BluefletchSession
     }
@@ -25,10 +38,12 @@ class AuthProvider: ContentProvider() {
         addURI("com.bluefletch.launcherprovider", "session", UriMatch.BluefletchSession.ordinal)
     }
 
-    var locationId: String = "501"
+    fun currentStoreNumber(): String = preferences.getString("storeNumber", DEFAULT_STORE_NUMBER)!!
+    fun setCurrentStoreNumber(storeNumber: String) = preferences.edit { putString("storeNumber", storeNumber) }
 
     override fun onCreate(): Boolean {
-        MainApplication.current.okta = OktaNativeSSOLogin(context!!.applicationContext)
+        okta = OktaNativeSSOLogin(context!!.applicationContext)
+        preferences = context!!.getSharedPreferences("com.advanceautoparts.bluefletch", Application.MODE_PRIVATE)
 
         // Intentionally blank
         return true
@@ -38,7 +53,7 @@ class AuthProvider: ContentProvider() {
         if (uriMatcher.match(uri) != UriMatch.BluefletchSession.ordinal) throw java.lang.IllegalArgumentException("Invalid URI")
 
         return MatrixCursor(arrayOf("DATA")).apply {
-            val token = runBlocking { MainApplication.current.okta.session(locationId) }
+            val token = runBlocking { okta.session(currentStoreNumber()) }
 
             if (token == null) {
                 addRow(arrayOf(null))

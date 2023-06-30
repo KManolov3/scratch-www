@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ApolloError, useLazyQuery } from '@apollo/client';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SkuSearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';

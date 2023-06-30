@@ -2,24 +2,23 @@ import { useCallback, useState } from 'react';
 import { Deferred } from '@lib/deferred';
 
 export function useConfirmation<T = void>() {
-  const [confirmation, setConfirmation] = useState<{
-    item: T;
-    deferred: Deferred<boolean>;
-  }>();
+  const [confirmation, setConfirmation] = useState<Deferred<boolean>>();
+  const [itemToConfirm, setItemToConfirm] = useState<T>();
 
   return {
     confirmationRequested: !!confirmation,
-    itemToConfirm: confirmation?.item,
+    itemToConfirm,
 
     askForConfirmation: useCallback(
       (item: T) => {
         if (confirmation) {
-          confirmation.deferred.resolve(false);
+          confirmation.resolve(false);
         }
 
         const deferred = new Deferred();
 
-        setConfirmation({ item, deferred });
+        setConfirmation(deferred);
+        setItemToConfirm(item);
 
         return deferred.promise;
       },
@@ -27,12 +26,12 @@ export function useConfirmation<T = void>() {
     ),
 
     accept: useCallback(() => {
-      confirmation?.deferred.resolve(true);
+      confirmation?.resolve(true);
       setConfirmation(undefined);
     }, [confirmation]),
 
     reject: useCallback(() => {
-      confirmation?.deferred.resolve(false);
+      confirmation?.resolve(false);
       setConfirmation(undefined);
     }, [confirmation]),
   };
