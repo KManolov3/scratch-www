@@ -1,16 +1,16 @@
-import { CommonItemDetailsPage } from '../common/common-item-details-page.ts';
-
-export class BatchCountListPage extends CommonItemDetailsPage {
+export class BatchCountSummaryPage {
   get headerText() {
-    return '[text=Batch Count]';
+    return '[text=Summary]';
   }
 
   productDetails(partNumber: string) {
     return {
       partNumber: `[text=${partNumber}]`,
+      totalQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Total Qty value"]`,
       currentQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Current value"]`,
-      newQtyInput: `//*[@text="${partNumber}"]//..//*[@class="android.widget.EditText"]`,
+      variance: `//*[@text="${partNumber}"]//..//*[@content-desc="Variance value"]`,
       itemName: `//*[@text="${partNumber}"]//..//*[@content-desc="Item Name value"]`,
+      newQtyInput: `//*[@text="${partNumber}"]//..//*[@class="android.widget.EditText"]`,
       sku: `//*[@text="${partNumber}"]//..//*[@content-desc="SKU value"]`,
       price: `//*[@text="${partNumber}"]//..//*[@content-desc="Price value"]`,
       backstockQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Backstock value"]`,
@@ -19,15 +19,18 @@ export class BatchCountListPage extends CommonItemDetailsPage {
     };
   }
 
-  get bookmarkedItemToast() {
-    return '//android.widget.TextView[@text="Item bookmarked as note to self"]';
+  get approveCountButton() {
+    return '[text=Approve Count]';
   }
 
-  get fastAcceptButton() {
-    return '[text=Fast Accept]';
-  }
-
-  get createSummaryButton() {
-    return '[text=Create Summary]';
+  get shrinkageOverageModal() {
+    return {
+      infoText: '[text=Shrinkage & Overage]',
+      netDollars: '~Net Dollars value',
+      shrinkageValue: '~Shrinkage value',
+      overageValue: '~Overage value',
+      cancelButton: '[text=Cancel]',
+      approveButton: '[text=Approve]',
+    };
   }
 }

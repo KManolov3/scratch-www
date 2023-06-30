@@ -10,6 +10,7 @@
     "e2e:batch-count": "cd ./specs/batch-count && ../../run-e2e.sh BatchCountActivity",
     "e2e:cycle-count": "cd ./specs/cycle-count && ../../run-e2e.sh CycleCountActivity",
     "e2e:item-lookup": "cd ./specs/item-lookup && ../../run-e2e.sh ItemLookupActivity",
+    "e2e:outage": "cd ./specs/outage && ../../run-e2e.sh OutageActivity",
     "e2e:truck-detail-scan": "cd ./specs/truck-detail-scan && ../../run-e2e.sh TruckDetailScanActivity",
     "e2e:multiple-apps": "./run-e2e-multiple-apps.sh",
     "eslint": "eslint .",
