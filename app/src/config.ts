@@ -2,6 +2,8 @@
 import { Config as env } from 'react-native-config';
 import DeviceInfo from 'react-native-device-info';
 
+const enableNewRelic = boolean(optional('ENABLE_NEW_RELIC'), true);
+
 export const config = {
   bundleId: DeviceInfo.getBundleId(),
 
@@ -19,7 +21,9 @@ export const config = {
     authServerURL: required('OKTA_AUTH_SERVER_URL'),
   },
 
-  newRelicApplicationToken: required('NEW_RELIC_APPLICATION_TOKEN'),
+  newRelicApplicationToken: enableNewRelic
+    ? required('NEW_RELIC_APPLICATION_TOKEN')
+    : undefined,
 };
 
 function required<K extends keyof typeof env>(name: K): string {

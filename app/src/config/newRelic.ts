@@ -30,6 +30,10 @@ const agentConfiguration = {
 };
 
 export function setUpNewRelic() {
+  if (!config.newRelicApplicationToken) {
+    return;
+  }
+
   NewRelic.startAgent(config.newRelicApplicationToken, agentConfiguration);
   NewRelic.setJSAppVersion(config.versionName);
 }
