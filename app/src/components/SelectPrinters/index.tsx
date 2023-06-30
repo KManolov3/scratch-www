@@ -4,21 +4,17 @@ import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
-import { RadioButtonsList } from '@components/RadioButtonsList';
+import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { PrinterOption, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-
-export interface SelectPrinterProps {
-  title?: string;
-}
 
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
@@ -29,24 +25,26 @@ export function SelectPrinters() {
     askForConfirmation,
     accept,
     reject,
-  } = useConfirmation<PrinterOptions>();
+  } = useConfirmation<PrinterOption>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const { data: defaultPrinterOption, set: setDefaultPrinter } =
-    useDefaultSettings('defaultPrinterOption', storeNumber, userId);
+  const {
+    data: { printerOption, lastUsedPortablePrinter },
+    set: setDefaultPrinter,
+  } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   const checked = useCallback(
-    (item: PrinterOptions) => item === defaultPrinterOption,
-    [defaultPrinterOption],
+    (item: PrinterOption) => item === printerOption,
+    [printerOption],
   );
 
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: PrinterOptions) => {
+    async (printer: PrinterOption) => {
       if (await askForConfirmation(printer)) {
-        setDefaultPrinter(printer);
+        setDefaultPrinter({ printerOption: printer, lastUsedPortablePrinter });
       }
     },
   );
@@ -55,14 +53,19 @@ export function SelectPrinters() {
     <>
       <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
-        <RadioButtonsList
-          items={Array.from(Object.values(PrinterOptions))}
+        <PrinterList
           checked={checked}
           onRadioButtonPress={setPrinter}
           withDefault
-          bold
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
+          portablePrinter={lastUsedPortablePrinter}
+          setPortablePrinter={printerCode =>
+            setDefaultPrinter({
+              printerOption: PrinterOption.Portable,
+              lastUsedPortablePrinter: printerCode,
+            })
+          }
         />
       </FixedLayout>
 

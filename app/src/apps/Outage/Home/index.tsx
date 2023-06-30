@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
-import { SkuSearchBar } from '@components/SearchBar';
+import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
