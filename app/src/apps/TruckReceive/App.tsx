@@ -11,7 +11,7 @@ export function TruckReceiveApp() {
     <AppRoot
       applicationName="Truck Receive"
       activityName=".activities.TruckDetailScanActivity"
-      initialRoute="TruckDetailHome"
+      initialRoute="TruckDetailApp"
       scannerConfig={scannerConfig}
     />
   );

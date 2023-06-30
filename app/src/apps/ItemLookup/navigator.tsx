@@ -117,10 +117,10 @@ export type ItemLookupNavigatorScreenParams = NavigatorScreenParams<Routes>;
 export type ItemLookupScreenProps<K extends keyof Routes> =
   CompositeScreenProps<
     NativeStackScreenProps<Routes, K>,
-    RootScreenProps<'ItemLookupHome'>
+    RootScreenProps<'ItemLookupApp'>
   >;
 
 export type ItemLookupNavigation = CompositeNavigationProp<
-  RootNavigation<'ItemLookupHome'>,
+  RootNavigation<'ItemLookupApp'>,
   NativeStackNavigationProp<Routes>
 >;

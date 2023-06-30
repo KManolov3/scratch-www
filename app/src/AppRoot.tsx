@@ -1,14 +1,12 @@
-/* eslint-disable react/jsx-max-depth */
-import NewRelic from 'newrelic-react-native-agent';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Toast from 'react-native-toast-message';
-import { ScannerConfig, InStoreAppsNative } from 'rtn-in-store-apps';
+import { InStoreAppsNative, ScannerConfig } from 'rtn-in-store-apps';
 import { ApolloProvider } from '@apollo/client';
-import { RootNavigator, RootRouteName } from '@apps/navigator';
+import { RootRouteName } from '@apps/navigator';
 import { GlobalStateProvider } from '@apps/state';
-import { DrawerHeader } from '@components/Drawer/DrawerHeader';
-import { NavigationContainer } from '@react-navigation/native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { AppNavigationProvider } from '@config/appNavigationProvider';
+import { useAppStateChange } from '@hooks/useAppStateChange';
+import { newRelicService } from '@services/NewRelic';
 import { ScannerProvider } from '@services/Scanner';
 import { config } from './config';
 import { apolloClient } from './config/graphql';
@@ -29,13 +27,6 @@ export function AppRoot({
   initialRoute,
   scannerConfig,
 }: AppRootProps) {
-  const screenOptions = useMemo<NativeStackNavigationOptions>(
-    () => ({
-      header: DrawerHeader,
-    }),
-    [],
-  );
-
   const loadingScreenVisible = useRef(true);
 
   const hideLoadingScreenIfVisible = useCallback(() => {
@@ -45,9 +36,14 @@ export function AppRoot({
     }
   }, []);
 
-  const screenListeners = useMemo(
-    () => ({ focus: hideLoadingScreenIfVisible }),
-    [hideLoadingScreenIfVisible],
+  useEffect(
+    () => newRelicService.onAppStart({ applicationName }),
+    [applicationName],
+  );
+
+  useAppStateChange(
+    'active',
+    useCallback(() => newRelicService.onAppFocus(), []),
   );
 
   const app = (
@@ -57,14 +53,12 @@ export function AppRoot({
       <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
         <LaunchDarklyProvider applicationName={applicationName}>
           <ApolloProvider client={apolloClient}>
-            <NavigationContainer onStateChange={NewRelic.onStateChange}>
-              <RootNavigator
-                initialRoute={initialRoute}
-                screenOptions={screenOptions}
-                screenListeners={screenListeners}
-              />
-              <Toast config={toastConfig} />
-            </NavigationContainer>
+            <AppNavigationProvider
+              initialRoute={initialRoute}
+              onScreenFocus={hideLoadingScreenIfVisible}
+            />
+
+            <Toast config={toastConfig} />
           </ApolloProvider>
         </LaunchDarklyProvider>
       </AuthProvider>

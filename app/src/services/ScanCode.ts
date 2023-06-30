@@ -1,7 +1,8 @@
 import { ScanInfo, ScanLabelType } from 'rtn-in-store-apps';
+import { newRelicService } from './NewRelic';
 import { useScanListener } from './Scanner';
 
-type ScannedCode =
+export type ScannedCode =
   | {
       type: 'front-tag';
       sku: string;
@@ -127,5 +128,14 @@ class ScanCodeService {
 const scanCodeService = new ScanCodeService();
 
 export function useScanCodeListener(onScan: (scan: ScannedCode) => void) {
-  useScanListener(scan => onScan(scanCodeService.parse(scan)));
+  useScanListener(
+    scan => {
+      const parsedScan = scanCodeService.parse(scan);
+
+      newRelicService.onScan(scan, parsedScan);
+
+      onScan(parsedScan);
+    },
+    { notifyNewRelic: false },
+  );
 }
