@@ -3,9 +3,9 @@ import { safeParseJson } from '@lib/object';
 import { LocalStorageService } from '@services/LocalStorageService';
 
 export enum PrinterOption {
-  Counter1 = 'Printer Counter 1',
-  Counter2 = 'Printer Counter 2',
-  Counter3 = 'Printer Counter 3',
+  Counter1 = 'Counter Printer 1',
+  Counter2 = 'Counter Printer 2',
+  Counter3 = 'Counter Printer 3',
   Portable = 'Portable',
 }
 
