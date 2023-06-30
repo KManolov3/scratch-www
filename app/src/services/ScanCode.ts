@@ -16,8 +16,8 @@ type ScannedCode =
   | { type: 'container-label'; storeNumber: string; containerNumber: number }
   // TODO: Should this be a number?
   | { type: 'backstock-slot'; slotNumber: number }
-  | { type: 'pritner'; code: string }
-  | { type: 'unknown'; code: string };
+  | { type: 'printer'; networkName: string }
+  | { type: 'unknown'; networkName: string };
 
 class ScanCodeService {
   parse({ code, type }: ScanInfo): ScannedCode {
@@ -54,9 +54,9 @@ class ScanCodeService {
 
   parseExpectingPrinter({ code }: ScanInfo): ScannedCode {
     if (code.startsWith(this.PRINTER_CODE_PREFIX)) {
-      return { type: 'pritner', code };
+      return { type: 'printer', networkName: code };
     }
-    return { type: 'unknown', code };
+    return { type: 'unknown', networkName: code };
   }
 
   private readonly FRONT_TAG_REGEX = /^99(\w+)(\d{5})$/;

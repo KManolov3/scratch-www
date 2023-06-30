@@ -30,12 +30,12 @@ export function AddPortablePrinterModal({
   useScanListener(scan => {
     const parsedScan = scanCodeService.parseExpectingPrinter(scan);
     switch (parsedScan.type) {
-      case 'pritner':
-        onConfirm(parsedScan.code);
+      case 'printer':
+        onConfirm(parsedScan.networkName);
         break;
 
       case 'unknown':
-        setPortablePrinterInput(parsedScan.code);
+        setPortablePrinterInput(parsedScan.networkName);
         break;
     }
   });
