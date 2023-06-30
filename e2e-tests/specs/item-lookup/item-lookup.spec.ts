@@ -181,4 +181,22 @@ describe('Item Lookup', () => {
       $(itemLookup.commonPages.homePage.trySearchingForAnotherSKU)
     ).toBeDisplayed();
   });
+
+  it('should display No Results Found when searching for non-numeric SKU', async () => {
+    const itemWithMissingSku: TestDataInput['items'] = [
+      {
+        sku: 'wrong',
+      },
+    ];
+
+    await itemLookup.searchForSku(itemWithMissingSku[0]);
+
+    await expect(
+      $(itemLookup.commonPages.homePage.noResultsFound)
+    ).toBeDisplayed();
+
+    await expect(
+      $(itemLookup.commonPages.homePage.trySearchingForAnotherSKU)
+    ).toBeDisplayed();
+  });
 });

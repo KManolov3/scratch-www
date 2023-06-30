@@ -2,11 +2,13 @@ import { faker } from '@faker-js/faker';
 import {
   IMocks,
   MockList,
+  Ref,
   addMocksToSchema,
   createMockStore,
 } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFile } from 'fs/promises';
+import { GraphQLError } from 'graphql';
 import { TestItemInput } from '../../e2e-tests/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
@@ -145,7 +147,7 @@ export const schema = addMocksToSchema({
               sku: itemSku,
               storeNumber: input.storeNumber,
             },
-            value: null,
+            value: { partDesc: 'Not Found' },
           });
         });
 
@@ -170,12 +172,26 @@ export const schema = addMocksToSchema({
             },
           });
 
-          return store.get({
+          const item = store.get({
             typeName: 'Query',
             key: 'ROOT',
             fieldName: 'itemBySku',
             fieldArgs: args,
-          });
+          }) as Ref<string>;
+
+          if (store.get(item, 'partDesc') === 'Not Found') {
+            throw new GraphQLError('Item not found', {
+              extensions: {
+                errorType: 'NOT_FOUND',
+                debugInfo: {
+                  message: 'Item not found',
+                  statusCode: 404,
+                },
+              },
+            });
+          }
+
+          return item;
         }
 
         throw new Error('SKU must contain 1-9 digits.');
