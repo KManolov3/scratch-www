@@ -89,6 +89,7 @@ export function OutageItemList() {
       try {
         if (await askForConfirmation()) {
           await submitOutage();
+          toastService.showInfoToast('Outage List Complete');
           navigate('Home');
         }
       } catch (error) {
