@@ -94,7 +94,7 @@ export function PrintFrontTagScreen({
 
   const {
     data: { printerOption, lastUsedPortablePrinter },
-  } = useDefaultSettings('defaultPrinterOption', storeNumber, userId);
+  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
 
   const [printer, setPrinter] = useState<SelectedPrinter>({
     printerOption,

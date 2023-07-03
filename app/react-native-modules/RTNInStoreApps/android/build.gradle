@@ -44,4 +44,5 @@ dependencies {
   implementation('com.okta.kotlin:auth-foundation')
   implementation('com.okta.kotlin:auth-foundation-bootstrap')
   implementation('com.okta.kotlin:oauth2')
+  implementation('com.tencent:mmkv:1.3.0')
 }

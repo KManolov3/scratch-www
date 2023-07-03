@@ -1,14 +1,14 @@
 import { TestDataInput } from '../../__generated__/graphql.ts';
-import { BatchCountController } from '../../controllers/batch-count-controller.ts';
+import { OutageController } from '../../controllers/outage-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitFor } from '../../methods/helpers.ts';
 
-const batchCount = new BatchCountController();
 const testData = new TestDataController();
+const outageCount = new OutageController();
 
-describe('Batch Count', () => {
+describe('Outage Count', () => {
   beforeEach(async () => {
-    await waitFor(batchCount.batchCountPages.homePage.searchForSkuInput, 10000);
+    await waitFor(outageCount.outagePages.homePage.searchForSkuInput, 15000);
   });
 
   afterEach(async () => {
@@ -24,14 +24,6 @@ describe('Batch Count', () => {
         retailPrice: 36.99,
         mfrPartNum: '44899',
         onHand: 10,
-        planograms: [
-          { planogramId: '35899', seqNum: 44 },
-          { planogramId: '12456', seqNum: 22 },
-        ],
-        backStockSlots: [
-          { slotId: 47457, qty: 7 },
-          { slotId: 87802, qty: 3 },
-        ],
       },
       {
         partDesc: 'Beam Wiper Blade',
@@ -39,28 +31,15 @@ describe('Batch Count', () => {
         retailPrice: 22.99,
         mfrPartNum: '18-260',
         onHand: 15,
-        planograms: [
-          { planogramId: '57211', seqNum: 43 },
-          { planogramId: '23425', seqNum: 56 },
-        ],
-        backStockSlots: [
-          { slotId: 47457, qty: 8 },
-          { slotId: 87802, qty: 3 },
-        ],
       },
     ];
 
     await testData.setData({
       // storeNumber must be exactly '0363' because for now it is hardcoded in the app
       storeNumber: '0363',
-      items,
+      items: items,
     });
 
-    const batchCountData = [
-      { item: items[0], newQuantity: 11, bookmarked: false },
-      { item: items[1], newQuantity: 14, bookmarked: true },
-    ];
-
-    await batchCount.completeBatchCount(batchCountData);
+    await outageCount.completeOutageCount(items);
   });
 });

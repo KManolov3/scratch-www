@@ -142,7 +142,9 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
-    private var syncStorage: SyncStorage = SyncStorage(reactContext)
+    private var syncStorage = SyncStorage(reactContext).also {
+        it.watchForChanges { eventEmitter.emit("storageChanged", null) }
+    }
 
     override fun getPreference(key: String): String? {
         return syncStorage.getItem((key))
@@ -158,5 +160,9 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
 
     override fun clearPreferences() {
         syncStorage.clear()
+    }
+
+    override fun checkForPreferenceChangesByOtherProcesses() {
+        syncStorage.checkForChangesByOtherProcesses()
     }
 }
