@@ -23,6 +23,7 @@ import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { BatchCountItem } from 'src/types/BatchCount';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -55,12 +56,6 @@ export const ITEM_BY_UPC = gql(`
     },
   }
 `);
-
-export interface BatchCountItem {
-  item: Item & { sku: NonNullable<Item['sku']> };
-  newQty: number;
-  isBookmarked?: boolean;
-}
 
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
@@ -132,18 +127,17 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         );
 
         if (!itemInState) {
-          setBatchCountItems([
-            {
-              item: {
-                ...newItem,
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                sku: newItem.sku!,
-              },
-              newQty: incrementCount ? 1 : 0,
+          const newBatchCountItem = {
+            item: {
+              ...newItem,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sku: newItem.sku!,
             },
-            ...batchCountItems,
-          ]);
-          EventBus.emit('add-new-item');
+            newQty: incrementCount ? 1 : 0,
+          };
+          setBatchCountItems([newBatchCountItem, ...batchCountItems]);
+
+          EventBus.emit('add-new-item', newBatchCountItem);
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -158,6 +152,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
               ? itemInState.newQty + 1
               : itemInState.newQty,
           });
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          EventBus.emit('updated-item', newItem.sku!);
         }
         navigation.navigate('List');
       }
@@ -166,10 +162,12 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (sku: string) =>
+    (sku: string) => {
       setBatchCountItems(
         batchCountItems.filter(({ item }) => item.sku !== sku),
-      ),
+      );
+      EventBus.emit('removed-item', sku);
+    },
     [batchCountItems],
   );
 

@@ -1,6 +1,5 @@
-import { sortBy } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
+import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
@@ -10,12 +9,13 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
-import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
+import { BatchCountItem } from 'src/types/BatchCount';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
-import { BatchCountItem, useBatchCountState } from '../state';
+import { useBatchCountState } from '../state';
+import { useBatchCountItemSorting } from '../hooks/useBatchCountItemSorting';
 
 // TODO: Think about extracting part of the shared code between this screen and BatchCountList
 // They are nearly the same component, differing only in the `isSummary` property and the action bar
@@ -35,16 +35,7 @@ export function BatchCountSummary() {
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
 
-  const sortFn = useCallback(
-    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
-    [],
-  );
-  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
-  const batchCountItemsSorted = useSortOnScreenFocus(
-    batchCountItems,
-    sortFn,
-    keyFn,
-  );
+  const batchCountItemsSorted = useBatchCountItemSorting(batchCountItems);
 
   const [expandedSku, setExpandedSku] = useState<string>();
 
@@ -97,15 +88,19 @@ export function BatchCountSummary() {
 
   const onRemove = useCallback(
     (item: BatchCountItem['item']) => {
+      if (item.sku === expandedSku) {
+        setExpandedSku(undefined);
+      }
       removeItem(item.sku);
       toastService.showInfoToast(
         `${item.partDesc} removed from Batch count list`,
+
         {
           props: { containerStyle: styles.toast },
         },
       );
     },
-    [removeItem],
+    [removeItem, expandedSku],
   );
 
   useEffect(() => {
@@ -179,10 +174,14 @@ export function BatchCountSummary() {
     }
   });
 
-  useFocusEventBus('add-new-item', () => {
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-  });
+    Keyboard.dismiss();
+  }, []);
 
+  useFocusEventBus('add-new-item', scrollToTopAndDismissKeyboard);
+
+  useFocusEventBus('updated-item', scrollToTopAndDismissKeyboard);
   return (
     <>
       <FixedLayout
