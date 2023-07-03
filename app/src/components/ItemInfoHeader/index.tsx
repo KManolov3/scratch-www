@@ -1,5 +1,4 @@
-import { Text } from '@components/Text';
-import { FontWeight } from '@lib/font';
+import { useMemo } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -8,11 +7,12 @@ import {
   ViewStyle,
 } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
-import { useMemo } from 'react';
 import { AttentionIcon } from '@assets/icons';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { convertCurrencyToString } from '@lib/currency';
+import { Text } from '@components/Text';
 import { getBackstockQuantity } from '@lib/common';
+import { convertCurrencyToString } from '@lib/currency';
+import { FontWeight } from '@lib/font';
 
 const ITEM_INFO_HEADER_FIELDS = gql(`
   fragment ItemInfoHeaderFields on Item {

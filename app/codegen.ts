@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // Used only for dev purposes - to generate gql models
-import { CodegenConfig } from '@graphql-codegen/cli';
 import dotenv from 'dotenv';
+import { CodegenConfig } from '@graphql-codegen/cli';
 
 const { parsed: env } = dotenv.config();
 

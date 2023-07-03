@@ -1,5 +1,5 @@
-import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 import { TurboModuleRegistry } from 'react-native';
+import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
 /* Current version of the React Native codegen doesn't support interfaces except Spec, only types */
 
@@ -20,14 +20,10 @@ export type SessionInfo = {
   storeNumber: string;
 };
 
-export enum Activity {
-  ItemLookupActivity = 'ItemLookupActivity',
-  BatchCountActivity = 'BatchCountActivity',
-  CycleCountActivity = 'CycleCountActivity',
-  OutageActivity = 'OutageActivity',
-}
-
 export interface Spec extends TurboModule {
+  /* Loading Screen */
+  hideLoadingScreen(): void;
+
   /* Authentication */
   reloadAuthFromLauncher(config: AuthConfig): Promise<SessionInfo>;
   currentValidAccessToken(): Promise<string | null>;
@@ -40,7 +36,14 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 
   /* Navigating to another activity */
-  navigateTo(activityName: Activity): void;
+  navigateTo(activityName: string): void;
+
+  /* Shared preferences as local storage */
+  getPreference(key: string): string | undefined;
+  setPreference(key: string, value: string): void;
+  removePreference(key: string): void;
+  clearPreferences(): void;
+  checkForPreferenceChangesByOtherProcesses(): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('RTNInStoreApps') as Spec | null;

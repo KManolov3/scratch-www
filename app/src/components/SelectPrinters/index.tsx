@@ -1,95 +1,86 @@
+import { useCallback } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlackAttentionIcon } from '@assets/icons';
-import { RadioButton } from '@components/Button/Radio';
 import { ConfirmationModal } from '@components/ConfirmationModal';
-import { Container } from '@components/Container';
-import {
-  DrawerNavigation,
-  DrawerScreenProps,
-} from '@components/Drawer/navigator';
+import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
+import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
-import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { PrinterOption, useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCurrentSessionInfo } from '@services/Auth';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 
-export interface SelectPrinterProps {
-  title?: string;
-}
-
-export function SelectPrinters({
-  route: {
-    params: { title },
-  },
-}: DrawerScreenProps<'SelectPrinter'>) {
+export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
 
   const {
-    state: confirmationModalVisible,
-    disable: closeConfirmationModal,
-    enable: openConfirmationModal,
-  } = useBooleanState();
+    confirmationRequested,
+    itemToConfirm: printerToConfirm,
+    askForConfirmation,
+    accept,
+    reject,
+  } = useConfirmation<PrinterOption>();
 
-  const { defaultPrinterOption, set } = useDefaultSettings();
-  const [printer, setPrinter] = useState(defaultPrinterOption);
-  const printerToBeSelected = useRef(defaultPrinterOption);
+  const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const printerValues = useMemo(
-    () =>
-      Array.from(Object.values(PrinterOptions)).map(item => (
-        <RadioButton
-          key={item}
-          checked={item === printer}
-          onPress={() => {
-            printerToBeSelected.current = item;
-            openConfirmationModal();
-          }}>
-          <View style={styles.radioButtonText}>
-            <Text
-              style={[
-                styles.text,
-                {
-                  fontWeight:
-                    item === printer ? FontWeight.Bold : FontWeight.Demi,
-                },
-              ]}>
-              {item}
-            </Text>
-            {item === printer ? (
-              <Text style={styles.default}>Default</Text>
-            ) : null}
-          </View>
-        </RadioButton>
-      )),
-    [openConfirmationModal, printer],
+  const {
+    data: { printerOption, lastUsedPortablePrinter },
+    set: setDefaultPrinter,
+  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
+
+  const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
+
+  const checked = useCallback(
+    (item: PrinterOption) => item === printerOption,
+    [printerOption],
   );
 
-  const confirm = useCallback(() => {
-    setPrinter(printerToBeSelected.current);
-    set('defaultPrinterOption', printerToBeSelected.current);
-    closeConfirmationModal();
-  }, [closeConfirmationModal, set]);
-
-  const onBackPress = useCallback(
-    () => replace('DrawerHome', { title }),
-    [replace, title],
+  const { trigger: setPrinter } = useAsyncAction(
+    async (printer: PrinterOption) => {
+      if (await askForConfirmation(printer)) {
+        setDefaultPrinter({ printerOption: printer, lastUsedPortablePrinter });
+      }
+    },
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    },
   );
 
   return (
     <>
-      <FixedLayout style={styles.container}>
+      <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
-        <Container style={styles.radioButtons}>{printerValues}</Container>
+        <PrinterList
+          checked={checked}
+          onRadioButtonPress={setPrinter}
+          withDefault
+          containerStyles={styles.radioButtons}
+          textStyles={styles.text}
+          portablePrinter={lastUsedPortablePrinter}
+          setPortablePrinter={printerCode =>
+            setDefaultPrinter({
+              printerOption: PrinterOption.Portable,
+              lastUsedPortablePrinter: printerCode,
+            })
+          }
+        />
       </FixedLayout>
+
       <ConfirmationModal
-        isVisible={confirmationModalVisible}
-        onCancel={closeConfirmationModal}
-        onConfirm={confirm}
+        isVisible={confirmationRequested}
+        onCancel={reject}
+        onConfirm={accept}
         confirmationLabel="Continue"
         title="Default Printer"
         Icon={BlackAttentionIcon}
@@ -99,8 +90,8 @@ export function SelectPrinters({
           Are you sure you want to set{' '}
         </Text>
         <Text style={styles.confirmationModalText}>
-          <Text style={styles.bold}>{printerToBeSelected.current}</Text> as the
-          default printer?
+          <Text style={styles.bold}>{printerToConfirm}</Text> as the default
+          printer?
         </Text>
       </ConfirmationModal>
     </>
@@ -111,9 +102,11 @@ const styles = StyleSheet.create({
   radioButtons: {
     margin: 16,
     ...BaseStyles.shadow,
-    flexDirection: 'column',
     alignItems: 'flex-start',
-    paddingHorizontal: 32,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    backgroundColor: Colors.pure,
+    padding: 8,
   },
   text: {
     fontSize: 20,
@@ -121,7 +114,6 @@ const styles = StyleSheet.create({
     marginLeft: 13,
   },
   buttons: { marginTop: 60 },
-  default: { fontSize: 10, fontWeight: FontWeight.Book },
   confirmationModalText: {
     textAlign: 'center',
     justifyContent: 'center',
@@ -130,9 +122,4 @@ const styles = StyleSheet.create({
   bold: { fontWeight: FontWeight.Bold },
   icon: { marginTop: 60 },
   container: { backgroundColor: Colors.lightGray },
-  radioButtonText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
-  },
 });

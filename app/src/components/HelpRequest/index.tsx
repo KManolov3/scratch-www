@@ -1,38 +1,28 @@
+import { noop } from 'lodash-es';
+import { useCallback, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlockButton } from '@components/Button/Block';
-import {
-  DrawerNavigation,
-  DrawerScreenProps,
-} from '@components/Drawer/navigator';
+import { DrawerNavigation } from '@components/Drawer/navigator';
 import { LightHeader } from '@components/LightHeader';
 import { TextInput } from '@components/TextInput';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
-import { noop } from 'lodash-es';
-import { useCallback, useState } from 'react';
-import { StyleSheet } from 'react-native';
 
 export interface HelpRequestProps {
   title?: string;
 }
 
-export function HelpRequest({
-  route: {
-    params: { title },
-  },
-}: DrawerScreenProps<'HelpRequest'>) {
+export function HelpRequest() {
   const { replace } = useNavigation<DrawerNavigation>();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
-  const onBackPress = useCallback(
-    () => replace('DrawerHome', { title }),
-    [replace, title],
-  );
+  const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} withoutHeader>
       <LightHeader onPress={onBackPress} label="Help Request" />
       {/* TODO: the designs here are not clear so leaving it like this for now */}
       <TextInput

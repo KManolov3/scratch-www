@@ -1,6 +1,6 @@
-import { DocumentType, gql } from 'src/__generated__';
-import { List } from '@components/List';
 import { useMemo } from 'react';
+import { DocumentType, gql } from 'src/__generated__';
+import { ListWithHeaders } from '@components/ListWithHeaders';
 
 export const PLANOGRAM_FIELDS = gql(`
   fragment PlanogramFields on Item {
@@ -10,7 +10,9 @@ export const PLANOGRAM_FIELDS = gql(`
     }
   }
 `);
+
 export type PlanogramsInfo = NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>>;
+
 type Planogram = NonNullable<
   NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>['planograms']>[number]
 >;
@@ -33,5 +35,5 @@ export function PlanogramList({ planograms }: PlanogramListProps) {
     ],
     [],
   );
-  return <List itemInfo={listItemInfo} data={planograms} />;
+  return <ListWithHeaders itemInfo={listItemInfo} data={planograms} />;
 }

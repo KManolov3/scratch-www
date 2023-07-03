@@ -13,11 +13,11 @@
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:allowBackup="false"
-            android:theme="@style/AppTheme">
+            android:theme="@style/LoadingScreenTheme">
         <activity
                 android:name=".activities.CycleCountActivity"
                 android:process=":cycleCount"
-                android:label="Cycle Count"
+                android:label="@string/cycle_count_app_name"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleTask"
                 android:documentLaunchMode="intoExisting"
@@ -38,7 +38,7 @@
         <activity
                 android:name=".activities.BatchCountActivity"
                 android:process=":batchCount"
-                android:label="Batch Count"
+                android:label="@string/batch_count_app_name"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleTask"
                 android:documentLaunchMode="intoExisting"
@@ -58,7 +58,7 @@
 
         <activity
             android:name=".activities.OutageActivity"
-            android:label="Outage"
+            android:label="@string/outage_app_name"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:documentLaunchMode="intoExisting"
@@ -68,12 +68,18 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.advanceautoparts.instoreapps.outage.SCANNER" />
+            </intent-filter>
         </activity>
 
         <activity
                 android:name=".activities.ItemLookupActivity"
                 android:process=":itemLookup"
-                android:label="Item Lookup"
+                android:label="@string/item_lookup_app_name"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleTask"
                 android:documentLaunchMode="intoExisting"
@@ -94,7 +100,7 @@
         <activity
                 android:name=".activities.TruckDetailScanActivity"
                 android:process=":truckDetailScan"
-                android:label="Truck Detail Scan"
+                android:label="@string/truck_scan_app_name"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
                 android:launchMode="singleTask"
                 android:documentLaunchMode="intoExisting"

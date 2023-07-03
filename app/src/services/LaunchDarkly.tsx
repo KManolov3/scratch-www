@@ -1,6 +1,3 @@
-import { Text } from '@components/Text';
-import { useAppStateChange } from '@hooks/useAppStateChange';
-import { useAsync } from '@hooks/useAsync';
 import LDClient, { LDContext } from 'launchdarkly-react-native-client-sdk';
 import { camelCase, uniqueId } from 'lodash-es';
 import {
@@ -12,16 +9,15 @@ import {
 } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import { config } from 'src/config';
+import { Text } from '@components/Text';
+import {
+  FEATURE_FLAG_DEFAULTS,
+  SupportedFeatureFlags,
+} from '@config/featureFlags';
+import { useAppStateChange } from '@hooks/useAppStateChange';
+import { useAsync } from '@hooks/useAsync';
 import { useCurrentSessionInfo } from './Auth';
 import { BehaviourOnFailure } from './ErrorState/types';
-
-interface SupportedFlags {
-  testFlagRemoveMe: 'a' | 'b' | 'c';
-}
-
-const FLAG_DEFAULTS: SupportedFlags = {
-  testFlagRemoveMe: 'a',
-};
 
 const LAUNCH_DARKLY_CONFIGURE_TIMEOUT = 4000;
 
@@ -67,13 +63,13 @@ class LaunchDarklyService {
     await this.client.identify(launchDarklyContext);
   }
 
-  async allFlags(): Promise<SupportedFlags> {
+  async allFlags(): Promise<SupportedFeatureFlags> {
     const allFlags = await this.client.allFlags();
 
     const flags = Object.entries(allFlags).map(([name, value]) => {
-      const key = camelCase(name) as keyof SupportedFlags;
+      const key = camelCase(name) as keyof SupportedFeatureFlags;
 
-      return [key, value ?? FLAG_DEFAULTS[key]];
+      return [key, value ?? FEATURE_FLAG_DEFAULTS[key]];
     });
 
     return Object.fromEntries(flags);
@@ -104,8 +100,9 @@ class LaunchDarklyService {
 
         applicationName: context.applicationName,
         androidVersion: DeviceInfo.getSystemVersion(),
-        buildInfo: config.build,
-        version: config.version,
+        buildInfo: config.buildInfo,
+        version: config.versionName,
+        versionCode: config.versionCode,
       },
       store: {
         kind: 'store',
@@ -148,7 +145,7 @@ const launchDarkly = new LaunchDarklySingleton();
 
 interface ContextValue {
   loading: boolean;
-  flags: SupportedFlags;
+  flags: SupportedFeatureFlags;
 }
 
 const Context = createContext<ContextValue | undefined>(undefined);
@@ -187,7 +184,7 @@ export function LaunchDarklyProvider({
   );
 
   const {
-    data: flags = FLAG_DEFAULTS,
+    data: flags = FEATURE_FLAG_DEFAULTS,
     loading: loadingFlags,
     reload: reloadFlags,
   } = useAsync(
@@ -229,7 +226,7 @@ export function LaunchDarklyProvider({
   });
 
   if (configuring) {
-    // TODO: Better loading indicator - sync it with the AuthProvider loading indicator
+    // This will be hidden by the loading screen
     return <Text>Loading</Text>;
   }
 

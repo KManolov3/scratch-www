@@ -20,12 +20,11 @@ const documents = {
     "\n  fragment CycleCountCardFragment on CycleCount {\n    cycleCountId\n    cycleCountName\n    dueDate\n  }\n": types.CycleCountCardFragmentFragmentDoc,
     "\n  query CycleCountContext($storeNumber: String!) {\n    cycleCounts(storeNumber: $storeNumber) {\n      storeNumber\n      cycleCountType\n\n      ...CycleCountCardFragment\n\n      items {\n        sku\n        mfrPartNum\n        partDesc\n        retailPrice\n\n        planograms {\n          seqNum\n          planogramId\n          description\n        }\n      }\n    }\n  }\n": types.CycleCountContextDocument,
     "\n  mutation PrintFrontTag(\n    $storeNumber: String!\n    $printer: String! = \"1\"\n    $data: [FrontTagItem]\n  ) {\n    frontTagRequest(storeNumber: $storeNumber, printer: $printer, data: $data)\n  }\n": types.PrintFrontTagDocument,
-    "\n  query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.ItemLookupHomeManualItemLookupDocument,
-    "\n  query ManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.ManualItemLookupDocument,
-    "\n  query AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n    itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n": types.AutomaticItemLookupDocument,
-    "\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...BackstockSlotFields\n    },\n  }\n": types.ItemLookupBySkuDocument,
-    "\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n": types.OutageItemCardFragmentDoc,
+    "\nquery ManualItemLookup($sku: String!, $storeNumber: String!) {\n  itemBySku(sku: $sku, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n": types.ManualItemLookupDocument,
+    "\nquery AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n  itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n": types.AutomaticItemLookupDocument,
+    "\n  fragment OutageItemInfoFields on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n": types.OutageItemInfoFieldsFragmentDoc,
     "\n  mutation SubmitOutageCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n": types.SubmitOutageCountDocument,
+    "\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...OutageItemInfoFields\n      ...BackstockSlotFields\n    },\n  }\n": types.ItemLookupBySkuDocument,
     "\n  query truckScanApp($storeNumber: String!) {\n    truckScansByStore(storeNumber: $storeNumber) {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
     "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
     "\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n": types.ItemInfoHeaderFieldsFragmentDoc,
@@ -78,27 +77,23 @@ export function gql(source: "\n  mutation PrintFrontTag(\n    $storeNumber: Stri
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query ItemLookupHomeManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"];
+export function gql(source: "\nquery ManualItemLookup($sku: String!, $storeNumber: String!) {\n  itemBySku(sku: $sku, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n"): (typeof documents)["\nquery ManualItemLookup($sku: String!, $storeNumber: String!) {\n  itemBySku(sku: $sku, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query ManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query ManualItemLookup($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"];
+export function gql(source: "\nquery AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n  itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n"): (typeof documents)["\nquery AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n  itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n    ...ItemInfoHeaderFields\n    ...PlanogramFields\n    ...BackstockSlotFields\n  },\n}\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n    itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query AutomaticItemLookup($upc: String!, $storeNumber: String!) {\n    itemByUpc(upc: $upc, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...PlanogramFields\n      ...BackstockSlotFields\n    },\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...ItemInfoHeaderFields\n      ...BackstockSlotFields\n    },\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n"): (typeof documents)["\n  fragment OutageItemCard on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n"];
+export function gql(source: "\n  fragment OutageItemInfoFields on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n"): (typeof documents)["\n  fragment OutageItemInfoFields on Item {\n    partDesc\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    backStockSlots {\n      slotId\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation SubmitOutageCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n"): (typeof documents)["\n  mutation SubmitOutageCount($request: CycleCountList!) {\n    sendCycleCountList(request: $request)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...OutageItemInfoFields\n      ...BackstockSlotFields\n    },\n  }\n"): (typeof documents)["\n  query ItemLookupBySku($sku: String!, $storeNumber: String!) {\n    itemBySku(sku: $sku, storeNumber: $storeNumber) {\n      ...OutageItemInfoFields\n      ...BackstockSlotFields\n    },\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

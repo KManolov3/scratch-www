@@ -79,3 +79,6 @@ android/app/src/main/res/raw/src_assets_*
 
 # Built apks
 /builds/
+
+# Generated from the .env files
+android/app/src/main/res/values/env_strings.xml

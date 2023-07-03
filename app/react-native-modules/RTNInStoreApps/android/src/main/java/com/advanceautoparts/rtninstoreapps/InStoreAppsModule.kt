@@ -15,6 +15,10 @@ import kotlinx.coroutines.*
 
 class AuthenticationNotConfigured : Exception("Authentication not configured - please call reloadAuthFromLauncher first")
 
+interface ActivityWithLoadingScreen {
+    fun hideLoadingScreen()
+}
+
 class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInStoreAppsSpec(reactContext) {
     companion object {
         const val NAME = "RTNInStoreApps"
@@ -91,6 +95,29 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
+    override fun navigateTo(activity: String) {
+        reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+
+            val fullActivityName =
+                if (activity.startsWith(".")) {
+                    "${reactContext.packageName}$activity"
+                } else activity
+
+            component = ComponentName(
+                reactContext.packageName,
+                fullActivityName
+            )
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        })
+    }
+
+    override fun hideLoadingScreen() {
+        val activity = reactContext.currentActivity as? ActivityWithLoadingScreen ?: return
+
+        activity.hideLoadingScreen()
+    }
+
     override fun addListener(event: String) {
         // Nothing to do here, this is just a way for the NativeEventEmitter to notify us if we want to handle the subscription event
     }
@@ -115,15 +142,27 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
         }
     }
 
-    override fun navigateTo(appName: String) {
-        reactContext.startActivity(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
+    private var syncStorage = SyncStorage(reactContext).also {
+        it.watchForChanges { eventEmitter.emit("storageChanged", null) }
+    }
 
-            component = ComponentName(
-                "com.advanceautoparts.instoreapps",
-                "com.advanceautoparts.instoreapps.activities.$appName"
-            )
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        })
+    override fun getPreference(key: String): String? {
+        return syncStorage.getItem((key))
+    }
+
+    override fun setPreference(key: String, value: String) {
+        syncStorage.setItem(key, value)
+    }
+
+    override fun removePreference(key: String) {
+        syncStorage.removeItem(key)
+    }
+
+    override fun clearPreferences() {
+        syncStorage.clear()
+    }
+
+    override fun checkForPreferenceChangesByOtherProcesses() {
+        syncStorage.checkForChangesByOtherProcesses()
     }
 }

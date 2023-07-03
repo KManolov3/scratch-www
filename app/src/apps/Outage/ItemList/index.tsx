@@ -1,63 +1,137 @@
-import { FixedLayout } from '@layouts/FixedLayout';
-import {
-  ActivityIndicator,
-  FlatList,
-  ListRenderItem,
-  StyleSheet,
-  ToastAndroid,
-} from 'react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { useCallback, useMemo, useRef } from 'react';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useOutageState } from '../state';
-import { OutageNavigation } from '../navigator';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { useNavigation } from '@react-navigation/native';
+import { useScanCodeListener } from '@services/ScanCode';
+import { toastService } from '@services/ToastService';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { OutageItemCard } from '../components/ItemCard';
+import { OutageNavigation } from '../navigator';
+import { useOutageState } from '../state';
 
 export function OutageItemList() {
   const { navigate } = useNavigation<OutageNavigation>();
+  const flatListRef = useRef<FlatList>(null);
 
   const {
     outageCountItems,
     removeItem,
     submit: submitOutage,
-    submitLoading,
   } = useOutageState();
-  const [isShrinkageModalVisible, setIsShrinkageModalVisible] = useState(false);
 
-  useEffect(() => {
-    if (outageCountItems.length === 0) {
-      navigate('Home');
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
+
+  const { requestToAddItem } = useOutageState();
+
+  const { trigger: addItem } = useAsyncAction(
+    async (sku: string) => {
+      try {
+        await requestToAddItem(sku);
+
+        flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+      } catch (error) {
+        // TODO: Don't assume that it's "No results found"
+        // TODO: Duplication of the text with the batch count
+        toastService.showInfoToast(
+          'No results found. Try searching for another SKU or scanning a barcode.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+
+        throw error;
+      }
+    },
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    },
+  );
+
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        addItem(code.sku);
+        break;
+      default:
+        // TODO: Duplication with the other Outage screen
+        toastService.showInfoToast(
+          'Cannot scan this type of barcode. Supported are front tags and backroom tags.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
     }
-  }, [navigate, outageCountItems.length]);
+  });
 
   const removeOutageItem = useCallback(
     (item: ItemDetailsInfo) => {
       if (item.sku) {
         removeItem(item.sku);
-        ToastAndroid.show(
+
+        if (outageCountItems.length === 1) {
+          navigate('Home');
+        }
+
+        toastService.showInfoToast(
           `${item.partDesc} removed from Outage list`,
-          ToastAndroid.LONG,
+          {
+            props: { containerStyle: styles.toast },
+          },
         );
       }
     },
-    [removeItem],
+    [removeItem, outageCountItems, navigate],
   );
 
-  const submitOutageCount = useCallback(() => {
-    setIsShrinkageModalVisible(false);
-    submitOutage();
-  }, [submitOutage]);
+  const { trigger: submit, loading: submitLoading } = useAsyncAction(
+    async () => {
+      try {
+        if (await askForConfirmation()) {
+          await submitOutage();
+          toastService.showInfoToast('Outage List Complete');
+          navigate('Home');
+        }
+      } catch (error) {
+        // TODO: Move this in `interceptError` callback
+        toastService.showInfoToast(
+          'Could not submit the outage count due to an error',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+
+        throw error;
+      }
+    },
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Toast,
+        }),
+      },
+    },
+  );
 
   const bottomBarActions: Action[] = useMemo(
     () => [
       {
         label: 'Complete Outage Count',
-        onPress: () => setIsShrinkageModalVisible(true),
+        onPress: submit,
+        isLoading: submitLoading,
       },
     ],
-    [],
+    [submit, submitLoading],
   );
 
   const items = useMemo(
@@ -77,10 +151,6 @@ export function OutageItemList() {
     [outageCountItems.length, removeOutageItem],
   );
 
-  if (submitLoading) {
-    return <ActivityIndicator size="large" style={styles.loading} />;
-  }
-
   return (
     <>
       <FixedLayout>
@@ -88,17 +158,18 @@ export function OutageItemList() {
           data={outageCountItems}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
+          ref={flatListRef}
         />
 
         <BottomActionBar actions={bottomBarActions} />
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={confirmationRequested}
         countType="Outage"
         items={items}
-        onConfirm={submitOutageCount}
-        onCancel={() => setIsShrinkageModalVisible(false)}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );
@@ -110,5 +181,9 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 6,
+  },
+  // TODO: Duplication with batch count
+  toast: {
+    marginBottom: '10%',
   },
 });

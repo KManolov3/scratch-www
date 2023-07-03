@@ -1,19 +1,17 @@
+import { ComponentProps } from 'react';
 import {
   CycleCountNavigator,
   CycleCountNavigatorScreenParams,
 } from '@apps/CycleCount/navigator';
 import {
-  NativeStackNavigationOptions,
-  NativeStackScreenProps,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
-import {
   DrawerNavigator,
   DrawerNavigatorScreenParams,
 } from '@components/Drawer/navigator';
+import {
+  NativeStackScreenProps,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
-import { TruckReceiveHome } from './TruckReceive/Home';
-import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 import {
   BatchCountNavigator,
   BatchCountNavigatorScreenParams,
@@ -26,6 +24,8 @@ import {
   OutageNavigator,
   OutageNavigatorScreenParams,
 } from './Outage/navigator';
+import { TruckReceiveHome } from './TruckReceive/Home';
+import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 
 type Routes = {
   CycleCountHome: CycleCountNavigatorScreenParams;
@@ -47,17 +47,22 @@ export type RootScreenProps<K extends RootRouteName> = NativeStackScreenProps<
 export type RootNavigation<K extends RootRouteName = keyof Routes> =
   NativeStackNavigationProp<Routes, K>;
 
+type NavigatorProps = ComponentProps<typeof Stack.Navigator>;
+
 export function RootNavigator({
   initialRoute,
   screenOptions,
+  screenListeners,
 }: {
   initialRoute: RootRouteName;
-  screenOptions: NativeStackNavigationOptions;
+  screenOptions: NavigatorProps['screenOptions'];
+  screenListeners?: NavigatorProps['screenListeners'];
 }) {
   return (
     <Stack.Navigator
       initialRouteName={initialRoute}
-      screenOptions={screenOptions}>
+      screenOptions={screenOptions}
+      screenListeners={screenListeners}>
       <Stack.Screen
         name="CycleCountHome"
         options={{ headerShown: false }}

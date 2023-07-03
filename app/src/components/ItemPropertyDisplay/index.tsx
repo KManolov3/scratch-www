@@ -1,14 +1,15 @@
-import { FontWeight } from '@lib/font';
-import { Text } from '@components/Text';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { Colors } from '@lib/colors';
 import { ReactNode } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Text } from '@components/Text';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 
 interface ItemPropertyDisplayProps {
   label: string;
   value?: string | number | null;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<Text>;
   valueStyle?: StyleProp<Text>;
 }
@@ -18,12 +19,13 @@ export function ItemPropertyDisplay({
   value,
   icon,
   style,
+  containerStyle,
   labelStyle,
   valueStyle,
 }: ItemPropertyDisplayProps) {
   return (
     <View style={[styles.root, style]}>
-      <View>
+      <View style={containerStyle}>
         <Text
           accessibilityLabel={`${label} label`}
           style={[styles.label, labelStyle]}>

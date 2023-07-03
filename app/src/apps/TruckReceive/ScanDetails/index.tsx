@@ -1,7 +1,7 @@
 import { ActivityIndicator, View } from 'react-native';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { Text } from '@components/Text';
 import { RootScreenProps } from '@apps/navigator';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { useManagedQuery } from '@hooks/useManagedQuery';
 import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { gql } from '../../../__generated__';

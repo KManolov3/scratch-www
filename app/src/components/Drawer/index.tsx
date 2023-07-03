@@ -1,29 +1,30 @@
-import { FontWeight } from '@lib/font';
-import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
-import { Text } from '@components/Text';
-import { Colors } from '@lib/colors';
-import { ReactElement, useCallback, useEffect, useMemo } from 'react';
+import { compact } from 'lodash-es';
+import { ReactElement, useCallback, useMemo } from 'react';
 import {
+  Pressable,
   SectionList,
   SectionListData,
   SectionListRenderItemInfo,
-  View,
   StyleSheet,
-  Pressable,
+  View,
 } from 'react-native';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { useNavigation } from '@react-navigation/native';
-import { Activity, InStoreAppsNative } from 'rtn-in-store-apps';
-import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
-import { ItemDetails } from 'src/types/ItemLookup';
-import { compact } from 'lodash-es';
+import type Svg from 'react-native-svg';
+import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { config } from 'src/config';
-import { SvgType } from '*.svg';
-import { DrawerNavigation, DrawerScreenProps } from './navigator';
+import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
+import { useGlobalState } from '@apps/state';
+import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
+import { Text } from '@components/Text';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
+import { useNavigation } from '@react-navigation/native';
+import { useFlags } from '@services/LaunchDarkly';
+import { DrawerNavigation } from './navigator';
 
 interface DrawerSectionData {
   label: string;
-  Icon?: SvgType;
+  Icon?: typeof Svg;
   backgroundColor?: string;
   onPress?: () => void;
 }
@@ -38,20 +39,11 @@ interface DrawerSectionHeader {
   section: SectionListData<DrawerSectionData, DrawerSection>;
 }
 
-export interface DrawerProps {
-  title?: string;
-  item?: ItemDetails;
-}
-
-export function Drawer({
-  route: {
-    params: { title, item },
-  },
-}: DrawerScreenProps<'DrawerHome'>) {
-  const { replace, getParent, goBack } = useNavigation<DrawerNavigation>();
+export function Drawer() {
+  const { replace, goBack } = useNavigation<DrawerNavigation>();
   const { navigate } = useNavigation<ItemLookupNavigation>();
 
-  useEffect(() => getParent()?.setOptions({ title }), [getParent, title]);
+  const { selectedItem, activityName: currentActivityName } = useGlobalState();
 
   const renderSectionHeader = useCallback<
     (sections: DrawerSectionHeader) => ReactElement | null
@@ -77,23 +69,18 @@ export function Drawer({
     return sectionTitle;
   }, []);
 
-  const navigateTo = useCallback(
-    (activityName: Activity) => {
-      goBack();
-      InStoreAppsNative.navigateTo(activityName);
-    },
-    [goBack],
-  );
+  const { configHamburgerMenuAppFunctions } = useFlags();
 
   const sections = useMemo(
     () => [
       {
         title: 'Item In Slots',
         data: compact([
-          item
+          selectedItem
             ? {
                 label: 'Print Front Tags',
-                onPress: () => navigate('PrintFrontTag', { itemDetails: item }),
+                onPress: () =>
+                  navigate('PrintFrontTag', { itemDetails: selectedItem }),
               }
             : undefined,
           // { label: 'Backstock Moves' },
@@ -101,40 +88,17 @@ export function Drawer({
         ]),
       },
       {
-        // TODO: These should be based on access level
         title: 'Functions',
-        data: [
-          {
-            label: 'Item Lookup',
+        data: configHamburgerMenuAppFunctions
+          .filter(_ => _.activity !== currentActivityName)
+          .map(({ label, activity }) => ({
+            label,
             Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.ItemLookupActivity),
-          },
-          { label: 'ATI Tote Assignment', Icon: EmptyRadioButton },
-          {
-            label: 'Batch Count',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.BatchCountActivity),
-          },
-          { label: 'New Return Request', Icon: EmptyRadioButton },
-          {
-            label: 'Cycle Count',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.CycleCountActivity),
-          },
-          {
-            label: 'Receiving',
-            Icon: EmptyRadioButton,
-          },
-          {
-            label: 'Backstock Managment',
-            Icon: EmptyRadioButton,
-          },
-          {
-            label: 'Outage',
-            Icon: EmptyRadioButton,
-            onPress: () => navigateTo(Activity.OutageActivity),
-          },
-        ].filter(({ label }) => label !== title),
+            onPress: () => {
+              goBack();
+              InStoreAppsNative.navigateTo(activity);
+            },
+          })),
       },
       {
         title: (
@@ -147,8 +111,8 @@ export function Drawer({
             ]}>
             <Text style={styles.drawerHeaderText}>Settings</Text>
             <Text style={styles.version}>
-              ver. {config.version}
-              {config.build ? `-${config.build}` : ''}
+              ver. {config.versionName}
+              {config.showDebugUI ? `-${config.buildInfo}` : ''}
             </Text>
           </View>
         ),
@@ -157,18 +121,25 @@ export function Drawer({
         data: [
           {
             label: 'Printers',
-            onPress: () => replace('SelectPrinter', { title }),
+            onPress: () => replace('SelectPrinter'),
             backgroundColor: Colors.drawerGray,
           },
           {
             label: 'Help Request',
-            onPress: () => replace('HelpRequest', { title }),
+            onPress: () => replace('HelpRequest'),
             backgroundColor: Colors.drawerGray,
           },
         ],
       },
     ],
-    [item, navigate, navigateTo, replace, title],
+    [
+      configHamburgerMenuAppFunctions,
+      navigate,
+      goBack,
+      replace,
+      selectedItem,
+      currentActivityName,
+    ],
   );
 
   const renderSectionItem = useCallback(
@@ -193,7 +164,7 @@ export function Drawer({
   );
 
   return (
-    <FixedLayout style={styles.container}>
+    <FixedLayout style={styles.container} withoutHeader>
       <SectionList
         sections={sections}
         renderSectionHeader={renderSectionHeader}
@@ -209,8 +180,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 19,
   },
   drawerHeader: {
-    paddingTop: 16,
-    marginTop: 16,
+    paddingVertical: 12,
+    marginTop: 4,
   },
   drawerHeaderText: {
     fontSize: 18,
@@ -226,7 +197,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.pure,
     borderRadius: 9,
-    marginTop: 12,
+    marginBottom: 12,
     paddingVertical: 14,
     paddingLeft: 23,
     paddingRight: 18,

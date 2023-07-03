@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { BaseStyles } from '@lib/baseStyles';
 
 export const styles = StyleSheet.create({
   card: {

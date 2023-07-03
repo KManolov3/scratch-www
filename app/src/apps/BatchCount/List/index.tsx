@@ -1,19 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, FlatList, ListRenderItem } from 'react-native';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { useNavigation } from '@react-navigation/native';
-import { FixedLayout } from '@layouts/FixedLayout';
-import { Colors } from '@lib/colors';
 import { compact, sortBy } from 'lodash-es';
-import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
-import { Header } from '@components/Header';
-import { useBooleanState } from '@hooks/useBooleanState';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
+import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
+import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
+import { useAsyncAction } from '@hooks/useAsyncAction';
+import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { FixedLayout } from '@layouts/FixedLayout';
+import { Colors } from '@lib/colors';
+import { useNavigation } from '@react-navigation/native';
+import { BehaviourOnFailure } from '@services/ErrorState/types';
+import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
-import { BatchCountItemCard } from '../components/BatchCountItemCard';
 
 export function BatchCountList() {
   const {
@@ -26,11 +28,8 @@ export function BatchCountList() {
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
-  const {
-    state: isShrinkageModalVisible,
-    enable: enableShrinkageModal,
-    disable: disableShrinkageModal,
-  } = useBooleanState(false);
+  const { confirmationRequested, askForConfirmation, accept, reject } =
+    useConfirmation();
 
   const sortFn = useCallback(
     (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
@@ -44,6 +43,8 @@ export function BatchCountList() {
   );
 
   const [expandedSku, setExpandedSku] = useState<string>();
+
+  const flatListRef = useRef<FlatList>(null);
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -94,7 +95,7 @@ export function BatchCountList() {
     (item: BatchCountItem['item']) => {
       removeItem(item.sku);
       toastService.showInfoToast(
-        `${item.partDesc} removed from Batch count list`,
+        `${item.partDesc} removed from batch count list`,
         {
           props: { containerStyle: styles.toast },
         },
@@ -114,8 +115,8 @@ export function BatchCountList() {
       <BatchCountItemCard
         item={item}
         newQuantity={newQty}
-        setNewQuantity={(quantity: number) =>
-          setNewQuantity(item.sku, quantity)
+        setNewQuantity={(quantity: number | undefined) =>
+          setNewQuantity(item.sku, quantity ?? 0)
         }
         isExpanded={expandedSku === item.sku}
         isBookmarked={!!isBookmarked}
@@ -128,10 +129,21 @@ export function BatchCountList() {
     [expandedSku, onBookmark, onClick, onRemove, setNewQuantity],
   );
 
-  const submitBatchCount = useCallback(() => {
-    disableShrinkageModal();
-    submitBatch();
-  }, [disableShrinkageModal, submitBatch]);
+  const { trigger: submitBatchCount } = useAsyncAction(
+    async () => {
+      if (await askForConfirmation()) {
+        submitBatch();
+      }
+    },
+    {
+      globalErrorHandling: {
+        interceptError: () => ({
+          behaviourOnFailure: BehaviourOnFailure.Modal,
+          shouldRetryRequest: true,
+        }),
+      },
+    },
+  );
 
   const onVerify = useCallback(() => {
     navigation.navigate('Summary');
@@ -142,7 +154,7 @@ export function BatchCountList() {
       compact([
         {
           label: 'Fast Accept',
-          onPress: enableShrinkageModal,
+          onPress: submitBatchCount,
           buttonStyle: styles.fastAccept,
           textStyle: styles.fastAcceptText,
           isLoading: submitLoading,
@@ -152,7 +164,7 @@ export function BatchCountList() {
           onPress: onVerify,
         },
       ]),
-    [enableShrinkageModal, onVerify, submitLoading],
+    [submitBatchCount, onVerify, submitLoading],
   );
 
   useEffect(() => {
@@ -169,29 +181,35 @@ export function BatchCountList() {
   }, [submitError]);
 
   useFocusEventBus('search-error', () => {
-    disableShrinkageModal();
+    reject();
     toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning another barcode.',
+      'No results found. Try searching for another SKU or scanning a barcode.',
       {
         props: { containerStyle: styles.toast },
       },
     );
   });
 
-  useFocusEventBus('search-success', () => {
-    disableShrinkageModal();
+  useFocusEventBus('search-success', (item?: Item) => {
+    reject();
+    if (item && item.sku !== expandedSku) {
+      setExpandedSku(undefined);
+    }
   });
 
-  const header = <Header title="Batch Count" />;
+  useFocusEventBus('add-new-item', () => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+  });
 
   return (
     <>
-      <FixedLayout header={header}>
+      <FixedLayout>
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}
           data={batchCountItemsSorted}
           renderItem={renderItem}
+          ref={flatListRef}
         />
         <BottomActionBar
           style={styles.bottomActionBar}
@@ -200,11 +218,11 @@ export function BatchCountList() {
       </FixedLayout>
 
       <ShrinkageOverageModal
-        isVisible={isShrinkageModalVisible}
+        isVisible={confirmationRequested}
         countType="Batch Count"
         items={items}
-        onConfirm={submitBatchCount}
-        onCancel={disableShrinkageModal}
+        onConfirm={accept}
+        onCancel={reject}
       />
     </>
   );

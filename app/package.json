@@ -3,25 +3,54 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "export $(cat .env) && react-native run-android --main-activity .activities.$START_ACTIVITY",
+    "prepare": "cd .. && husky install ./app/.husky && cd ./app",
+
+    "start": "react-native start",
+
+    "cycle-count": "react-native run-android --main-activity .activities.CycleCountActivity",
+    "batch-count": "react-native run-android --main-activity .activities.BatchCountActivity",
+    "outage": "react-native run-android --main-activity .activities.OutageActivity",
+    "item-lookup": "react-native run-android --main-activity .activities.ItemLookupActivity",
+    "truck-scan": "react-native run-android --main-activity .activities.TruckDetailScanActivity",
+
     "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337; adb reverse tcp:8097 tcp:8097",
-    "check": "npm run eslint && npm run tsc",
+
+    "check": "npm run eslint && npm run tsc && npm run prettier:check",
     "tsc": "tsc -p ./ --noEmit",
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.tsx,.js,.jsx",
-    "start": "react-native start",
+    "prettier:check": "prettier -c .",
+    "prettier:fix": "prettier -w .",
+
     "test": "jest",
+
     "graphql:codegen": "graphql-codegen",
     "graphql:watch": "graphql-codegen -w",
-    "prepare": "cd .. && husky install ./app/.husky && cd ./app",
+
     "react-native:codegen": "cd android && ./gradlew generateCodegenArtifactsFromSchema",
+
     "package:clean": "rm android/app/src/main/assets/index.android.bundle",
-    "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps",
+
+    "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps",
+    "package:install:local": "adb install -r builds/in-store-apps-local.apk",
+    "package:build:local": "(cd android && ENVFILE=.env ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-local.apk",
+
+    "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps.dev",
     "package:install:dev": "adb install -r builds/in-store-apps-dev.apk",
-    "package:build:dev": "PACKAGE_NAME=com.advanceautoparts.instoreapps ENV_FILE=.env.dev react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.dev ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-dev.apk",
+    "package:build:dev": "(cd android && ENVFILE=.env.dev ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-dev.apk",
+
     "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
     "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
-    "package:build:qa": "PACKAGE_NAME=com.advanceautoparts.instoreapps.qa ENV_FILE=.env.qa react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && ENV_FILE=.env.qa ./gradlew assembleDebug && mkdir -p ../builds && cp app/build/outputs/apk/debug/app-debug.apk ../builds/in-store-apps-qa.apk",
-    "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
+    "package:build:qa": "(cd android && ENVFILE=.env.qa ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-qa.apk",
+
+    "package:uninstall:staging": "adb uninstall com.advanceautoparts.instoreapps.staging",
+    "package:install:staging": "adb install -r builds/in-store-apps-staging.apk",
+    "package:build:staging": "(cd android && ENVFILE=.env.staging ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-staging.apk",
+
+    "package:uninstall:production": "adb uninstall com.advanceautoparts.instoreapps",
+    "package:install:production": "adb install -r builds/in-store-apps-production.apk",
+    "package:build:production": "(cd android && ENVFILE=.env.production ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-production.apk",
+
+    "send-intent": "scripts/send-intent.sh"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
@@ -55,6 +84,7 @@
     "@graphql-codegen/client-preset": "^3.0.0",
     "@react-native-community/eslint-config": "^3.2.0",
     "@rnx-kit/metro-resolver-symlinks": "^0.1.28",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@tsconfig/react-native": "^2.0.2",
     "@types/jest": "^29.2.1",
     "@types/lodash-es": "^4.17.7",
@@ -70,7 +100,7 @@
     "husky": "^8.0.3",
     "jest": "^29.2.1",
     "metro-react-native-babel-preset": "0.73.9",
-    "prettier": "^2.4.1",
+    "prettier": "^2.8.8",
     "react-native-svg-transformer": "^1.0.0",
     "react-test-renderer": "18.2.0",
     "typescript": "4.8.4"

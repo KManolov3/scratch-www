@@ -1,8 +1,8 @@
+import { ReactNode, createContext, useContext, useRef } from 'react';
+import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 import { Text } from '@components/Text';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
-import { ReactNode, createContext, useContext } from 'react';
-import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 import { BehaviourOnFailure } from './ErrorState/types';
 
 export interface SessionInfo {
@@ -15,12 +15,17 @@ const Context = createContext<SessionInfo | undefined>(undefined);
 export interface AuthProviderProps {
   config: AuthConfig;
   children: ReactNode;
+  onError: () => void;
 }
 
 export function AuthProvider({
   config: { clientId, authServerURL },
   children,
+  onError,
 }: AuthProviderProps) {
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
   const {
     data: sessionInfo,
     reload: reloadAuth,
@@ -30,7 +35,15 @@ export function AuthProvider({
 
     error,
   } = useAsync(
-    () => InStoreAppsNative.reloadAuthFromLauncher({ clientId, authServerURL }),
+    () =>
+      InStoreAppsNative.reloadAuthFromLauncher({
+        clientId,
+        authServerURL,
+      }).catch(authError => {
+        onErrorRef.current();
+
+        return Promise.reject(authError);
+      }),
     [clientId, authServerURL],
     {
       globalErrorHandling: {
@@ -55,7 +68,7 @@ export function AuthProvider({
   // The other times the user may not have changed at all, and even if they have,
   // we don't want to unmount the whole app.
   if (!sessionInfo) {
-    // TODO: Better loading indicator
+    // This will be hidden by the loading screen
     return <Text>Loading...</Text>;
   }
 

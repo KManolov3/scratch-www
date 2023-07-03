@@ -7,13 +7,13 @@ import {
   ViewStyle,
   PressableProps,
 } from 'react-native';
+import type Svg from 'react-native-svg';
 import { Text } from '@components/Text';
-import { SvgType } from '*.svg';
 import { styles, iconSize, primaryColor, secondaryColor } from './styles';
 
 interface Props extends PressableProps {
   label?: string | ReactElement;
-  Icon?: SvgType;
+  Icon?: typeof Svg;
   onPress: () => void;
   isLoading?: boolean;
   style?: StyleProp<ViewStyle>;

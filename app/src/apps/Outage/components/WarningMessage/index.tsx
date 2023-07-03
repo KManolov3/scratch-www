@@ -1,8 +1,8 @@
+import { StyleSheet, View } from 'react-native';
 import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { StyleSheet, View } from 'react-native';
 
 export interface WarningMessageProps {
   warningText: string;
@@ -22,12 +22,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.lightYellow,
-    paddingHorizontal: 10,
-    paddingVertical: 14,
+    paddingHorizontal: 9,
+    paddingVertical: 10,
     borderColor: Colors.advanceRed,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderRadius: 10,
+    borderRadius: 4,
   },
   text: {
     paddingLeft: 10,

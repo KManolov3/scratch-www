@@ -1,12 +1,4 @@
 export class CommonItemDetailsPage {
-  get headerText() {
-    return '[text=ItemDetails]';
-  }
-
-  get backButton() {
-    return '~Navigate up';
-  }
-
   get productName() {
     return '~Product Title';
   }
@@ -28,7 +20,7 @@ export class CommonItemDetailsPage {
   }
 
   get backstockQuantity() {
-    return '~Back Stock value';
+    return '~Backstock value';
   }
 
   get pogLocationsButton() {
@@ -37,7 +29,7 @@ export class CommonItemDetailsPage {
 
   getPlanogramInfoTableRow(row: number) {
     return {
-      locationId: `~POG Location${row - 1}`,
+      locationId: `~POG${row - 1}`,
       seqNumber: `~POG Seq #${row - 1}`,
     };
   }

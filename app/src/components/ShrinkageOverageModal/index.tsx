@@ -1,14 +1,14 @@
-import { StyleSheet, View } from 'react-native';
-import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
-import { convertCurrencyToString } from '@lib/currency';
-import { Text } from '@components/Text';
-import { BlackAttentionIcon } from '@assets/icons';
-import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { BaseStyles } from '@lib/baseStyles';
-import { ConfirmationModal } from '@components/ConfirmationModal';
-import { useMemo } from 'react';
 import { sumBy } from 'lodash-es';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { BlackAttentionIcon } from '@assets/icons';
+import { ConfirmationModal } from '@components/ConfirmationModal';
+import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
+import { Text } from '@components/Text';
+import { BaseStyles } from '@lib/baseStyles';
+import { Colors } from '@lib/colors';
+import { convertCurrencyToString } from '@lib/currency';
+import { FontWeight } from '@lib/font';
 
 interface Item {
   onHand?: number | null;
@@ -76,19 +76,37 @@ export function ShrinkageOverageModal({
           ]}
         />
       )}
-      <View style={styles.shrinkageOverage}>
+      <View
+        style={[
+          styles.shrinkage,
+          !isOutageCount && styles.shrinkageAndOverage,
+        ]}>
         <ItemPropertyDisplay
           label="Shrinkage"
           value={convertCurrencyToString(-shrinkage)}
-          labelStyle={styles.shrinkageOverageLabel}
-          valueStyle={[styles.shrinkageOverageValue, styles.redText]}
+          containerStyle={isOutageCount && styles.shrinkageOnlyContainer}
+          labelStyle={[
+            styles.shrinkageLabel,
+            !isOutageCount && styles.shrinkageAndOverageLabel,
+          ]}
+          valueStyle={[
+            styles.shrinkageValue,
+            styles.redText,
+            !isOutageCount && styles.shrinkageAndOverageValue,
+          ]}
         />
         {!isOutageCount && (
           <ItemPropertyDisplay
             label="Overage"
             value={convertCurrencyToString(overage)}
-            labelStyle={styles.shrinkageOverageLabel}
-            valueStyle={styles.shrinkageOverageValue}
+            labelStyle={[
+              styles.shrinkageLabel,
+              styles.shrinkageAndOverageLabel,
+            ]}
+            valueStyle={[
+              styles.shrinkageValue,
+              styles.shrinkageAndOverageValue,
+            ]}
           />
         )}
       </View>
@@ -128,9 +146,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: FontWeight.Demi,
   },
-  shrinkageOverage: {
+  shrinkage: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     backgroundColor: Colors.pure,
     borderRadius: 8,
     marginHorizontal: 50,
@@ -138,15 +156,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     ...BaseStyles.shadow,
   },
-  shrinkageOverageLabel: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontWeight: FontWeight.Medium,
+  shrinkageAndOverage: {
+    justifyContent: 'space-between',
   },
-  shrinkageOverageValue: {
+  shrinkageOnlyContainer: {
+    flexDirection: 'column',
+    gap: 8,
+    alignItems: 'center',
+  },
+  shrinkageLabel: {
     fontSize: 16,
     lineHeight: 24,
+    fontWeight: FontWeight.Medium,
+  },
+  shrinkageAndOverageLabel: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  shrinkageValue: {
+    fontSize: 24,
+    lineHeight: 32,
     fontWeight: FontWeight.Bold,
+  },
+  shrinkageAndOverageValue: {
+    fontSize: 16,
+    lineHeight: 24,
   },
   redText: {
     color: Colors.advanceRed,

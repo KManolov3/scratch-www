@@ -1,34 +1,57 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { localStorage } from '@services/LocalStorageService';
 
-export enum PrinterOptions {
-  Counter1 = 'Printer Counter 1',
-  Counter2 = 'Printer Counter 2',
-  Counter3 = 'Printer Counter 3',
+export enum PrinterOption {
+  Counter1 = 'Counter Printer 1',
+  Counter2 = 'Counter Printer 2',
+  Counter3 = 'Counter Printer 3',
   Portable = 'Portable',
 }
 
+export type SelectedPrinter = {
+  printerOption: PrinterOption;
+  lastUsedPortablePrinter?: string;
+};
+
 export interface DefaultSettings {
-  defaultPrinterOption: PrinterOptions;
+  defaultPrinterOption: SelectedPrinter;
 }
 
-export function useDefaultSettings(): DefaultSettings & {
-  set: <Key extends keyof DefaultSettings, Value = DefaultSettings[Key]>(
-    key: Key,
-    value: Value,
-  ) => void;
+const DEFAULT_SETTINGS: DefaultSettings = {
+  defaultPrinterOption: { printerOption: PrinterOption.Counter1 },
+};
+
+export function useDefaultSettings<Key extends keyof DefaultSettings>(
+  context: string[],
+  key: Key,
+): {
+  data: DefaultSettings[Key];
+  set: (value: DefaultSettings[Key]) => void;
 } {
+  const fullKey = [...context, key].join('.');
+
   const set = useCallback(
-    <Key extends keyof DefaultSettings, Value = DefaultSettings[Key]>(
-      _key: Key,
-      _value: Value,
-    ) => {
-      // TODO: set the value in **whereever these values are kept**
+    (value: DefaultSettings[Key]) => {
+      localStorage.set(fullKey, value);
+      setSetting(value);
     },
-    [],
+    [fullKey],
   );
+
+  const [setting, setSetting] = useState<DefaultSettings[Key] | undefined>(
+    localStorage.get(fullKey),
+  );
+
+  useEffect(() => {
+    const subscription = localStorage.onChange(() => {
+      setSetting(localStorage.get(fullKey));
+    });
+
+    return () => subscription.remove();
+  }, [fullKey]);
+
   return {
-    // TODO: hardcoded for now, change when we implement the launcher
-    defaultPrinterOption: PrinterOptions.Counter1,
+    data: setting ?? DEFAULT_SETTINGS[key],
     set,
   };
 }

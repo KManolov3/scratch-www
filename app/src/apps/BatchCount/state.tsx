@@ -12,7 +12,6 @@ import {
   useState,
 } from 'react';
 import 'react-native-get-random-values';
-import { toastService } from 'src/services/ToastService';
 import { gql } from 'src/__generated__';
 import {
   Action,
@@ -20,9 +19,9 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { useScanListener } from 'src/services/Scanner';
+import { useScanCodeListener } from 'src/services/ScanCode';
+import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
-import { scanCodeService } from 'src/services/ScanCode';
 import { EventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
@@ -103,8 +102,6 @@ function buildBatchCountRequest(
 }
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
-  // TODO: Experiment implementing the state with `useMap`
-  // https://usehooks-ts.com/react-hook/use-map
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
   const {
     perform: submitBatchCount,
@@ -158,6 +155,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
             },
             ...batchCountItems,
           ]);
+          EventBus.emit('add-new-item');
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -192,7 +190,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       batchCountItems,
       storeNumber,
     );
+
+    // TODO: Does this reject on error?
     await submitBatchCount({ variables: { request: batchCountRequest } });
+
     setBatchCountItems([]);
 
     toastService.showInfoToast('Batch count completed');
@@ -206,6 +207,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       submit,
+
+      // TODO: Make these part of the user useAsyncAction and just make `submit` return a promise?
       submitLoading: loading,
       submitError: error,
     }),
@@ -215,7 +218,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const { perform: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
@@ -229,7 +232,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
-      EventBus.emit('search-success');
+      EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
@@ -240,18 +243,20 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  useScanListener(scan => {
-    const scanCode = scanCodeService.parse(scan);
-
-    if (scanCode.type === 'SKU') {
-      return searchBySku({
-        variables: { sku: scanCode.sku, storeNumber },
-      });
+  useScanCodeListener(code => {
+    switch (code.type) {
+      case 'front-tag':
+      case 'sku':
+        return searchBySku({
+          variables: { sku: code.sku, storeNumber },
+        });
+      case 'UPC':
+        return searchByUpc({
+          variables: { upc: code.upc, storeNumber },
+        });
+      default:
+        toastService.showInfoToast('Scanned barcode is not supported');
     }
-
-    return searchByUpc({
-      variables: { upc: scanCode.upc, storeNumber },
-    });
   });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

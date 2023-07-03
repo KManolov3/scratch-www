@@ -1,9 +1,9 @@
 import { StyleSheet, View } from 'react-native';
+import { BlackAttentionIcon } from '@assets/icons';
+import { ConfirmationModal } from '@components/ConfirmationModal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { BlackAttentionIcon } from '@assets/icons';
-import { ConfirmationModal } from '@components/ConfirmationModal';
 
 export interface PrintConfirmationModalProps {
   isVisible: boolean;
@@ -37,6 +37,7 @@ export function PrintConfirmationModal({
     </ConfirmationModal>
   );
 }
+
 const styles = StyleSheet.create({
   text: {
     color: Colors.black,

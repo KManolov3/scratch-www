@@ -1,12 +1,14 @@
 import EventEmitter from 'eventemitter3';
+import { useEffect } from 'react';
+import { Item } from 'src/__generated__/graphql';
 import { ApolloError } from '@apollo/client';
 import { useFocusEffect } from '@react-navigation/native';
-import { useEffect } from 'react';
 
 interface EventTypes {
   'search-error': [ApolloError];
-  'search-success': [];
+  'search-success': [Item?];
   'print-success': [];
+  'add-new-item': [];
 }
 
 export const EventBus = new EventEmitter<EventTypes>();
