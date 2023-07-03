@@ -14,6 +14,7 @@ export * from './ScanInfo';
 
 interface Events {
   scan: ScanInfo;
+  storageChanged: null;
 }
 
 export interface Subscription {

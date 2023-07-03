@@ -28,20 +28,6 @@ class ToastService {
       ...configuration,
     });
   }
-
-  showErrorToast(text: string, configuration: ToastProps = {}) {
-    this.hideToast();
-    Toast.show({
-      text1: text,
-      // TODO: rn we are using the built in error toast,
-      // we probably want to create a custom layout later
-      type: 'error',
-      position: 'bottom',
-      visibilityTime: TOAST_DEFAULT_DURATION,
-      autoHide: true,
-      ...configuration,
-    });
-  }
 }
 
 export const toastService = new ToastService();

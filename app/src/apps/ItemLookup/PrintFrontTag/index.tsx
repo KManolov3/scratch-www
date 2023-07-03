@@ -7,31 +7,32 @@ import { ItemDetails } from 'src/types/ItemLookup';
 import { useMutation } from '@apollo/client';
 import {
   EmptySquareCheckBox,
-  PrinterIcon,
   SquareCheckBox,
   WhiteBackArrow,
   WhiteSearchIcon,
 } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
-import { BottomRegularTray } from '@components/BottomRegularTray';
-import { ConfirmationModal } from '@components/ConfirmationModal';
 import { Header } from '@components/Header';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
-import { RadioButtonsList } from '@components/RadioButtonsList';
 import { Separator } from '@components/Separator';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
-import { PrinterOptions, useDefaultSettings } from '@hooks/useDefaultSettings';
-import { EventBus, useEventBus } from '@hooks/useEventBus';
+import {
+  PrinterOption,
+  SelectedPrinter,
+  useDefaultSettings,
+} from '@hooks/useDefaultSettings';
+import { EventBus } from '@hooks/useEventBus';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { indexOfEnumValue } from '@lib/array';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { ItemLookupHome } from '../components/Home';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
+import { PrinterConfirmationModal } from '../components/PrinterConfirmationModal';
+import { SearchBottomTray } from '../components/SearchBottomTray';
+import { useItemLookup } from '../hooks/useItemLookup';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
 import { styles } from './styles';
 
@@ -83,19 +84,25 @@ export function PrintFrontTagScreen({
 
   const [printFrontTag] = useMutation(PRINT_FRONT_TAG);
 
-  const { state: printerModalVisible, toggle: togglePrintModal } =
-    useBooleanState();
+  const {
+    state: printerModalVisible,
+    enable: openPrinterModal,
+    disable: closePrinterModal,
+  } = useBooleanState();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const { data: defaultPrinterOption } = useDefaultSettings(
-    'defaultPrinterOption',
-    storeNumber,
-    userId,
-  );
+  const {
+    data: { printerOption, lastUsedPortablePrinter },
+  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
 
-  const [printer, setPrinter] = useState(defaultPrinterOption);
-  const [selectPrinter, setSelectPrinter] = useState(defaultPrinterOption);
+  const [printer, setPrinter] = useState<SelectedPrinter>({
+    printerOption,
+    lastUsedPortablePrinter:
+      printerOption === PrinterOption.Portable
+        ? lastUsedPortablePrinter
+        : undefined,
+  });
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -116,14 +123,10 @@ export function PrintFrontTagScreen({
     const promises = locationStatuses
       .filter(_ => _.checked)
       .map(({ id, seqNum, qty }) => {
-        const printerToStringValue = String(
-          indexOfEnumValue(PrinterOptions, printer) + 1,
-        );
-
         return printFrontTag({
           variables: {
             storeNumber,
-            printer: printerToStringValue,
+            printer: printer.lastUsedPortablePrinter ?? printer.printerOption,
             data: {
               sku: itemDetails.sku,
               count: qty,
@@ -148,9 +151,14 @@ export function PrintFrontTagScreen({
       );
     }
 
-    toastService.showInfoToast(`Front tag sent to ${printer}`, {
-      props: { containerStyle: styles.toast },
-    });
+    toastService.showInfoToast(
+      `Front tag sent to ${printer.printerOption} ${
+        printer.lastUsedPortablePrinter ?? ''
+      }`,
+      {
+        props: { containerStyle: styles.toast },
+      },
+    );
 
     EventBus.emit('print-success');
     goBack();
@@ -208,15 +216,21 @@ export function PrintFrontTagScreen({
     [locationStatuses.length, update],
   );
 
-  const { state: searchTrayOpen, enable, disable } = useBooleanState();
+  const {
+    state: searchTrayOpen,
+    enable: openSearchTray,
+    disable: closeSearchTray,
+  } = useBooleanState();
 
-  useEventBus('search-error', () => {
-    if (!searchTrayOpen) {
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning a barcode.',
-      );
-    }
+  const {
+    search,
+    error: skuError,
+    loading: isLoadingItemBySku,
+  } = useItemLookup({
+    onComplete: closeSearchTray,
   });
+
+  const searchItem = useCallback((sku: string) => search({ sku }), [search]);
 
   return (
     <FixedLayout
@@ -225,17 +239,24 @@ export function PrintFrontTagScreen({
         <Header
           item={itemDetails}
           rightIcon={<WhiteSearchIcon />}
-          onClickRight={enable}
+          onClickRight={openSearchTray}
           leftIcon={<WhiteBackArrow />}
           onClickLeft={goBack}
         />
       }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
-      <View style={styles.textContainer}>
+      <View
+        style={[
+          styles.textContainer,
+          printer.lastUsedPortablePrinter ? styles.column : styles.row,
+        ]}>
         <Text style={styles.text}>
-          Print to <Text style={styles.bold}>{printer}</Text>
+          Print to{' '}
+          <Text style={styles.bold}>
+            {printer.printerOption} {printer.lastUsedPortablePrinter}
+          </Text>
         </Text>
-        <Pressable onPress={togglePrintModal}>
+        <Pressable onPress={openPrinterModal}>
           <Text style={[styles.viewOptions, styles.bold]}>View Options</Text>
         </Pressable>
       </View>
@@ -251,29 +272,13 @@ export function PrintFrontTagScreen({
         style={styles.bottomActionBar}
       />
 
-      <ConfirmationModal
+      <PrinterConfirmationModal
         isVisible={printerModalVisible}
-        onCancel={togglePrintModal}
-        onConfirm={() => {
-          togglePrintModal();
-          setPrinter(selectPrinter);
-        }}
-        title="Print Front Tags"
-        confirmationLabel="Select"
-        Icon={PrinterIcon}>
-        <View style={styles.printModal}>
-          <Text style={styles.centeredText}>
-            Print to <Text style={styles.bold}>{printer}</Text>
-          </Text>
-          <RadioButtonsList
-            items={Array.from(Object.values(PrinterOptions))}
-            checked={item => item === selectPrinter}
-            onRadioButtonPress={item => setSelectPrinter(item)}
-            containerStyles={styles.radioButtons}
-            bold
-          />
-        </View>
-      </ConfirmationModal>
+        lastUsedPortablePrinter={lastUsedPortablePrinter}
+        onCancel={closePrinterModal}
+        setPrinter={setPrinter}
+        printer={printer}
+      />
 
       <PrintConfirmationModal
         isVisible={confirmationRequested}
@@ -282,9 +287,13 @@ export function PrintFrontTagScreen({
         quantity={totalPrintQuantity}
       />
 
-      <BottomRegularTray isVisible={searchTrayOpen} hideTray={disable}>
-        <ItemLookupHome onSubmit={disable} searchBarStyle={styles.searchBar} />
-      </BottomRegularTray>
+      <SearchBottomTray
+        error={skuError}
+        loading={isLoadingItemBySku}
+        isVisible={searchTrayOpen}
+        hideTray={closeSearchTray}
+        onSubmit={searchItem}
+      />
     </FixedLayout>
   );
 }

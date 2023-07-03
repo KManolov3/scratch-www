@@ -149,12 +149,11 @@ export class BatchCountController extends BaseController {
       await this.expectProductInfo(data.item);
 
       if (data.bookmarked) {
-        const coordinateX = await $(
+        const pogLocationsButton = await $(
           this.batchCountPages.batchCountListPage.pogLocationsButton
-        ).getLocation('x');
-        const coordinateY = await $(
-          this.batchCountPages.batchCountListPage.pogLocationsButton
-        ).getLocation('y');
+        );
+        const coordinateX = await pogLocationsButton.getLocation('x');
+        const coordinateY = await pogLocationsButton.getLocation('y');
 
         await this.verticalScroll(coordinateX, coordinateY, -500);
 

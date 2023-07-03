@@ -7,11 +7,11 @@
 
     "start": "react-native start",
 
-    "run:cycle-count": "react-native run-android --main-activity .activities.CycleCountActivity",
-    "run:batch-count": "react-native run-android --main-activity .activities.BatchCountActivity",
-    "run:outage": "react-native run-android --main-activity .activities.OutageActivity",
-    "run:item-lookup": "react-native run-android --main-activity .activities.ItemLookupActivity",
-    "run:truck-scan": "react-native run-android --main-activity .activities.TruckDetailScanActivity",
+    "cycle-count": "react-native run-android --main-activity .activities.CycleCountActivity",
+    "batch-count": "react-native run-android --main-activity .activities.BatchCountActivity",
+    "outage": "react-native run-android --main-activity .activities.OutageActivity",
+    "item-lookup": "react-native run-android --main-activity .activities.ItemLookupActivity",
+    "truck-scan": "react-native run-android --main-activity .activities.TruckDetailScanActivity",
 
     "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337; adb reverse tcp:8097 tcp:8097",
 
@@ -50,7 +50,7 @@
     "package:install:production": "adb install -r builds/in-store-apps-production.apk",
     "package:build:production": "(cd android && ENVFILE=.env.production ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-production.apk",
 
-    "send-intent": "cd scripts && ./send-intent.sh 2> /dev/null"
+    "send-intent": "scripts/send-intent.sh"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",

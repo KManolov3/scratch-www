@@ -228,14 +228,12 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         return searchBySku({
           variables: { sku: code.sku, storeNumber },
         });
-
       case 'UPC':
         return searchByUpc({
           variables: { upc: code.upc, storeNumber },
         });
-
       default:
-        toastService.showErrorToast('Scanned barcode is not supported');
+        toastService.showInfoToast('Scanned barcode is not supported');
     }
   });
 
