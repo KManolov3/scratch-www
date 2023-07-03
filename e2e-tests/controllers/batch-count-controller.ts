@@ -129,9 +129,31 @@ export class BatchCountController extends BaseController {
     );
   }
 
-  async completeBatchCount(batchCounts: BatchCountData[]) {
+  async removeItem(item: TestItemInput) {
+    const productDetails =
+      this.batchCountPages.batchCountListPage.productDetails(item.mfrPartNum);
+
+    await waitAndClick(productDetails.partNumber);
+
+    await this.verticalScroll(
+      this.batchCountPages.batchCountListPage.pogLocationsButton,
+      500
+    );
+
+    await waitAndClick(productDetails.removeItemButton);
+
+    await expect(
+      $(
+        this.batchCountPages.batchCountListPage.toastMessageForRemovedItem(
+          item.partDesc
+        )
+      )
+    ).toBeDisplayed();
+  }
+
+  async completeBatchCount(batchCounts: BatchCountData[], fastAccept = false) {
     for (const [index, data] of batchCounts.entries()) {
-      await this.searchForSku(data.item);
+      await this.searchForSku(data.item.sku);
 
       await setValue(
         this.batchCountPages.batchCountListPage.productDetails(
@@ -149,13 +171,10 @@ export class BatchCountController extends BaseController {
       await this.expectProductInfo(data.item);
 
       if (data.bookmarked) {
-        const pogLocationsButton = await $(
-          this.batchCountPages.batchCountListPage.pogLocationsButton
+        await this.verticalScroll(
+          this.batchCountPages.batchCountListPage.pogLocationsButton,
+          -500
         );
-        const coordinateX = await pogLocationsButton.getLocation('x');
-        const coordinateY = await pogLocationsButton.getLocation('y');
-
-        await this.verticalScroll(coordinateX, coordinateY, -500);
 
         await waitAndClick(
           this.batchCountPages.batchCountListPage.productDetails(
@@ -169,15 +188,21 @@ export class BatchCountController extends BaseController {
       }
     }
 
-    await waitAndClick(
-      this.batchCountPages.batchCountListPage.createSummaryButton
-    );
+    if (fastAccept) {
+      await waitAndClick(
+        this.batchCountPages.batchCountListPage.fastAcceptButton
+      );
+    } else {
+      await waitAndClick(
+        this.batchCountPages.batchCountListPage.createSummaryButton
+      );
 
-    for (const data of batchCounts) {
-      await this.confirmProductInfo(data);
+      for (const data of batchCounts) {
+        await this.confirmProductInfo(data);
+      }
+
+      await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
     }
-
-    await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
 
     await this.calculateShrinkageAndOverage(batchCounts);
 
@@ -187,8 +212,8 @@ export class BatchCountController extends BaseController {
 
     await waitFor(this.batchCountPages.homePage.searchForSkuInput);
 
-    expect(
-      this.batchCountPages.homePage.completedBatchCountToast
+    await expect(
+      $(this.batchCountPages.homePage.completedBatchCountToast)
     ).toBeDisplayed();
   }
 }

@@ -62,7 +62,7 @@ describe('Item Lookup', () => {
     });
 
     for (const [index, product] of items.entries()) {
-      await itemLookup.searchForSku(product);
+      await itemLookup.searchForSku(product.sku);
       await itemLookup.expectProductInfo(product);
 
       if (index !== items.length - 1) {
@@ -193,7 +193,7 @@ describe('Item Lookup', () => {
       missingItemSkus: [itemWithMissingSku[0].sku],
     });
 
-    await itemLookup.searchForSku(itemWithMissingSku[0]);
+    await itemLookup.searchForSku(itemWithMissingSku[0].sku);
 
     await expect(
       $(itemLookup.commonPages.homePage.noResultsFound)
@@ -211,7 +211,7 @@ describe('Item Lookup', () => {
       },
     ];
 
-    await itemLookup.searchForSku(itemWithMissingSku[0]);
+    await itemLookup.searchForSku(itemWithMissingSku[0].sku);
 
     await expect(
       $(itemLookup.commonPages.homePage.noResultsFound)

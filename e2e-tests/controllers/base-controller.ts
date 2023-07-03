@@ -22,23 +22,27 @@ export class BaseController {
     };
   }
 
-  async verticalScroll(
-    coordinateX: number,
-    coordinateY: number,
-    distance: number
-  ) {
+  async verticalScroll(element: string, distance: number) {
+    const referenceElement = await $(element);
+    const referenceElementX = await referenceElement.getLocation('x');
+    const referenceElementY = await referenceElement.getLocation('y');
+
     await driver.touchAction([
-      { action: 'longPress', x: coordinateX, y: coordinateY },
-      { action: 'moveTo', x: coordinateX, y: coordinateY - distance },
+      { action: 'longPress', x: referenceElementX, y: referenceElementY },
+      {
+        action: 'moveTo',
+        x: referenceElementX,
+        y: referenceElementY - distance,
+      },
       'release',
     ]);
   }
 
-  async searchForSku(product: TestItemInput) {
+  async searchForSku(sku: string) {
     await waitFor(this.commonPages.homePage.searchForSkuInput, 5000);
     await (await $(this.commonPages.homePage.searchForSkuInput)).clearValue();
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
-    await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
+    await setValue(this.commonPages.homePage.searchForSkuInput, sku);
     await driver.sendKeyEvent(Enter);
   }
 
@@ -61,13 +65,6 @@ export class BaseController {
 
     if (product.planograms) {
       for (const [index, planogram] of product.planograms.entries()) {
-        const planogramsTable = await $(
-          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
-            .locationId
-        );
-        const planogramLocX = await planogramsTable.getLocation('x');
-        const planogramLocY = await planogramsTable.getLocation('y');
-
         await expectElementText(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
             .locationId,
@@ -80,7 +77,11 @@ export class BaseController {
           `${planogram.seqNum}`
         );
 
-        await this.verticalScroll(planogramLocX, planogramLocY, 150);
+        await this.verticalScroll(
+          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
+            .locationId,
+          150
+        );
       }
     }
 
@@ -97,13 +98,6 @@ export class BaseController {
       );
 
       for (const [index, slot] of product.backStockSlots.entries()) {
-        const slotsTable = await $(
-          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
-            .locationId
-        );
-        const backstockSlotLocX = await slotsTable.getLocation('x');
-        const backstockSlotLocY = await slotsTable.getLocation('y');
-
         await expectElementText(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId,
@@ -116,7 +110,11 @@ export class BaseController {
           `${slot.qty}`
         );
 
-        await this.verticalScroll(backstockSlotLocX, backstockSlotLocY, 150);
+        await this.verticalScroll(
+          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
+            .locationId,
+          150
+        );
       }
     }
   }
