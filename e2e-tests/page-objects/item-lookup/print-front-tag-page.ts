@@ -1,7 +1,7 @@
 export type PrinterName =
-  | 'Printer Counter 1'
-  | 'Printer Counter 2'
-  | 'Printer Counter 3'
+  | 'Counter Printer 1'
+  | 'Counter Printer 2'
+  | 'Counter Printer 3'
   | 'Portable';
 
 export class ItemLookupPrintFrontTagPage {
@@ -11,7 +11,7 @@ export class ItemLookupPrintFrontTagPage {
 
   get selectPrinterModal() {
     return {
-      printerWithName: (printerName: PrinterName = 'Printer Counter 1') =>
+      printerWithName: (printerName: PrinterName = 'Counter Printer 1') =>
         `[text=${printerName}]`,
       cancelButton: '[text=Cancel]',
       selectButton: '[text=Select]',

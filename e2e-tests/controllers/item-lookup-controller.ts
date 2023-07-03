@@ -104,11 +104,5 @@ export class ItemLookupController extends BaseController {
     await waitFor(
       this.itemLookupPages.itemDetailsPage.toastMessageForPrinter(printerName)
     );
-
-    await expect(
-      $(
-        this.itemLookupPages.itemDetailsPage.toastMessageForPrinter(printerName)
-      )
-    ).toBeDisplayed();
   }
 }

@@ -25,6 +25,7 @@ describe('Outage Count', () => {
         retailPrice: 36.99,
         mfrPartNum: '44899',
         onHand: 10,
+        backStockSlots: [],
       },
       {
         partDesc: 'Beam Wiper Blade',
@@ -32,6 +33,10 @@ describe('Outage Count', () => {
         retailPrice: 22.99,
         mfrPartNum: '18-260',
         onHand: 15,
+        backStockSlots: [
+          { slotId: 47216, qty: 6 },
+          { slotId: 23343, qty: 7 },
+        ],
       },
     ];
 

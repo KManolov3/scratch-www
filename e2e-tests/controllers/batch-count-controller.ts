@@ -110,7 +110,7 @@ export class BatchCountController extends BaseController {
         ).toFixed(2);
       }
 
-      netDollars = overage - shrinkage;
+      netDollars = +(overage - shrinkage).toFixed(2);
     });
 
     await expectElementText(
@@ -125,7 +125,9 @@ export class BatchCountController extends BaseController {
 
     await expectElementText(
       this.batchCountPages.summaryPage.shrinkageOverageModal.netDollars,
-      shrinkage > overage ? `-$${netDollars}` : `$${netDollars}`
+      shrinkage > overage
+        ? `-$${netDollars.toFixed(2)}`
+        : `$${netDollars.toFixed(2)}`
     );
   }
 

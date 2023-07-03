@@ -138,6 +138,30 @@ export const schema = addMocksToSchema({
           return item;
         });
 
+        const itemsByUpc = input.items.map((item: TestItemInput) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemByUpc',
+            fieldArgs: {
+              upc: item.upc,
+              storeNumber: input.storeNumber,
+            },
+            value: {
+              mfrPartNum: item.mfrPartNum,
+              partDesc: item.partDesc,
+              sku: item.sku,
+              upc: item.upc,
+              retailPrice: item.retailPrice,
+              onHand: item.onHand,
+              planograms: item.planograms,
+              backStockSlots: item.backStockSlots,
+            },
+          });
+
+          return item;
+        });
+
         input.missingItemSkus.forEach((itemSku: string) => {
           store.set({
             typeName: 'Query',
@@ -151,7 +175,7 @@ export const schema = addMocksToSchema({
           });
         });
 
-        return { items, missingItemSkus: input.missingItemSkus };
+        return { items, itemsByUpc, missingItemSkus: input.missingItemSkus };
       },
 
       testClearData() {
@@ -189,6 +213,10 @@ export const schema = addMocksToSchema({
                 },
               },
             });
+          }
+
+          if (store.get(item, 'upc')) {
+            return item;
           }
 
           return item;

@@ -133,4 +133,17 @@ export class BaseController {
       }
     );
   }
+
+  priceWithoutDecimalSeparator(price: number) {
+    const priceWithoutDecimalSeparator = price.toString().replace('.', '');
+
+    switch (priceWithoutDecimalSeparator.length) {
+      case 3:
+        return `00${priceWithoutDecimalSeparator}`;
+      case 4:
+        return `0${priceWithoutDecimalSeparator}`;
+      case 5:
+        return `${priceWithoutDecimalSeparator}`;
+    }
+  }
 }

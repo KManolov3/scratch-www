@@ -48,9 +48,7 @@ export class OutageController extends BaseController {
       '0'
     );
 
-    const backstockQty = sum(item.backStockSlots.map((slot) => slot.qty));
-
-    if (backstockQty > 0) {
+    if (item.backStockSlots.length > 0) {
       const slotIds = item.backStockSlots.map((slot) => slot.slotId).join(', ');
       await expectElementText(
         this.outagePages.completeOutagePage.itemInBackstockModal.warningBanner,
@@ -67,9 +65,7 @@ export class OutageController extends BaseController {
     for (const [index, item] of items.entries()) {
       await this.searchForSku(item);
 
-      const backstockQty = sum(item.backStockSlots.map((slot) => slot.qty));
-
-      if (backstockQty > 0) {
+      if (item.backStockSlots.length > 0) {
         await waitAndClick(
           this.outagePages.completeOutagePage.itemInBackstockModal
             .addToOutageButton
