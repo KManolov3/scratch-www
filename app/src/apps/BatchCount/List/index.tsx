@@ -89,7 +89,7 @@ export function BatchCountList() {
       }
       removeItem(item.sku);
       toastService.showInfoToast(
-        `${item.partDesc} removed from batch count list`,
+        `${item.partDesc} removed from Batch count list`,
         {
           props: { containerStyle: styles.toast },
         },
