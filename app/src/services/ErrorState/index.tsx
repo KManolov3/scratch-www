@@ -12,6 +12,7 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { ApolloError } from '@apollo/client';
 import { toastService } from '@services/ToastService';
 import { StyleSheet } from 'react-native/types';
+import { useConfirmation } from '@hooks/useConfirmation';
 import {
   ErrorType,
   ErrorOptions,
@@ -157,35 +158,27 @@ export interface ErrorStateProps {
 }
 
 export function ErrorStateProvider({ children }: ErrorStateProps) {
-  const [{ errorToVisualise, onRetry }, setErrorState] = useState<{
-    errorToVisualise?: ErrorInfo;
-    onRetry?: () => void;
-  }>({
-    errorToVisualise: undefined,
-    onRetry: undefined,
-  });
+  const [errorToVisualise, setErrorToVisualise] = useState<ErrorInfo>();
 
   const { isConnected } = useNetInfo();
+
+  const {
+    confirmationRequested: isRetryModalVisible,
+    askForConfirmation: askToRetry,
+    accept: retry,
+    reject: cancel,
+  } = useConfirmation();
 
   // TODO: Try to rewrite this using `useConfirmation` hook
   const executeAndHandleErrors = useCallback(
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-constraint
-    <T extends any>(
+    async <T extends any>(
       doRequest: () => Promise<T>,
       interceptError: (error: unknown) => ErrorOptions,
-      executionCount = 1,
-    ) => {
+      execCount = 1,
+    ): Promise<T> => {
       try {
-        const isRetry = executionCount > 1;
-        if (isRetry) {
-          setErrorState({
-            errorToVisualise: undefined,
-            onRetry: undefined,
-          });
-        }
-
-        return doRequest();
-        // Should the error be of specific type?
+        return await doRequest();
       } catch (error) {
         let passedOptions: ErrorOptions = {
           behaviourOnFailure: BehaviourOnFailure.Ignored,
@@ -216,41 +209,37 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
           passedOptions,
           isConnected ?? true,
         );
-        switch (options.behaviourOnFailure) {
-          case BehaviourOnFailure.Toast:
-            showErrorToast(errorInfo);
-            break;
-          case BehaviourOnFailure.Modal:
-            setErrorState({
-              errorToVisualise: errorInfo,
-              // TODO: !!We are setting `onRetry`, but we need to actually propagate
-              // the result back to the function caller after the request is retried.
-              onRetry:
-                options.shouldRetryRequest &&
-                (options.maxRetries ?? 2) >= executionCount
-                  ? async () => {
-                      await executeAndHandleErrors(
-                        doRequest,
-                        interceptError,
-                        executionCount + 1,
-                      );
 
-                      setErrorState({
-                        errorToVisualise: undefined,
-                        onRetry: undefined,
-                      });
-                    }
-                  : undefined,
-            });
-            break;
-          case BehaviourOnFailure.Ignored:
-          default:
+        // TODO: Determine handling when we can't attempt retry. Do we show modal without a retry button,
+        // show a toast, or..?
+        const canAttemptRetry =
+          options.behaviourOnFailure === BehaviourOnFailure.Modal &&
+          options.shouldRetryRequest &&
+          (options.maxRetries ?? 0) < execCount;
+
+        // Handle and rethrow error
+        if (!canAttemptRetry) {
+          // eslint-disable-next-line max-depth
+          if (options.behaviourOnFailure === BehaviourOnFailure.Toast) {
+            showErrorToast(errorInfo);
+          }
+
+          // We still want the error to reach the code that invoked the request initially.
+          throw error;
         }
-        // We still want the error to be handled by the code that invoked the request initially.
-        throw error;
+
+        setErrorToVisualise(errorInfo);
+
+        if (!(await askToRetry())) {
+          throw error;
+        }
+        // Clear current error state from modal
+        setErrorToVisualise(undefined);
+
+        return executeAndHandleErrors(doRequest, interceptError, execCount + 1);
       }
     },
-    [isConnected],
+    [askToRetry, isConnected],
   );
 
   const state = useMemo(
@@ -268,11 +257,12 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
         // if we want to control this modal from outside at some point
         errorToVisualise ? (
           <ErrorModal
-            isVisible={!!errorToVisualise}
+            isVisible={isRetryModalVisible}
             errorType={errorToVisualise?.errorType}
             description={errorToVisualise?.customMessage}
             errorCode={errorToVisualise?.errorCode}
-            onRetry={onRetry}
+            onRetry={retry}
+            onCancel={cancel}
           />
         ) : null
       }

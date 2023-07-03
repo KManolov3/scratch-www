@@ -3,7 +3,7 @@ export class Deferred<T> {
 
   reject!: (error: unknown) => void;
 
-  readonly promise = new Promise((resolve, reject) => {
+  readonly promise = new Promise<T>((resolve, reject) => {
     this.resolve = resolve;
     this.reject = reject;
   });

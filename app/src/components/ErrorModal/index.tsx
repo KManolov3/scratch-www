@@ -3,7 +3,6 @@ import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { noop } from 'lodash-es';
 import { AttentionIcon } from '@assets/icons';
 import { BlockButton } from '@components/Button/Block';
 import { ErrorType } from '@services/ErrorState/types';
@@ -15,6 +14,7 @@ export interface ErrorModalProps {
   errorCode?: string;
   description?: string;
   onRetry?: () => void;
+  onCancel?: () => void;
 }
 
 function getErrorDetailsByType(errorType: ErrorType) {
@@ -72,13 +72,17 @@ export function ErrorModal({
   description: customDescription,
   errorCode,
   onRetry,
+  onCancel,
 }: ErrorModalProps) {
   const { title, description } = useMemo(
     () => getErrorDetails(errorType, customDescription, errorCode),
     [customDescription, errorCode, errorType],
   );
   return (
-    <Modal isVisible={isVisible} onBackdropPress={noop} style={styles.modal}>
+    <Modal
+      isVisible={isVisible}
+      onBackdropPress={onCancel}
+      style={styles.modal}>
       <View style={styles.container}>
         <AttentionIcon height={40} width={40} style={styles.icon} />
         <Text style={styles.title}>{title}</Text>

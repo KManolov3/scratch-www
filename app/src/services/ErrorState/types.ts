@@ -7,6 +7,7 @@ export enum BehaviourOnFailure {
 export type ErrorOptions =
   | {
       behaviourOnFailure: BehaviourOnFailure.Ignored | BehaviourOnFailure.Toast;
+      shouldRetryRequest?: never;
       maxRetries?: never;
     }
   | {
