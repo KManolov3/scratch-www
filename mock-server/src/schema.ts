@@ -215,10 +215,6 @@ export const schema = addMocksToSchema({
             });
           }
 
-          if (store.get(item, 'upc')) {
-            return item;
-          }
-
           return item;
         }
 
