@@ -10,6 +10,7 @@ import { BatchCountListPage } from '../page-objects/batch-count/item-details-pag
 import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
 import { BatchCountSummaryPage } from '../page-objects/batch-count/approve-count-page.ts';
+import { differenceBy, intersectionBy } from 'lodash-es';
 
 type BatchCountData = {
   item: TestItemInput;
@@ -50,39 +51,62 @@ export class BatchCountController extends BaseController {
     await super.expectProductInfo(product);
   }
 
-  async confirmProductInfo(data: BatchCountData) {
+  async confirmProductInfo(batchCountsSummary: BatchCountData) {
     const productDetails = this.batchCountPages.summaryPage.productDetails(
-      data.item.mfrPartNum
+      batchCountsSummary.item.mfrPartNum
     );
 
     await waitAndClick(productDetails.partNumber);
 
-    if (data.item.partDesc) {
-      await expectElementText(productDetails.itemName, data.item.partDesc);
+    if (batchCountsSummary.item.partDesc) {
+      await expectElementText(
+        productDetails.itemName,
+        batchCountsSummary.item.partDesc
+      );
     }
 
-    if (data.item.onHand) {
+    if (batchCountsSummary.item.onHand) {
       await expectElementText(
         productDetails.currentQuantity,
-        `${data.item.onHand}`
+        `${batchCountsSummary.item.onHand}`
       );
+      await expectElementText(
+        productDetails.variance,
+        `${batchCountsSummary.newQuantity - batchCountsSummary.item.onHand}`
+      );
+    }
+
+    await expectElementText(productDetails.sku, batchCountsSummary.item.sku);
+
+    if (batchCountsSummary.item.retailPrice) {
+      await expectElementText(
+        productDetails.price,
+        `$${batchCountsSummary.item.retailPrice}`
+      );
+    }
+
+    if (batchCountsSummary.item.mfrPartNum) {
+      await expectElementText(
+        productDetails.partNumber,
+        batchCountsSummary.item.mfrPartNum
+      );
+    }
+  }
+
+  async editQuantityOnSummary(dataOnSummary: BatchCountData[]) {
+    for (const data of dataOnSummary) {
+      const productDetails = this.batchCountPages.summaryPage.productDetails(
+        data.item.mfrPartNum
+      );
+
+      await waitAndClick(productDetails.partNumber);
+      await setValue(productDetails.newQtyInput, data.newQuantity);
+
       await expectElementText(
         productDetails.variance,
         `${data.newQuantity - data.item.onHand}`
       );
-    }
-
-    await expectElementText(productDetails.sku, data.item.sku);
-
-    if (data.item.retailPrice) {
-      await expectElementText(
-        productDetails.price,
-        `$${data.item.retailPrice}`
-      );
-    }
-
-    if (data.item.mfrPartNum) {
-      await expectElementText(productDetails.partNumber, data.item.mfrPartNum);
+      await waitAndClick(productDetails.partNumber);
     }
   }
 
@@ -151,7 +175,11 @@ export class BatchCountController extends BaseController {
     ).toBeDisplayed();
   }
 
-  async completeBatchCount(batchCounts: BatchCountData[], fastAccept = false) {
+  async completeBatchCount(
+    batchCounts: BatchCountData[],
+    fastAccept = false,
+    batchCountsSummary?: BatchCountData[]
+  ) {
     for (const [index, data] of batchCounts.entries()) {
       await this.searchForSku(data.item.sku);
 
@@ -197,14 +225,31 @@ export class BatchCountController extends BaseController {
         this.batchCountPages.batchCountListPage.createSummaryButton
       );
 
-      for (const data of batchCounts) {
-        await this.confirmProductInfo(data);
+      if (batchCountsSummary) {
+        await this.editQuantityOnSummary(batchCountsSummary);
+        for (const dataOnSummary of batchCountsSummary) {
+          await this.confirmProductInfo(dataOnSummary);
+        }
+      } else {
+        for (const data of batchCounts) {
+          await this.confirmProductInfo(data);
+        }
       }
 
       await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
     }
 
-    await this.calculateShrinkageAndOverage(batchCounts);
+    if (batchCountsSummary) {
+      const intersection = intersectionBy(
+        batchCountsSummary,
+        batchCounts,
+        'item'
+      );
+      const difference = differenceBy(batchCounts, batchCountsSummary, 'item');
+      await this.calculateShrinkageAndOverage([...intersection, ...difference]);
+    } else {
+      await this.calculateShrinkageAndOverage(batchCounts);
+    }
 
     await waitAndClick(
       this.batchCountPages.summaryPage.shrinkageOverageModal.approveButton

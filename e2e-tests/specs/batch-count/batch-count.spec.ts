@@ -67,7 +67,15 @@ describe('Batch Count', () => {
       { item: items[1], newQuantity: 14, bookmarked: true },
     ];
 
-    await batchCount.completeBatchCount(batchCountData);
+    const batchCountDataOnSummary = [
+      { item: items[0], newQuantity: 12, bookmarked: false },
+    ];
+
+    await batchCount.completeBatchCount(
+      batchCountData,
+      false,
+      batchCountDataOnSummary
+    );
   });
 
   it('should be successfully completed by Fast Accept', async () => {
@@ -83,7 +91,7 @@ describe('Batch Count', () => {
     await batchCount.completeBatchCount(batchCountData, true);
   });
 
-  it('should be able to remove an item from list an on summary', async () => {
+  it('should be able to remove an item from list and on summary', async () => {
     const threeItems = [
       ...items,
       {
