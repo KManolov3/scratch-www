@@ -97,17 +97,15 @@ export class BatchCountController extends BaseController {
 
     batchCountData.forEach((data) => {
       if (data.newQuantity < data.item.onHand) {
-        shrinkage = +(
+        shrinkage =
           shrinkage +
-          (data.item.onHand - data.newQuantity) * data.item.retailPrice
-        ).toFixed(2);
+          (data.item.onHand - data.newQuantity) * data.item.retailPrice;
       }
 
       if (data.newQuantity > data.item.onHand) {
-        overage = +(
+        overage =
           overage +
-          (data.newQuantity - data.item.onHand) * data.item.retailPrice
-        ).toFixed(2);
+          (data.newQuantity - data.item.onHand) * data.item.retailPrice;
       }
 
       netDollars = overage - shrinkage;
@@ -115,17 +113,19 @@ export class BatchCountController extends BaseController {
 
     await expectElementText(
       this.batchCountPages.summaryPage.shrinkageOverageModal.shrinkageValue,
-      `$${shrinkage}` === '$0' ? '$0.00' : `-$${shrinkage}`
+      `$${shrinkage}` === '$0' ? '$0.00' : `-$${shrinkage.toFixed(2)}`
     );
 
     await expectElementText(
       this.batchCountPages.summaryPage.shrinkageOverageModal.overageValue,
-      `$${overage}` === '$0' ? '$0.00' : `$${overage}`
+      `$${overage}` === '$0' ? '$0.00' : `$${overage.toFixed(2)}`
     );
 
     await expectElementText(
       this.batchCountPages.summaryPage.shrinkageOverageModal.netDollars,
-      shrinkage > overage ? `-$${netDollars}` : `$${netDollars}`
+      shrinkage > overage
+        ? `-$${netDollars.toFixed(2)}`
+        : `$${netDollars.toFixed(2)}`
     );
   }
 

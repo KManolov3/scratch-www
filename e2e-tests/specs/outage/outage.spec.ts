@@ -2,6 +2,7 @@ import { TestDataInput } from '../../__generated__/graphql.ts';
 import { OutageController } from '../../controllers/outage-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitFor } from '../../methods/helpers.ts';
+import { testStoreNumber } from '../../test-data/test-data.ts';
 
 const testData = new TestDataController();
 const outageCount = new OutageController();
@@ -24,6 +25,7 @@ describe('Outage Count', () => {
         retailPrice: 36.99,
         mfrPartNum: '44899',
         onHand: 10,
+        backStockSlots: [],
       },
       {
         partDesc: 'Beam Wiper Blade',
@@ -31,12 +33,15 @@ describe('Outage Count', () => {
         retailPrice: 22.99,
         mfrPartNum: '18-260',
         onHand: 15,
+        backStockSlots: [
+          { slotId: 47216, qty: 6 },
+          { slotId: 23343, qty: 7 },
+        ],
       },
     ];
 
     await testData.setData({
-      // storeNumber must be exactly '0363' because for now it is hardcoded in the app
-      storeNumber: '0363',
+      storeNumber: testStoreNumber,
       items: items,
     });
 
