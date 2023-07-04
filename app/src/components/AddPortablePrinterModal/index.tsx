@@ -47,7 +47,6 @@ export function AddPortablePrinterModal({
       onCancel={onCancel}
       confirmationLabel="Add Portable"
       Icon={BarcodeIcon}
-      iconStyles={styles.icon}
       title="Scan to Add Portable Printer">
       <View style={styles.informationTextContainer}>
         <Text style={styles.informationText}>
@@ -69,7 +68,6 @@ export function AddPortablePrinterModal({
 }
 
 const styles = StyleSheet.create({
-  icon: { marginTop: 30 },
   informationText: {
     textAlign: 'center',
     lineHeight: 24,

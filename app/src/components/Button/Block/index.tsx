@@ -13,6 +13,8 @@ import { styles, iconSize, loadingIndicatorColor } from './styles';
 
 interface Props extends PressableProps {
   variant: 'primary' | 'dark' | 'gray';
+  size?: 'normal' | 'big';
+
   children?: string | ReactNode;
   Icon?: typeof Svg;
   onPress: () => void;
@@ -26,6 +28,7 @@ interface Props extends PressableProps {
 
 export function BlockButton({
   variant,
+  size = 'normal',
   children,
   Icon,
   onPress,
@@ -44,6 +47,7 @@ export function BlockButton({
         variant === 'primary' && styles.primary,
         variant === 'dark' && styles.dark,
         variant === 'gray' && styles.gray,
+        size === 'big' && styles.sizeBig,
         style,
         disabled && styles.disabled,
         disabled && disabledStyle,
@@ -68,6 +72,7 @@ export function BlockButton({
               variant === 'primary' && styles.primaryText,
               variant === 'dark' && styles.darkText,
               variant === 'gray' && styles.grayText,
+              size === 'big' && styles.sizeBigText,
               textStyle,
               disabled && styles.disabledText,
               disabled && disabledTextStyle,

@@ -36,10 +36,18 @@ export const styles = StyleSheet.create({
     borderColor: Colors.lightGray,
     backgroundColor: Colors.pure,
   },
+  sizeBig: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 4,
+  },
   text: {
     fontSize: 14,
     color: Colors.advanceVoid,
     fontWeight: FontWeight.Bold,
+  },
+  sizeBigText: {
+    fontSize: 16,
   },
   primaryText: { color: Colors.advanceVoid },
   darkText: { color: Colors.pure },

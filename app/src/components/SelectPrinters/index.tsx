@@ -72,7 +72,6 @@ export function SelectPrinters() {
         confirmationLabel="Continue"
         title="Default Printer"
         Icon={BlackAttentionIcon}
-        iconStyles={styles.icon}
         // TODO: Remove and add padding to the container
         buttonsStyle={styles.buttons}>
         <Text style={styles.confirmationModalText}>
@@ -121,6 +120,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   bold: { fontWeight: FontWeight.Bold },
-  icon: { marginTop: 60 },
   container: { backgroundColor: Colors.lightGray },
 });
