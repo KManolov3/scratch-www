@@ -10,20 +10,17 @@ import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { RadioButton } from '@components/Button/Radio';
 import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
-import {
-  COUNTER_PRINTERS,
-  SelectedPrinter,
-  useDefaultSettings,
-} from '@hooks/useDefaultSettings';
+import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { Printers, Printer } from '@services/Printers';
 
 interface PrinterListProps {
   showDefaultLabelIfSelected?: boolean;
 
-  selectedPrinter: SelectedPrinter;
-  onSelect(printer: SelectedPrinter, alreadyConfirmedPrinter: boolean): void;
+  selectedPrinter: Printer;
+  onSelect(printer: Printer, alreadyConfirmedPrinter: boolean): void;
 
   // setPortablePrinter(portablePrinter: string): void;
   // portablePrinter: string | undefined;
@@ -65,7 +62,7 @@ export function PrinterList({
 
   return (
     <View style={styles}>
-      {COUNTER_PRINTERS.map(printer => (
+      {Printers.availableCounterPrinters.map(printer => (
         <PrinterOption
           key={printer.id}
           title={printer.name}

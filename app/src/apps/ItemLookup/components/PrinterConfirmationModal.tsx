@@ -4,14 +4,14 @@ import { PrinterIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
-import { SelectedPrinter, printerLabel } from '@hooks/useDefaultSettings';
 import { FontWeight } from '@lib/font';
+import { Printers, Printer } from '@services/Printers';
 
 interface PrinterConfirmationModalProps {
   isVisible: boolean;
-  initiallySelectedPrinter: SelectedPrinter | undefined;
+  initiallySelectedPrinter: Printer | undefined;
   onCancel(): void;
-  onConfirm(printer: SelectedPrinter): void;
+  onConfirm(printer: Printer): void;
 }
 
 export function PrinterConfirmationModal({
@@ -20,7 +20,7 @@ export function PrinterConfirmationModal({
   onCancel,
   onConfirm,
 }: PrinterConfirmationModalProps) {
-  const [selectedPrinter, setSelectedPrinter] = useState<SelectedPrinter>(
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer>(
     initiallySelectedPrinter ?? { type: 'counter', id: 1 },
   );
 
@@ -40,7 +40,7 @@ export function PrinterConfirmationModal({
       <View style={styles.printModal}>
         <Text>
           Print to{' '}
-          <Text style={styles.bold}>{printerLabel(selectedPrinter)}</Text>
+          <Text style={styles.bold}>{Printers.labelOf(selectedPrinter)}</Text>
         </Text>
         <PrinterList
           selectedPrinter={selectedPrinter}

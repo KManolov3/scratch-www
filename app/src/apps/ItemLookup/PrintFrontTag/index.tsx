@@ -20,17 +20,13 @@ import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
-import {
-  SelectedPrinter,
-  printerLabel,
-  printerServerId,
-  useDefaultSettings,
-} from '@hooks/useDefaultSettings';
+import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { EventBus } from '@hooks/useEventBus';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { Printers, Printer } from '@services/Printers';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { PrinterConfirmationModal } from '../components/PrinterConfirmationModal';
 import { SearchBottomTray } from '../components/SearchBottomTray';
@@ -101,7 +97,7 @@ export function PrintFrontTagScreen({
     'defaultPrinter',
   );
 
-  const [printer, setPrinter] = useState<SelectedPrinter>(defaultPrinter);
+  const [printer, setPrinter] = useState<Printer>(defaultPrinter);
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -125,7 +121,7 @@ export function PrintFrontTagScreen({
         return printFrontTag({
           variables: {
             storeNumber,
-            printer: printerServerId(printer),
+            printer: Printers.serverIdOf(printer),
             data: {
               sku: itemDetails.sku,
               count: qty,
@@ -150,16 +146,19 @@ export function PrintFrontTagScreen({
       );
     }
 
-    toastService.showInfoToast(`Front tag sent to ${printerLabel(printer)}`, {
-      props: { containerStyle: styles.toast },
-    });
+    toastService.showInfoToast(
+      `Front tag sent to ${Printers.labelOf(printer)}`,
+      {
+        props: { containerStyle: styles.toast },
+      },
+    );
 
     EventBus.emit('print-success');
     goBack();
   });
 
   const onConfirmPrinter = useCallback(
-    (printer: SelectedPrinter) => {
+    (printer: Printer) => {
       closePrinterModal();
       setPrinter(printer);
     },
@@ -231,7 +230,7 @@ export function PrintFrontTagScreen({
 
       <View style={styles.printToLabel}>
         <Text style={styles.text}>
-          Print to <Text style={styles.bold}>{printerLabel(printer)}</Text>
+          Print to <Text style={styles.bold}>{Printers.labelOf(printer)}</Text>
         </Text>
 
         <Pressable onPress={openPrinterModal}>

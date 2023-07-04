@@ -8,18 +8,14 @@ import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
-import {
-  COUNTER_PRINTERS,
-  SelectedPrinter,
-  printerLabel,
-  useDefaultSettings,
-} from '@hooks/useDefaultSettings';
+import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { Printers, Printer } from '@services/Printers';
 
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
@@ -30,7 +26,7 @@ export function SelectPrinters() {
     askForConfirmation,
     accept,
     reject,
-  } = useConfirmation<SelectedPrinter>();
+  } = useConfirmation<Printer>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
@@ -42,7 +38,7 @@ export function SelectPrinters() {
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: SelectedPrinter, alreadyConfirmedPrinter: boolean) => {
+    async (printer: Printer, alreadyConfirmedPrinter: boolean) => {
       const confirmed =
         alreadyConfirmedPrinter || (await askForConfirmation(printer));
 
@@ -81,7 +77,7 @@ export function SelectPrinters() {
         {/* TODO: Why wrap like this? */}
         <Text style={styles.confirmationModalText}>
           <Text style={styles.bold}>
-            {printerToConfirm ? printerLabel(printerToConfirm) : 'Unknown'}
+            {printerToConfirm ? Printers.labelOf(printerToConfirm) : 'Unknown'}
           </Text>{' '}
           as the default printer?
         </Text>

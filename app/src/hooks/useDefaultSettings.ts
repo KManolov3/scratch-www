@@ -1,45 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { localStorage } from '@services/LocalStorageService';
-
-// TODO: Move somewhere else?
-export const COUNTER_PRINTERS = Object.freeze([
-  { id: 1, name: 'Counter Printer 1' },
-  { id: 2, name: 'Counter Printer 2' },
-  { id: 3, name: 'Counter Printer 3' },
-] as const);
-
-// TODO: Move
-export function printerLabel(printer: SelectedPrinter) {
-  switch (printer.type) {
-    case 'counter':
-      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
-    case 'portable':
-      return `Portable ${printer.networkName}`;
-  }
-}
-
-// TODO: Move
-export function printerServerId(printer: SelectedPrinter) {
-  switch (printer.type) {
-    case 'counter':
-      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
-    case 'portable':
-      return printer.networkName;
-  }
-}
-
-export type SelectedPrinter =
-  | {
-      type: 'portable';
-      networkName: string;
-    }
-  | {
-      type: 'counter';
-      id: (typeof COUNTER_PRINTERS)[number]['id'];
-    };
+import { Printer } from '@services/Printers';
 
 export interface DefaultSettings {
-  defaultPrinter: SelectedPrinter;
+  defaultPrinter: Printer;
   lastUsedPortablePrinter?: string;
 }
 
