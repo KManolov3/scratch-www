@@ -1,5 +1,5 @@
-import { ItemDetails } from 'src/types/ItemLookup';
 import { RootNavigation, RootScreenProps } from '@apps/navigator';
+import { GlobalStateItemDetails } from '@apps/state';
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
@@ -16,8 +16,8 @@ import { PrintFrontTagScreen } from './PrintFrontTag';
 
 type Routes = {
   Home: undefined;
-  ItemLookup: { itemDetails: ItemDetails; frontTagPrice?: number };
-  PrintFrontTag: { itemDetails: ItemDetails };
+  ItemLookup: { itemDetails: GlobalStateItemDetails; frontTagPrice?: number };
+  PrintFrontTag: { itemDetails: GlobalStateItemDetails };
 };
 
 const Stack = createNativeStackNavigator<Routes>();

@@ -35,13 +35,18 @@ export function HelpRequest() {
       />
       <TextInput
         style={[styles.input, styles.description]}
-        placeholder="Descrisption"
+        placeholder="Description"
         value={description}
         keyboardType="default"
         onChangeText={setDescription}
         placeholderTextColor={Colors.advanceBlack}
       />
-      <BlockButton children="Submit" onPress={noop} />
+      <BlockButton
+        style={styles.submit}
+        variant="primary"
+        children="Submit"
+        onPress={noop}
+      />
     </FixedLayout>
   );
 }
@@ -60,4 +65,5 @@ const styles = StyleSheet.create({
   },
   description: { height: 146 },
   container: { backgroundColor: Colors.lightGray },
+  submit: { margin: 8 },
 });

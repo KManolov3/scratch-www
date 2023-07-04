@@ -3,8 +3,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { toastService } from 'src/services/ToastService';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { useMutation } from '@apollo/client';
+import { GlobalStateItemDetails } from '@apps/state';
 import {
   EmptySquareCheckBox,
   SquareCheckBox,
@@ -57,7 +57,9 @@ interface LocationStatus {
   seqNum: number;
 }
 
-function createInitialValueMap(locations: ItemDetails['planograms']) {
+function createInitialValueMap(
+  locations: GlobalStateItemDetails['planograms'],
+) {
   return new Map<string, LocationStatus>(
     compact(locations).map(({ planogramId, seqNum }) => [
       // These can't realistically be null
