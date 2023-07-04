@@ -42,13 +42,11 @@ export function PrinterConfirmationModal({
           Print to{' '}
           <Text style={styles.bold}>{Printers.labelOf(selectedPrinter)}</Text>
         </Text>
+
         <PrinterList
           selectedPrinter={selectedPrinter}
           onSelect={setSelectedPrinter}
-          // TODO: Remove this style?
-          styles={styles.radioButtons}
-          // TODO: Remove this style?
-          portablePrinterStyles={styles.portablePrinter}
+          style={styles.printerList}
         />
       </View>
     </ConfirmationModal>
@@ -56,8 +54,7 @@ export function PrinterConfirmationModal({
 }
 
 const styles = StyleSheet.create({
-  printModal: { alignItems: 'center', justifyContent: 'center' },
+  printModal: { alignItems: 'center' },
   bold: { fontWeight: FontWeight.Bold },
-  radioButtons: { width: 170, marginTop: 14 },
-  portablePrinter: { paddingLeft: 33 },
+  printerList: { width: 210, marginTop: 14 },
 });

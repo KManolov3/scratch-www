@@ -57,8 +57,7 @@ export function SelectPrinters() {
           selectedPrinter={defaultPrinter}
           onSelect={setPrinter}
           showDefaultLabelIfSelected
-          styles={styles.radioButtons}
-          textStyles={styles.text}
+          style={styles.printerList}
         />
       </FixedLayout>
 
@@ -68,9 +67,7 @@ export function SelectPrinters() {
         onConfirm={accept}
         confirmationLabel="Continue"
         title="Default Printer"
-        Icon={BlackAttentionIcon}
-        // TODO: Remove and add padding to the container
-        buttonsStyle={styles.buttons}>
+        Icon={BlackAttentionIcon}>
         <Text style={styles.confirmationModalText}>
           Are you sure you want to set{' '}
         </Text>
@@ -87,26 +84,22 @@ export function SelectPrinters() {
 }
 
 const styles = StyleSheet.create({
-  radioButtons: {
+  container: { backgroundColor: Colors.lightGray },
+
+  printerList: {
     margin: 16,
+    marginTop: 0,
     ...BaseStyles.shadow,
-    alignItems: 'flex-start',
     paddingHorizontal: 25,
     borderRadius: 8,
     backgroundColor: Colors.pure,
     padding: 8,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: FontWeight.Demi,
-    marginLeft: 13,
-  },
-  buttons: { marginTop: 60 },
+
   confirmationModalText: {
     textAlign: 'center',
     justifyContent: 'center',
     fontSize: 16,
   },
   bold: { fontWeight: FontWeight.Bold },
-  container: { backgroundColor: Colors.lightGray },
 });

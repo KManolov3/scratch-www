@@ -7,8 +7,8 @@ interface Props {
   checked: boolean;
   onPress(): void;
   children?: ReactNode;
-  buttonStyle?: StyleProp<ViewStyle>;
-  checkedButtonStyle?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
+  iconStyle?: StyleProp<ViewStyle>;
   iconSize?: number;
 }
 
@@ -24,8 +24,8 @@ export function RadioButton({
   onPress,
   checked,
   children,
-  buttonStyle,
-  checkedButtonStyle,
+  style,
+  iconStyle,
   iconSize: customIconSize,
 }: Props) {
   const RadioIconComponent = useMemo(() => {
@@ -35,15 +35,13 @@ export function RadioButton({
       <RadioIcon
         height={customIconSize || iconSize}
         width={customIconSize || iconSize}
-        style={styles.checkbox}
+        style={[styles.checkbox, iconStyle]}
       />
     );
-  }, [checked, customIconSize]);
+  }, [checked, customIconSize, iconStyle]);
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.radioButton, buttonStyle, checked && checkedButtonStyle]}>
+    <Pressable onPress={onPress} style={[styles.root, style]}>
       {RadioIconComponent}
       {children}
     </Pressable>
@@ -52,7 +50,7 @@ export function RadioButton({
 const iconSize = 16;
 
 const styles = StyleSheet.create({
-  radioButton: {
+  root: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,

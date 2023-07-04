@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -22,31 +23,15 @@ interface PrinterListProps {
   selectedPrinter: Printer;
   onSelect(printer: Printer, alreadyConfirmedPrinter: boolean): void;
 
-  // setPortablePrinter(portablePrinter: string): void;
-  // portablePrinter: string | undefined;
-  styles?: StyleProp<ViewStyle>;
-  textStyles?: StyleProp<TextStyle>;
-  portablePrinterStyles?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
 }
-
-// function getPrinterOptionText(printerOption: PrinterOption) {
-//   if (printerOption !== PrinterOption.Portable) {
-//     return printerOption;
-//   }
-//
-//   return printerOption ? 'Portable' : 'Add a Portable';
-// }
 
 export function PrinterList({
   selectedPrinter,
   onSelect,
 
-  styles,
+  style,
 
-  // textStyles,
-  // portablePrinter,
-  // setPortablePrinter,
-  // portablePrinterStyles,
   showDefaultLabelIfSelected = false,
 }: PrinterListProps) {
   const {
@@ -61,7 +46,7 @@ export function PrinterList({
     useDefaultSettings([userId, storeNumber], 'lastUsedPortablePrinter');
 
   return (
-    <View style={styles}>
+    <View style={style}>
       {Printers.availableCounterPrinters.map(printer => (
         <PrinterOption
           key={printer.id}
@@ -137,17 +122,21 @@ function PrinterOption({
   onSelect: () => void;
   onReplace?: () => void;
 }) {
+  const selectIfNotSelected = useCallback(() => {
+    if (!selected) {
+      onSelect();
+    }
+  }, [selected, onSelect]);
+
   return (
-    // TODO: Fix layout
-    <>
-      <RadioButton
-        checked={selected}
-        onPress={() => {
-          if (!selected) {
-            onSelect();
-          }
-        }}>
-        <View style={styles.radioButtonContainer}>
+    <RadioButton
+      style={styles.radioButtonContainer}
+      iconSize={20}
+      iconStyle={styles.radioButtonIcon}
+      checked={selected}
+      onPress={selectIfNotSelected}>
+      <View style={styles.printerLabel}>
+        <View style={styles.printerLabelTitle}>
           <Text
             style={[selected ? styles.titleSelected : styles.titleNotSelected]}>
             {title}
@@ -158,52 +147,55 @@ function PrinterOption({
           ) : null}
 
           {!showDefaultLabelIfSelected && onReplace && (
-            <Pressable onPress={onReplace} style={styles.replaceContainer}>
-              <Text style={styles.replace}>Replace</Text>
+            <Pressable onPress={onReplace} style={styles.replaceButtonInLabel}>
+              <Text style={styles.replaceText}>Replace</Text>
             </Pressable>
           )}
         </View>
-      </RadioButton>
 
-      {subtitle && (
-        // TODO: Why is this Pressable? What is its purpose?
-        <Pressable style={[styles.portablePrinterRow]}>
-          <View style={styles.radioButtonContainer}>
-            <Text>{subtitle}</Text>
+        {subtitle && (
+          <View style={styles.printerLabelSubtitle}>
+            <Text style={styles.subtitle}>{subtitle}</Text>
 
             {showDefaultLabelIfSelected && (
               <Pressable onPress={onReplace}>
-                <Text style={styles.replace}>Replace</Text>
+                <Text style={styles.replaceText}>Replace</Text>
               </Pressable>
             )}
           </View>
-        </Pressable>
-      )}
-    </>
+        )}
+      </View>
+    </RadioButton>
   );
 }
 
 const styles = StyleSheet.create({
-  titleSelected: { fontSize: 16, fontWeight: FontWeight.Bold },
-  titleNotSelected: { fontSize: 16, fontWeight: FontWeight.Medium },
+  titleSelected: { fontSize: 20, fontWeight: FontWeight.Bold },
+  titleNotSelected: { fontSize: 20, fontWeight: FontWeight.Medium },
   default: { fontSize: 10, fontWeight: FontWeight.Book },
   radioButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  radioButtonIcon: { marginTop: 4 },
+  printerLabel: {
+    flexDirection: 'column',
+    marginLeft: 5,
     flex: 1,
   },
-  portablePrinterRow: {
-    justifyContent: 'space-between',
+  printerLabelTitle: {
     flexDirection: 'row',
-    padding: 8,
-    paddingLeft: 45,
-    paddingTop: 0,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  replace: {
+  replaceButtonInLabel: { marginLeft: 50 },
+  replaceText: {
     color: Colors.blue,
     fontWeight: FontWeight.Bold,
     fontSize: 14,
-    lineHeight: 22,
   },
-  replaceContainer: { marginLeft: 50 },
+  printerLabelSubtitle: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  subtitle: { fontSize: 16 },
 });
