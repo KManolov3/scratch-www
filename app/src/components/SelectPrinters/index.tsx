@@ -11,6 +11,7 @@ import { useConfirmation } from '@hooks/useConfirmation';
 import {
   COUNTER_PRINTERS,
   SelectedPrinter,
+  printerLabel,
   useDefaultSettings,
 } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
@@ -60,7 +61,7 @@ export function SelectPrinters() {
           selectedPrinter={defaultPrinter}
           onSelect={setPrinter}
           showDefaultLabelIfSelected
-          containerStyles={styles.radioButtons}
+          styles={styles.radioButtons}
           textStyles={styles.text}
         />
       </FixedLayout>
@@ -87,15 +88,6 @@ export function SelectPrinters() {
       </ConfirmationModal>
     </>
   );
-}
-
-function printerLabel(printer: SelectedPrinter) {
-  switch (printer.type) {
-    case 'counter':
-      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
-    case 'portable':
-      return printer.networkName;
-  }
 }
 
 const styles = StyleSheet.create({

@@ -8,6 +8,26 @@ export const COUNTER_PRINTERS = Object.freeze([
   { id: 3, name: 'Counter Printer 3' },
 ] as const);
 
+// TODO: Move
+export function printerLabel(printer: SelectedPrinter) {
+  switch (printer.type) {
+    case 'counter':
+      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
+    case 'portable':
+      return `Portable ${printer.networkName}`;
+  }
+}
+
+// TODO: Move
+export function printerServerId(printer: SelectedPrinter) {
+  switch (printer.type) {
+    case 'counter':
+      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
+    case 'portable':
+      return printer.networkName;
+  }
+}
+
 export type SelectedPrinter =
   | {
       type: 'portable';

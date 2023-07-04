@@ -21,8 +21,9 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
 import {
-  PrinterOption,
   SelectedPrinter,
+  printerLabel,
+  printerServerId,
   useDefaultSettings,
 } from '@hooks/useDefaultSettings';
 import { EventBus } from '@hooks/useEventBus';
@@ -93,17 +94,12 @@ export function PrintFrontTagScreen({
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const {
-    data: { printerOption, lastUsedPortablePrinter },
-  } = useDefaultSettings([userId, storeNumber], 'defaultPrinter');
+  const { data: defaultPrinter } = useDefaultSettings(
+    [userId, storeNumber],
+    'defaultPrinter',
+  );
 
-  const [printer, setPrinter] = useState<SelectedPrinter>({
-    printerOption,
-    lastUsedPortablePrinter:
-      printerOption === PrinterOption.Portable
-        ? lastUsedPortablePrinter
-        : undefined,
-  });
+  const [printer, setPrinter] = useState<SelectedPrinter>(defaultPrinter);
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -127,7 +123,7 @@ export function PrintFrontTagScreen({
         return printFrontTag({
           variables: {
             storeNumber,
-            printer: printer.lastUsedPortablePrinter ?? printer.printerOption,
+            printer: printerServerId(printer),
             data: {
               sku: itemDetails.sku,
               count: qty,
@@ -152,18 +148,21 @@ export function PrintFrontTagScreen({
       );
     }
 
-    toastService.showInfoToast(
-      `Front tag sent to ${printer.printerOption} ${
-        printer.lastUsedPortablePrinter ?? ''
-      }`,
-      {
-        props: { containerStyle: styles.toast },
-      },
-    );
+    toastService.showInfoToast(`Front tag sent to ${printerLabel(printer)}`, {
+      props: { containerStyle: styles.toast },
+    });
 
     EventBus.emit('print-success');
     goBack();
   });
+
+  const onConfirmPrinter = useCallback(
+    (printer: SelectedPrinter) => {
+      closePrinterModal();
+      setPrinter(printer);
+    },
+    [closePrinterModal],
+  );
 
   const renderPlanogram = useCallback(
     (location: LocationStatus) => {
@@ -227,28 +226,26 @@ export function PrintFrontTagScreen({
         />
       }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
-      <View
-        style={[
-          styles.textContainer,
-          printer.lastUsedPortablePrinter ? styles.column : styles.row,
-        ]}>
+
+      <View style={styles.printToLabel}>
         <Text style={styles.text}>
-          Print to{' '}
-          <Text style={styles.bold}>
-            {printer.printerOption} {printer.lastUsedPortablePrinter}
-          </Text>
+          Print to <Text style={styles.bold}>{printerLabel(printer)}</Text>
         </Text>
+
         <Pressable onPress={openPrinterModal}>
           <Text style={[styles.viewOptions, styles.bold]}>View Options</Text>
         </Pressable>
       </View>
+
       <View style={[styles.table, styles.headers]}>
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
+
       <ScrollView style={styles.planogramContainer}>
         {locationStatuses.map(renderPlanogram)}
       </ScrollView>
+
       <BottomActionBar>
         <BlockButton
           variant="primary"
@@ -265,10 +262,9 @@ export function PrintFrontTagScreen({
 
       <PrinterConfirmationModal
         isVisible={printerModalVisible}
-        lastUsedPortablePrinter={lastUsedPortablePrinter}
+        initiallySelectedPrinter={printer}
         onCancel={closePrinterModal}
-        setPrinter={setPrinter}
-        printer={printer}
+        onConfirm={onConfirmPrinter}
       />
 
       <PrintConfirmationModal

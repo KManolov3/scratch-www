@@ -20,12 +20,14 @@ import { FontWeight } from '@lib/font';
 import { useCurrentSessionInfo } from '@services/Auth';
 
 interface PrinterListProps {
-  onSelect(printer: SelectedPrinter, alreadyConfirmedPrinter: boolean): void;
-  selectedPrinter: SelectedPrinter;
-  // setPortablePrinter(portablePrinter: string): void;
   showDefaultLabelIfSelected?: boolean;
+
+  selectedPrinter: SelectedPrinter;
+  onSelect(printer: SelectedPrinter, alreadyConfirmedPrinter: boolean): void;
+
+  // setPortablePrinter(portablePrinter: string): void;
   // portablePrinter: string | undefined;
-  containerStyles?: StyleProp<ViewStyle>;
+  styles?: StyleProp<ViewStyle>;
   textStyles?: StyleProp<TextStyle>;
   portablePrinterStyles?: StyleProp<ViewStyle>;
 }
@@ -42,8 +44,7 @@ export function PrinterList({
   selectedPrinter,
   onSelect,
 
-  // TODO: Rename to `styles`
-  containerStyles,
+  styles,
 
   // textStyles,
   // portablePrinter,
@@ -63,7 +64,7 @@ export function PrinterList({
     useDefaultSettings([userId, storeNumber], 'lastUsedPortablePrinter');
 
   return (
-    <View style={containerStyles}>
+    <View style={styles}>
       {COUNTER_PRINTERS.map(printer => (
         <PrinterOption
           key={printer.id}
@@ -74,6 +75,12 @@ export function PrinterList({
           }
           showDefaultLabelIfSelected={showDefaultLabelIfSelected}
           onSelect={() => {
+            if (selectedPrinter.type === 'portable') {
+              // This is to keep the portable option the same if deselected while
+              // another printer was used more recently
+              setLastUsedPortablePrinter(selectedPrinter.networkName);
+            }
+
             onSelect({ type: 'counter', id: printer.id }, false);
           }}
         />
@@ -145,13 +152,7 @@ function PrinterOption({
         }}>
         <View style={styles.radioButtonContainer}>
           <Text
-            style={[
-              selected ? styles.bold : styles.medium,
-
-              // TODO: Why?
-              // textStyles,
-            ]}>
-            {/* {getPrinterOptionText(item)} */}
+            style={[selected ? styles.titleSelected : styles.titleNotSelected]}>
             {title}
           </Text>
 
@@ -168,13 +169,8 @@ function PrinterOption({
       </RadioButton>
 
       {subtitle && (
-        <Pressable
-          style={[
-            styles.portablePrinterRow,
-
-            // TODO: Why?
-            // portablePrinterStyles
-          ]}>
+        // TODO: Why is this Pressable? What is its purpose?
+        <Pressable style={[styles.portablePrinterRow]}>
           <View style={styles.radioButtonContainer}>
             <Text>{subtitle}</Text>
 
@@ -191,8 +187,8 @@ function PrinterOption({
 }
 
 const styles = StyleSheet.create({
-  bold: { fontSize: 16, fontWeight: FontWeight.Bold },
-  medium: { fontSize: 16, fontWeight: FontWeight.Medium },
+  titleSelected: { fontSize: 16, fontWeight: FontWeight.Bold },
+  titleNotSelected: { fontSize: 16, fontWeight: FontWeight.Medium },
   default: { fontSize: 10, fontWeight: FontWeight.Book },
   radioButtonContainer: {
     flexDirection: 'row',

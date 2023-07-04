@@ -14,10 +14,10 @@ export const styles = StyleSheet.create({
   container: { backgroundColor: Colors.pure },
   actionButton: { flex: 1 },
   text: { fontSize: 16, lineHeight: 22 },
-  textContainer: {
+  printToLabel: {
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   viewOptions: { color: Colors.blue, marginLeft: 8, fontSize: 14 },
   table: {
@@ -45,6 +45,4 @@ export const styles = StyleSheet.create({
     marginBottom: '10%',
   },
   planogramContainer: { flex: 1 },
-  column: { flexDirection: 'column' },
-  row: { flexDirection: 'row' },
 });
