@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
     color: Colors.advanceBlack,
   },
   bottomActionBar: {
+    // TODO: Remove
     paddingTop: 8,
   },
   text: { fontSize: 16, lineHeight: 22 },

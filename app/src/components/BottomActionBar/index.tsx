@@ -7,11 +7,11 @@ import {
   View,
 } from 'react-native';
 import { BlockButton } from '@components/Button/Block';
-import { Container } from '@components/Container';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 
 export interface Action {
+  variant?: 'primary' | 'dark' | 'gray';
   label: string;
   onPress: () => void;
   buttonStyle?: StyleProp<ViewStyle>;
@@ -32,42 +32,55 @@ export function BottomActionBar({
   style,
 }: BottomActionBarProps) {
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.root, style]}>
       {topComponent}
-      <Container style={styles.actionsContainer}>
+      <View style={styles.actions}>
         {actions.map(
-          ({ label, onPress, buttonStyle, textStyle, isLoading, disabled }) => (
+          ({
+            variant = 'primary',
+            label,
+            onPress,
+            buttonStyle,
+            textStyle,
+            isLoading,
+            disabled,
+          }) => (
+            // TODO: Provide these components from above
             <BlockButton
+              variant={variant}
               key={label}
-              label={label}
               onPress={onPress}
               id={label}
               style={[styles.actionStyle, buttonStyle]}
               textStyle={textStyle}
               isLoading={isLoading}
-              disabled={disabled}
-            />
+              disabled={disabled}>
+              {label}
+            </BlockButton>
           ),
         )}
-      </Container>
+      </View>
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 8,
 
+const styles = StyleSheet.create({
+  root: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
 
     backgroundColor: Colors.pure,
+
     ...BaseStyles.shadow,
     shadowOffset: { width: 0, height: -2 },
   },
-  actionsContainer: { justifyContent: 'space-evenly' },
+  actions: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+  },
   actionStyle: {
     flex: 1,
-    marginTop: 6,
-    borderRadius: 8,
+    margin: 8,
   },
 });

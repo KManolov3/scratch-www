@@ -199,10 +199,7 @@ export function BatchCountSummary() {
           renderItem={renderItem}
           ref={flatListRef}
         />
-        <BottomActionBar
-          style={styles.bottomActionBar}
-          actions={bottomBarActions}
-        />
+        <BottomActionBar actions={bottomBarActions} />
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -226,9 +223,6 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-  },
-  bottomActionBar: {
-    paddingTop: 8,
   },
   toast: {
     marginBottom: '10%',

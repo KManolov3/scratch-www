@@ -7,6 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import type Svg from 'react-native-svg';
+import { BlockButton } from '@components/Button/Block';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
@@ -20,6 +21,7 @@ export interface ConfirmationModalProps {
   confirmationLabel?: string;
   onConfirm: () => void;
   cancellationLabel?: string;
+  confirmationEnabled?: boolean;
   onCancel: () => void;
   children?: ReactNode;
   buttonsStyle?: StyleProp<ViewStyle>;
@@ -33,6 +35,7 @@ export function ConfirmationModal({
   cancellationLabel = 'Cancel',
   onCancel,
   confirmationLabel = 'Accept',
+  confirmationEnabled = true,
   onConfirm,
   buttonsStyle,
   children,
@@ -48,15 +51,20 @@ export function ConfirmationModal({
         ) : null}
         {title ? <Text style={styles.title}>{title}</Text> : null}
         {children}
-        <View style={[styles.buttons, buttonsStyle]}>
-          <Pressable onPress={onCancel} style={styles.button}>
-            <Text style={styles.buttonText}>{cancellationLabel}</Text>
-          </Pressable>
-          <Pressable
-            onPress={onConfirm}
-            style={[styles.button, styles.confirmationButton]}>
-            <Text style={styles.buttonText}>{confirmationLabel}</Text>
-          </Pressable>
+        <View style={[styles.controls, buttonsStyle]}>
+          <BlockButton
+            variant="secondary"
+            style={styles.button}
+            onPress={onCancel}>
+            {cancellationLabel}
+          </BlockButton>
+          <BlockButton
+            variant="primary"
+            style={styles.button}
+            disabled={!confirmationEnabled}
+            onPress={onConfirm}>
+            {confirmationLabel}
+          </BlockButton>
         </View>
       </View>
     </Modal>
@@ -89,25 +97,28 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     textAlign: 'center',
   },
-  buttons: {
+  controls: {
     flexDirection: 'row',
     marginTop: 12,
     gap: 8,
   },
   button: {
     flex: 1,
-    borderRadius: 4,
-    padding: 12,
-    backgroundColor: Colors.gray100,
   },
-  confirmationButton: {
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: FontWeight.Bold,
-    textAlign: 'center',
-    color: Colors.darkerGray,
-  },
+  // button: {
+  //   flex: 1,
+  //   borderRadius: 4,
+  //   padding: 12,
+  //   backgroundColor: Colors.gray100,
+  // },
+  // confirmationButton: {
+  //   backgroundColor: Colors.advanceYellow,
+  // },
+  // buttonText: {
+  //   fontSize: 16,
+  //   lineHeight: 24,
+  //   fontWeight: FontWeight.Bold,
+  //   textAlign: 'center',
+  //   color: Colors.darkerGray,
+  // },
 });

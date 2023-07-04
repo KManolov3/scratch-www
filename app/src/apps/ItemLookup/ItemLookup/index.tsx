@@ -119,9 +119,10 @@ export function ItemLookupScreen({
       <BottomActionBar
         actions={bottomBarActions}
         topComponent={
-          hasPriceDiscrepancy ? <PriceDiscrepancyAttention /> : null
+          hasPriceDiscrepancy ? (
+            <PriceDiscrepancyAttention style={styles.priceDiscrepancy} />
+          ) : null
         }
-        style={styles.bottomActionBar}
       />
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     color: Colors.advanceBlack,
     fontWeight: FontWeight.Bold,
   },
-  bottomActionBar: {
-    paddingTop: 8,
+  priceDiscrepancy: {
+    marginTop: 15,
   },
 });

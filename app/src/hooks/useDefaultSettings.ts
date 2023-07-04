@@ -1,24 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
 import { localStorage } from '@services/LocalStorageService';
 
-export enum PrinterOption {
-  Counter1 = 'Counter Printer 1',
-  Counter2 = 'Counter Printer 2',
-  Counter3 = 'Counter Printer 3',
-  Portable = 'Portable',
-}
+// TODO: Move somewhere else?
+export const COUNTER_PRINTERS = Object.freeze([
+  { id: 1, name: 'Counter Printer 1' },
+  { id: 2, name: 'Counter Printer 2' },
+  { id: 3, name: 'Counter Printer 3' },
+] as const);
 
-export type SelectedPrinter = {
-  printerOption: PrinterOption;
-  lastUsedPortablePrinter?: string;
-};
+export type SelectedPrinter =
+  | {
+      type: 'portable';
+      networkName: string;
+    }
+  | {
+      type: 'counter';
+      id: (typeof COUNTER_PRINTERS)[number]['id'];
+    };
 
 export interface DefaultSettings {
-  defaultPrinterOption: SelectedPrinter;
+  defaultPrinter: SelectedPrinter;
+  lastUsedPortablePrinter?: string;
 }
 
 const DEFAULT_SETTINGS: DefaultSettings = {
-  defaultPrinterOption: { printerOption: PrinterOption.Counter1 },
+  defaultPrinter: { type: 'counter', id: 1 },
 };
 
 export function useDefaultSettings<Key extends keyof DefaultSettings>(

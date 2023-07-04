@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -11,37 +10,46 @@ import { AddPortablePrinterModal } from '@components/AddPortablePrinterModal';
 import { RadioButton } from '@components/Button/Radio';
 import { Text } from '@components/Text';
 import { useBooleanState } from '@hooks/useBooleanState';
-import { PrinterOption } from '@hooks/useDefaultSettings';
+import {
+  COUNTER_PRINTERS,
+  SelectedPrinter,
+  useDefaultSettings,
+} from '@hooks/useDefaultSettings';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 interface PrinterListProps {
-  onRadioButtonPress(item: PrinterOption): void;
-  checked(item: PrinterOption): boolean;
-  setPortablePrinter(portablePrinter: string): void;
-  withDefault?: boolean;
-  portablePrinter: string | undefined;
+  onSelect(printer: SelectedPrinter, alreadyConfirmedPrinter: boolean): void;
+  selectedPrinter: SelectedPrinter;
+  // setPortablePrinter(portablePrinter: string): void;
+  showDefaultLabelIfSelected?: boolean;
+  // portablePrinter: string | undefined;
   containerStyles?: StyleProp<ViewStyle>;
   textStyles?: StyleProp<TextStyle>;
   portablePrinterStyles?: StyleProp<ViewStyle>;
 }
 
-function getPrinterOptionText(printerOption: PrinterOption) {
-  if (printerOption !== PrinterOption.Portable) {
-    return printerOption;
-  }
-  return printerOption ? 'Portable' : 'Add a Portable';
-}
+// function getPrinterOptionText(printerOption: PrinterOption) {
+//   if (printerOption !== PrinterOption.Portable) {
+//     return printerOption;
+//   }
+//
+//   return printerOption ? 'Portable' : 'Add a Portable';
+// }
 
 export function PrinterList({
-  checked,
-  onRadioButtonPress,
+  selectedPrinter,
+  onSelect,
+
+  // TODO: Rename to `styles`
   containerStyles,
-  textStyles,
-  portablePrinter,
-  setPortablePrinter,
-  portablePrinterStyles,
-  withDefault = false,
+
+  // textStyles,
+  // portablePrinter,
+  // setPortablePrinter,
+  // portablePrinterStyles,
+  showDefaultLabelIfSelected = false,
 }: PrinterListProps) {
   const {
     state: portablePrinterModalOpen,
@@ -49,65 +57,136 @@ export function PrinterList({
     disable: closePortablePrinterModal,
   } = useBooleanState();
 
+  const { userId, storeNumber } = useCurrentSessionInfo();
+
+  const { data: lastUsedPortablePrinter, set: setLastUsedPortablePrinter } =
+    useDefaultSettings([userId, storeNumber], 'lastUsedPortablePrinter');
+
   return (
     <View style={containerStyles}>
-      {Array.from(Object.values(PrinterOption)).map(item => (
-        <Fragment key={item}>
-          <RadioButton
-            checked={checked(item)}
-            onPress={() => {
-              if (item === PrinterOption.Portable && !portablePrinter) {
-                return openPortablePrinterModal();
-              }
-              onRadioButtonPress(item);
-            }}>
-            <View style={styles.radioButtonContainer}>
-              <Text
-                style={[
-                  checked(item) ? styles.bold : styles.medium,
-                  textStyles,
-                ]}>
-                {getPrinterOptionText(item)}
-              </Text>
-              {withDefault && checked(item) ? (
-                <Text style={styles.default}>Default</Text>
-              ) : null}
-              {!withDefault &&
-                item === PrinterOption.Portable &&
-                portablePrinter && (
-                  <Pressable
-                    onPress={openPortablePrinterModal}
-                    style={styles.replaceContainer}>
-                    <Text style={styles.replace}>Replace</Text>
-                  </Pressable>
-                )}
-            </View>
-          </RadioButton>
-          {item === PrinterOption.Portable && portablePrinter && (
-            <Pressable
-              style={[styles.portablePrinterRow, portablePrinterStyles]}>
-              <View style={styles.radioButtonContainer}>
-                <Text>{portablePrinter}</Text>
-                {withDefault && (
-                  <Pressable onPress={openPortablePrinterModal}>
-                    <Text style={styles.replace}>Replace</Text>
-                  </Pressable>
-                )}
-              </View>
-            </Pressable>
-          )}
-        </Fragment>
+      {COUNTER_PRINTERS.map(printer => (
+        <PrinterOption
+          key={printer.id}
+          title={printer.name}
+          selected={
+            selectedPrinter.type === 'counter' &&
+            printer.id === selectedPrinter.id
+          }
+          showDefaultLabelIfSelected={showDefaultLabelIfSelected}
+          onSelect={() => {
+            onSelect({ type: 'counter', id: printer.id }, false);
+          }}
+        />
       ))}
 
+      <PrinterOption
+        title={lastUsedPortablePrinter ? 'Portable' : 'Add a Portable'}
+        subtitle={
+          selectedPrinter.type === 'portable'
+            ? selectedPrinter.networkName
+            : lastUsedPortablePrinter
+        }
+        selected={selectedPrinter.type === 'portable'}
+        showDefaultLabelIfSelected={showDefaultLabelIfSelected}
+        onSelect={() => {
+          if (lastUsedPortablePrinter) {
+            onSelect(
+              {
+                type: 'portable',
+                networkName: lastUsedPortablePrinter,
+              },
+              false,
+            );
+          } else {
+            openPortablePrinterModal();
+          }
+        }}
+        onReplace={openPortablePrinterModal}
+      />
+
+      {/* TODO: New instance of this modal on every render */}
       <AddPortablePrinterModal
         isVisible={portablePrinterModalOpen}
         onCancel={closePortablePrinterModal}
         onConfirm={printerCode => {
           closePortablePrinterModal();
-          setPortablePrinter(printerCode);
+          setLastUsedPortablePrinter(printerCode);
+          onSelect({ type: 'portable', networkName: printerCode }, true);
         }}
       />
     </View>
+  );
+}
+
+function PrinterOption({
+  title,
+  subtitle,
+  selected,
+  showDefaultLabelIfSelected,
+  onSelect,
+  onReplace,
+}: {
+  title: string;
+  subtitle?: string;
+  selected: boolean;
+  showDefaultLabelIfSelected: boolean;
+  onSelect: () => void;
+  onReplace?: () => void;
+}) {
+  return (
+    // TODO: Fix layout
+    <>
+      <RadioButton
+        checked={selected}
+        onPress={() => {
+          if (!selected) {
+            onSelect();
+          }
+        }}>
+        <View style={styles.radioButtonContainer}>
+          <Text
+            style={[
+              selected ? styles.bold : styles.medium,
+
+              // TODO: Why?
+              // textStyles,
+            ]}>
+            {/* {getPrinterOptionText(item)} */}
+            {title}
+          </Text>
+
+          {showDefaultLabelIfSelected && selected ? (
+            <Text style={styles.default}>Default</Text>
+          ) : null}
+
+          {!showDefaultLabelIfSelected && onReplace && (
+            <Pressable onPress={onReplace} style={styles.replaceContainer}>
+              <Text style={styles.replace}>Replace</Text>
+            </Pressable>
+          )}
+        </View>
+      </RadioButton>
+
+      {subtitle && (
+        <Pressable
+          style={[
+            styles.portablePrinterRow,
+
+            // TODO: Why?
+            // portablePrinterStyles
+          ]}>
+          <View style={styles.radioButtonContainer}>
+            <Text>{subtitle}</Text>
+
+            {showDefaultLabelIfSelected && (
+              <Pressable onPress={onReplace}>
+                <Text style={styles.replace}>Replace</Text>
+              </Pressable>
+            )}
+          </View>
+        </Pressable>
+      )}
+    </>
   );
 }
 

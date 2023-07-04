@@ -8,7 +8,11 @@ import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
-import { PrinterOption, useDefaultSettings } from '@hooks/useDefaultSettings';
+import {
+  COUNTER_PRINTERS,
+  SelectedPrinter,
+  useDefaultSettings,
+} from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
@@ -25,26 +29,24 @@ export function SelectPrinters() {
     askForConfirmation,
     accept,
     reject,
-  } = useConfirmation<PrinterOption>();
+  } = useConfirmation<SelectedPrinter>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const {
-    data: { printerOption, lastUsedPortablePrinter },
-    set: setDefaultPrinter,
-  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
+  const { data: defaultPrinter, set: setDefaultPrinter } = useDefaultSettings(
+    [userId, storeNumber],
+    'defaultPrinter',
+  );
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
-  const checked = useCallback(
-    (item: PrinterOption) => item === printerOption,
-    [printerOption],
-  );
-
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: PrinterOption) => {
-      if (await askForConfirmation(printer)) {
-        setDefaultPrinter({ printerOption: printer, lastUsedPortablePrinter });
+    async (printer: SelectedPrinter, alreadyConfirmedPrinter: boolean) => {
+      const confirmed =
+        alreadyConfirmedPrinter || (await askForConfirmation(printer));
+
+      if (confirmed) {
+        setDefaultPrinter(printer);
       }
     },
   );
@@ -53,19 +55,13 @@ export function SelectPrinters() {
     <>
       <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
+
         <PrinterList
-          checked={checked}
-          onRadioButtonPress={setPrinter}
-          withDefault
+          selectedPrinter={defaultPrinter}
+          onSelect={setPrinter}
+          showDefaultLabelIfSelected
           containerStyles={styles.radioButtons}
           textStyles={styles.text}
-          portablePrinter={lastUsedPortablePrinter}
-          setPortablePrinter={printerCode =>
-            setDefaultPrinter({
-              printerOption: PrinterOption.Portable,
-              lastUsedPortablePrinter: printerCode,
-            })
-          }
         />
       </FixedLayout>
 
@@ -77,17 +73,30 @@ export function SelectPrinters() {
         title="Default Printer"
         Icon={BlackAttentionIcon}
         iconStyles={styles.icon}
+        // TODO: Remove and add padding to the container
         buttonsStyle={styles.buttons}>
         <Text style={styles.confirmationModalText}>
           Are you sure you want to set{' '}
         </Text>
+        {/* TODO: Why wrap like this? */}
         <Text style={styles.confirmationModalText}>
-          <Text style={styles.bold}>{printerToConfirm}</Text> as the default
-          printer?
+          <Text style={styles.bold}>
+            {printerToConfirm ? printerLabel(printerToConfirm) : 'Unknown'}
+          </Text>{' '}
+          as the default printer?
         </Text>
       </ConfirmationModal>
     </>
   );
+}
+
+function printerLabel(printer: SelectedPrinter) {
+  switch (printer.type) {
+    case 'counter':
+      return COUNTER_PRINTERS.find(_ => _.id === printer.id)?.name;
+    case 'portable':
+      return printer.networkName;
+  }
 }
 
 const styles = StyleSheet.create({

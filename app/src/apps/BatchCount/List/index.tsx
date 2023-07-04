@@ -10,7 +10,6 @@ import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
@@ -144,8 +143,7 @@ export function BatchCountList() {
         {
           label: 'Fast Accept',
           onPress: submitBatchCount,
-          buttonStyle: styles.fastAccept,
-          textStyle: styles.fastAcceptText,
+          variant: 'dark',
           isLoading: submitLoading,
         },
         {
@@ -198,10 +196,8 @@ export function BatchCountList() {
           renderItem={renderItem}
           ref={flatListRef}
         />
-        <BottomActionBar
-          style={styles.bottomActionBar}
-          actions={bottomBarActions}
-        />
+
+        <BottomActionBar actions={bottomBarActions} />
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -222,16 +218,6 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 21,
     marginVertical: 4,
-  },
-  bottomActionBar: {
-    paddingTop: 8,
-  },
-  fastAccept: {
-    backgroundColor: Colors.advanceVoid,
-    borderColor: Colors.advanceVoid,
-  },
-  fastAcceptText: {
-    color: Colors.pure,
   },
   toast: {
     marginBottom: '10%',

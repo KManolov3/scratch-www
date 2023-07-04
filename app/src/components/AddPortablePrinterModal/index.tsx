@@ -60,9 +60,7 @@ export function AddPortablePrinterModal({
         <TextInput
           placeholder="XXXXXX-XX-XXXX"
           value={portablePrinterInput}
-          onChangeText={value => {
-            setPortablePrinterInput(value);
-          }}
+          onChangeText={value => setPortablePrinterInput(value)}
           style={styles.input}
         />
       </View>
