@@ -1,83 +1,29 @@
+import { noop } from 'lodash-es';
 import { StyleSheet, View } from 'react-native';
+import { AttentionIcon } from '@assets/icons';
+import { BlockButton } from '@components/Button/Block';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
-import { AttentionIcon } from '@assets/icons';
-import { BlockButton } from '@components/Button/Block';
-import { ErrorType } from '@services/ErrorState/types';
-import { useMemo } from 'react';
 
 export interface ErrorModalProps {
   isVisible: boolean;
-  errorType: ErrorType;
-  errorCode?: string;
+  title: string;
   description?: string;
+  withRetry?: boolean;
   onRetry?: () => void;
   onCancel?: () => void;
 }
 
-function getErrorDetailsByType(errorType: ErrorType) {
-  switch (errorType) {
-    case ErrorType.NoConnection:
-      return {
-        // This is ServerError in the designs, but in this case it doesn't make much sense
-        // TODO: Decide whether to hardcode the title to `Server Error`
-        title: 'Connection error',
-        description:
-          'A connection error occured. Please check the network connection and try again.',
-      };
-    case ErrorType.Timeout:
-      return {
-        title: 'Connection Error',
-        description:
-          'Request timed out. This could indicate a problem with the server, or with your network connection',
-      };
-    case ErrorType.GenericError:
-    case ErrorType.ServerError:
-    case ErrorType.UnexpectedClientError:
-    default:
-      return {
-        title: 'Server Error',
-        description: 'Oops! An unexpected error occured.',
-      };
-  }
-}
-
-function getErrorDetails(
-  errorType: ErrorType,
-  customDescription?: string,
-  errorCode?: string,
-) {
-  if (customDescription) {
-    return {
-      title: 'Server Error',
-      description: customDescription,
-    };
-  }
-
-  const { title, description } = getErrorDetailsByType(errorType);
-
-  return {
-    title,
-    description: errorCode
-      ? `${description} Please contact the Help Desk.`
-      : description,
-  };
-}
-
 export function ErrorModal({
   isVisible,
-  errorType,
-  description: customDescription,
-  errorCode,
-  onRetry,
-  onCancel,
+  title,
+  description,
+  withRetry = false,
+  onRetry = noop,
+  onCancel = noop,
 }: ErrorModalProps) {
-  const { title, description } = useMemo(
-    () => getErrorDetails(errorType, customDescription, errorCode),
-    [customDescription, errorCode, errorType],
-  );
   return (
     <Modal
       isVisible={isVisible}
@@ -87,18 +33,13 @@ export function ErrorModal({
         <AttentionIcon height={40} width={40} style={styles.icon} />
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
-        {errorCode && (
-          <Text style={[styles.description, styles.bold]}>
-            {`Error code: ${errorCode}`}
-          </Text>
-        )}
-        {onRetry && (
+        {withRetry ? (
           <BlockButton
             style={styles.button}
             textStyle={styles.buttonText}
             onPress={onRetry}
           />
-        )}
+        ) : null}
       </View>
     </Modal>
   );
@@ -136,9 +77,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
     color: Colors.darkerGray,
-  },
-  bold: {
-    fontWeight: FontWeight.Bold,
   },
   button: {
     flex: 1,

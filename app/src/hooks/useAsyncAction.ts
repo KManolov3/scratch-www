@@ -1,6 +1,6 @@
-import { ErrorContext } from '@services/ErrorState/';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useErrorManager } from '@services/ErrorState';
 import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseAsyncActionResult<Args extends any[], T>
@@ -15,15 +15,15 @@ interface AsyncState<T> {
   error?: unknown;
 }
 
-export interface AsyncActionOptions {
+export interface AsyncActionOptions<T> {
   globalErrorHandling: GlobalErrorHandlingSetting;
+  initialState?: { data?: T; loading?: boolean };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useAsyncAction<Args extends any[], T>(
   action: (...args: Args) => Promise<T>,
-  { globalErrorHandling }: AsyncActionOptions,
-  initialState: { data?: T; loading?: boolean } = {},
+  { globalErrorHandling, initialState = {} }: AsyncActionOptions<T>,
 ): UseAsyncActionResult<Args, T> {
   const [state, setState] = useState<AsyncState<T>>({
     loading: initialState?.loading ?? false,
@@ -33,21 +33,13 @@ export function useAsyncAction<Args extends any[], T>(
 
   const requestIdRef = useRef(0);
 
-  const context = useContext(ErrorContext);
+  const { executeAndHandleErrors } = useErrorManager();
 
   let shimmedAction = action;
 
   if (globalErrorHandling !== 'disabled') {
-    if (!context) {
-      throw new Error(
-        'Cannot access ErrorState context outside of ErrorStateProvider',
-      );
-    }
     shimmedAction = () =>
-      context.executeAndHandleErrors(
-        action,
-        globalErrorHandling.interceptError,
-      );
+      executeAndHandleErrors(action, globalErrorHandling.interceptError);
   }
 
   const actionRef = useRef(shimmedAction);

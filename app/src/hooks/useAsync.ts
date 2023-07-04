@@ -4,10 +4,14 @@ import { AsyncActionOptions, useAsyncAction } from './useAsyncAction';
 export function useAsync<T>(
   action: () => Promise<T>,
   dependencies: DependencyList,
-  options: AsyncActionOptions,
+  options: AsyncActionOptions<T>,
 ) {
-  const { trigger, data, loading, error } = useAsyncAction(action, options, {
-    loading: true,
+  const { trigger, data, loading, error } = useAsyncAction(action, {
+    ...options,
+    initialState: {
+      ...options.initialState,
+      loading: true,
+    },
   });
 
   // This is intentional

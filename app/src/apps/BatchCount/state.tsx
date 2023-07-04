@@ -1,6 +1,3 @@
-import { ApolloError } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
-import { useCurrentSessionInfo } from '@services/Auth';
 import { merge } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
@@ -22,10 +19,12 @@ import {
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
+import { ApolloError } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
+import { useNavigation } from '@react-navigation/native';
+import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
@@ -110,7 +109,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   } = useManagedMutation(SUBMIT_BATCH_COUNT, {
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });
@@ -224,7 +223,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       EventBus.emit('search-error', searchError),
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });
@@ -238,7 +237,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       EventBus.emit('search-error', searchError),
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });

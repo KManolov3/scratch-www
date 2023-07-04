@@ -15,7 +15,6 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
@@ -51,7 +50,7 @@ export function SelectPrinters() {
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
         }),
       },
     },

@@ -24,12 +24,11 @@ import {
   useDefaultSettings,
 } from '@hooks/useDefaultSettings';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedMutation } from '@hooks/useManagedMutation';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useManagedMutation } from '@hooks/useManagedMutation';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { PrinterConfirmationModal } from '../components/PrinterConfirmationModal';
 import { SearchBottomTray } from '../components/SearchBottomTray';
@@ -86,7 +85,7 @@ export function PrintFrontTagScreen({
   const { perform: printFrontTag } = useManagedMutation(PRINT_FRONT_TAG, {
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });

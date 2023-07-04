@@ -1,20 +1,24 @@
-export enum BehaviourOnFailure {
-  Toast,
-  Modal,
-  Ignored,
-}
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type ToastError = {
+  behaviourOnFailure: 'toast';
+  shouldRetryRequest?: never;
+  maxRetries?: never;
+  message: string;
+};
 
+export type ModalError = {
+  behaviourOnFailure: 'modal';
+  shouldRetryRequest: boolean;
+  maxRetries?: number;
+  title: string;
+  message: string;
+};
+
+export type ErrorInfo = 'ignored' | ToastError | ModalError;
 export type ErrorOptions =
-  | {
-      behaviourOnFailure: BehaviourOnFailure.Ignored | BehaviourOnFailure.Toast;
-      shouldRetryRequest?: never;
-      maxRetries?: never;
-    }
-  | {
-      behaviourOnFailure: BehaviourOnFailure.Modal;
-      shouldRetryRequest: boolean;
-      maxRetries?: number;
-    };
+  | 'ignored'
+  | PartialBy<ToastError, 'message'>
+  | PartialBy<ModalError, 'title' | 'message'>;
 
 export type GlobalErrorHandlingSetting =
   | 'disabled'
@@ -43,28 +47,3 @@ export enum ErrorType {
   GenericError,
   Presentable,
 }
-
-export type ErrorInfo =
-  | {
-      errorType: ErrorType;
-      errorCode?: never;
-      customMessage?: never;
-    }
-  | {
-      errorType: ErrorType.ServerError;
-      errorCode?: string;
-      customMessage?: never;
-    }
-  | {
-      errorType: ErrorType.Presentable;
-      errorCode?: never;
-      // TODO: Currently we are allowing for `customMessage` only in the
-      // case when throwing a PresentableError. Do we want to allow setting
-      // one in other cases as well?
-      customMessage?: string;
-    };
-
-export type ErrorHandlingStrategy = {
-  options: ErrorOptions;
-  errorInfo: ErrorInfo;
-};

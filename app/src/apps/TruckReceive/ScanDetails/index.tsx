@@ -1,9 +1,8 @@
 import { ActivityIndicator, View } from 'react-native';
 import { RootScreenProps } from '@apps/navigator';
 import { Text } from '@components/Text';
-import { FixedLayout } from '@layouts/FixedLayout';
 import { useManagedQuery } from '@hooks/useManagedQuery';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
+import { FixedLayout } from '@layouts/FixedLayout';
 import { gql } from '../../../__generated__';
 import { styles } from './styles';
 
@@ -29,7 +28,7 @@ export function TruckReceiveScanDetails({
     variables: { asn: route.params.asn },
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Modal,
+        behaviourOnFailure: 'modal',
         shouldRetryRequest: true,
       }),
     },

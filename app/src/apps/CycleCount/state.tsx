@@ -1,9 +1,8 @@
-import { useManagedQuery } from '@hooks/useManagedQuery';
-import { useCurrentSessionInfo } from '@services/Auth';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { CycleCountContextQuery } from 'src/__generated__/graphql';
+import { useManagedQuery } from '@hooks/useManagedQuery';
+import { useCurrentSessionInfo } from '@services/Auth';
 
 interface ContextValue {
   cycleCounts: CycleCountContextQuery['cycleCounts'];
@@ -43,7 +42,7 @@ export function CycleCountStateProvider({ children }: { children: ReactNode }) {
     variables: { storeNumber },
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Modal,
+        behaviourOnFailure: 'modal',
         shouldRetryRequest: true,
       }),
     },

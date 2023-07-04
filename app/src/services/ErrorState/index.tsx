@@ -1,156 +1,76 @@
-import { ErrorModal } from '@components/ErrorModal';
 import {
   ReactNode,
   createContext,
   useContext,
   useCallback,
-  useState,
   useMemo,
 } from 'react';
-import { PresentableError } from 'src/errors/presentable-error';
-import { useNetInfo } from '@react-native-community/netinfo';
-import { ApolloError } from '@apollo/client';
-import { toastService } from '@services/ToastService';
 import { StyleSheet } from 'react-native/types';
+import { ErrorModal } from '@components/ErrorModal';
 import { useConfirmation } from '@hooks/useConfirmation';
-import {
-  ErrorType,
-  ErrorOptions,
-  ErrorHandlingStrategy,
-  BehaviourOnFailure,
-  ErrorState,
-  ErrorInfo,
-} from './types';
+import { useNetInfo } from '@react-native-community/netinfo';
+import { toastService } from '@services/ToastService';
+import { ErrorOptions, ErrorState, ErrorInfo, ModalError } from './types';
 
 export const ErrorContext = createContext<ErrorState | undefined>(undefined);
 
-function extractErrorInfo(error: unknown, isConnected: boolean): ErrorInfo {
-  if (!isConnected) {
-    return {
-      errorType: ErrorType.NoConnection,
-    };
+/**
+ * Can be thrown in an async block of code making use of the global error handling
+ * to provide the details for visualising the error explicitly.
+ * NOTE: Do not throw a `PresentableError` inside of an `interceptError` callback,
+ * rather throw it inside the wrapped async code.
+ * TODO: Should we handle the above case as well?
+ */
+export class PresentableError extends Error {
+  options: ErrorInfo;
+
+  originalError: unknown;
+
+  constructor(options: ErrorInfo, originalError: unknown) {
+    super();
+
+    this.options = options;
+    this.originalError = originalError;
   }
-
-  if (error instanceof ApolloError) {
-    const { graphQLErrors } = error;
-
-    // TODO: Handle other fields set on ApolloError (for example clientErrors)
-    // Note: Those will only be set on queries, since in `useManagedMutation`
-    // we throw the ApolloError manually with just the graphQL errors
-
-    // TODO: Do we handle more than the first error? How?
-    if (graphQLErrors.length > 0) {
-      // TODO: Do we use/check any of the fields of the error (message/stack/...)
-      // We'll certainly log them once NewRelic is set up, but do we use it to show
-      // the client information beside that? Current Figma designs prefer rather generic
-      // messaging, so adhering to that for now.
-
-      // TODO: Find out where an error code will be set in the error and return it
-      return {
-        errorType: ErrorType.ServerError,
-      };
-    }
-  }
-
-  if (error instanceof PresentableError) {
-    return {
-      errorType: ErrorType.Presentable,
-      customMessage: error.message,
-    };
-  }
-
-  return {
-    errorType: ErrorType.GenericError,
-  };
 }
 
-function determineErrorHandling(
+function buildErrorInfo(
   error: unknown,
   selectedOptions: ErrorOptions,
   isConnected: boolean,
-): ErrorHandlingStrategy {
-  if (selectedOptions.behaviourOnFailure === BehaviourOnFailure.Ignored) {
-    return {
-      options: {
-        behaviourOnFailure: BehaviourOnFailure.Ignored,
-      },
-      // This should never actually be used.
-      // TODO: Find a way to write the types more elegantly, so this
-      // line can be omitted entirely.
-      errorInfo: {
-        errorType: ErrorType.GenericError,
-      },
-    };
+): ErrorInfo {
+  if (selectedOptions === 'ignored') {
+    return 'ignored';
   }
 
-  const errorInfo = extractErrorInfo(error, isConnected);
-
-  if (errorInfo.errorType === ErrorType.NoConnection) {
+  if (!isConnected) {
     // Allowing for retry of request on network failure and overriding
     // the passed behaviour preference. We generally want to prevent further requests
     // while the user does not have a connection, since they are also bound to fail.
     // TODO: Do we take a more "permissive" approach and respect the passed behaviour preference?
     return {
-      options: {
-        behaviourOnFailure: BehaviourOnFailure.Modal,
-        shouldRetryRequest: true,
-        maxRetries: Number.POSITIVE_INFINITY,
-      },
-      errorInfo: {
-        errorType: ErrorType.NoConnection,
-      },
+      behaviourOnFailure: 'modal',
+      shouldRetryRequest: true,
+      maxRetries: Number.POSITIVE_INFINITY,
+      title: 'Server Error',
+      message:
+        'A connection error occured. Please check the network connection and try again.',
+    };
+  }
+
+  if (selectedOptions.behaviourOnFailure === 'toast') {
+    return {
+      message: 'Oops! An unexpected error occured.',
+      ...selectedOptions,
     };
   }
 
   return {
-    options: selectedOptions,
-    errorInfo,
+    title: 'Server Error',
+    // TODO: Think of a better message?
+    message: 'A connection error occured. Please contact the help desk.',
+    ...selectedOptions,
   };
-}
-
-function concatenatePhrases(phrases: string[]) {
-  return phrases
-    .filter(phrase => phrase.length > 0)
-    .reduce((text, phrase) => `${text} ${phrase}`);
-}
-
-function constructToastMessage({
-  errorType,
-  errorCode,
-  customMessage,
-}: ErrorInfo) {
-  let baseMessage = '';
-  const errorCodeMessage = errorCode
-    ? `Error code: ${errorCode}. Please contact the help desk.`
-    : '';
-  switch (errorType) {
-    case ErrorType.NoConnection:
-      baseMessage =
-        'A connection error occured. Please check the network connection and try again.';
-      break;
-    case ErrorType.Timeout:
-      baseMessage = 'Request timed out.';
-      break;
-    case ErrorType.GenericError:
-    case ErrorType.ServerError:
-    case ErrorType.UnexpectedClientError:
-    default:
-      baseMessage = 'Oops! An unexpected error occured.';
-  }
-
-  return concatenatePhrases([
-    baseMessage,
-    errorCodeMessage,
-    customMessage ?? '',
-  ]);
-}
-
-function showErrorToast(errorInfo: ErrorInfo) {
-  return toastService.showInfoToast(constructToastMessage(errorInfo), {
-    // We'd almost always want to offset the toast, so that it isn't shown on the bottom bar
-    // If a consistent toast position isn't desired, find a way to configure those styles.
-    props: { containerStyle: styles.toast },
-  });
 }
 
 export interface ErrorStateProps {
@@ -158,18 +78,16 @@ export interface ErrorStateProps {
 }
 
 export function ErrorStateProvider({ children }: ErrorStateProps) {
-  const [errorToVisualise, setErrorToVisualise] = useState<ErrorInfo>();
-
   const { isConnected } = useNetInfo();
 
   const {
+    itemToConfirm: errorToVisualise,
     confirmationRequested: isRetryModalVisible,
     askForConfirmation: askToRetry,
     accept: retry,
     reject: cancel,
-  } = useConfirmation();
+  } = useConfirmation<ModalError>();
 
-  // TODO: Try to rewrite this using `useConfirmation` hook
   const executeAndHandleErrors = useCallback(
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-constraint
     async <T extends any>(
@@ -180,61 +98,48 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
       try {
         return await doRequest();
       } catch (error) {
-        let passedOptions: ErrorOptions = {
-          behaviourOnFailure: BehaviourOnFailure.Ignored,
-        };
-        let customError: PresentableError | undefined;
+        let errorOptions: ErrorOptions;
 
-        try {
-          passedOptions = interceptError(error);
-        } catch (interceptorError) {
-          // This can happen when the original error has been overriden
-          // with a custom visualisation
-          // eslint-disable-next-line max-depth
-          if (!(interceptorError instanceof PresentableError)) {
-            // eslint-disable-next-line no-console
-            console.error('Unexpected error type thrown from `interceptError`');
-            throw interceptorError;
-          }
-          passedOptions = interceptorError.options;
-          // TODO: I am rather dissatisfied with how the `PresentableError` abstraction
-          // turned out - we are currently only using the message from it. We can just add
-          // a `customMessage` property to ErrorOptions instead. Should we remove it?
-          // Leaving it like that for now in case we decide to add and use more properties to it.
-          customError = interceptorError;
+        if (error instanceof PresentableError) {
+          errorOptions = error.options;
+        } else {
+          errorOptions = interceptError(error);
         }
 
-        const { options, errorInfo } = determineErrorHandling(
-          customError ?? error,
-          passedOptions,
+        const errorInfo = buildErrorInfo(
+          error,
+          errorOptions,
           isConnected ?? true,
         );
 
-        // TODO: Determine handling when we can't attempt retry. Do we show modal without a retry button,
-        // show a toast, or..?
-        const canAttemptRetry =
-          options.behaviourOnFailure === BehaviourOnFailure.Modal &&
-          options.shouldRetryRequest &&
-          (options.maxRetries ?? 0) < execCount;
+        // Global error handling was explicitly disabled
+        if (errorInfo === 'ignored') {
+          throw error;
+        }
 
-        // Handle and rethrow error
-        if (!canAttemptRetry) {
-          // eslint-disable-next-line max-depth
-          if (options.behaviourOnFailure === BehaviourOnFailure.Toast) {
-            showErrorToast(errorInfo);
-          }
+        if (errorInfo.behaviourOnFailure === 'toast') {
+          toastService.showInfoToast(errorInfo.message, {
+            // We'd almost always want to offset the toast, so that it isn't shown on the bottom bar
+            // If a consistent toast position isn't desired, find a way to configure those styles.
+            props: { containerStyle: styles.toast },
+          });
 
           // We still want the error to reach the code that invoked the request initially.
           throw error;
         }
 
-        setErrorToVisualise(errorInfo);
+        const canAttemptRetry =
+          errorInfo.shouldRetryRequest &&
+          (errorInfo.maxRetries ?? 0) < execCount;
 
-        if (!(await askToRetry())) {
+        if (
+          !(await askToRetry({
+            ...errorInfo,
+            shouldRetryRequest: canAttemptRetry,
+          }))
+        ) {
           throw error;
         }
-        // Clear current error state from modal
-        setErrorToVisualise(undefined);
 
         return executeAndHandleErrors(doRequest, interceptError, execCount + 1);
       }
@@ -258,9 +163,9 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
         errorToVisualise ? (
           <ErrorModal
             isVisible={isRetryModalVisible}
-            errorType={errorToVisualise?.errorType}
-            description={errorToVisualise?.customMessage}
-            errorCode={errorToVisualise?.errorCode}
+            title={errorToVisualise.title}
+            description={errorToVisualise.message}
+            withRetry={errorToVisualise.shouldRetryRequest}
             onRetry={retry}
             onCancel={cancel}
           />
@@ -270,7 +175,7 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
   );
 }
 
-export function useRequestManager() {
+export function useErrorManager() {
   const context = useContext(ErrorContext);
   if (!context) {
     throw new Error(

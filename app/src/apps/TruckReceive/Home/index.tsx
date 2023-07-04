@@ -8,12 +8,11 @@ import {
 import { RootNavigation } from '@apps/navigator';
 import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
+import { useManagedQuery } from '@hooks/useManagedQuery';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useManagedQuery } from '@hooks/useManagedQuery';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { DocumentType, gql } from '../../../__generated__';
 import { styles } from './styles';
 
@@ -35,7 +34,7 @@ export function TruckReceiveHome() {
     variables: { storeNumber },
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Modal,
+        behaviourOnFailure: 'modal',
         shouldRetryRequest: true,
       }),
     },

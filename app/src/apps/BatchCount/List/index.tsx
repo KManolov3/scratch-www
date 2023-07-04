@@ -12,7 +12,6 @@ import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -138,7 +137,7 @@ export function BatchCountList() {
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Modal,
+          behaviourOnFailure: 'modal',
           shouldRetryRequest: true,
         }),
       },

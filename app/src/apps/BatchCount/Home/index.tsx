@@ -1,15 +1,14 @@
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ApolloError } from '@apollo/client';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
-import { ErrorContainer } from '@components/ErrorContainer';
-import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
 
 export function BatchCountHome() {
@@ -28,7 +27,7 @@ export function BatchCountHome() {
       },
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
         }),
       },
     });

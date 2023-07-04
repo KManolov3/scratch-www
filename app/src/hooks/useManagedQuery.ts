@@ -1,11 +1,11 @@
+import { DocumentNode } from 'graphql';
+import { useEffect } from 'react';
 import {
   OperationVariables,
   TypedDocumentNode,
   QueryHookOptions,
 } from '@apollo/client';
 import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
-import { DocumentNode } from 'graphql';
-import { useEffect } from 'react';
 import { useManagedLazyQuery } from './useManagedLazyQuery';
 
 /**

@@ -9,7 +9,6 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { OutageItemCard } from '../components/ItemCard';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
@@ -51,7 +50,7 @@ export function OutageItemList() {
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
         }),
       },
     },
@@ -117,7 +116,7 @@ export function OutageItemList() {
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
         }),
       },
     },

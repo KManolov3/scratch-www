@@ -11,14 +11,13 @@ import { DocumentType, gql } from 'src/__generated__';
 import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
 import { v4 as uuid } from 'uuid';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { useManagedMutation } from '@hooks/useManagedMutation';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
-import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
-import { useManagedMutation } from '@hooks/useManagedMutation';
-import { OutageNavigation } from './navigator';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
+import { OutageNavigation } from './navigator';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
   mutation SubmitOutageCount($request: CycleCountList!) {
@@ -69,7 +68,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   const { perform: getItemBySku } = useManagedLazyQuery(ITEM_BY_SKU_QUERY, {
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });
@@ -79,7 +78,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
         }),
       },
     },

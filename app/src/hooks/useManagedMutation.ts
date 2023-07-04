@@ -1,3 +1,4 @@
+import { DocumentNode } from 'graphql';
 import {
   DefaultContext,
   ApolloCache,
@@ -9,7 +10,6 @@ import {
   MutationFunctionOptions,
 } from '@apollo/client';
 import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
-import { DocumentNode } from 'graphql';
 import { useAsyncAction } from './useAsyncAction';
 
 /**

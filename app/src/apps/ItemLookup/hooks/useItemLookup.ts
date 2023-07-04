@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { gql } from 'src/__generated__';
 import { ApolloError } from '@apollo/client';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { ItemLookupNavigation } from '../navigator';
 
 const ITEM_BY_SKU = gql(`
@@ -57,7 +56,7 @@ export function useItemLookup({
     onError,
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });
@@ -69,7 +68,7 @@ export function useItemLookup({
     onError,
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });

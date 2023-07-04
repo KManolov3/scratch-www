@@ -17,7 +17,6 @@ import {
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
 import { useCurrentSessionInfo } from './Auth';
-import { BehaviourOnFailure } from './ErrorState/types';
 
 const LAUNCH_DARKLY_CONFIGURE_TIMEOUT = 4000;
 
@@ -176,7 +175,7 @@ export function LaunchDarklyProvider({
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
           customMessage: 'Could not configure LaunchDarkly.',
         }),
       },
@@ -195,7 +194,7 @@ export function LaunchDarklyProvider({
     {
       globalErrorHandling: {
         interceptError: () => ({
-          behaviourOnFailure: BehaviourOnFailure.Toast,
+          behaviourOnFailure: 'toast',
           customMessage: 'Could not load flag defaults.',
         }),
       },

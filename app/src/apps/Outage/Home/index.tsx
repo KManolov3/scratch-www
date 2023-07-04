@@ -8,7 +8,6 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { BehaviourOnFailure } from '@services/ErrorState/types';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
@@ -23,7 +22,7 @@ export function OutageHome() {
   } = useAsyncAction((sku: string) => requestToAddItem(sku), {
     globalErrorHandling: {
       interceptError: () => ({
-        behaviourOnFailure: BehaviourOnFailure.Toast,
+        behaviourOnFailure: 'toast',
       }),
     },
   });
