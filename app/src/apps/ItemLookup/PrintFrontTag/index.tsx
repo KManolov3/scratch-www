@@ -11,7 +11,8 @@ import {
   WhiteBackArrow,
   WhiteSearchIcon,
 } from '@assets/icons';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { Header } from '@components/Header';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { Separator } from '@components/Separator';
@@ -164,21 +165,6 @@ export function PrintFrontTagScreen({
     goBack();
   });
 
-  const bottomBarActions = useMemo<Action[]>(
-    () => [
-      {
-        label: 'Print Front Tags',
-        onPress: printTags,
-        isLoading: loading,
-        textStyle: [styles.bottomBarActionText, styles.bold],
-        disabled:
-          every(locationStatuses, _ => !_.checked) ||
-          some(locationStatuses, _ => _.checked && !_.qty),
-      },
-    ],
-    [printTags, loading, locationStatuses],
-  );
-
   const renderPlanogram = useCallback(
     (location: LocationStatus) => {
       const { id, qty, checked } = location;
@@ -263,10 +249,19 @@ export function PrintFrontTagScreen({
       <ScrollView style={styles.planogramContainer}>
         {locationStatuses.map(renderPlanogram)}
       </ScrollView>
-      <BottomActionBar
-        actions={bottomBarActions}
-        style={styles.bottomActionBar}
-      />
+      <BottomActionBar>
+        <BlockButton
+          variant="primary"
+          style={styles.actionButton}
+          onPress={printTags}
+          isLoading={loading}
+          disabled={
+            every(locationStatuses, _ => !_.checked) ||
+            some(locationStatuses, _ => _.checked && !_.qty)
+          }>
+          Print Front Tags
+        </BlockButton>
+      </BottomActionBar>
 
       <PrinterConfirmationModal
         isVisible={printerModalVisible}

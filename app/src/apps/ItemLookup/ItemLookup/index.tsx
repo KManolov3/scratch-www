@@ -5,6 +5,7 @@ import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
 import { WhiteSearchIcon } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { Header } from '@components/Header';
 import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { useBooleanState } from '@hooks/useBooleanState';
@@ -69,17 +70,6 @@ export function ItemLookupScreen({
     navigate('PrintFrontTag', { itemDetails });
   }, [itemDetails, navigate, toggleModal]);
 
-  const bottomBarActions = useMemo<Action[]>(
-    () => [
-      {
-        label: 'Print Front Tag',
-        onPress: () => navigate('PrintFrontTag', { itemDetails }),
-        textStyle: styles.bottomBarActionText,
-      },
-    ],
-    [itemDetails, navigate],
-  );
-
   const {
     state: searchTrayOpen,
     enable: showSearchTray,
@@ -99,6 +89,10 @@ export function ItemLookupScreen({
   });
 
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
+  const printFrontTag = useCallback(
+    () => navigate('PrintFrontTag', { itemDetails }),
+    [navigate],
+  );
 
   return (
     <FixedLayout
@@ -116,14 +110,21 @@ export function ItemLookupScreen({
         frontTagPrice={frontTagPrice}
         togglePriceDiscrepancyModal={toggleModal}
       />
+
       <BottomActionBar
-        actions={bottomBarActions}
         topComponent={
           hasPriceDiscrepancy ? (
             <PriceDiscrepancyAttention style={styles.priceDiscrepancy} />
           ) : null
-        }
-      />
+        }>
+        <BlockButton
+          style={styles.actionButton}
+          variant="primary"
+          onPress={printFrontTag}>
+          Print Front Tag
+        </BlockButton>
+      </BottomActionBar>
+
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
           scanned={frontTagPrice}
@@ -149,10 +150,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.pure,
   },
-  bottomBarActionText: {
-    color: Colors.advanceBlack,
-    fontWeight: FontWeight.Bold,
+
+  actionButton: {
+    flex: 1,
   },
+
   priceDiscrepancy: {
     marginTop: 15,
   },

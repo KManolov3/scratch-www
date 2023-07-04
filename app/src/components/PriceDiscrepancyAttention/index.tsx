@@ -1,10 +1,14 @@
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
 
 // TODO: Move to the ItemLookup app
-export function PriceDiscrepancyAttention({ style }: { style?: ViewStyle }) {
+export function PriceDiscrepancyAttention({
+  style,
+}: {
+  style?: StyleProp<ViewStyle>;
+}) {
   return (
     <View style={[styles.priceDiscrepancyAttention, style]}>
       <AttentionIcon />

@@ -4,7 +4,8 @@ import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { Header } from '@components/Header';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
@@ -140,17 +141,6 @@ export function BatchCountSummary() {
     }
   });
 
-  const bottomBarActions: Action[] = useMemo(
-    () => [
-      {
-        label: 'Approve Count',
-        onPress: submitBatchCount,
-        isLoading: submitLoading,
-      },
-    ],
-    [submitBatchCount, submitLoading],
-  );
-
   useEffect(() => {
     if (submitError) {
       toastService.showInfoToast(
@@ -199,7 +189,16 @@ export function BatchCountSummary() {
           renderItem={renderItem}
           ref={flatListRef}
         />
-        <BottomActionBar actions={bottomBarActions} />
+
+        <BottomActionBar>
+          <BlockButton
+            variant="primary"
+            style={styles.actionButton}
+            onPress={submitBatchCount}
+            isLoading={submitLoading}>
+            Approve Count
+          </BlockButton>
+        </BottomActionBar>
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -221,7 +220,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 21,
     marginVertical: 4,
   },
-  flex: {
+  actionButton: {
     flex: 1,
   },
   toast: {

@@ -12,13 +12,7 @@ export const styles = StyleSheet.create({
     margin: 9,
   },
   container: { backgroundColor: Colors.pure },
-  bottomBarActionText: {
-    color: Colors.advanceBlack,
-  },
-  bottomActionBar: {
-    // TODO: Remove
-    paddingTop: 8,
-  },
+  actionButton: { flex: 1 },
   text: { fontSize: 16, lineHeight: 22 },
   textContainer: {
     justifyContent: 'center',
