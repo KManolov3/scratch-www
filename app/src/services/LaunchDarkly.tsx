@@ -176,7 +176,7 @@ export function LaunchDarklyProvider({
       globalErrorHandling: {
         interceptError: () => ({
           behaviourOnFailure: 'toast',
-          customMessage: 'Could not configure LaunchDarkly.',
+          message: 'Could not configure LaunchDarkly.',
         }),
       },
     },

@@ -9,7 +9,7 @@ import {
   ApolloError,
   MutationFunctionOptions,
 } from '@apollo/client';
-import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
+import { GlobalErrorHandlingSetting } from '@services/ErrorState';
 import { useAsyncAction } from './useAsyncAction';
 
 /**

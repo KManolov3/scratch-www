@@ -1,4 +1,4 @@
-import { ErrorOptions } from '@services/ErrorState/types';
+import { ErrorOptions } from '@services/ErrorState/formatter';
 
 export interface PresentableErrorProps {
   message: string;

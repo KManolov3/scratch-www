@@ -5,14 +5,34 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import { StyleSheet } from 'react-native/types';
 import { ErrorModal } from '@components/ErrorModal';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { toastService } from '@services/ToastService';
-import { ErrorOptions, ErrorState, ErrorInfo, ModalError } from './types';
+import {
+  buildErrorInfo,
+  ErrorOptions,
+  ModalError,
+  ErrorInfo,
+} from './formatter';
 
-export const ErrorContext = createContext<ErrorState | undefined>(undefined);
+const ErrorContext = createContext<ErrorState | undefined>(undefined);
+
+export type GlobalErrorHandlingSetting =
+  | 'disabled'
+  | { interceptError: (error: unknown) => ErrorOptions };
+
+export interface ErrorState {
+  /**
+   * When registering a request with the global error handling, an `interceptError` callback
+   * must be provided. It should return the `ErrorOptions` for handling an error. It can also
+   * return `ignored` to just rethrow the error without any additional handling.
+   */
+  executeWithGlobalErrorHandling: <T>(
+    doRequest: () => Promise<T>,
+    interceptError: (error: unknown) => ErrorOptions,
+  ) => Promise<T>;
+}
 
 /**
  * Can be thrown in an async block of code making use of the global error handling
@@ -34,45 +54,6 @@ export class PresentableError extends Error {
   }
 }
 
-function buildErrorInfo(
-  error: unknown,
-  selectedOptions: ErrorOptions,
-  isConnected: boolean,
-): ErrorInfo {
-  if (selectedOptions === 'ignored') {
-    return 'ignored';
-  }
-
-  if (!isConnected) {
-    // Allowing for retry of request on network failure and overriding
-    // the passed behaviour preference. We generally want to prevent further requests
-    // while the user does not have a connection, since they are also bound to fail.
-    // TODO: Do we take a more "permissive" approach and respect the passed behaviour preference?
-    return {
-      behaviourOnFailure: 'modal',
-      shouldRetryRequest: true,
-      maxRetries: Number.POSITIVE_INFINITY,
-      title: 'Server Error',
-      message:
-        'A connection error occured. Please check the network connection and try again.',
-    };
-  }
-
-  if (selectedOptions.behaviourOnFailure === 'toast') {
-    return {
-      message: 'Oops! An unexpected error occured.',
-      ...selectedOptions,
-    };
-  }
-
-  return {
-    title: 'Server Error',
-    // TODO: Think of a better message?
-    message: 'A connection error occured. Please contact the help desk.',
-    ...selectedOptions,
-  };
-}
-
 export interface ErrorStateProps {
   children: ReactNode;
 }
@@ -89,48 +70,48 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
   } = useConfirmation<ModalError>();
 
   const executeAndHandleErrors = useCallback(
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unnecessary-type-constraint
-    async <T extends any>(
+    async <T,>(
       doRequest: () => Promise<T>,
       interceptError: (error: unknown) => ErrorOptions,
-      execCount = 1,
+      execCount: number,
     ): Promise<T> => {
       try {
         return await doRequest();
       } catch (error) {
-        let errorOptions: ErrorOptions;
+        let errorInfo: ErrorInfo;
+        let errorToRethrow = error;
 
         if (error instanceof PresentableError) {
-          errorOptions = error.options;
+          errorInfo = error.options;
+          // TODO: Do we rethrow the PresentableError and not the original one?
+          // Currently `originalError` is a mandatory field, but I can think of cases
+          // where we might not want this to be true.
+          errorToRethrow = error.originalError;
         } else {
-          errorOptions = interceptError(error);
-        }
+          const errorOptions = interceptError(error);
 
-        const errorInfo = buildErrorInfo(
-          error,
-          errorOptions,
-          isConnected ?? true,
-        );
+          errorInfo = buildErrorInfo(error, errorOptions, isConnected ?? true);
+        }
 
         // Global error handling was explicitly disabled
         if (errorInfo === 'ignored') {
-          throw error;
+          throw errorToRethrow;
         }
 
         if (errorInfo.behaviourOnFailure === 'toast') {
           toastService.showInfoToast(errorInfo.message, {
             // We'd almost always want to offset the toast, so that it isn't shown on the bottom bar
             // If a consistent toast position isn't desired, find a way to configure those styles.
-            props: { containerStyle: styles.toast },
+            props: { containerStyle: errorInfo.toastStyle ?? {} },
           });
 
           // We still want the error to reach the code that invoked the request initially.
-          throw error;
+          throw errorToRethrow;
         }
 
         const canAttemptRetry =
           errorInfo.shouldRetryRequest &&
-          (errorInfo.maxRetries ?? 0) < execCount;
+          (errorInfo.maxRetries ?? 2) < execCount;
 
         if (
           !(await askToRetry({
@@ -138,7 +119,7 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
             shouldRetryRequest: canAttemptRetry,
           }))
         ) {
-          throw error;
+          throw errorToRethrow;
         }
 
         return executeAndHandleErrors(doRequest, interceptError, execCount + 1);
@@ -147,11 +128,19 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
     [askToRetry, isConnected],
   );
 
+  const executeWithGlobalErrorHandling = useCallback(
+    <T,>(
+      doRequest: () => Promise<T>,
+      interceptError: (error: unknown) => ErrorOptions,
+    ): Promise<T> => executeAndHandleErrors(doRequest, interceptError, 1),
+    [executeAndHandleErrors],
+  );
+
   const state = useMemo(
     () => ({
-      executeAndHandleErrors,
+      executeWithGlobalErrorHandling,
     }),
-    [executeAndHandleErrors],
+    [executeWithGlobalErrorHandling],
   );
 
   return (
@@ -185,9 +174,3 @@ export function useErrorManager() {
 
   return context;
 }
-
-const styles = StyleSheet.create({
-  toast: {
-    marginBottom: '10%',
-  },
-});

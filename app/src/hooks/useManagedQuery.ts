@@ -5,7 +5,7 @@ import {
   TypedDocumentNode,
   QueryHookOptions,
 } from '@apollo/client';
-import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
+import { GlobalErrorHandlingSetting } from '@services/ErrorState';
 import { useManagedLazyQuery } from './useManagedLazyQuery';
 
 /**
@@ -24,10 +24,11 @@ export function useManagedQuery<
 ) {
   const { perform, loading, error, data } = useManagedLazyQuery(query, options);
 
-  // TODO: !Find out if perform is a stable reference
   useEffect(() => {
     perform();
-  }, [perform]);
+    // Intentionally keeping the dependency array empty, this should only execute on first render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     loading,

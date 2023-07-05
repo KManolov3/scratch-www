@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useErrorManager } from '@services/ErrorState';
-import { GlobalErrorHandlingSetting } from '@services/ErrorState/types';
+import {
+  GlobalErrorHandlingSetting,
+  useErrorManager,
+} from '@services/ErrorState';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseAsyncActionResult<Args extends any[], T>
@@ -33,17 +35,29 @@ export function useAsyncAction<Args extends any[], T>(
 
   const requestIdRef = useRef(0);
 
-  const { executeAndHandleErrors } = useErrorManager();
+  const { executeWithGlobalErrorHandling } = useErrorManager();
 
-  let shimmedAction = action;
+  const actionRef = useRef(action);
+  actionRef.current =
+    globalErrorHandling !== 'disabled'
+      ? () =>
+          executeWithGlobalErrorHandling(
+            action,
+            globalErrorHandling.interceptError,
+          )
+      : action;
 
-  if (globalErrorHandling !== 'disabled') {
-    shimmedAction = () =>
-      executeAndHandleErrors(action, globalErrorHandling.interceptError);
-  }
-
-  const actionRef = useRef(shimmedAction);
-  actionRef.current = shimmedAction;
+  useEffect(() => {
+    if (globalErrorHandling !== 'disabled') {
+      actionRef.current = () =>
+        executeWithGlobalErrorHandling(
+          action,
+          globalErrorHandling.interceptError,
+        );
+    } else {
+      actionRef.current = action;
+    }
+  }, [action, executeWithGlobalErrorHandling, globalErrorHandling]);
 
   const perform = useCallback(async (...args: Args) => {
     requestIdRef.current += 1;
