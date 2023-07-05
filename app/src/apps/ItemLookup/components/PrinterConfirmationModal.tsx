@@ -9,7 +9,7 @@ import { Printers, Printer } from '@services/Printers';
 
 interface PrinterConfirmationModalProps {
   isVisible: boolean;
-  initiallySelectedPrinter: Printer | undefined;
+  initiallySelectedPrinter: Printer;
   onCancel(): void;
   onConfirm(printer: Printer): void;
 }
@@ -21,7 +21,7 @@ export function PrinterConfirmationModal({
   onConfirm,
 }: PrinterConfirmationModalProps) {
   const [selectedPrinter, setSelectedPrinter] = useState<Printer>(
-    initiallySelectedPrinter ?? Printers.initiallySelectedPrinter,
+    initiallySelectedPrinter,
   );
 
   const confirmPrinter = useCallback(

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { localStorage } from '@services/LocalStorageService';
-import { Printer } from '@services/Printers';
+import { Printer, Printers } from '@services/Printers';
 
 export interface DefaultSettings {
   defaultPrinter: Printer;
@@ -8,7 +8,7 @@ export interface DefaultSettings {
 }
 
 const DEFAULT_SETTINGS: DefaultSettings = {
-  defaultPrinter: { type: 'counter', id: 1 },
+  defaultPrinter: Printers.initiallySelectedPrinter,
 };
 
 export function useDefaultSettings<Key extends keyof DefaultSettings>(
