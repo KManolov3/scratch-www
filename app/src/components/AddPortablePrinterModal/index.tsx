@@ -24,14 +24,28 @@ export function AddPortablePrinterModal({
 
   const confirm = useCallback(() => {
     onConfirm(portablePrinterInput);
+    // TODO: Hacky! Fix this by making modals unmount when not visible
     setPortablePrinterInput('');
   }, [onConfirm, portablePrinterInput]);
 
+  // TODO: Hacky! Fix this by making modals unmount when not visible
+  const cancel = useCallback(() => {
+    setPortablePrinterInput('');
+    onCancel();
+  }, [onCancel]);
+
   useScanListener(scan => {
+    // TODO: Hacky! Fix this by making modals unmount when not visible
+    if (!isVisible) {
+      return;
+    }
+
     const parsedScan = scanCodeService.parseExpectingPrinter(scan);
     switch (parsedScan.type) {
       case 'printer':
         onConfirm(parsedScan.networkName);
+        // TODO: Hacky! Fix this by making modals unmount when not visible
+        setPortablePrinterInput('');
         break;
 
       case 'unknown':
@@ -44,8 +58,9 @@ export function AddPortablePrinterModal({
     <ConfirmationModal
       isVisible={isVisible}
       onConfirm={confirm}
-      onCancel={onCancel}
+      onCancel={cancel}
       confirmationLabel="Add Portable"
+      confirmationButtonEnabled={!!portablePrinterInput.trim()}
       Icon={BarcodeIcon}
       title="Scan to Add Portable Printer">
       <View style={styles.informationTextContainer}>
