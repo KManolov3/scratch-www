@@ -38,9 +38,14 @@ export function SelectPrinters() {
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: Printer, alreadyConfirmedPrinter: boolean) => {
-      const confirmed =
-        alreadyConfirmedPrinter || (await askForConfirmation(printer));
+    async ({
+      printer,
+      alreadyConfirmed,
+    }: {
+      printer: Printer;
+      alreadyConfirmed: boolean;
+    }) => {
+      const confirmed = alreadyConfirmed || (await askForConfirmation(printer));
 
       if (confirmed) {
         setDefaultPrinter(printer);

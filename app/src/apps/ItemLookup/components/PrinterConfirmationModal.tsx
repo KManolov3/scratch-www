@@ -29,6 +29,10 @@ export function PrinterConfirmationModal({
     [onConfirm, selectedPrinter],
   );
 
+  const onSelectPrinter = useCallback(({ printer }: { printer: Printer }) => {
+    setSelectedPrinter(printer);
+  }, []);
+
   return (
     <ConfirmationModal
       isVisible={isVisible}
@@ -45,7 +49,7 @@ export function PrinterConfirmationModal({
 
         <PrinterList
           selectedPrinter={selectedPrinter}
-          onSelect={setSelectedPrinter}
+          onSelect={onSelectPrinter}
           style={styles.printerList}
         />
       </View>

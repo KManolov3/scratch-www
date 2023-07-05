@@ -20,7 +20,7 @@ interface PrinterListProps {
   showDefaultLabelIfSelected?: boolean;
 
   selectedPrinter: Printer;
-  onSelect(printer: Printer, alreadyConfirmedPrinter: boolean): void;
+  onSelect(selection: { printer: Printer; alreadyConfirmed: boolean }): void;
 
   style?: StyleProp<ViewStyle>;
 }
@@ -62,7 +62,10 @@ export function PrinterList({
               setLastUsedPortablePrinter(selectedPrinter.networkName);
             }
 
-            onSelect({ type: 'counter', id: printer.id }, false);
+            onSelect({
+              printer: { type: 'counter', id: printer.id },
+              alreadyConfirmed: false,
+            });
           }}
         />
       ))}
@@ -78,13 +81,13 @@ export function PrinterList({
         showDefaultLabelIfSelected={showDefaultLabelIfSelected}
         onSelect={() => {
           if (lastUsedPortablePrinter) {
-            onSelect(
-              {
+            onSelect({
+              printer: {
                 type: 'portable',
                 networkName: lastUsedPortablePrinter,
               },
-              false,
-            );
+              alreadyConfirmed: false,
+            });
           } else {
             openPortablePrinterModal();
           }
@@ -98,7 +101,10 @@ export function PrinterList({
         onConfirm={printerCode => {
           closePortablePrinterModal();
           setLastUsedPortablePrinter(printerCode);
-          onSelect({ type: 'portable', networkName: printerCode }, true);
+          onSelect({
+            printer: { type: 'portable', networkName: printerCode },
+            alreadyConfirmed: true,
+          });
         }}
       />
     </View>
