@@ -2,12 +2,18 @@ import { ItemLookupPages } from './page-access.ts';
 import { BaseController } from './base-controller.ts';
 import { ItemLookupHomePage } from '../page-objects/item-lookup/home-page.ts';
 import { ItemLookupItemDetailsPage } from '../page-objects/item-lookup/item-details-page.ts';
-import { setValue, waitAndClick, waitFor } from '../methods/helpers.ts';
+import {
+  expectElementText,
+  setValue,
+  waitAndClick,
+  waitFor,
+} from '../methods/helpers.ts';
 import {
   ItemLookupPrintFrontTagPage,
   PrinterName,
 } from '../page-objects/item-lookup/print-front-tag-page.ts';
 import { sum } from 'lodash-es';
+import { TestItemInput } from '../__generated__/graphql.ts';
 
 export type PrintData = {
   planogram: string;
@@ -25,6 +31,16 @@ export class ItemLookupController extends BaseController {
       itemDetailsPage: new ItemLookupItemDetailsPage(),
       printFrontTagPage: new ItemLookupPrintFrontTagPage(),
     };
+  }
+
+  async expectProductInfo(product: TestItemInput): Promise<void> {
+    if (product.partDesc) {
+      await expectElementText(
+        this.commonPages.itemDetailsPage.productName,
+        product.partDesc
+      );
+    }
+    await super.expectProductInfo(product);
   }
 
   async printFrontTag(printData: PrintData[], printerName?: PrinterName) {
@@ -88,11 +104,5 @@ export class ItemLookupController extends BaseController {
     await waitFor(
       this.itemLookupPages.itemDetailsPage.toastMessageForPrinter(printerName)
     );
-
-    await expect(
-      $(
-        this.itemLookupPages.itemDetailsPage.toastMessageForPrinter(printerName)
-      )
-    ).toBeDisplayed();
   }
 }

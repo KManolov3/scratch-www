@@ -3,11 +3,8 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 
 export const styles = StyleSheet.create({
-  bold: {
-    fontWeight: FontWeight.Bold,
-  },
+  bold: { fontWeight: FontWeight.Bold },
   flexRow: { flexDirection: 'row', alignItems: 'center' },
-  centeredText: { textAlign: 'center' },
   planogramId: { marginLeft: 13 },
   header: {
     fontSize: 20,
@@ -28,7 +25,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   viewOptions: { color: Colors.blue, marginLeft: 8, fontSize: 14 },
-  printModal: { alignItems: 'center', justifyContent: 'center' },
   table: {
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -53,9 +49,7 @@ export const styles = StyleSheet.create({
   toast: {
     marginBottom: '10%',
   },
-  searchBar: {
-    backgroundColor: Colors.pure,
-  },
   planogramContainer: { flex: 1 },
-  radioButtons: { width: 170, marginTop: 14 },
+  column: { flexDirection: 'column' },
+  row: { flexDirection: 'row' },
 });

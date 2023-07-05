@@ -50,6 +50,10 @@ export function AppRoot({
     useCallback(() => newRelicService.onAppFocus(), []),
   );
 
+  useAppStateChange('active', () =>
+    InStoreAppsNative.checkForPreferenceChangesByOtherProcesses(),
+  );
+
   const app = (
     <GlobalStateProvider
       applicationName={applicationName}

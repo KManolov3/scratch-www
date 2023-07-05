@@ -2,11 +2,13 @@ import { faker } from '@faker-js/faker';
 import {
   IMocks,
   MockList,
+  Ref,
   addMocksToSchema,
   createMockStore,
 } from '@graphql-tools/mock';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFile } from 'fs/promises';
+import { GraphQLError } from 'graphql';
 import { TestItemInput } from '../../e2e-tests/__generated__/graphql.js';
 
 const innerSchema = makeExecutableSchema({
@@ -136,6 +138,30 @@ export const schema = addMocksToSchema({
           return item;
         });
 
+        const itemsByUpc = input.items.map((item: TestItemInput) => {
+          store.set({
+            typeName: 'Query',
+            key: 'ROOT',
+            fieldName: 'itemByUpc',
+            fieldArgs: {
+              upc: item.upc,
+              storeNumber: input.storeNumber,
+            },
+            value: {
+              mfrPartNum: item.mfrPartNum,
+              partDesc: item.partDesc,
+              sku: item.sku,
+              upc: item.upc,
+              retailPrice: item.retailPrice,
+              onHand: item.onHand,
+              planograms: item.planograms,
+              backStockSlots: item.backStockSlots,
+            },
+          });
+
+          return item;
+        });
+
         input.missingItemSkus.forEach((itemSku: string) => {
           store.set({
             typeName: 'Query',
@@ -145,11 +171,11 @@ export const schema = addMocksToSchema({
               sku: itemSku,
               storeNumber: input.storeNumber,
             },
-            value: null,
+            value: { partDesc: 'Not Found' },
           });
         });
 
-        return { items, missingItemSkus: input.missingItemSkus };
+        return { items, itemsByUpc, missingItemSkus: input.missingItemSkus };
       },
 
       testClearData() {
@@ -170,12 +196,26 @@ export const schema = addMocksToSchema({
             },
           });
 
-          return store.get({
+          const item = store.get({
             typeName: 'Query',
             key: 'ROOT',
             fieldName: 'itemBySku',
             fieldArgs: args,
-          });
+          }) as Ref<string>;
+
+          if (store.get(item, 'partDesc') === 'Not Found') {
+            throw new GraphQLError('Item not found', {
+              extensions: {
+                errorType: 'NOT_FOUND',
+                debugInfo: {
+                  message: 'Item not found',
+                  statusCode: 404,
+                },
+              },
+            });
+          }
+
+          return item;
         }
 
         throw new Error('SKU must contain 1-9 digits.');

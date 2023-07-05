@@ -56,8 +56,13 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const { itemToConfirm, askForConfirmation, accept, reject } =
-    useConfirmation<OutageItemInfo>();
+  const {
+    itemToConfirm,
+    confirmationRequested,
+    askForConfirmation,
+    accept,
+    reject,
+  } = useConfirmation<OutageItemInfo>();
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
 
@@ -125,7 +130,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   return (
     <>
       <BackstockWarningModal
-        isVisible={!!itemToConfirm}
+        isVisible={confirmationRequested}
         item={itemToConfirm}
         onConfirm={accept}
         onCancel={reject}

@@ -40,17 +40,9 @@ export class BaseController {
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
     await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
-    await waitFor(this.commonPages.itemDetailsPage.sku);
   }
 
   async expectProductInfo(product: TestItemInput) {
-    if (product.partDesc) {
-      await expectElementText(
-        this.commonPages.itemDetailsPage.productName,
-        product.partDesc
-      );
-    }
-
     if (product.mfrPartNum) {
       await expectElementText(
         this.commonPages.itemDetailsPage.partNumber,
@@ -63,21 +55,18 @@ export class BaseController {
     if (product.retailPrice) {
       await expectElementText(
         this.commonPages.itemDetailsPage.price,
-        `$${product.retailPrice}`
+        `$${product.retailPrice.toFixed(2)}`
       );
     }
 
     if (product.planograms) {
       for (const [index, planogram] of product.planograms.entries()) {
-        const planogramLocX = await $(
+        const planogramsTable = await $(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
             .locationId
-        ).getLocation('x');
-
-        const planogramLocY = await $(
-          this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
-            .locationId
-        ).getLocation('y');
+        );
+        const planogramLocX = await planogramsTable.getLocation('x');
+        const planogramLocY = await planogramsTable.getLocation('y');
 
         await expectElementText(
           this.commonPages.itemDetailsPage.getPlanogramInfoTableRow(index + 1)
@@ -95,28 +84,25 @@ export class BaseController {
       }
     }
 
-    await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
-
-    const backStockQuantity = sum(
-      product.backStockSlots.map((slot) => slot.qty)
-    );
-
-    await expectElementText(
-      this.commonPages.itemDetailsPage.backstockQuantity,
-      `${backStockQuantity}`
-    );
-
     if (product.backStockSlots) {
-      for (const [index, slot] of product.backStockSlots.entries()) {
-        const backstockSlotLocX = await $(
-          this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
-            .locationId
-        ).getLocation('x');
+      await waitAndClick(this.commonPages.itemDetailsPage.slotLocationsButton);
 
-        const backstockSlotLocY = await $(
+      const backStockQuantity = sum(
+        product.backStockSlots.map((slot) => slot.qty)
+      );
+
+      await expectElementText(
+        this.commonPages.itemDetailsPage.backstockQuantity,
+        `${backStockQuantity}`
+      );
+
+      for (const [index, slot] of product.backStockSlots.entries()) {
+        const slotsTable = await $(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
             .locationId
-        ).getLocation('y');
+        );
+        const backstockSlotLocX = await slotsTable.getLocation('x');
+        const backstockSlotLocY = await slotsTable.getLocation('y');
 
         await expectElementText(
           this.commonPages.itemDetailsPage.getSlotInfoTableRow(index + 1)
@@ -146,5 +132,9 @@ export class BaseController {
         console.log(output);
       }
     );
+  }
+
+  priceWithoutDecimalSeparator(price: number) {
+    return (price * 100).toFixed(0).padStart(5, '0');
   }
 }

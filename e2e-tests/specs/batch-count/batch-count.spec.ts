@@ -2,6 +2,7 @@ import { TestDataInput } from '../../__generated__/graphql.ts';
 import { BatchCountController } from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitFor } from '../../methods/helpers.ts';
+import { testStoreNumber } from '../../test-data/test-data.ts';
 
 const batchCount = new BatchCountController();
 const testData = new TestDataController();
@@ -51,14 +52,13 @@ describe('Batch Count', () => {
     ];
 
     await testData.setData({
-      // storeNumber must be exactly '0363' because for now it is hardcoded in the app
-      storeNumber: '0363',
+      storeNumber: testStoreNumber,
       items,
     });
 
     const batchCountData = [
-      { item: items[0], newQuantity: 11 },
-      { item: items[1], newQuantity: 14 },
+      { item: items[0], newQuantity: 11, bookmarked: false },
+      { item: items[1], newQuantity: 14, bookmarked: true },
     ];
 
     await batchCount.completeBatchCount(batchCountData);
