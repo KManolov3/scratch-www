@@ -92,7 +92,6 @@ export function PrinterList({
         onReplace={openPortablePrinterModal}
       />
 
-      {/* TODO: New instance of this modal on every render */}
       <AddPortablePrinterModal
         isVisible={portablePrinterModalOpen}
         onCancel={closePortablePrinterModal}

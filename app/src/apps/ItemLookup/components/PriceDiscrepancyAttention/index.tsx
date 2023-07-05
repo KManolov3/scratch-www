@@ -3,7 +3,6 @@ import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
 
-// TODO: Move to the ItemLookup app
 export function PriceDiscrepancyAttention({
   style,
 }: {
