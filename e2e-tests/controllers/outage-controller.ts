@@ -22,31 +22,26 @@ export class OutageController extends BaseController {
   }
 
   async expectProductInfo(item: TestItemInput) {
+    const productDetails = this.outagePages.completeOutagePage.productDetails(
+      item.mfrPartNum
+    );
+
     if (item.mfrPartNum) {
-      await expectElementText(
-        this.outagePages.completeOutagePage.partNumber,
-        item.mfrPartNum
-      );
+      await expectElementText(productDetails.partNumber, item.mfrPartNum);
     }
 
     if (item.retailPrice) {
       await expectElementText(
-        this.outagePages.completeOutagePage.price,
+        productDetails.price,
         `$${item.retailPrice.toFixed(2)}`
       );
     }
 
     if (item.onHand) {
-      await expectElementText(
-        this.outagePages.completeOutagePage.currentQuantity,
-        `${item.onHand}`
-      );
+      await expectElementText(productDetails.currentQuantity, `${item.onHand}`);
     }
 
-    await expectElementText(
-      this.outagePages.completeOutagePage.newQuantity,
-      '0'
-    );
+    await expectElementText(productDetails.newQuantity, '0');
 
     if (item.backStockSlots.length > 0) {
       const slotIds = item.backStockSlots.map((slot) => slot.slotId).join(', ');
@@ -61,7 +56,7 @@ export class OutageController extends BaseController {
     return sum(items.map((item) => item.onHand * item.retailPrice));
   }
 
-  async completeOutageCount(items: TestItemInput[]) {
+  async addItemsToOutageList(items: TestItemInput[]) {
     for (const [index, item] of items.entries()) {
       await this.searchForSku(item.sku);
 
@@ -78,6 +73,32 @@ export class OutageController extends BaseController {
         await driver.back();
       }
     }
+  }
+
+  async removeItem(item: TestItemInput) {
+    await waitAndClick(
+      this.outagePages.completeOutagePage.productDetails(item.mfrPartNum)
+        .removeItemButton
+    );
+
+    await expect(
+      $(
+        this.outagePages.completeOutagePage.toastMessageForRemovedItem(
+          item.partDesc
+        )
+      )
+    ).toBeDisplayed();
+
+    await expect(
+      $(
+        this.outagePages.completeOutagePage.productDetails(item.mfrPartNum)
+          .partNumber
+      )
+    ).not.toBeDisplayed();
+  }
+
+  async completeOutageCount(items: TestItemInput[]) {
+    await this.addItemsToOutageList(items);
 
     await waitAndClick(
       this.outagePages.completeOutagePage.completeOutageCountButton
@@ -98,6 +119,8 @@ export class OutageController extends BaseController {
 
     await waitFor(this.outagePages.homePage.searchForSkuInput, 5000);
 
-    await expect($(this.outagePages.homePage.completedOutageListToast)).toBeDisplayed();
+    await expect(
+      $(this.outagePages.homePage.completedOutageListToast)
+    ).toBeDisplayed();
   }
 }

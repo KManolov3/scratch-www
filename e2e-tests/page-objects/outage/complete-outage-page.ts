@@ -1,18 +1,16 @@
 export class OutageCompleteCountPage {
-  get partNumber() {
-    return '~Part Number value';
+  productDetails(partNumber: string) {
+    return {
+      partNumber: `[text=${partNumber}]`,
+      price: `//*[@text="${partNumber}"]//..//*[@content-desc="Price value"]`,
+      currentQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="Current value"]`,
+      newQuantity: `//*[@text="${partNumber}"]//..//*[@content-desc="New value"]`,
+      removeItemButton: `//*[@text="${partNumber}"]//..//*[@text="Remove Item"]`,
+    };
   }
 
-  get price() {
-    return '~Price value';
-  }
-
-  get currentQuantity() {
-    return '~Current value';
-  }
-
-  get newQuantity() {
-    return '~New value';
+  toastMessageForRemovedItem(itemName: string) {
+    return `//*[contains(@text,"${itemName} removed from Outage list")]`;
   }
 
   get completeOutageCountButton() {
@@ -31,6 +29,10 @@ export class OutageCompleteCountPage {
   get itemInBackstockModal() {
     return {
       infoText: '[text=Backstock]',
+      partNumber: '~Part Number value',
+      price: '~Price value',
+      currentQuantity: '~Current value',
+      newQuantity: '~New value',
       warningBanner: '//*[contains(@text,"Slot:")]',
       cancelButton: '[text=Cancel]',
       addToOutageButton: '[text=Add to Outage]',
