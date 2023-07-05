@@ -102,7 +102,7 @@ class NewRelicService {
         // and this is not overridable so if we have a non-JS stack trace there are errors in the
         // console that it can't read the files. Because the files are native code - they aren't
         // supposed to be read.
-        // So I read the code and am mimicing their JS wrapper and calling the native code directly.
+        // So I read the code and am mimicking their JS wrapper and calling the native code directly.
         //
         // Yes, this is super breakable, but we can't get the native exceptions to show otherwise
         // and this is important since we want to track those as well.

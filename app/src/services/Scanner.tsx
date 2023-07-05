@@ -30,7 +30,7 @@ export function useScanListener(
   useFocusEffect(
     useCallback(() => {
       const subscription = scannerService.addScanListener(scan => {
-        if (notifyNewRelic) {
+        if (notifyNewRelic ?? true) {
           newRelicService.onScan(scan);
         }
 

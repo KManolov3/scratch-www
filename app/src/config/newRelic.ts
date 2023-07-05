@@ -29,7 +29,7 @@ const agentConfiguration = {
   logLevel: NewRelic.LogLevel.INFO,
 };
 
-export function setUpNewRelic() {
+export function setUpNewRelicIfEnabled() {
   if (!config.newRelicApplicationToken) {
     return;
   }
