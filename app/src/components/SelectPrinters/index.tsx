@@ -71,7 +71,6 @@ export function SelectPrinters() {
         <Text style={styles.confirmationModalText}>
           Are you sure you want to set{' '}
         </Text>
-        {/* TODO: Why wrap like this? */}
         <Text style={styles.confirmationModalText}>
           <Text style={styles.bold}>
             {printerToConfirm ? Printers.labelOf(printerToConfirm) : 'Unknown'}
