@@ -10,10 +10,12 @@ export type Printer =
 
 export const Printers = {
   availableCounterPrinters: Object.freeze([
-    { id: 1, name: 'Counter Printer 1' },
-    { id: 2, name: 'Counter Printer 2' },
-    { id: 3, name: 'Counter Printer 3' },
+    Object.freeze({ id: 1, name: 'Counter Printer 1' }),
+    Object.freeze({ id: 2, name: 'Counter Printer 2' }),
+    Object.freeze({ id: 3, name: 'Counter Printer 3' }),
   ] as const),
+
+  initiallySelectedPrinter: Object.freeze({ type: 'counter', id: 1 } as const),
 
   labelOf(printer: Printer) {
     switch (printer.type) {

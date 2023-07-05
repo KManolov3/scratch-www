@@ -21,7 +21,7 @@ export function PrinterConfirmationModal({
   onConfirm,
 }: PrinterConfirmationModalProps) {
   const [selectedPrinter, setSelectedPrinter] = useState<Printer>(
-    initiallySelectedPrinter ?? { type: 'counter', id: 1 },
+    initiallySelectedPrinter ?? Printers.initiallySelectedPrinter,
   );
 
   const confirmPrinter = useCallback(
