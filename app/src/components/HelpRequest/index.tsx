@@ -41,12 +41,9 @@ export function HelpRequest() {
         onChangeText={setDescription}
         placeholderTextColor={Colors.advanceBlack}
       />
-      <BlockButton
-        style={styles.submit}
-        variant="primary"
-        children="Submit"
-        onPress={noop}
-      />
+      <BlockButton style={styles.submit} variant="primary" onPress={noop}>
+        Submit
+      </BlockButton>
     </FixedLayout>
   );
 }

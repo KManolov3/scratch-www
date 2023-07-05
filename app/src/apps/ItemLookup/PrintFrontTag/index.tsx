@@ -158,9 +158,9 @@ export function PrintFrontTagScreen({
   });
 
   const onConfirmPrinter = useCallback(
-    (printer: Printer) => {
+    (selectedPrinter: Printer) => {
       closePrinterModal();
-      setPrinter(printer);
+      setPrinter(selectedPrinter);
     },
     [closePrinterModal],
   );

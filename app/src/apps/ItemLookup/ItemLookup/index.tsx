@@ -90,7 +90,7 @@ export function ItemLookupScreen({
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
   const printFrontTag = useCallback(
     () => navigate('PrintFrontTag', { itemDetails }),
-    [navigate],
+    [navigate, itemDetails],
   );
 
   return (

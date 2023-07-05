@@ -1,11 +1,5 @@
 import { ReactNode } from 'react';
-import {
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import type Svg from 'react-native-svg';
 import { BlockButton } from '@components/Button/Block';
 import { Modal } from '@components/Modal';
