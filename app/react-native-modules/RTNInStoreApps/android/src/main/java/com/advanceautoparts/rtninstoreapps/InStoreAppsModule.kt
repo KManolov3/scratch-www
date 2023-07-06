@@ -101,7 +101,7 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
 
             val fullActivityName =
                 if (activity.startsWith(".")) {
-                    "${reactContext.packageName}$activity"
+                    "com.advanceautoparts.instoreapps$activity"
                 } else activity
 
             component = ComponentName(
