@@ -97,7 +97,10 @@ android {
 
     namespace "com.advanceautoparts.instoreapps"
     defaultConfig {
-        applicationId env.PACKAGE_NAME
+        applicationId env.APPLICATION_ID
+
+        // This is for react-native-config to support building using different application ids
+        resValue "string", "build_config_package", "com.advanceautoparts.instoreapps"
 
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -134,7 +137,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            debuggable false
+            debuggable true
         }
     }
 
