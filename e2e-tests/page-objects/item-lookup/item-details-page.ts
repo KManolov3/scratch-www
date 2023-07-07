@@ -6,8 +6,8 @@ export class ItemLookupItemDetailsPage extends CommonItemDetailsPage {
     return '[text=Print Front Tag]';
   }
 
-  toastMessageForPrinter(printerName: PrinterName = 'Printer Counter 1') {
-    return `//android.widget.TextView[@text="Front tag sent to ${printerName}"]`;
+  toastMessageForPrinter(printerName: PrinterName = 'Counter Printer 1') {
+    return `//*[contains(@text,"Front tag sent to ${printerName}")]`;
   }
 
   get priceDiscrepancyModal() {

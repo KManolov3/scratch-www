@@ -40,7 +40,6 @@ export class BaseController {
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);
     await setValue(this.commonPages.homePage.searchForSkuInput, product.sku);
     await driver.sendKeyEvent(Enter);
-    await waitFor(this.commonPages.itemDetailsPage.partNumber);
   }
 
   async expectProductInfo(product: TestItemInput) {
@@ -133,5 +132,9 @@ export class BaseController {
         console.log(output);
       }
     );
+  }
+
+  priceWithoutDecimalSeparator(price: number) {
+    return (price * 100).toFixed(0).padStart(5, '0');
   }
 }
