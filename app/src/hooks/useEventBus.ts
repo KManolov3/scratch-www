@@ -3,13 +3,13 @@ import { useEffect } from 'react';
 import { Item } from 'src/__generated__/graphql';
 import { ApolloError } from '@apollo/client';
 import { useFocusEffect } from '@react-navigation/native';
-import { BatchCountItem } from 'src/types/BatchCount';
+import { isArray } from 'lodash-es';
 
 interface EventTypes {
   'search-error': [ApolloError];
   'search-success': [Item?];
   'print-success': [];
-  'add-new-item': [BatchCountItem];
+  'add-new-item': [string];
   'updated-item': [string];
   'removed-item': [string];
 }
@@ -17,15 +17,20 @@ interface EventTypes {
 export const EventBus = new EventEmitter<EventTypes>();
 
 export function useFocusEventBus<T extends EventEmitter.EventNames<EventTypes>>(
-  event: T,
+  events: T | T[],
   listener: (
     ...args: Parameters<EventEmitter.EventListener<EventTypes, T>>
   ) => void | Promise<unknown>,
 ) {
   useFocusEffect(() => {
-    EventBus.addListener(event, listener);
+    isArray(events)
+      ? events.forEach(event => EventBus.addListener(event, listener))
+      : EventBus.addListener(events, listener);
+
     return () => {
-      EventBus.removeListener(event, listener);
+      isArray(events)
+        ? events.forEach(event => EventBus.removeListener(event, listener))
+        : EventBus.addListener(events, listener);
     };
   });
 }

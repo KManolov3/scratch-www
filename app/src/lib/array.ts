@@ -10,3 +10,12 @@ export function indexOfEnumValue<EnumType extends object>(
 ) {
   return Object.values(obj).indexOf(key);
 }
+
+export function findAndPrependItem<T>(arr: T[], item: T): T[] {
+  const index = arr.indexOf(item);
+  if (index > -1) {
+    arr.splice(index, 1); // Remove the item from the array
+    arr.unshift(item); // Prepend the item to the array
+  }
+  return arr;
+}

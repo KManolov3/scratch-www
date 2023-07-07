@@ -1,64 +1,54 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { sortBy } from 'lodash-es';
 import { useFocusEffect } from '@react-navigation/native';
 import { BatchCountItem } from 'src/types/BatchCount';
+import { findAndPrependItem } from '@lib/array';
 import { useFocusEventBus } from '../../../hooks/useEventBus';
-import { sortLike } from '../../../hooks/useSortOnScreenFocus';
 
 export function useBatchCountItemSorting(batchCountItems: BatchCountItem[]) {
-  const sortFn = useCallback(
-    (items: BatchCountItem[]) => sortBy(items, item => item.isBookmarked),
-    [],
-  );
-  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
   const [sortedItems, setSortedItems] = useState(batchCountItems);
 
-  const updateSortedItems = useCallback(
-    (newItems?: BatchCountItem[]) => {
-      setSortedItems(newItems ?? batchCountItems);
-    },
-    [batchCountItems],
-  );
+  const [newItem, setNewItem] = useState<string>();
 
-  const withPrependedItem = useCallback(
+  const addNewItem = useCallback(
     (sku: string) => {
-      const itemToPrepend = batchCountItems.find(
-        item => item.item.sku === sku,
-        sortedItems,
-      );
-      return itemToPrepend
-        ? [itemToPrepend, ...sortedItems.filter(item => item.item.sku !== sku)]
-        : batchCountItems;
+      const itemToAdd = batchCountItems.find(item => item.item.sku === sku);
+      itemToAdd ? setSortedItems([itemToAdd, ...sortedItems]) : setNewItem(sku);
     },
-    [batchCountItems, sortedItems],
+    [sortedItems, batchCountItems],
   );
 
+  useEffect(() => {
+    if (newItem && batchCountItems.find(item => item.item.sku === newItem)) {
+      addNewItem(newItem);
+      setNewItem(undefined);
+    }
+  }, [addNewItem, newItem, batchCountItems]);
+
+  const updateSortedItems = useCallback((newItems: BatchCountItem[]) => {
+    setSortedItems(newItems);
+  }, []);
   const withRemovedItem = useCallback(
     (sku: string) => sortedItems.filter(item => item.item.sku !== sku),
     [sortedItems],
   );
 
-  const [prevSortedSkus, setPrevSortedSkus] = useState(() =>
-    sortFn(batchCountItems).map(item => keyFn(item)),
-  );
-
   const sortOnRefocus = useCallback(() => {
-    setPrevSortedSkus(sortFn(batchCountItems).map(item => keyFn(item)));
-
-    const resortedItems = sortLike(batchCountItems, keyFn, prevSortedSkus, {
-      shouldAddUnknownToStart: true,
-    });
-    setSortedItems(resortedItems);
-  }, [batchCountItems, keyFn, prevSortedSkus, sortFn]);
+    setSortedItems(sortBy(sortedItems, item => !item.isBookmarked));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useFocusEffect(sortOnRefocus);
 
-  useFocusEventBus('add-new-item', newItem => {
-    updateSortedItems([newItem, ...sortedItems]);
+  useFocusEventBus('add-new-item', addedItem => {
+    addNewItem(addedItem);
   });
-  useFocusEventBus('updated-item', sku =>
-    updateSortedItems(withPrependedItem(sku)),
-  );
+  useFocusEventBus('updated-item', sku => {
+    const updatedItem = batchCountItems.find(item => item.item.sku === sku);
+    if (updatedItem) {
+      updateSortedItems(findAndPrependItem(sortedItems, updatedItem));
+    }
+  });
   useFocusEventBus('removed-item', sku =>
     updateSortedItems(withRemovedItem(sku)),
   );

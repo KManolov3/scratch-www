@@ -179,9 +179,11 @@ export function BatchCountSummary() {
     Keyboard.dismiss();
   }, []);
 
-  useFocusEventBus('add-new-item', scrollToTopAndDismissKeyboard);
+  useFocusEventBus(
+    ['add-new-item', 'updated-item'],
+    scrollToTopAndDismissKeyboard,
+  );
 
-  useFocusEventBus('updated-item', scrollToTopAndDismissKeyboard);
   return (
     <>
       <FixedLayout

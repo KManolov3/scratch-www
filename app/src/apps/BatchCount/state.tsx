@@ -137,7 +137,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
           };
           setBatchCountItems([newBatchCountItem, ...batchCountItems]);
 
-          EventBus.emit('add-new-item', newBatchCountItem);
+          EventBus.emit('add-new-item', newBatchCountItem.item.sku);
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
