@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
@@ -35,11 +35,13 @@ export function BatchCountSummary() {
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
 
-  const batchCountItemsSorted = useBatchCountItemSorting(batchCountItems);
+  const flatListRef = useRef<FlatList>(null);
+  const batchCountItemsSorted = useBatchCountItemSorting(
+    batchCountItems,
+    flatListRef,
+  );
 
   const [expandedSku, setExpandedSku] = useState<string>();
-
-  const flatListRef = useRef<FlatList>(null);
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -173,16 +175,6 @@ export function BatchCountSummary() {
       setExpandedSku(undefined);
     }
   });
-
-  const scrollToTopAndDismissKeyboard = useCallback(() => {
-    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-    Keyboard.dismiss();
-  }, []);
-
-  useFocusEventBus(
-    ['add-new-item', 'updated-item'],
-    scrollToTopAndDismissKeyboard,
-  );
 
   return (
     <>

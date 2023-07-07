@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useState } from 'react';
 import { sortBy } from 'lodash-es';
 import { useFocusEffect } from '@react-navigation/native';
 import { BatchCountItem } from 'src/types/BatchCount';
 import { findAndPrependItem } from '@lib/array';
+import { FlatList, Keyboard } from 'react-native';
 import { useFocusEventBus } from '../../../hooks/useEventBus';
 
-export function useBatchCountItemSorting(batchCountItems: BatchCountItem[]) {
+export function useBatchCountItemSorting(
+  batchCountItems: BatchCountItem[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  flatListRef: RefObject<FlatList<any>>,
+) {
   const [sortedItems, setSortedItems] = useState(batchCountItems);
 
   const [newItem, setNewItem] = useState<string>();
@@ -40,13 +45,20 @@ export function useBatchCountItemSorting(batchCountItems: BatchCountItem[]) {
 
   useFocusEffect(sortOnRefocus);
 
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    Keyboard.dismiss();
+  }, [flatListRef]);
+
   useFocusEventBus('add-new-item', addedItem => {
     addNewItem(addedItem);
+    scrollToTopAndDismissKeyboard();
   });
   useFocusEventBus('updated-item', sku => {
     const updatedItem = batchCountItems.find(item => item.item.sku === sku);
     if (updatedItem) {
       updateSortedItems(findAndPrependItem(sortedItems, updatedItem));
+      scrollToTopAndDismissKeyboard();
     }
   });
   useFocusEventBus('removed-item', sku =>
