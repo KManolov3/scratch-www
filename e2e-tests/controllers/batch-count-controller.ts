@@ -10,7 +10,6 @@ import { BatchCountListPage } from '../page-objects/batch-count/item-details-pag
 import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
 import { BatchCountSummaryPage } from '../page-objects/batch-count/approve-count-page.ts';
-import { differenceBy, intersectionBy } from 'lodash-es';
 
 type BatchCountData = {
   item: TestItemInput;
@@ -93,20 +92,28 @@ export class BatchCountController extends BaseController {
     }
   }
 
-  async editQuantityOnSummary(dataOnSummary: BatchCountData[]) {
+  async editItemsOnSummary(dataOnSummary: BatchCountData[]) {
     for (const data of dataOnSummary) {
       const productDetails = this.batchCountPages.summaryPage.productDetails(
         data.item.mfrPartNum
       );
 
       await waitAndClick(productDetails.partNumber);
+
+      if (data.bookmarked) {
+        await waitAndClick(productDetails.bookmarkItemButton);
+      }
+
       await setValue(productDetails.newQtyInput, data.newQuantity);
 
       await expectElementText(
         productDetails.variance,
         `${data.newQuantity - data.item.onHand}`
       );
+
       await waitAndClick(productDetails.partNumber);
+
+      await this.confirmProductInfo(data);
     }
   }
 
@@ -175,11 +182,7 @@ export class BatchCountController extends BaseController {
     ).toBeDisplayed();
   }
 
-  async completeBatchCount(
-    batchCounts: BatchCountData[],
-    fastAccept = false,
-    batchCountsSummary?: BatchCountData[]
-  ) {
+  async addItemsAndSetQuantity(batchCounts: BatchCountData[]) {
     for (const [index, data] of batchCounts.entries()) {
       await this.searchForSku(data.item.sku);
 
@@ -215,42 +218,30 @@ export class BatchCountController extends BaseController {
         await driver.back();
       }
     }
+  }
 
-    if (fastAccept) {
-      await waitAndClick(
-        this.batchCountPages.batchCountListPage.fastAcceptButton
-      );
-    } else {
-      await waitAndClick(
-        this.batchCountPages.batchCountListPage.createSummaryButton
-      );
+  async expectShrinkageOverageValues(values: {
+    expectedShrinkage: string;
+    expectedOverage: string;
+    expectedNetDollars: string;
+  }) {
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.shrinkageValue,
+      values.expectedShrinkage
+    );
 
-      if (batchCountsSummary) {
-        await this.editQuantityOnSummary(batchCountsSummary);
-        for (const dataOnSummary of batchCountsSummary) {
-          await this.confirmProductInfo(dataOnSummary);
-        }
-      } else {
-        for (const data of batchCounts) {
-          await this.confirmProductInfo(data);
-        }
-      }
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.overageValue,
+      values.expectedOverage
+    );
 
-      await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
-    }
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.netDollars,
+      values.expectedNetDollars
+    );
+  }
 
-    if (batchCountsSummary) {
-      const intersection = intersectionBy(
-        batchCountsSummary,
-        batchCounts,
-        'item'
-      );
-      const difference = differenceBy(batchCounts, batchCountsSummary, 'item');
-      await this.calculateShrinkageAndOverage([...intersection, ...difference]);
-    } else {
-      await this.calculateShrinkageAndOverage(batchCounts);
-    }
-
+  async approveBatchCount() {
     await waitAndClick(
       this.batchCountPages.summaryPage.shrinkageOverageModal.approveButton
     );

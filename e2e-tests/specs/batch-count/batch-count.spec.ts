@@ -71,11 +71,25 @@ describe('Batch Count', () => {
       { item: items[0], newQuantity: 12, bookmarked: false },
     ];
 
-    await batchCount.completeBatchCount(
-      batchCountData,
-      false,
-      batchCountDataOnSummary
+    await batchCount.addItemsAndSetQuantity(batchCountData);
+
+    await waitAndClick(
+      batchCount.batchCountPages.batchCountListPage.createSummaryButton
     );
+
+    await batchCount.editItemsOnSummary(batchCountDataOnSummary);
+
+    await waitAndClick(
+      batchCount.batchCountPages.summaryPage.approveCountButton
+    );
+
+    await batchCount.expectShrinkageOverageValues({
+      expectedNetDollars: '$50.99',
+      expectedShrinkage: '-$22.99',
+      expectedOverage: '$73.98',
+    });
+
+    await batchCount.approveBatchCount();
   });
 
   it('should be successfully completed by Fast Accept', async () => {
@@ -88,7 +102,17 @@ describe('Batch Count', () => {
       { item: items[0], newQuantity: 11, bookmarked: false },
     ];
 
-    await batchCount.completeBatchCount(batchCountData, true);
+    await batchCount.addItemsAndSetQuantity(batchCountData);
+
+    await waitAndClick(
+      batchCount.batchCountPages.batchCountListPage.fastAcceptButton
+    );
+
+    await batchCount.expectShrinkageOverageValues({
+      expectedNetDollars: '$36.99',
+      expectedShrinkage: '$0.00',
+      expectedOverage: '$36.99',
+    });
   });
 
   it('should be able to remove an item from list and on summary', async () => {
