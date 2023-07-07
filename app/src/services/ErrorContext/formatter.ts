@@ -49,14 +49,14 @@ export function buildErrorInfo(
       maxRetries: Number.POSITIVE_INFINITY,
       title: 'Server Error',
       message:
-        'An unexpected server error occurred. Please contact the help desk',
+        'A connection error occurred. Please check the network connection and try again.',
     };
   }
 
   return {
     title: 'Server Error',
-    // TODO: Think of a better message?
-    message: 'A connection error occured. Please contact the help desk.',
+    message:
+      'An unexpected server error occurred. Please contact the help desk',
     ...selectedOptions,
   };
 }
