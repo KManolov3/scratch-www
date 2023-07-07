@@ -66,3 +66,9 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
 });
+
+export const variants = {
+  primary: { button: styles.primary, text: styles.primaryText },
+  dark: { button: styles.dark, text: styles.darkText },
+  gray: { button: styles.gray, text: styles.grayText },
+} as const;

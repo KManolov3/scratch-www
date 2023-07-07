@@ -60,7 +60,7 @@ export function AddPortablePrinterModal({
       onConfirm={confirm}
       onCancel={cancel}
       confirmationLabel="Add Portable"
-      confirmationButtonEnabled={!!portablePrinterInput.trim()}
+      isConfirmationDisabled={!portablePrinterInput.trim()}
       Icon={BarcodeIcon}
       title="Scan to Add Portable Printer">
       <View style={styles.informationTextContainer}>

@@ -14,7 +14,7 @@ export interface ConfirmationModalProps {
   confirmationLabel?: string;
   onConfirm: () => void;
   cancellationLabel?: string;
-  confirmationButtonEnabled?: boolean;
+  isConfirmationDisabled?: boolean;
   onCancel: () => void;
   children?: ReactNode;
   buttonsStyle?: StyleProp<ViewStyle>;
@@ -27,7 +27,7 @@ export function ConfirmationModal({
   cancellationLabel = 'Cancel',
   onCancel,
   confirmationLabel = 'Accept',
-  confirmationButtonEnabled = true,
+  isConfirmationDisabled = false,
   onConfirm,
   buttonsStyle,
   children,
@@ -56,7 +56,7 @@ export function ConfirmationModal({
             variant="primary"
             size="big"
             style={styles.button}
-            disabled={!confirmationButtonEnabled}
+            disabled={isConfirmationDisabled}
             onPress={onConfirm}>
             {confirmationLabel}
           </BlockButton>

@@ -214,6 +214,13 @@ export function PrintFrontTagScreen({
 
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
 
+  const printingDisabled = useMemo(
+    () =>
+      every(locationStatuses, _ => !_.checked) ||
+      some(locationStatuses, _ => _.checked && !_.qty),
+    [locationStatuses],
+  );
+
   return (
     <FixedLayout
       style={styles.container}
@@ -253,10 +260,7 @@ export function PrintFrontTagScreen({
           style={styles.actionButton}
           onPress={printTags}
           isLoading={loading}
-          disabled={
-            every(locationStatuses, _ => !_.checked) ||
-            some(locationStatuses, _ => _.checked && !_.qty)
-          }>
+          disabled={printingDisabled}>
           Print Front Tags
         </BlockButton>
       </BottomActionBar>

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import type Svg from 'react-native-svg';
 import { Text } from '@components/Text';
-import { styles, iconSize, loadingIndicatorColor } from './styles';
+import { styles, variants, iconSize, loadingIndicatorColor } from './styles';
 
 interface Props extends PressableProps {
   variant: 'primary' | 'dark' | 'gray';
@@ -44,9 +44,7 @@ export function BlockButton({
     <Pressable
       style={[
         styles.button,
-        variant === 'primary' && styles.primary,
-        variant === 'dark' && styles.dark,
-        variant === 'gray' && styles.gray,
+        variants[variant].button,
         size === 'big' && styles.sizeBig,
         style,
         disabled && styles.disabled,
@@ -69,9 +67,7 @@ export function BlockButton({
           <Text
             style={[
               styles.text,
-              variant === 'primary' && styles.primaryText,
-              variant === 'dark' && styles.darkText,
-              variant === 'gray' && styles.grayText,
+              variants[variant].text,
               size === 'big' && styles.sizeBigText,
               textStyle,
               disabled && styles.disabledText,
