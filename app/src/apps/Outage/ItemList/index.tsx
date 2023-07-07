@@ -7,6 +7,7 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
+import { useErrorManager } from '@services/ErrorContext';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { OutageItemCard } from '../components/ItemCard';
@@ -25,6 +26,8 @@ export function OutageItemList() {
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
+
+  const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const { requestToAddItem } = useOutageState();
 
@@ -48,11 +51,9 @@ export function OutageItemList() {
       }
     },
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
     },
   );
 
@@ -95,30 +96,20 @@ export function OutageItemList() {
 
   const { trigger: submit, loading: submitLoading } = useAsyncAction(
     async () => {
-      try {
-        if (await askForConfirmation()) {
-          await submitOutage();
-          toastService.showInfoToast('Outage List Complete');
-          navigate('Home');
-        }
-      } catch (error) {
-        // TODO: Move this in `interceptError` callback
-        toastService.showInfoToast(
-          'Could not submit the outage count due to an error',
-          {
-            props: { containerStyle: styles.toast },
-          },
-        );
-
-        throw error;
+      if (await askForConfirmation()) {
+        // TODO: Submitting an outage shows a toast, but submitting a batch count
+        // throws an error. Converge their error handling behaviours
+        await executeWithGlobalErrorHandling(submitOutage, () => ({
+          displayAs: 'toast',
+          message: 'Could not submit the outage count due to an error',
+          allowRetries: true,
+        }));
+        toastService.showInfoToast('Outage List Complete');
+        navigate('Home');
       }
     },
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: 'disabled',
     },
   );
 

@@ -45,11 +45,9 @@ export function AuthProvider({
       }),
     [clientId, authServerURL],
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
     },
   );
 

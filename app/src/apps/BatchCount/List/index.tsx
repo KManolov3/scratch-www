@@ -11,7 +11,9 @@ import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
+import { isErrorWithMessage } from '@lib/error';
 import { useNavigation } from '@react-navigation/native';
+import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -26,6 +28,8 @@ export function BatchCountList() {
     removeItem,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
+
+  const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -131,16 +135,14 @@ export function BatchCountList() {
   const { trigger: submitBatchCount } = useAsyncAction(
     async () => {
       if (await askForConfirmation()) {
-        submitBatch();
+        await executeWithGlobalErrorHandling(submitBatch, () => ({
+          displayAs: 'modal',
+          allowRetries: true,
+        }));
       }
     },
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'modal',
-          shouldRetryRequest: true,
-        }),
-      },
+      globalErrorHandling: 'disabled',
     },
   );
 
@@ -170,7 +172,9 @@ export function BatchCountList() {
     if (submitError) {
       toastService.showInfoToast(
         `Error while submitting batch count. ${
-          submitError instanceof Error ? submitError.message : 'Unknown Error'
+          isErrorWithMessage(submitError)
+            ? submitError.message
+            : 'Unknown Error'
         }`,
         {
           props: { containerStyle: styles.toast },

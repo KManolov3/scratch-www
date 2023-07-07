@@ -20,11 +20,9 @@ export function OutageHome() {
     // TODO: Reset this when going back to this screen?
     error,
   } = useAsyncAction((sku: string) => requestToAddItem(sku), {
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   useScanCodeListener(code => {

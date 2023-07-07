@@ -62,6 +62,10 @@
       {
         "selector": "ImportDeclaration[source.value='react-native'] > ImportSpecifier[imported.name=/(Text(?!Style)(?!Props)|TextInput)/]",
         "message": "Please import 'Text' and 'TextInput 'from '@components' instead."
+      },
+      {
+        "selector": "ImportDeclaration[source.value='@apollo/client'] > ImportSpecifier[imported.name=/use(((Lazy)?Query)|Mutation)/]",
+        "message": "Please import 'useManagedQuery', 'useManagedLazyQuery' and `useManagedMutation` from '@hooks' instead."
       }
     ],
     "react-hooks/exhaustive-deps": [

@@ -9,7 +9,7 @@ import {
   ApolloError,
   MutationFunctionOptions,
 } from '@apollo/client';
-import { GlobalErrorHandlingSetting } from '@services/ErrorState';
+import { GlobalErrorHandlingSetting } from '@services/ErrorContext';
 import { useAsyncAction } from './useAsyncAction';
 
 /**
@@ -33,9 +33,7 @@ export function useManagedMutation<
 ) {
   const client = useApolloClient(options && options.client);
 
-  // TODO: Do we shim `useMutation` instead (as in `useManagedQuery`),
-  // to be able to access other errors set automatically by Apollo
-  const { perform, trigger, data, error, loading } = useAsyncAction(
+  return useAsyncAction(
     async (
       args: MutationFunctionOptions<
         TData,
@@ -55,12 +53,4 @@ export function useManagedMutation<
     },
     { globalErrorHandling: options.globalErrorHandling },
   );
-
-  return {
-    trigger,
-    perform,
-    data,
-    error,
-    loading,
-  };
 }

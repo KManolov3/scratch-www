@@ -1,16 +1,15 @@
 import { DocumentNode } from 'graphql';
-import { merge } from 'lodash-es';
 import { useCallback } from 'react';
 import {
   OperationVariables,
   TypedDocumentNode,
-  LazyQueryHookOptions,
+  LazyQueryHookOptions, // eslint-disable-next-line no-restricted-syntax
   useLazyQuery,
 } from '@apollo/client';
 import {
   GlobalErrorHandlingSetting,
   useErrorManager,
-} from '@services/ErrorState';
+} from '@services/ErrorContext';
 
 /**
  * A wrapper on `useLazyQuery`, which allows for requests
@@ -31,29 +30,19 @@ export function useManagedLazyQuery<
   const [execute, { loading, error, data }] = useLazyQuery(query, options);
 
   const shimmedExecute = useCallback(
-    (
-      additionalOptions?:
-        | Partial<
-            LazyQueryHookOptions<TData, TVariables> & {
-              globalErrorHandling: GlobalErrorHandlingSetting;
-            }
-          >
-        | undefined,
-    ) => {
-      const execOptions = merge(options, additionalOptions);
-      if (execOptions.globalErrorHandling === 'disabled') {
-        return execute(execOptions);
+    (additionalOptions?: Partial<LazyQueryHookOptions<TData, TVariables>>) => {
+      if (options.globalErrorHandling === 'disabled') {
+        return execute(additionalOptions);
       }
 
-      const { interceptError } = execOptions.globalErrorHandling;
       return executeWithGlobalErrorHandling(async () => {
-        const result = await execute(execOptions);
+        const result = await execute(additionalOptions);
         if (result.error) {
           throw result.error;
         }
 
         return result;
-      }, interceptError);
+      }, options.globalErrorHandling);
     },
     [execute, executeWithGlobalErrorHandling, options],
   );

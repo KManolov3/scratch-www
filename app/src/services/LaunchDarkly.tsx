@@ -173,12 +173,10 @@ export function LaunchDarklyProvider({
     () => launchDarkly.configure({ applicationName, userId, storeNumber }),
     [applicationName, userId, storeNumber],
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-          message: 'Could not configure LaunchDarkly.',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+        message: 'Could not configure LaunchDarkly.',
+      }),
     },
   );
 
@@ -192,12 +190,10 @@ export function LaunchDarklyProvider({
     async () => service?.allFlags(),
     [service],
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-          customMessage: 'Could not load flag defaults.',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+        customMessage: 'Could not load flag defaults.',
+      }),
     },
   );
 

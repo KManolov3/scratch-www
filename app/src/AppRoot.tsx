@@ -9,7 +9,7 @@ import { DrawerHeader } from '@components/Drawer/DrawerHeader';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { ErrorStateProvider } from '@services/ErrorState';
+import { ErrorContextProvider } from '@services/ErrorContext';
 import { ScannerProvider } from '@services/Scanner';
 import { config } from './config';
 import { apolloClient } from './config/graphql';
@@ -59,7 +59,7 @@ export function AppRoot({
     <GlobalStateProvider
       applicationName={applicationName}
       activityName={activityName}>
-      <ErrorStateProvider>
+      <ErrorContextProvider>
         <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
           <LaunchDarklyProvider applicationName={applicationName}>
             <ApolloProvider client={apolloClient}>
@@ -74,7 +74,7 @@ export function AppRoot({
             </ApolloProvider>
           </LaunchDarklyProvider>
         </AuthProvider>
-      </ErrorStateProvider>
+      </ErrorContextProvider>
     </GlobalStateProvider>
   );
 

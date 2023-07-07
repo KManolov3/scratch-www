@@ -26,12 +26,10 @@ export function TruckReceiveScanDetails({
 }: RootScreenProps<'TruckScanDetails'>) {
   const { loading, data, error } = useManagedQuery(QUERY, {
     variables: { asn: route.params.asn },
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'modal',
-        shouldRetryRequest: true,
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'modal',
+      allowRetries: true,
+    }),
   });
 
   if (loading) {

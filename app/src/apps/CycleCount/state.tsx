@@ -40,12 +40,10 @@ export function CycleCountStateProvider({ children }: { children: ReactNode }) {
   const { storeNumber } = useCurrentSessionInfo();
   const { data, loading, error } = useManagedQuery(QUERY, {
     variables: { storeNumber },
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'modal',
-        shouldRetryRequest: true,
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'modal',
+      allowRetries: true,
+    }),
   });
 
   const value = useMemo(

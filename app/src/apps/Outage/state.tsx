@@ -66,21 +66,17 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   } = useConfirmation<OutageItemInfo>();
 
   const { perform: getItemBySku } = useManagedLazyQuery(ITEM_BY_SKU_QUERY, {
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   const { perform: submitOutageCount } = useManagedMutation(
     SUBMIT_OUTAGE_COUNT,
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
     },
   );
 

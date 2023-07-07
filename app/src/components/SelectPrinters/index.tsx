@@ -48,11 +48,9 @@ export function SelectPrinters() {
       }
     },
     {
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
     },
   );
 

@@ -2,14 +2,14 @@ import { StyleProp, ViewStyle } from 'react-native';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 type ToastError = {
-  behaviourOnFailure: 'toast';
+  displayAs: 'toast';
   message: string;
   toastStyle?: StyleProp<ViewStyle>;
 };
 
 export type ModalError = {
-  behaviourOnFailure: 'modal';
-  shouldRetryRequest: boolean;
+  displayAs: 'modal';
+  allowRetries: boolean;
   /**
    * Defaults to 2
    */
@@ -33,25 +33,23 @@ export function buildErrorInfo(
     return 'ignored';
   }
 
-  if (!isConnected) {
-    // Allowing for retry of request on network failure and overriding
-    // the passed behaviour preference. We generally want to prevent further requests
-    // while the user does not have a connection, since they are also bound to fail.
-    // TODO: Do we take a more "permissive" approach and respect the passed behaviour preference?
-    return {
-      behaviourOnFailure: 'modal',
-      shouldRetryRequest: true,
-      maxRetries: Number.POSITIVE_INFINITY,
-      title: 'Server Error',
-      message:
-        'A connection error occured. Please check the network connection and try again.',
-    };
-  }
-
-  if (selectedOptions.behaviourOnFailure === 'toast') {
+  if (selectedOptions.displayAs === 'toast') {
     return {
       message: 'Oops! An unexpected error occured.',
       ...selectedOptions,
+    };
+  }
+
+  if (!isConnected) {
+    // Allowing for retry of request on network failure. We generally want to prevent further requests
+    // while the user does not have a connection, since they are also bound to fail.
+    return {
+      displayAs: 'modal',
+      allowRetries: true,
+      maxRetries: Number.POSITIVE_INFINITY,
+      title: 'Server Error',
+      message:
+        'An unexpected server error occurred. Please contact the help desk',
     };
   }
 

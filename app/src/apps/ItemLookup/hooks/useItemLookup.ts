@@ -52,13 +52,10 @@ export function useItemLookup({
     loading: isLoadingItemBySku,
     error: skuError,
   } = useManagedLazyQuery(ITEM_BY_SKU, {
-    // TODO: Should we use interceptError for such side effects as well?
     onError,
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
   const {
     perform: searchByUpc,
@@ -66,11 +63,9 @@ export function useItemLookup({
     error: upcError,
   } = useManagedLazyQuery(ITEM_BY_UPC, {
     onError,
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   const loading = useMemo(

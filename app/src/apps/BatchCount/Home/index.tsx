@@ -25,11 +25,9 @@ export function BatchCountHome() {
         addItem(item.itemBySku ?? undefined, false);
         setError(undefined);
       },
-      globalErrorHandling: {
-        interceptError: () => ({
-          behaviourOnFailure: 'toast',
-        }),
-      },
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
     });
 
   const onSubmit = useCallback(

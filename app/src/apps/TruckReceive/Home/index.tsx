@@ -32,12 +32,10 @@ export function TruckReceiveHome() {
   const { storeNumber } = useCurrentSessionInfo();
   const { loading, data, error } = useManagedQuery(QUERY, {
     variables: { storeNumber },
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'modal',
-        shouldRetryRequest: true,
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'modal',
+      allowRetries: true,
+    }),
   });
 
   if (loading) {

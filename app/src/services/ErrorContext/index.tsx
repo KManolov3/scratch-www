@@ -4,9 +4,11 @@ import {
   useContext,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 import { ErrorModal } from '@components/ErrorModal';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { isErrorWithMessage } from '@lib/error';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { toastService } from '@services/ToastService';
 import {
@@ -16,13 +18,13 @@ import {
   ErrorInfo,
 } from './formatter';
 
-const ErrorContext = createContext<ErrorState | undefined>(undefined);
+const ErrorContext = createContext<GlobalErrorHandling | undefined>(undefined);
 
 export type GlobalErrorHandlingSetting =
   | 'disabled'
-  | { interceptError: (error: unknown) => ErrorOptions };
+  | ((error: unknown) => ErrorOptions);
 
-export interface ErrorState {
+export interface GlobalErrorHandling {
   /**
    * When registering a request with the global error handling, an `interceptError` callback
    * must be provided. It should return the `ErrorOptions` for handling an error. It can also
@@ -39,7 +41,6 @@ export interface ErrorState {
  * to provide the details for visualising the error explicitly.
  * NOTE: Do not throw a `PresentableError` inside of an `interceptError` callback,
  * rather throw it inside the wrapped async code.
- * TODO: Should we handle the above case as well?
  */
 export class PresentableError extends Error {
   options: ErrorInfo;
@@ -47,24 +48,30 @@ export class PresentableError extends Error {
   originalError: unknown;
 
   constructor(options: ErrorInfo, originalError: unknown) {
-    super();
+    super(
+      isErrorWithMessage(originalError)
+        ? originalError.message
+        : 'Presentable Error',
+    );
 
     this.options = options;
     this.originalError = originalError;
   }
 }
 
-export interface ErrorStateProps {
+export interface ErrorContextProviderProps {
   children: ReactNode;
 }
 
-export function ErrorStateProvider({ children }: ErrorStateProps) {
-  const { isConnected } = useNetInfo();
+export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
+  const { isConnected: isConnectedPrimitive } = useNetInfo();
+  const isConnectedRef = useRef(isConnectedPrimitive);
+  isConnectedRef.current = isConnectedPrimitive;
 
   const {
     itemToConfirm: errorToVisualise,
-    confirmationRequested: isRetryModalVisible,
-    askForConfirmation: askToRetry,
+    confirmationRequested: isErrorModalVisible,
+    askForConfirmation: showErrorModal,
     accept: retry,
     reject: cancel,
   } = useConfirmation<ModalError>();
@@ -90,7 +97,11 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
         } else {
           const errorOptions = interceptError(error);
 
-          errorInfo = buildErrorInfo(error, errorOptions, isConnected ?? true);
+          errorInfo = buildErrorInfo(
+            error,
+            errorOptions,
+            isConnectedRef.current ?? true,
+          );
         }
 
         // Global error handling was explicitly disabled
@@ -98,7 +109,7 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
           throw errorToRethrow;
         }
 
-        if (errorInfo.behaviourOnFailure === 'toast') {
+        if (errorInfo.displayAs === 'toast') {
           toastService.showInfoToast(errorInfo.message, {
             // We'd almost always want to offset the toast, so that it isn't shown on the bottom bar
             // If a consistent toast position isn't desired, find a way to configure those styles.
@@ -110,22 +121,27 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
         }
 
         const canAttemptRetry =
-          errorInfo.shouldRetryRequest &&
-          (errorInfo.maxRetries ?? 2) < execCount;
+          errorInfo.allowRetries && (errorInfo.maxRetries ?? 2) < execCount;
 
-        if (
-          !(await askToRetry({
-            ...errorInfo,
-            shouldRetryRequest: canAttemptRetry,
-          }))
-        ) {
-          throw errorToRethrow;
+        const errorModalPromise = showErrorModal({
+          ...errorInfo,
+          allowRetries: canAttemptRetry,
+        });
+
+        // `errorModalPromise` will resolve to either true or false
+        // depending on whether the user has requested a retry of the failed request
+        if (canAttemptRetry && (await errorModalPromise)) {
+          return executeAndHandleErrors(
+            doRequest,
+            interceptError,
+            execCount + 1,
+          );
         }
 
-        return executeAndHandleErrors(doRequest, interceptError, execCount + 1);
+        throw errorToRethrow;
       }
     },
-    [askToRetry, isConnected],
+    [showErrorModal],
   );
 
   const executeWithGlobalErrorHandling = useCallback(
@@ -151,10 +167,10 @@ export function ErrorStateProvider({ children }: ErrorStateProps) {
         // if we want to control this modal from outside at some point
         errorToVisualise ? (
           <ErrorModal
-            isVisible={isRetryModalVisible}
+            isVisible={isErrorModalVisible}
             title={errorToVisualise.title}
             description={errorToVisualise.message}
-            withRetry={errorToVisualise.shouldRetryRequest}
+            withRetry={errorToVisualise.allowRetries}
             onRetry={retry}
             onCancel={cancel}
           />

@@ -33,7 +33,7 @@ interface ContextValue {
   addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
-  submit: () => void;
+  submit: () => Promise<void>;
   submitLoading?: boolean;
   submitError?: unknown;
 }
@@ -107,11 +107,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     error,
     loading,
   } = useManagedMutation(SUBMIT_BATCH_COUNT, {
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
   const navigation = useNavigation<BatchCountNavigation>();
 
@@ -221,11 +219,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
@@ -235,11 +231,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
     onError: (searchError: ApolloError) =>
       EventBus.emit('search-error', searchError),
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   useScanCodeListener(code => {

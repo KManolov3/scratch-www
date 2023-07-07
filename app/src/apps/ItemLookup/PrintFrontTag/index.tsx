@@ -83,11 +83,9 @@ export function PrintFrontTagScreen({
   const { goBack } = useNavigation<ItemLookupNavigation>();
 
   const { perform: printFrontTag } = useManagedMutation(PRINT_FRONT_TAG, {
-    globalErrorHandling: {
-      interceptError: () => ({
-        behaviourOnFailure: 'toast',
-      }),
-    },
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
   });
 
   const {
