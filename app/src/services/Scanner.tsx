@@ -6,6 +6,7 @@ import {
   ScanInfo,
 } from 'rtn-in-store-apps';
 import { useFocusEffect } from '@react-navigation/native';
+import { newRelicService } from './NewRelic';
 
 export type ScanListener = (scan: ScanInfo) => void;
 
@@ -19,16 +20,25 @@ class ScannerService {
 
 const scannerService = new ScannerService();
 
-export function useScanListener(action: ScanListener) {
+export function useScanListener(
+  action: ScanListener,
+  { notifyNewRelic }: { notifyNewRelic?: boolean } = {},
+) {
   const actionRef = useRef(action);
   actionRef.current = action;
 
   useFocusEffect(
     useCallback(() => {
-      const subscription = scannerService.addScanListener(actionRef.current);
+      const subscription = scannerService.addScanListener(scan => {
+        if (notifyNewRelic ?? true) {
+          newRelicService.onScan(scan);
+        }
+
+        actionRef.current(scan);
+      });
 
       return () => subscription.remove();
-    }, []),
+    }, [notifyNewRelic]),
   );
 }
 

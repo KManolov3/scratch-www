@@ -28,12 +28,12 @@ import { TruckReceiveHome } from './TruckReceive/Home';
 import { TruckReceiveScanDetails } from './TruckReceive/ScanDetails';
 
 type Routes = {
-  CycleCountHome: CycleCountNavigatorScreenParams;
-  BatchCountHome: BatchCountNavigatorScreenParams;
-  OutageHome: OutageNavigatorScreenParams;
-  TruckDetailHome: undefined;
+  CycleCountApp: CycleCountNavigatorScreenParams;
+  BatchCountApp: BatchCountNavigatorScreenParams;
+  OutageApp: OutageNavigatorScreenParams;
+  TruckDetailApp: undefined;
   TruckScanDetails: { asn: string };
-  ItemLookupHome: ItemLookupNavigatorScreenParams;
+  ItemLookupApp: ItemLookupNavigatorScreenParams;
   Drawer: DrawerNavigatorScreenParams;
 };
 
@@ -64,13 +64,13 @@ export function RootNavigator({
       screenOptions={screenOptions}
       screenListeners={screenListeners}>
       <Stack.Screen
-        name="CycleCountHome"
+        name="CycleCountApp"
         options={{ headerShown: false }}
         component={CycleCountNavigator}
       />
 
       <Stack.Screen
-        name="BatchCountHome"
+        name="BatchCountApp"
         options={{ headerShown: false }}
         component={BatchCountNavigator}
       />
@@ -82,20 +82,21 @@ export function RootNavigator({
       />
 
       <Stack.Screen
-        name="OutageHome"
+        name="OutageApp"
         options={{ headerShown: false }}
         component={OutageNavigator}
       />
 
-      <Stack.Screen name="TruckDetailHome" component={TruckReceiveHome} />
+      <Stack.Screen name="TruckDetailApp" component={TruckReceiveHome} />
 
+      {/* TODO: Remove this */}
       <Stack.Screen
         name="TruckScanDetails"
         component={TruckReceiveScanDetails}
       />
 
       <Stack.Screen
-        name="ItemLookupHome"
+        name="ItemLookupApp"
         options={{ headerShown: false }}
         component={ItemLookupNavigator}
       />

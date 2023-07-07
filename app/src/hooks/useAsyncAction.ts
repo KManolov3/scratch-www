@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { newRelicService } from '@services/NewRelic';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseAsyncActionResult<Args extends any[], T>
@@ -50,6 +51,9 @@ export function useAsyncAction<Args extends any[], T>(
       // Intentionally leaving this here so that we can see what errors happen
       // eslint-disable-next-line no-console
       console.error(error);
+
+      // TODO: Make this not send to NewRelic when used with useMutation
+      newRelicService.onUseAsyncActionError(error);
 
       throw error;
     }

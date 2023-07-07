@@ -11,7 +11,7 @@ export function OutageApp() {
     <AppRoot
       applicationName="Outage"
       activityName=".activities.OutageActivity"
-      initialRoute="OutageHome"
+      initialRoute="OutageApp"
       scannerConfig={scannerConfig}
     />
   );
