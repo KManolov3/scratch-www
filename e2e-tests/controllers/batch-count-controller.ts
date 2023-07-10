@@ -11,7 +11,7 @@ import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
 import { BatchCountSummaryPage } from '../page-objects/batch-count/approve-count-page.ts';
 
-type BatchCountData = {
+export type BatchCountData = {
   item: TestItemInput;
   newQuantity: number;
   bookmarked: boolean;
@@ -80,7 +80,7 @@ export class BatchCountController extends BaseController {
     if (batchCountsSummary.item.retailPrice) {
       await expectElementText(
         productDetails.price,
-        `$${batchCountsSummary.item.retailPrice}`
+        `$${batchCountsSummary.item.retailPrice.toFixed(2)}`
       );
     }
 

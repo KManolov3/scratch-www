@@ -1,50 +1,17 @@
-import { TestDataInput } from '../../__generated__/graphql.ts';
-import { BatchCountController } from '../../controllers/batch-count-controller.ts';
+import {
+  BatchCountController,
+  BatchCountData,
+} from '../../controllers/batch-count-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import {
   expectElementText,
   waitAndClick,
   waitFor,
 } from '../../methods/helpers.ts';
-import { testStoreNumber } from '../../test-data/test-data.ts';
+import { buildItems, testStoreNumber } from '../../test-data/test-data.ts';
 
 const batchCount = new BatchCountController();
 const testData = new TestDataController();
-
-const items: TestDataInput['items'] = [
-  {
-    partDesc: 'Mobil 1 5W-30 Motor Oil',
-    sku: '10069908',
-    retailPrice: 36.99,
-    mfrPartNum: '44899',
-    onHand: 10,
-    upc: '887220132090',
-    planograms: [
-      { planogramId: '35899', seqNum: 44 },
-      { planogramId: '12456', seqNum: 22 },
-    ],
-    backStockSlots: [
-      { slotId: 47457, qty: 7 },
-      { slotId: 87802, qty: 3 },
-    ],
-  },
-  {
-    partDesc: 'Beam Wiper Blade',
-    sku: '5070221',
-    retailPrice: 22.99,
-    mfrPartNum: '18-260',
-    onHand: 15,
-    upc: '892331562191',
-    planograms: [
-      { planogramId: '57211', seqNum: 43 },
-      { planogramId: '23425', seqNum: 56 },
-    ],
-    backStockSlots: [
-      { slotId: 47457, qty: 8 },
-      { slotId: 87802, qty: 3 },
-    ],
-  },
-];
 
 describe('Batch Count', () => {
   beforeEach(async () => {
@@ -57,17 +24,22 @@ describe('Batch Count', () => {
   });
 
   it('should be successfully completed', async () => {
+    const items = buildItems([
+      { onHand: 10, retailPrice: 35.0 },
+      { onHand: 15, retailPrice: 25.0 },
+    ]);
+
     await testData.setData({
       storeNumber: testStoreNumber,
       items,
     });
 
-    const batchCountData = [
+    const batchCountData: BatchCountData[] = [
       { item: items[0], newQuantity: 11, bookmarked: false },
       { item: items[1], newQuantity: 14, bookmarked: true },
     ];
 
-    const batchCountDataOnSummary = [
+    const batchCountDataOnSummary: BatchCountData[] = [
       { item: items[0], newQuantity: 12, bookmarked: false },
     ];
 
@@ -84,15 +56,17 @@ describe('Batch Count', () => {
     );
 
     await batchCount.expectShrinkageOverageValues({
-      expectedNetDollars: '$50.99',
-      expectedShrinkage: '-$22.99',
-      expectedOverage: '$73.98',
+      expectedNetDollars: '$45.00', // $70.00 - $25.00
+      expectedShrinkage: '-$25.00', // 1*$25.00,
+      expectedOverage: '$70.00', // 2*$35.00
     });
 
     await batchCount.approveBatchCount();
   });
 
   it('should be successfully completed by Fast Accept', async () => {
+    const items = buildItems([{ onHand: 9, retailPrice: 25.0 }]);
+
     await testData.setData({
       storeNumber: testStoreNumber,
       items,
@@ -109,15 +83,14 @@ describe('Batch Count', () => {
     );
 
     await batchCount.expectShrinkageOverageValues({
-      expectedNetDollars: '$36.99',
+      expectedNetDollars: '$50.00', // 2*$25.00
       expectedShrinkage: '$0.00',
-      expectedOverage: '$36.99',
+      expectedOverage: '$50.00', // 2*$25.00
     });
   });
 
-  it('should be able to remove an item from list and on summary', async () => {
-    const threeItems = [
-      ...items,
+  it('should be able to remove an item on list screen and on summary screen', async () => {
+    const thirdItem = [
       {
         partDesc: 'Mobile 1 Economy 0W-20',
         sku: '10275177',
@@ -136,15 +109,17 @@ describe('Batch Count', () => {
       },
     ];
 
+    const items = buildItems([], thirdItem);
+
     await testData.setData({
       storeNumber: testStoreNumber,
-      items: threeItems,
+      items,
     });
 
-    for (const [index, item] of threeItems.entries()) {
+    for (const [index, item] of items.entries()) {
       await batchCount.searchForSku(item.sku);
 
-      if (index !== threeItems.length - 1) {
+      if (index !== items.length - 1) {
         await driver.back();
       }
     }
@@ -177,6 +152,8 @@ describe('Batch Count', () => {
   });
 
   it('new quantity should starts at 0 when SKU is manually entered', async () => {
+    const items = buildItems();
+
     await testData.setData({
       storeNumber: testStoreNumber,
       items,
@@ -193,6 +170,8 @@ describe('Batch Count', () => {
   });
 
   it('new quantity should starts at 0 when front tag is scanned', async () => {
+    const items = buildItems();
+
     await testData.setData({
       storeNumber: testStoreNumber,
       items,
@@ -213,6 +192,8 @@ describe('Batch Count', () => {
   });
 
   it('new quantity should starts at 1 when UPC is scanned and increment if scanned again', async () => {
+    const items = buildItems();
+
     await testData.setData({
       storeNumber: testStoreNumber,
       items,
