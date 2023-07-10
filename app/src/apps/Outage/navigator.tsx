@@ -38,10 +38,10 @@ export type OutageNavigatorScreenParams = NavigatorScreenParams<Routes>;
 
 export type OutageScreenProps<K extends keyof Routes> = CompositeScreenProps<
   NativeStackScreenProps<Routes, K>,
-  RootScreenProps<'OutageHome'>
+  RootScreenProps<'OutageApp'>
 >;
 
 export type OutageNavigation = CompositeNavigationProp<
-  RootNavigation<'OutageHome'>,
+  RootNavigation<'OutageApp'>,
   NativeStackNavigationProp<Routes>
 >;
