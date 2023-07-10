@@ -12,6 +12,7 @@ import {
   WhiteSearchIcon,
 } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { Header } from '@components/Header';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { Separator } from '@components/Separator';
@@ -264,6 +265,12 @@ export function PrintFrontTagScreen({
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
+      {locationStatuses.length === 0 && (
+        <ErrorContainer
+          title="No POG assignment."
+          message="Front tag is not currently available."
+        />
+      )}
       <ScrollView style={styles.planogramContainer}>
         {locationStatuses.map(renderPlanogram)}
       </ScrollView>
