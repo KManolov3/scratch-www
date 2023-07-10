@@ -4,83 +4,53 @@ import { PrinterIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
 import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
-import { PrinterOption, SelectedPrinter } from '@hooks/useDefaultSettings';
 import { FontWeight } from '@lib/font';
+import { Printers, Printer } from '@services/Printers';
 
 interface PrinterConfirmationModalProps {
   isVisible: boolean;
+  initiallySelectedPrinter: Printer;
   onCancel(): void;
-  setPrinter(printer: SelectedPrinter): void;
-  lastUsedPortablePrinter: string | undefined;
-  printer: SelectedPrinter;
+  onConfirm(printer: Printer): void;
 }
 
 export function PrinterConfirmationModal({
   isVisible,
+  initiallySelectedPrinter,
   onCancel,
-  setPrinter,
-  lastUsedPortablePrinter,
-  printer,
+  onConfirm,
 }: PrinterConfirmationModalProps) {
-  const [selectedPrinter, setSelectedPrinter] = useState(printer);
-
-  const [localLastUsedPortablePrinter, setLocalLastUsedPortablePrinter] =
-    useState(lastUsedPortablePrinter);
-
-  const onConfirm = useCallback(() => {
-    onCancel();
-    setPrinter(selectedPrinter);
-  }, [onCancel, selectedPrinter, setPrinter]);
-
-  const onRadioButtonPress = useCallback(
-    (item: PrinterOption) => {
-      setSelectedPrinter({
-        printerOption: item,
-        lastUsedPortablePrinter:
-          item === PrinterOption.Portable ? lastUsedPortablePrinter : undefined,
-      });
-    },
-    [lastUsedPortablePrinter],
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer>(
+    initiallySelectedPrinter,
   );
 
-  const setPortablePrinter = useCallback(
-    (printerCode: string) => {
-      onCancel();
-      setLocalLastUsedPortablePrinter(printerCode);
-      setSelectedPrinter({
-        printerOption: PrinterOption.Portable,
-        lastUsedPortablePrinter: printerCode,
-      });
-      setPrinter({
-        printerOption: PrinterOption.Portable,
-        lastUsedPortablePrinter: printerCode,
-      });
-    },
-    [onCancel, setPrinter],
+  const confirmPrinter = useCallback(
+    () => onConfirm(selectedPrinter),
+    [onConfirm, selectedPrinter],
   );
+
+  const onSelectPrinter = useCallback(({ printer }: { printer: Printer }) => {
+    setSelectedPrinter(printer);
+  }, []);
 
   return (
     <ConfirmationModal
       isVisible={isVisible}
       onCancel={onCancel}
-      onConfirm={onConfirm}
+      onConfirm={confirmPrinter}
       title="Print Front Tags"
       confirmationLabel="Select"
       Icon={PrinterIcon}>
       <View style={styles.printModal}>
         <Text>
           Print to{' '}
-          <Text style={styles.bold}>
-            {printer.printerOption} {printer.lastUsedPortablePrinter}
-          </Text>
+          <Text style={styles.bold}>{Printers.labelOf(selectedPrinter)}</Text>
         </Text>
+
         <PrinterList
-          checked={item => item === selectedPrinter.printerOption}
-          onRadioButtonPress={onRadioButtonPress}
-          containerStyles={styles.radioButtons}
-          portablePrinter={localLastUsedPortablePrinter}
-          portablePrinterStyles={styles.portablePrinter}
-          setPortablePrinter={setPortablePrinter}
+          selectedPrinter={selectedPrinter}
+          onSelect={onSelectPrinter}
+          style={styles.printerList}
         />
       </View>
     </ConfirmationModal>
@@ -88,8 +58,7 @@ export function PrinterConfirmationModal({
 }
 
 const styles = StyleSheet.create({
-  printModal: { alignItems: 'center', justifyContent: 'center' },
+  printModal: { alignItems: 'center' },
   bold: { fontWeight: FontWeight.Bold },
-  radioButtons: { width: 170, marginTop: 14 },
-  portablePrinter: { paddingLeft: 33 },
+  printerList: { width: 210, marginTop: 14 },
 });

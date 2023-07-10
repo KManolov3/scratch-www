@@ -2,7 +2,6 @@ import { compact } from 'lodash-es';
 import { useState } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { TabSelector } from '@components/TabSelector';
-import { FontWeight } from '@lib/font';
 import { BackstockSlotList, BackstockSlotsInfo } from './BackstockSlotList';
 import { PlanogramsInfo, PlanogramList } from './PlanogramList';
 
@@ -24,9 +23,7 @@ export function Locations({ locationDetails, containerStyle }: LocationsProps) {
       <TabSelector
         values={locationTypes}
         selected={selectedValue}
-        setSelected={setSelectedValue}
-        buttonStyle={styles.buttonStyle}
-        textStyle={styles.tabSelectorText}
+        onSelect={setSelectedValue}
       />
       <View style={styles.locationContainer}>
         {selectedValue === 'POG Locations' ? (
@@ -48,15 +45,5 @@ const styles = StyleSheet.create({
   },
   locationContainer: {
     flex: 1,
-  },
-  buttonStyle: {
-    minHeight: 40,
-  },
-  tabSelectorText: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontWeight: FontWeight.Bold,
-    // 0.01em === 0.72px
-    letterSpacing: -0.72,
   },
 });
