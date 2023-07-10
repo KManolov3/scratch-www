@@ -212,7 +212,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
-  const { perform: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
+  const { trigger: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
       EventBus.emit('search-success', item.itemBySku ?? undefined);
@@ -220,7 +220,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     globalErrorHandling: searchError => {
       const isNotFoundError = isApolloNotFoundError(searchError);
       EventBus.emit('search-error', { error, isNotFoundError });
-      if (isApolloNotFoundError(error)) {
+      if (isNotFoundError) {
         return 'ignored';
       }
       return {
@@ -229,7 +229,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
+  const { trigger: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
       EventBus.emit('search-success', item.itemByUpc ?? undefined);
@@ -237,7 +237,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     globalErrorHandling: searchError => {
       const isNotFoundError = isApolloNotFoundError(searchError);
       EventBus.emit('search-error', { error, isNotFoundError });
-      if (isApolloNotFoundError(error)) {
+      if (isNotFoundError) {
         return 'ignored';
       }
       return {

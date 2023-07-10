@@ -47,8 +47,18 @@ export function useManagedLazyQuery<
     [execute, executeWithGlobalErrorHandling, options],
   );
 
+  const trigger = useCallback(
+    (additionalOptions?: Partial<LazyQueryHookOptions<TData, TVariables>>) => {
+      shimmedExecute(additionalOptions).catch(() => {
+        // Intentionally ignored
+      });
+    },
+    [shimmedExecute],
+  );
+
   return {
     perform: shimmedExecute,
+    trigger,
     loading,
     error,
     data,

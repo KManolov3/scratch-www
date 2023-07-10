@@ -119,7 +119,7 @@ export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
         }
 
         const canAttemptRetry =
-          errorInfo.allowRetries && (errorInfo.maxRetries ?? 2) < execCount;
+          errorInfo.allowRetries && (errorInfo.maxRetries ?? 2) > execCount;
 
         const errorModalPromise = showErrorModal({
           ...errorInfo,

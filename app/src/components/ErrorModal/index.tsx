@@ -16,6 +16,7 @@ export interface ErrorModalProps {
   onCancel?: () => void;
 }
 
+// TODO: Show a loading indicator while retrying a request
 export function ErrorModal({
   isVisible,
   title,
@@ -35,6 +36,7 @@ export function ErrorModal({
         <Text style={styles.description}>{description}</Text>
         {withRetry ? (
           <BlockButton
+            label="Retry"
             style={styles.button}
             textStyle={styles.buttonText}
             onPress={onRetry}

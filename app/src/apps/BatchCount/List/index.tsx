@@ -137,6 +137,11 @@ export function BatchCountList() {
       if (await askForConfirmation()) {
         await executeWithGlobalErrorHandling(submitBatch, () => ({
           displayAs: 'modal',
+          message: `Error while submitting batch count. ${
+            isErrorWithMessage(submitError)
+              ? submitError.message
+              : 'An unknown server error has occured'
+          }`,
           allowRetries: true,
         }));
       }
@@ -167,21 +172,6 @@ export function BatchCountList() {
       ]),
     [submitBatchCount, onVerify, submitLoading],
   );
-
-  useEffect(() => {
-    if (submitError) {
-      toastService.showInfoToast(
-        `Error while submitting batch count. ${
-          isErrorWithMessage(submitError)
-            ? submitError.message
-            : 'Unknown Error'
-        }`,
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
-    }
-  }, [submitError]);
 
   useFocusEventBus('search-error', ({ isNotFoundError }) => {
     reject();

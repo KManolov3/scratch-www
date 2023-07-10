@@ -19,17 +19,22 @@ export function OutageHome() {
 
     // TODO: Reset this when going back to this screen?
     error: searchError,
-  } = useAsyncAction((sku: string) => requestToAddItem(sku), {
-    globalErrorHandling: error => {
-      if (error instanceof NotFoundError) {
-        return 'ignored';
-      }
-
-      return {
-        displayAs: 'toast',
-      };
+  } = useAsyncAction(
+    (sku: string) => {
+      return requestToAddItem(sku);
     },
-  });
+    {
+      globalErrorHandling: error => {
+        if (error instanceof NotFoundError) {
+          return 'ignored';
+        }
+
+        return {
+          displayAs: 'toast',
+        };
+      },
+    },
+  );
 
   useScanCodeListener(code => {
     switch (code.type) {

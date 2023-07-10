@@ -16,7 +16,7 @@ export function BatchCountHome() {
   const { storeNumber } = useCurrentSessionInfo();
   const [hasNoResultsError, setHasNoResultsError] = useState<boolean>(false);
 
-  const { perform: searchBySku, loading: isLoadingItemBySku } =
+  const { trigger: searchBySku, loading: isLoadingItemBySku } =
     useManagedLazyQuery(ITEM_BY_SKU, {
       onCompleted: item => {
         addItem(item.itemBySku ?? undefined, false);

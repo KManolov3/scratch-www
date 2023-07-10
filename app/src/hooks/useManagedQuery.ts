@@ -37,10 +37,10 @@ export function useManagedQuery<
     globalErrorHandling: GlobalErrorHandlingSetting;
   },
 ) {
-  const { perform, loading, error, data } = useManagedLazyQuery(query, options);
+  const { trigger, loading, error, data } = useManagedLazyQuery(query, options);
 
   useEffect(() => {
-    perform();
+    trigger();
     // Intentionally keeping the dependency array empty, this should only execute on first render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

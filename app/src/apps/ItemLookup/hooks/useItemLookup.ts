@@ -54,14 +54,14 @@ export function useItemLookup({
   const { storeNumber } = useCurrentSessionInfo();
 
   const {
-    perform: searchBySku,
+    trigger: searchBySku,
     loading: isLoadingItemBySku,
     error: skuError,
   } = useManagedLazyQuery(ITEM_BY_SKU, {
     globalErrorHandling: error => {
       const isNotFoundError = isApolloNotFoundError(searchError);
       onErrorRef.current(error, isNotFoundError);
-      if (isApolloNotFoundError(error)) {
+      if (isNotFoundError) {
         return 'ignored';
       }
       return {
@@ -70,14 +70,14 @@ export function useItemLookup({
     },
   });
   const {
-    perform: searchByUpc,
+    trigger: searchByUpc,
     loading: isLoadingItemByUpc,
     error: upcError,
   } = useManagedLazyQuery(ITEM_BY_UPC, {
     globalErrorHandling: error => {
       const isNotFoundError = isApolloNotFoundError(error);
       onErrorRef.current(error, isNotFoundError);
-      if (isApolloNotFoundError(error)) {
+      if (isNotFoundError) {
         return 'ignored';
       }
       return {

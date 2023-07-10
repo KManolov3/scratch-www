@@ -8,7 +8,12 @@ import {
   useState,
 } from 'react';
 import { DocumentType, gql } from 'src/__generated__';
-import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
+import {
+  Action,
+  CycleCountType,
+  ItemLookupBySkuQuery,
+  Status,
+} from 'src/__generated__/graphql';
 import { v4 as uuid } from 'uuid';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
@@ -88,20 +93,20 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const response = await getItemBySku({ variables: { sku, storeNumber } });
+      let responseData: ItemLookupBySkuQuery | undefined;
 
-      if (response.error) {
-        if (isApolloNotFoundError(response.error)) {
-          throw new NotFoundError(
-            `Item with sku ${sku} was not found`,
-            response.error,
-          );
+      try {
+        responseData = (await getItemBySku({ variables: { sku, storeNumber } }))
+          .data;
+      } catch (error) {
+        if (isApolloNotFoundError(error)) {
+          throw new NotFoundError(`Item with sku ${sku} was not found`, error);
         }
 
-        throw response.error;
+        throw error;
       }
 
-      const item = response?.data?.itemBySku;
+      const item = responseData?.itemBySku;
       if (!item) {
         // This should not be a valid case, rather the types should be made stricter on the back-end.
         toastService.showInfoToast(

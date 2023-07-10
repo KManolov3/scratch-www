@@ -40,7 +40,11 @@ export function useAsyncAction<Args extends any[], T>(
   const actionRef = useRef(action);
   actionRef.current =
     globalErrorHandling !== 'disabled'
-      ? () => executeWithGlobalErrorHandling(action, globalErrorHandling)
+      ? (...args) =>
+          executeWithGlobalErrorHandling(
+            () => action(...args),
+            globalErrorHandling,
+          )
       : action;
 
   const perform = useCallback(async (...args: Args) => {
