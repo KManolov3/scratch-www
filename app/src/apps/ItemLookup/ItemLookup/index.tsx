@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { soundService } from 'src/services/SoundService';
 import { ItemDetails } from '@apps/ItemLookup/components/ItemDetails';
 import { PriceDiscrepancyModal } from '@apps/ItemLookup/components/PriceDiscrepancyModal';
 import { WhiteSearchIcon } from '@assets/icons';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { Header } from '@components/Header';
-import { PriceDiscrepancyAttention } from '@components/PriceDiscrepancyAttention';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
-import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { toastService } from '@services/ToastService';
+import { PriceDiscrepancyAttention } from '../components/PriceDiscrepancyAttention';
 import { SearchBottomTray } from '../components/SearchBottomTray';
 import { useItemLookupScanCodeListener } from '../hooks/useItemLookupScanCodeListener';
 import { ItemLookupNavigation, ItemLookupScreenProps } from '../navigator';
@@ -69,17 +69,6 @@ export function ItemLookupScreen({
     navigate('PrintFrontTag', { itemDetails });
   }, [itemDetails, navigate, toggleModal]);
 
-  const bottomBarActions = useMemo<Action[]>(
-    () => [
-      {
-        label: 'Print Front Tag',
-        onPress: () => navigate('PrintFrontTag', { itemDetails }),
-        textStyle: styles.bottomBarActionText,
-      },
-    ],
-    [itemDetails, navigate],
-  );
-
   const {
     state: searchTrayOpen,
     enable: showSearchTray,
@@ -99,6 +88,10 @@ export function ItemLookupScreen({
   });
 
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
+  const printFrontTag = useCallback(
+    () => navigate('PrintFrontTag', { itemDetails }),
+    [navigate, itemDetails],
+  );
 
   return (
     <FixedLayout
@@ -116,13 +109,21 @@ export function ItemLookupScreen({
         frontTagPrice={frontTagPrice}
         togglePriceDiscrepancyModal={toggleModal}
       />
+
       <BottomActionBar
-        actions={bottomBarActions}
         topComponent={
-          hasPriceDiscrepancy ? <PriceDiscrepancyAttention /> : null
-        }
-        style={styles.bottomActionBar}
-      />
+          hasPriceDiscrepancy ? (
+            <PriceDiscrepancyAttention style={styles.priceDiscrepancy} />
+          ) : null
+        }>
+        <BlockButton
+          style={styles.actionButton}
+          variant="primary"
+          onPress={printFrontTag}>
+          Print Front Tag
+        </BlockButton>
+      </BottomActionBar>
+
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
           scanned={frontTagPrice}
@@ -148,11 +149,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.pure,
   },
-  bottomBarActionText: {
-    color: Colors.advanceBlack,
-    fontWeight: FontWeight.Bold,
+
+  actionButton: {
+    flex: 1,
   },
-  bottomActionBar: {
-    paddingTop: 8,
+
+  priceDiscrepancy: {
+    marginTop: 15,
   },
 });

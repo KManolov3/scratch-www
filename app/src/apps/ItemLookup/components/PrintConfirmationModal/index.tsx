@@ -26,8 +26,7 @@ export function PrintConfirmationModal({
       Icon={BlackAttentionIcon}
       title="Quantity Confirmation"
       cancellationLabel="Edit Quantity"
-      confirmationLabel={`Print ${quantity} Tags`}
-      iconStyles={styles.icon}>
+      confirmationLabel={`Print ${quantity} Tags`}>
       <View style={styles.confirmationText}>
         <View style={styles.tagsInformation}>
           <Text style={styles.text}>Are you sure you want to print</Text>
@@ -56,7 +55,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
-  icon: { marginTop: 30 },
   buttons: {
     marginBottom: 24,
   },

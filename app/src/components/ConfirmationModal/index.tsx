@@ -1,12 +1,7 @@
 import { ReactNode } from 'react';
-import {
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import type Svg from 'react-native-svg';
+import { BlockButton } from '@components/Button/Block';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
@@ -15,11 +10,11 @@ import { FontWeight } from '@lib/font';
 export interface ConfirmationModalProps {
   isVisible: boolean;
   Icon?: typeof Svg;
-  iconStyles?: StyleProp<ViewStyle>;
   title?: string;
   confirmationLabel?: string;
   onConfirm: () => void;
   cancellationLabel?: string;
+  isConfirmationDisabled?: boolean;
   onCancel: () => void;
   children?: ReactNode;
   buttonsStyle?: StyleProp<ViewStyle>;
@@ -28,11 +23,11 @@ export interface ConfirmationModalProps {
 export function ConfirmationModal({
   isVisible,
   Icon,
-  iconStyles,
   title,
   cancellationLabel = 'Cancel',
   onCancel,
   confirmationLabel = 'Accept',
+  isConfirmationDisabled = false,
   onConfirm,
   buttonsStyle,
   children,
@@ -43,20 +38,28 @@ export function ConfirmationModal({
       onBackdropPress={onCancel}
       style={styles.modal}>
       <View style={styles.container}>
-        {Icon ? (
-          <Icon height={40} width={40} style={[styles.icon, iconStyles]} />
-        ) : null}
+        {Icon ? <Icon height={48} width={48} style={styles.icon} /> : null}
         {title ? <Text style={styles.title}>{title}</Text> : null}
+
         {children}
-        <View style={[styles.buttons, buttonsStyle]}>
-          <Pressable onPress={onCancel} style={styles.button}>
-            <Text style={styles.buttonText}>{cancellationLabel}</Text>
-          </Pressable>
-          <Pressable
-            onPress={onConfirm}
-            style={[styles.button, styles.confirmationButton]}>
-            <Text style={styles.buttonText}>{confirmationLabel}</Text>
-          </Pressable>
+
+        <View style={[styles.controls, buttonsStyle]}>
+          <BlockButton
+            variant="gray"
+            size="big"
+            style={styles.button}
+            onPress={onCancel}>
+            {cancellationLabel}
+          </BlockButton>
+
+          <BlockButton
+            variant="primary"
+            size="big"
+            style={styles.button}
+            disabled={isConfirmationDisabled}
+            onPress={onConfirm}>
+            {confirmationLabel}
+          </BlockButton>
         </View>
       </View>
     </Modal>
@@ -79,6 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignSelf: 'center',
+
     marginBottom: 12,
   },
   title: {
@@ -89,25 +93,12 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     textAlign: 'center',
   },
-  buttons: {
+  controls: {
     flexDirection: 'row',
-    marginTop: 12,
+    marginTop: 24,
     gap: 8,
   },
   button: {
     flex: 1,
-    borderRadius: 4,
-    padding: 12,
-    backgroundColor: Colors.gray100,
-  },
-  confirmationButton: {
-    backgroundColor: Colors.advanceYellow,
-  },
-  buttonText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: FontWeight.Bold,
-    textAlign: 'center',
-    color: Colors.darkerGray,
   },
 });

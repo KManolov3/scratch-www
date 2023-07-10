@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement as ReactNode } from 'react';
 import {
   ActivityIndicator,
   StyleProp,
@@ -9,10 +9,13 @@ import {
 } from 'react-native';
 import type Svg from 'react-native-svg';
 import { Text } from '@components/Text';
-import { styles, iconSize, primaryColor, secondaryColor } from './styles';
+import { styles, variants, iconSize, loadingIndicatorColor } from './styles';
 
 interface Props extends PressableProps {
-  label?: string | ReactElement;
+  variant: 'primary' | 'dark' | 'gray';
+  size?: 'normal' | 'big';
+
+  children?: string | ReactNode;
   Icon?: typeof Svg;
   onPress: () => void;
   isLoading?: boolean;
@@ -24,7 +27,9 @@ interface Props extends PressableProps {
 }
 
 export function BlockButton({
-  label,
+  variant,
+  size = 'normal',
+  children,
   Icon,
   onPress,
   style,
@@ -39,6 +44,8 @@ export function BlockButton({
     <Pressable
       style={[
         styles.button,
+        variants[variant].button,
+        size === 'big' && styles.sizeBig,
         style,
         disabled && styles.disabled,
         disabled && disabledStyle,
@@ -51,28 +58,30 @@ export function BlockButton({
         <Icon
           height={iconSize}
           width={iconSize}
-          style={label ? styles.iconMargin : undefined}
+          style={children ? styles.iconMargin : undefined}
         />
       )}
 
       {!isLoading &&
-        (typeof label === 'string' ? (
+        (typeof children === 'string' ? (
           <Text
             style={[
               styles.text,
+              variants[variant].text,
+              size === 'big' && styles.sizeBigText,
               textStyle,
               disabled && styles.disabledText,
               disabled && disabledTextStyle,
             ]}>
-            {label}
+            {children}
           </Text>
         ) : (
-          label
+          children
         ))}
 
       {isLoading && (
         <ActivityIndicator
-          color={disabled ? secondaryColor : primaryColor}
+          color={loadingIndicatorColor}
           style={styles.spinner}
         />
       )}
