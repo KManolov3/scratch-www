@@ -1,17 +1,17 @@
 import EventEmitter from 'eventemitter3';
+import { isArray } from 'lodash-es';
 import { useEffect } from 'react';
 import { Item } from 'src/__generated__/graphql';
 import { ApolloError } from '@apollo/client';
 import { useFocusEffect } from '@react-navigation/native';
-import { isArray } from 'lodash-es';
 
 interface EventTypes {
   'search-error': [ApolloError];
   'search-success': [Item?];
   'print-success': [];
-  'add-new-item': [string];
-  'updated-item': [string];
-  'removed-item': [string];
+  'add-new-item': [];
+  'updated-item': [];
+  'removed-item': [];
 }
 
 export const EventBus = new EventEmitter<EventTypes>();

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
+import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
+import { BatchCountItem } from 'src/types/BatchCount';
 import { WhiteBackArrow } from '@assets/icons';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { Header } from '@components/Header';
@@ -11,11 +12,9 @@ import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
-import { BatchCountItem } from 'src/types/BatchCount';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
-import { useBatchCountItemSorting } from '../hooks/useBatchCountItemSorting';
 
 // TODO: Think about extracting part of the shared code between this screen and BatchCountList
 // They are nearly the same component, differing only in the `isSummary` property and the action bar
@@ -28,6 +27,7 @@ export function BatchCountSummary() {
     submitError,
     updateItem,
     removeItem,
+    sortByBookmark,
     batchCountItems,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
@@ -36,18 +36,18 @@ export function BatchCountSummary() {
     useConfirmation();
 
   const flatListRef = useRef<FlatList>(null);
-  const batchCountItemsSorted = useBatchCountItemSorting(
-    batchCountItems,
-    flatListRef,
-  );
 
   const [expandedSku, setExpandedSku] = useState<string>();
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
-      updateItem(sku, {
-        newQty,
-      });
+      updateItem(
+        sku,
+        {
+          newQty,
+        },
+        true,
+      );
     },
     [updateItem],
   );
@@ -176,6 +176,19 @@ export function BatchCountSummary() {
     }
   });
 
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    Keyboard.dismiss();
+  }, [flatListRef]);
+
+  useFocusEventBus(
+    ['add-new-item', 'updated-item'],
+    scrollToTopAndDismissKeyboard,
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(sortByBookmark, []);
+
   return (
     <>
       <FixedLayout
@@ -188,7 +201,7 @@ export function BatchCountSummary() {
         }>
         <FlatList
           contentContainerStyle={styles.list}
-          data={batchCountItemsSorted}
+          data={batchCountItems}
           renderItem={renderItem}
           ref={flatListRef}
         />

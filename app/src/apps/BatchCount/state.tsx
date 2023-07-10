@@ -1,4 +1,4 @@
-import { merge } from 'lodash-es';
+import { merge, sortBy } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
   ReactNode,
@@ -18,21 +18,26 @@ import {
 } from 'src/__generated__/graphql';
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
+import { BatchCountItem } from 'src/types/BatchCount';
 import { v4 as uuid } from 'uuid';
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
-import { BatchCountItem } from 'src/types/BatchCount';
 import { SubmitBatchCountGql } from './external-types';
 import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItem[];
   addItem: (item: Item | undefined, incrementCount: boolean) => void;
-  updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
+  updateItem: (
+    sku: string,
+    item: Partial<BatchCountItem>,
+    isManuallyUpdated?: boolean,
+  ) => void;
   removeItem: (sku: string) => void;
   submit: () => void;
+  sortByBookmark: () => void;
   submitLoading?: boolean;
   submitError?: ApolloError;
 }
@@ -102,7 +107,11 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const { storeNumber } = useCurrentSessionInfo();
 
   const updateItem = useCallback(
-    (sku: string, updatedItem: Partial<BatchCountItem>) => {
+    (
+      sku: string,
+      updatedItem: Partial<BatchCountItem>,
+      isManuallyUpdated?: boolean,
+    ) => {
       const itemInState = batchCountItems.find(({ item }) => item.sku === sku);
 
       if (!itemInState) {
@@ -111,10 +120,21 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
         throw new Error('Attempting to update an item not existing in state');
       }
 
-      setBatchCountItems([
-        merge(itemInState, updatedItem),
-        ...batchCountItems.filter(({ item }) => item.sku !== sku),
-      ]);
+      if (
+        itemInState.isBookmarked === updatedItem.isBookmarked &&
+        !isManuallyUpdated
+      ) {
+        setBatchCountItems([
+          merge(itemInState, updatedItem),
+          ...batchCountItems.filter(({ item }) => item.sku !== sku),
+        ]);
+      } else {
+        setBatchCountItems(
+          batchCountItems.map(item =>
+            item.item.sku !== sku ? item : merge(itemInState, updatedItem),
+          ),
+        );
+      }
     },
     [batchCountItems, setBatchCountItems],
   );
@@ -137,7 +157,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
           };
           setBatchCountItems([newBatchCountItem, ...batchCountItems]);
 
-          EventBus.emit('add-new-item', newBatchCountItem.item.sku);
+          EventBus.emit('add-new-item');
         } else {
           // Updating with the retrieved information even if the item already exists in the state
           // in case something changed (for example, the price) on the backend.
@@ -152,8 +172,8 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
               ? itemInState.newQty + 1
               : itemInState.newQty,
           });
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          EventBus.emit('updated-item', newItem.sku!);
+
+          EventBus.emit('updated-item');
         }
         navigation.navigate('List');
       }
@@ -166,7 +186,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       setBatchCountItems(
         batchCountItems.filter(({ item }) => item.sku !== sku),
       );
-      EventBus.emit('removed-item', sku);
+      EventBus.emit('removed-item');
     },
     [batchCountItems],
   );
@@ -186,6 +206,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     navigation.navigate('Home');
   }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
+  const sortByBookmark = useCallback(() => {
+    setBatchCountItems(sortBy(batchCountItems, item => !item.isBookmarked));
+  }, [batchCountItems]);
+
   const value = useMemo(
     () => ({
       batchCountItems,
@@ -193,12 +217,22 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       submit,
+      sortByBookmark,
 
       // TODO: Make these part of the user useAsyncAction and just make `submit` return a promise?
       submitLoading: loading,
       submitError: error,
     }),
-    [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
+    [
+      batchCountItems,
+      addItem,
+      updateItem,
+      removeItem,
+      submit,
+      sortByBookmark,
+      loading,
+      error,
+    ],
   );
 
   const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {

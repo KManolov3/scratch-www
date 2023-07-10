@@ -1,8 +1,9 @@
 import { compact } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
+import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
+import { BatchCountItem } from 'src/types/BatchCount';
 import { Action, BottomActionBar } from '@components/BottomActionBar';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
@@ -11,8 +12,6 @@ import { useFocusEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
-import { useBatchCountItemSorting } from '@apps/BatchCount/hooks/useBatchCountItemSorting';
-import { BatchCountItem } from 'src/types/BatchCount';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { useBatchCountState } from '../state';
@@ -25,6 +24,7 @@ export function BatchCountList() {
     submitError,
     updateItem,
     removeItem,
+    sortByBookmark,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
@@ -32,18 +32,17 @@ export function BatchCountList() {
     useConfirmation();
 
   const flatListRef = useRef<FlatList>(null);
-  const batchCountItemsSorted = useBatchCountItemSorting(
-    batchCountItems,
-    flatListRef,
-  );
-
   const [expandedSku, setExpandedSku] = useState<string>();
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
-      updateItem(sku, {
-        newQty,
-      });
+      updateItem(
+        sku,
+        {
+          newQty,
+        },
+        true,
+      );
     },
     [updateItem],
   );
@@ -181,13 +180,26 @@ export function BatchCountList() {
     }
   });
 
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    Keyboard.dismiss();
+  }, [flatListRef]);
+
+  useFocusEventBus(
+    ['add-new-item', 'updated-item'],
+    scrollToTopAndDismissKeyboard,
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(sortByBookmark, []);
+
   return (
     <>
       <FixedLayout>
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}
-          data={batchCountItemsSorted}
+          data={batchCountItems}
           renderItem={renderItem}
           ref={flatListRef}
         />
