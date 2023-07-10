@@ -8,13 +8,14 @@ import { PrinterList } from '@components/PrinterList';
 import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
-import { PrinterOption, useDefaultSettings } from '@hooks/useDefaultSettings';
+import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { Printers, Printer } from '@services/Printers';
 
 export function SelectPrinters() {
   const { replace } = useNavigation<DrawerNavigation>();
@@ -25,26 +26,29 @@ export function SelectPrinters() {
     askForConfirmation,
     accept,
     reject,
-  } = useConfirmation<PrinterOption>();
+  } = useConfirmation<Printer>();
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const {
-    data: { printerOption, lastUsedPortablePrinter },
-    set: setDefaultPrinter,
-  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
+  const { data: defaultPrinter, set: setDefaultPrinter } = useDefaultSettings(
+    [userId, storeNumber],
+    'defaultPrinter',
+  );
 
   const onBackPress = useCallback(() => replace('DrawerHome'), [replace]);
 
-  const checked = useCallback(
-    (item: PrinterOption) => item === printerOption,
-    [printerOption],
-  );
-
   const { trigger: setPrinter } = useAsyncAction(
-    async (printer: PrinterOption) => {
-      if (await askForConfirmation(printer)) {
-        setDefaultPrinter({ printerOption: printer, lastUsedPortablePrinter });
+    async ({
+      printer,
+      alreadyConfirmed,
+    }: {
+      printer: Printer;
+      alreadyConfirmed: boolean;
+    }) => {
+      const confirmed = alreadyConfirmed || (await askForConfirmation(printer));
+
+      if (confirmed) {
+        setDefaultPrinter(printer);
       }
     },
   );
@@ -53,19 +57,12 @@ export function SelectPrinters() {
     <>
       <FixedLayout style={styles.container} withoutHeader>
         <LightHeader label="Printers" onPress={onBackPress} />
+
         <PrinterList
-          checked={checked}
-          onRadioButtonPress={setPrinter}
-          withDefault
-          containerStyles={styles.radioButtons}
-          textStyles={styles.text}
-          portablePrinter={lastUsedPortablePrinter}
-          setPortablePrinter={printerCode =>
-            setDefaultPrinter({
-              printerOption: PrinterOption.Portable,
-              lastUsedPortablePrinter: printerCode,
-            })
-          }
+          selectedPrinter={defaultPrinter}
+          onSelect={setPrinter}
+          showDefaultLabelIfSelected
+          style={styles.printerList}
         />
       </FixedLayout>
 
@@ -75,15 +72,15 @@ export function SelectPrinters() {
         onConfirm={accept}
         confirmationLabel="Continue"
         title="Default Printer"
-        Icon={BlackAttentionIcon}
-        iconStyles={styles.icon}
-        buttonsStyle={styles.buttons}>
+        Icon={BlackAttentionIcon}>
         <Text style={styles.confirmationModalText}>
           Are you sure you want to set{' '}
         </Text>
         <Text style={styles.confirmationModalText}>
-          <Text style={styles.bold}>{printerToConfirm}</Text> as the default
-          printer?
+          <Text style={styles.bold}>
+            {printerToConfirm ? Printers.labelOf(printerToConfirm) : 'Unknown'}
+          </Text>{' '}
+          as the default printer?
         </Text>
       </ConfirmationModal>
     </>
@@ -91,27 +88,22 @@ export function SelectPrinters() {
 }
 
 const styles = StyleSheet.create({
-  radioButtons: {
+  container: { backgroundColor: Colors.lightGray },
+
+  printerList: {
     margin: 16,
+    marginTop: 0,
     ...BaseStyles.shadow,
-    alignItems: 'flex-start',
     paddingHorizontal: 25,
     borderRadius: 8,
     backgroundColor: Colors.pure,
     padding: 8,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: FontWeight.Demi,
-    marginLeft: 13,
-  },
-  buttons: { marginTop: 60 },
+
   confirmationModalText: {
     textAlign: 'center',
     justifyContent: 'center',
     fontSize: 16,
   },
   bold: { fontWeight: FontWeight.Bold },
-  icon: { marginTop: 60 },
-  container: { backgroundColor: Colors.lightGray },
 });

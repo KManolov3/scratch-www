@@ -1,11 +1,15 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { AttentionIcon } from '@assets/icons';
 import { Text } from '@components/Text';
 import { FontWeight } from '@lib/font';
 
-export function PriceDiscrepancyAttention() {
+export function PriceDiscrepancyAttention({
+  style,
+}: {
+  style?: StyleProp<ViewStyle>;
+}) {
   return (
-    <View style={styles.priceDiscrepancyAttention}>
+    <View style={[styles.priceDiscrepancyAttention, style]}>
       <AttentionIcon />
       <Text style={styles.priceDiscrepancyText}>
         Must Print New System Price
@@ -19,7 +23,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
   },
   priceDiscrepancyText: {
     fontWeight: FontWeight.Bold,

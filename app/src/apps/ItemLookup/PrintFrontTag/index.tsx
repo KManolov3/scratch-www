@@ -3,15 +3,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { toastService } from 'src/services/ToastService';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { useMutation } from '@apollo/client';
+import { GlobalStateItemDetails } from '@apps/state';
 import {
   EmptySquareCheckBox,
   SquareCheckBox,
   WhiteBackArrow,
   WhiteSearchIcon,
 } from '@assets/icons';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { Header } from '@components/Header';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { Separator } from '@components/Separator';
@@ -19,16 +20,13 @@ import { Text } from '@components/Text';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
-import {
-  PrinterOption,
-  SelectedPrinter,
-  useDefaultSettings,
-} from '@hooks/useDefaultSettings';
+import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { EventBus } from '@hooks/useEventBus';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
+import { Printers, Printer } from '@services/Printers';
 import { PrintConfirmationModal } from '../components/PrintConfirmationModal';
 import { PrinterConfirmationModal } from '../components/PrinterConfirmationModal';
 import { SearchBottomTray } from '../components/SearchBottomTray';
@@ -55,7 +53,9 @@ interface LocationStatus {
   seqNum: number;
 }
 
-function createInitialValueMap(locations: ItemDetails['planograms']) {
+function createInitialValueMap(
+  locations: GlobalStateItemDetails['planograms'],
+) {
   return new Map<string, LocationStatus>(
     compact(locations).map(({ planogramId, seqNum }) => [
       // These can't realistically be null
@@ -92,17 +92,12 @@ export function PrintFrontTagScreen({
 
   const { storeNumber, userId } = useCurrentSessionInfo();
 
-  const {
-    data: { printerOption, lastUsedPortablePrinter },
-  } = useDefaultSettings([userId, storeNumber], 'defaultPrinterOption');
+  const { data: defaultPrinter } = useDefaultSettings(
+    [userId, storeNumber],
+    'defaultPrinter',
+  );
 
-  const [printer, setPrinter] = useState<SelectedPrinter>({
-    printerOption,
-    lastUsedPortablePrinter:
-      printerOption === PrinterOption.Portable
-        ? lastUsedPortablePrinter
-        : undefined,
-  });
+  const [printer, setPrinter] = useState<Printer>(defaultPrinter);
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
@@ -126,7 +121,7 @@ export function PrintFrontTagScreen({
         return printFrontTag({
           variables: {
             storeNumber,
-            printer: printer.lastUsedPortablePrinter ?? printer.printerOption,
+            printer: Printers.serverIdOf(printer),
             data: {
               sku: itemDetails.sku,
               count: qty,
@@ -152,9 +147,7 @@ export function PrintFrontTagScreen({
     }
 
     toastService.showInfoToast(
-      `Front tag sent to ${printer.printerOption} ${
-        printer.lastUsedPortablePrinter ?? ''
-      }`,
+      `Front tag sent to ${Printers.labelOf(printer)}`,
       {
         props: { containerStyle: styles.toast },
       },
@@ -164,19 +157,12 @@ export function PrintFrontTagScreen({
     goBack();
   });
 
-  const bottomBarActions = useMemo<Action[]>(
-    () => [
-      {
-        label: 'Print Front Tags',
-        onPress: printTags,
-        isLoading: loading,
-        textStyle: [styles.bottomBarActionText, styles.bold],
-        disabled:
-          every(locationStatuses, _ => !_.checked) ||
-          some(locationStatuses, _ => _.checked && !_.qty),
-      },
-    ],
-    [printTags, loading, locationStatuses],
+  const onConfirmPrinter = useCallback(
+    (selectedPrinter: Printer) => {
+      closePrinterModal();
+      setPrinter(selectedPrinter);
+    },
+    [closePrinterModal],
   );
 
   const renderPlanogram = useCallback(
@@ -232,6 +218,13 @@ export function PrintFrontTagScreen({
 
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
 
+  const printingDisabled = useMemo(
+    () =>
+      every(locationStatuses, _ => !_.checked) ||
+      some(locationStatuses, _ => _.checked && !_.qty),
+    [locationStatuses],
+  );
+
   return (
     <FixedLayout
       style={styles.container}
@@ -245,39 +238,42 @@ export function PrintFrontTagScreen({
         />
       }>
       <Text style={[styles.header, styles.bold]}>Print Front Tag</Text>
-      <View
-        style={[
-          styles.textContainer,
-          printer.lastUsedPortablePrinter ? styles.column : styles.row,
-        ]}>
+
+      <View style={styles.printToLabel}>
         <Text style={styles.text}>
-          Print to{' '}
-          <Text style={styles.bold}>
-            {printer.printerOption} {printer.lastUsedPortablePrinter}
-          </Text>
+          Print to <Text style={styles.bold}>{Printers.labelOf(printer)}</Text>
         </Text>
+
         <Pressable onPress={openPrinterModal}>
           <Text style={[styles.viewOptions, styles.bold]}>View Options</Text>
         </Pressable>
       </View>
+
       <View style={[styles.table, styles.headers]}>
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
+
       <ScrollView style={styles.planogramContainer}>
         {locationStatuses.map(renderPlanogram)}
       </ScrollView>
-      <BottomActionBar
-        actions={bottomBarActions}
-        style={styles.bottomActionBar}
-      />
+
+      <BottomActionBar>
+        <BlockButton
+          variant="primary"
+          style={styles.actionButton}
+          onPress={printTags}
+          isLoading={loading}
+          disabled={printingDisabled}>
+          Print Front Tags
+        </BlockButton>
+      </BottomActionBar>
 
       <PrinterConfirmationModal
         isVisible={printerModalVisible}
-        lastUsedPortablePrinter={lastUsedPortablePrinter}
+        initiallySelectedPrinter={printer}
         onCancel={closePrinterModal}
-        setPrinter={setPrinter}
-        printer={printer}
+        onConfirm={onConfirmPrinter}
       />
 
       <PrintConfirmationModal

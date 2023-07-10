@@ -9,6 +9,9 @@ export type ModalProps = Partial<
 > &
   Pick<ReactNativeModalProps, 'children' | 'isVisible'>;
 
+// TODO: useNativeDriver
+// TODO: Remove content if not visible => make `children` a function
+// TODO: https://github.com/react-native-modal/react-native-modal#the-modal-flashes-in-a-weird-way-when-animating
 export function Modal({ isVisible, children, style, ...rest }: ModalProps) {
   return (
     <ReactNativeModal

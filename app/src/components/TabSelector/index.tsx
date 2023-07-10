@@ -1,47 +1,56 @@
 import { useMemo } from 'react';
-import { StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native';
-import { BlockButton } from '@components/Button/Block';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 import { Container } from '@components/Container';
+import { Text } from '@components/Text';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
+import { FontWeight } from '@lib/font';
 
-type DefinableStringArray = ReadonlyArray<string>;
-
-export interface TabSelectorProps<T extends DefinableStringArray> {
-  values: T;
-  selected: T[number];
-  setSelected: (value: T[number]) => void;
+export interface TabSelectorProps<T extends string> {
+  values: readonly T[];
+  selected: T;
+  onSelect: (value: T) => void;
   style?: StyleProp<ViewStyle>;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
 
-export function TabSelector<T extends DefinableStringArray>({
+export function TabSelector<T extends string>({
   values,
   selected,
-  setSelected,
+  onSelect,
   style,
   buttonStyle,
   textStyle,
 }: TabSelectorProps<T>) {
   const tabs = useMemo(() => {
     return values.map(value => (
-      <BlockButton
-        label={value}
-        onPress={() => setSelected(value)}
+      <Pressable
+        key={value}
+        onPress={() => onSelect(value)}
         style={[
-          styles.pressable,
+          styles.button,
           value === selected ? styles.selectedTab : {},
           buttonStyle,
-        ]}
-        textStyle={[
-          value === selected ? { color: Colors.pure } : {},
-          textStyle,
-        ]}
-        key={value}
-      />
+        ]}>
+        <Text
+          style={[
+            styles.buttonText,
+            value === selected ? { color: Colors.pure } : {},
+            textStyle,
+          ]}>
+          {value}
+        </Text>
+      </Pressable>
     ));
-  }, [values, selected, buttonStyle, textStyle, setSelected]);
+  }, [values, selected, buttonStyle, textStyle, onSelect]);
+
   return <Container style={[BaseStyles.shadow, style]}>{tabs}</Container>;
 }
 
@@ -49,11 +58,14 @@ const styles = StyleSheet.create({
   selectedTab: {
     backgroundColor: Colors.advanceBlack,
   },
-  pressable: {
+  button: {
     flex: 1,
-    margin: 0,
-    borderWidth: 0,
     borderRadius: 8,
-    backgroundColor: Colors.pure,
+    padding: 8,
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: FontWeight.Bold,
   },
 });
