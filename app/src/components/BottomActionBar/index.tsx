@@ -1,73 +1,41 @@
 import { ReactNode } from 'react';
-import {
-  StyleProp,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  View,
-} from 'react-native';
-import { BlockButton } from '@components/Button/Block';
-import { Container } from '@components/Container';
+import { StyleProp, StyleSheet, ViewStyle, View } from 'react-native';
 import { BaseStyles } from '@lib/baseStyles';
 import { Colors } from '@lib/colors';
 
-export interface Action {
-  label: string;
-  onPress: () => void;
-  buttonStyle?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
-  isLoading?: boolean;
-  disabled?: boolean;
-}
-
 export interface BottomActionBarProps {
   topComponent?: ReactNode;
-  actions: Action[];
+  children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
 export function BottomActionBar({
-  actions,
+  children,
   topComponent,
   style,
 }: BottomActionBarProps) {
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.root, style]}>
       {topComponent}
-      <Container style={styles.actionsContainer}>
-        {actions.map(
-          ({ label, onPress, buttonStyle, textStyle, isLoading, disabled }) => (
-            <BlockButton
-              key={label}
-              label={label}
-              onPress={onPress}
-              id={label}
-              style={[styles.actionStyle, buttonStyle]}
-              textStyle={textStyle}
-              isLoading={isLoading}
-              disabled={disabled}
-            />
-          ),
-        )}
-      </Container>
+      <View style={styles.actions}>{children}</View>
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 8,
 
+const styles = StyleSheet.create({
+  root: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
 
     backgroundColor: Colors.pure,
+
     ...BaseStyles.shadow,
     shadowOffset: { width: 0, height: -2 },
   },
-  actionsContainer: { justifyContent: 'space-evenly' },
-  actionStyle: {
-    flex: 1,
-    marginTop: 6,
-    borderRadius: 8,
+  actions: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    gap: 16,
   },
 });
