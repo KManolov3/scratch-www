@@ -1,4 +1,3 @@
-import { compact } from 'lodash-es';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
   Pressable,
@@ -71,21 +70,23 @@ export function Drawer() {
 
   const { configHamburgerMenuAppFunctions } = useFlags();
 
-  const sections = useMemo(
+  const sections = useMemo<DrawerSection[]>(
     () => [
       {
         title: 'Item In Slots',
-        data: compact([
-          selectedItem
-            ? {
-                label: 'Print Front Tags',
-                onPress: () =>
-                  navigate('PrintFrontTag', { itemDetails: selectedItem }),
-              }
-            : undefined,
+        data: [
+          {
+            label: 'Print Front Tags',
+            onPress: () =>
+              selectedItem
+                ? navigate('PrintFrontTag', { itemDetails: selectedItem })
+                : InStoreAppsNative.navigateTo(
+                    '.activities.ItemLookupActivity',
+                  ),
+          },
           // { label: 'Backstock Moves' },
           // { label: 'Manage Backstock slot' },
-        ]),
+        ],
       },
       {
         title: 'Functions',
