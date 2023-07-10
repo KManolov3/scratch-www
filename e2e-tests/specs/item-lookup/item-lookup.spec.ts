@@ -5,45 +5,12 @@ import {
   ItemLookupController,
   PrintData,
 } from '../../controllers/item-lookup-controller.ts';
-import { testStoreNumber } from '../../test-data/test-data.ts';
+import { buildItems, testStoreNumber } from '../../test-data/test-data.ts';
 
 const testData = new TestDataController();
 const itemLookup = new ItemLookupController();
 
-const items: TestDataInput['items'] = [
-  {
-    partDesc: 'Mobil 1 5W-30 Motor Oil',
-    sku: '10069908',
-    retailPrice: 36.99,
-    mfrPartNum: '44899',
-    onHand: 10,
-    upc: '887220132090',
-    planograms: [
-      { planogramId: '35899', seqNum: 44 },
-      { planogramId: '12456', seqNum: 22 },
-    ],
-    backStockSlots: [
-      { slotId: 47457, qty: 7 },
-      { slotId: 87802, qty: 3 },
-    ],
-  },
-  {
-    partDesc: 'Beam Wiper Blade',
-    sku: '10073342',
-    retailPrice: 73.99,
-    mfrPartNum: '73682',
-    onHand: 10,
-    upc: '892331562191',
-    planograms: [
-      { planogramId: '36839', seqNum: 21 },
-      { planogramId: '43467', seqNum: 25 },
-    ],
-    backStockSlots: [
-      { slotId: 47216, qty: 6 },
-      { slotId: 23343, qty: 7 },
-    ],
-  },
-];
+const items: TestDataInput['items'] = buildItems();
 
 describe('Item Lookup', () => {
   beforeEach(async () => {
@@ -72,7 +39,7 @@ describe('Item Lookup', () => {
   });
 
   it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
-    const itemWithPriceDiscrepancy: TestDataInput['items'] = [
+    const itemWithPriceDiscrepancy = buildItems([
       {
         sku: '25370367',
         retailPrice: 36.99,
@@ -82,16 +49,16 @@ describe('Item Lookup', () => {
           { planogramId: 'F-46478421', seqNum: 25 },
         ],
       },
-    ];
+    ])[0];
 
     await testData.setData({
       storeNumber: testStoreNumber,
-      items: itemWithPriceDiscrepancy,
+      items: [itemWithPriceDiscrepancy],
     });
 
-    const scannedPrice = '15788';
+    const scannedPrice = itemLookup.priceWithoutDecimalSeparator(157.88);
 
-    const barcodeWithPriceDiscrepancy = `99${itemWithPriceDiscrepancy[0].sku}${scannedPrice}`;
+    const barcodeWithPriceDiscrepancy = `99${itemWithPriceDiscrepancy.sku}${scannedPrice}`;
 
     itemLookup.sendBarcodeScanIntent(barcodeWithPriceDiscrepancy);
 
@@ -109,22 +76,22 @@ describe('Item Lookup', () => {
     await expectElementText(
       itemLookup.itemLookupPages.itemDetailsPage.priceDiscrepancyModal
         .systemPrice,
-      `$${itemWithPriceDiscrepancy[0].retailPrice}`
+      `$${itemWithPriceDiscrepancy.retailPrice.toFixed(2)}`
     );
 
     const printData: PrintData[] = [
       {
-        planogram: itemWithPriceDiscrepancy[0].planograms[0].planogramId,
+        planogram: itemWithPriceDiscrepancy.planograms[0].planogramId,
         printTag: true,
         tagsQuantity: 5,
       },
       {
-        planogram: itemWithPriceDiscrepancy[0].planograms[1].planogramId,
+        planogram: itemWithPriceDiscrepancy.planograms[1].planogramId,
         printTag: true,
         tagsQuantity: 3,
       },
       {
-        planogram: itemWithPriceDiscrepancy[0].planograms[2].planogramId,
+        planogram: itemWithPriceDiscrepancy.planograms[2].planogramId,
         printTag: false,
       },
     ];
