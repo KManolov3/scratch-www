@@ -2,32 +2,12 @@ import { TestDataInput } from '../../__generated__/graphql.ts';
 import { OutageController } from '../../controllers/outage-controller.ts';
 import { TestDataController } from '../../controllers/test-data-controller.ts';
 import { waitFor } from '../../methods/helpers.ts';
-import { testStoreNumber } from '../../test-data/test-data.ts';
+import { buildItems, testStoreNumber } from '../../test-data/test-data.ts';
 
 const testData = new TestDataController();
 const outageCount = new OutageController();
 
-const items: TestDataInput['items'] = [
-  {
-    partDesc: 'Mobil 1 5W-30 Motor Oil',
-    sku: '10069908',
-    retailPrice: 36.99,
-    mfrPartNum: '44899',
-    onHand: 10,
-    backStockSlots: [],
-  },
-  {
-    partDesc: 'Beam Wiper Blade',
-    sku: '5070221',
-    retailPrice: 22.99,
-    mfrPartNum: '18-260',
-    onHand: 15,
-    backStockSlots: [
-      { slotId: 47216, qty: 6 },
-      { slotId: 23343, qty: 7 },
-    ],
-  },
-];
+const items: TestDataInput['items'] = buildItems();
 
 describe('Outage Count', () => {
   beforeEach(async () => {
@@ -55,7 +35,7 @@ describe('Outage Count', () => {
     });
 
     await outageCount.addItemsToOutageList(items);
-    await outageCount.removeItem(items[0]);
+    await outageCount.removeItem(items[1]);
   });
 
   it('should be able to add items by scanning front tag', async () => {
