@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
-import { BatchCountItem } from 'src/types/BatchCount';
 import { BottomActionBar } from '@components/BottomActionBar';
 import { BlockButton } from '@components/Button/Block';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
@@ -13,7 +12,7 @@ import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
-import { useBatchCountState } from '../state';
+import { BatchCountItem, useBatchCountState } from '../state';
 
 export function BatchCountList() {
   const {

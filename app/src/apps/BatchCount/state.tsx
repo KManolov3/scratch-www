@@ -18,7 +18,6 @@ import {
 } from 'src/__generated__/graphql';
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
-import { BatchCountItem } from 'src/types/BatchCount';
 import { v4 as uuid } from 'uuid';
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
@@ -40,6 +39,12 @@ interface ContextValue {
   sortByBookmark: () => void;
   submitLoading?: boolean;
   submitError?: ApolloError;
+}
+
+export interface BatchCountItem {
+  item: Item & { sku: NonNullable<Item['sku']> };
+  newQty: number;
+  isBookmarked?: boolean;
 }
 
 export const ITEM_BY_SKU = gql(`
