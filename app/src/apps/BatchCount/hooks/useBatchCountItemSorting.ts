@@ -17,14 +17,18 @@ export function useBatchCountItemSorting(
 
   const addNewItem = useCallback(
     (sku: string) => {
-      const itemToAdd = batchCountItems.find(item => item.item.sku === sku);
-      itemToAdd ? setSortedItems([itemToAdd, ...sortedItems]) : setNewItem(sku);
+      const itemToAdd = batchCountItems.find(({ item }) => item.sku === sku);
+      if (itemToAdd) {
+        setSortedItems([itemToAdd, ...sortedItems]);
+      } else {
+        setNewItem(sku);
+      }
     },
     [sortedItems, batchCountItems],
   );
 
   useEffect(() => {
-    if (newItem && batchCountItems.find(item => item.item.sku === newItem)) {
+    if (newItem && batchCountItems.find(({ item }) => item.sku === newItem)) {
       addNewItem(newItem);
       setNewItem(undefined);
     }
@@ -34,16 +38,13 @@ export function useBatchCountItemSorting(
     setSortedItems(newItems);
   }, []);
   const withRemovedItem = useCallback(
-    (sku: string) => sortedItems.filter(item => item.item.sku !== sku),
+    (sku: string) => sortedItems.filter(({ item }) => item.sku !== sku),
     [sortedItems],
   );
 
-  const sortOnRefocus = useCallback(() => {
+  useFocusEffect(() => {
     setSortedItems(sortBy(sortedItems, item => !item.isBookmarked));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useFocusEffect(sortOnRefocus);
+  });
 
   const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
@@ -55,7 +56,7 @@ export function useBatchCountItemSorting(
     scrollToTopAndDismissKeyboard();
   });
   useFocusEventBus('updated-item', sku => {
-    const updatedItem = batchCountItems.find(item => item.item.sku === sku);
+    const updatedItem = batchCountItems.find(({ item }) => item.sku === sku);
     if (updatedItem) {
       updateSortedItems(findAndPrependItem(sortedItems, updatedItem));
       scrollToTopAndDismissKeyboard();
