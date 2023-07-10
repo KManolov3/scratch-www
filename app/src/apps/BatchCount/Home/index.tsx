@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { ApolloError } from '@apollo/client';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { isApolloNotFoundError } from '@lib/apollo';
 import { Colors } from '@lib/colors';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
@@ -14,20 +14,25 @@ import { ITEM_BY_SKU, useBatchCountState } from '../state';
 export function BatchCountHome() {
   const { addItem } = useBatchCountState();
   const { storeNumber } = useCurrentSessionInfo();
-  const [error, setError] = useState<ApolloError>();
+  const [hasNoResultsError, setHasNoResultsError] = useState<boolean>(false);
 
   const { perform: searchBySku, loading: isLoadingItemBySku } =
     useManagedLazyQuery(ITEM_BY_SKU, {
-      onError(searchError) {
-        setError(searchError);
-      },
       onCompleted: item => {
         addItem(item.itemBySku ?? undefined, false);
-        setError(undefined);
+        setHasNoResultsError(false);
       },
-      globalErrorHandling: () => ({
-        displayAs: 'toast',
-      }),
+      globalErrorHandling: error => {
+        const isNotFoundError = isApolloNotFoundError(error);
+        setHasNoResultsError(isNotFoundError);
+        if (isNotFoundError) {
+          return 'ignored';
+        }
+
+        return {
+          displayAs: 'toast',
+        };
+      },
     });
 
   const onSubmit = useCallback(
@@ -39,19 +44,19 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
-  useFocusEventBus('search-error', searchError => {
-    setError(searchError);
+  useFocusEventBus('search-error', ({ isNotFoundError }) => {
+    setHasNoResultsError(isNotFoundError);
   });
 
   useFocusEventBus('search-success', () => {
-    setError(undefined);
+    setHasNoResultsError(false);
   });
 
   return (
     <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={onSubmit} />
       {/* TODO: Check the error, don't assume every error is NotFound */}
-      {!error && !isLoadingItemBySku && (
+      {!hasNoResultsError && !isLoadingItemBySku && (
         <ScanBarcodeLabel
           label="Scan to Start Batch Count"
           style={styles.scanBarcode}
@@ -64,7 +69,7 @@ export function BatchCountHome() {
           color={Colors.mediumVoid}
         />
       )}
-      {error && !isLoadingItemBySku && (
+      {hasNoResultsError && !isLoadingItemBySku && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a barcode"

@@ -19,10 +19,10 @@ import {
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
-import { ApolloError } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
+import { isApolloNotFoundError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
@@ -217,11 +217,16 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       addItem(item.itemBySku ?? undefined, false);
       EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: searchError => {
+      const isNotFoundError = isApolloNotFoundError(searchError);
+      EventBus.emit('search-error', { error, isNotFoundError });
+      if (isApolloNotFoundError(error)) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   const { perform: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
@@ -229,11 +234,16 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       addItem(item.itemByUpc ?? undefined, true);
       EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: searchError => {
+      const isNotFoundError = isApolloNotFoundError(searchError);
+      EventBus.emit('search-error', { error, isNotFoundError });
+      if (isApolloNotFoundError(error)) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   useScanCodeListener(code => {

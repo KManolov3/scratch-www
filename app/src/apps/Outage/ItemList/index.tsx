@@ -8,9 +8,11 @@ import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { useErrorManager } from '@services/ErrorContext';
+import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { OutageItemCard } from '../components/ItemCard';
+import { NotFoundError } from '../errors/NotFoundError';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
@@ -22,6 +24,7 @@ export function OutageItemList() {
     outageCountItems,
     removeItem,
     submit: submitOutage,
+    requestToAddItem,
   } = useOutageState();
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
@@ -29,31 +32,28 @@ export function OutageItemList() {
 
   const { executeWithGlobalErrorHandling } = useErrorManager();
 
-  const { requestToAddItem } = useOutageState();
-
   const { trigger: addItem } = useAsyncAction(
     async (sku: string) => {
-      try {
-        await requestToAddItem(sku);
+      await requestToAddItem(sku);
 
-        flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-      } catch (error) {
-        // TODO: Don't assume that it's "No results found"
-        // TODO: Duplication of the text with the batch count
-        toastService.showInfoToast(
-          'No results found. Try searching for another SKU or scanning a barcode.',
-          {
-            props: { containerStyle: styles.toast },
-          },
-        );
-
-        throw error;
-      }
+      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
     },
     {
-      globalErrorHandling: () => ({
-        displayAs: 'toast',
-      }),
+      globalErrorHandling: error => {
+        const toastDetails: Partial<ErrorOptions> =
+          error instanceof NotFoundError
+            ? {
+                message:
+                  'No results found. Try searching for another SKU or scanning a barcode.',
+                toastStyle: styles.toast,
+              }
+            : {};
+
+        return {
+          ...toastDetails,
+          displayAs: 'toast',
+        };
+      },
     },
   );
 

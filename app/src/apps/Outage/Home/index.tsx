@@ -8,21 +8,27 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
+import { NotFoundError } from '../errors/NotFoundError';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
   const { requestToAddItem } = useOutageState();
-
   const {
     trigger: addItem,
     loading,
 
     // TODO: Reset this when going back to this screen?
-    error,
+    error: searchError,
   } = useAsyncAction((sku: string) => requestToAddItem(sku), {
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: error => {
+      if (error instanceof NotFoundError) {
+        return 'ignored';
+      }
+
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   useScanCodeListener(code => {
@@ -52,12 +58,11 @@ export function OutageHome() {
         />
       )}
 
-      {!error && !loading && (
+      {!(searchError instanceof NotFoundError) && !loading && (
         <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
       )}
 
-      {/* TODO: Distinguish between not found and other errors */}
-      {!!error && !loading && (
+      {searchError instanceof NotFoundError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a front tag"

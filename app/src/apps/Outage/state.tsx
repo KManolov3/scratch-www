@@ -13,10 +13,12 @@ import { v4 as uuid } from 'uuid';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
+import { isApolloNotFoundError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
+import { NotFoundError } from './errors/NotFoundError';
 import { OutageNavigation } from './navigator';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
@@ -66,9 +68,7 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   } = useConfirmation<OutageItemInfo>();
 
   const { perform: getItemBySku } = useManagedLazyQuery(ITEM_BY_SKU_QUERY, {
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: () => 'ignored',
   });
 
   const { perform: submitOutageCount } = useManagedMutation(
@@ -91,13 +91,23 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       const response = await getItemBySku({ variables: { sku, storeNumber } });
 
       if (response.error) {
+        if (isApolloNotFoundError(response.error)) {
+          throw new NotFoundError(
+            `Item with sku ${sku} was not found`,
+            response.error,
+          );
+        }
+
         throw response.error;
       }
 
       const item = response?.data?.itemBySku;
       if (!item) {
-        // TODO: Better error
-        throw new Error('Item not found');
+        // This should not be a valid case, rather the types should be made stricter on the back-end.
+        toastService.showInfoToast(
+          'Received empty response from server. This should not happen.',
+        );
+        return;
       }
 
       if (item.backStockSlots?.length && !(await askForConfirmation(item))) {

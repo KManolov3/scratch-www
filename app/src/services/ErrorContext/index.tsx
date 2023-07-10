@@ -111,8 +111,6 @@ export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
 
         if (errorInfo.displayAs === 'toast') {
           toastService.showInfoToast(errorInfo.message, {
-            // We'd almost always want to offset the toast, so that it isn't shown on the bottom bar
-            // If a consistent toast position isn't desired, find a way to configure those styles.
             props: { containerStyle: errorInfo.toastStyle ?? {} },
           });
 

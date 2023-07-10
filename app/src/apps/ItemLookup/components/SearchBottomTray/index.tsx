@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { SearchError } from '@apps/ItemLookup/hooks/useItemLookup';
 import { BottomRegularTray } from '@components/BottomRegularTray';
 import { Colors } from '@lib/colors';
 import { ItemLookupHome } from '../Home';
@@ -7,7 +8,7 @@ interface SearchBottomTrayProps {
   isVisible: boolean;
   hideTray(): void;
   onSubmit(value: string): void;
-  error: unknown;
+  error?: SearchError;
   loading: boolean;
 }
 

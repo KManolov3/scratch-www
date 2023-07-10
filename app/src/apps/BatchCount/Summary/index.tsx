@@ -178,14 +178,17 @@ export function BatchCountSummary() {
     }
   }, [submitError]);
 
-  useFocusEventBus('search-error', () => {
+  useFocusEventBus('search-error', ({ isNotFoundError }) => {
     reject();
-    toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning a barcode.',
-      {
-        props: { containerStyle: styles.toast },
-      },
-    );
+
+    if (isNotFoundError) {
+      toastService.showInfoToast(
+        'No results found. Try searching for another SKU or scanning a barcode.',
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+    }
   });
 
   useFocusEventBus('search-success', (item?: Item) => {

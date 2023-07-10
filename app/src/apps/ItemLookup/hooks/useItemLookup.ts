@@ -1,7 +1,8 @@
+import { noop } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
 import { gql } from 'src/__generated__';
-import { ApolloError } from '@apollo/client';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { isApolloNotFoundError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupNavigation } from '../navigator';
@@ -30,13 +31,18 @@ type SearchProps = {
   frontTagPrice?: number;
 } & ({ sku?: undefined; upc: string } | { sku: string; upc?: undefined });
 
+export type SearchError = {
+  error: unknown;
+  isNotFoundError: boolean;
+};
+
 export interface UseItemLookupProps {
-  onError?: (error: ApolloError) => void;
+  onError?: (error: unknown, isNotFoundError: boolean) => void;
   onComplete?: () => void;
 }
 
 export function useItemLookup({
-  onError,
+  onError = noop,
   onComplete,
 }: UseItemLookupProps = {}) {
   const onErrorRef = useRef(onError);
@@ -52,34 +58,56 @@ export function useItemLookup({
     loading: isLoadingItemBySku,
     error: skuError,
   } = useManagedLazyQuery(ITEM_BY_SKU, {
-    onError,
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: error => {
+      const isNotFoundError = isApolloNotFoundError(searchError);
+      onErrorRef.current(error, isNotFoundError);
+      if (isApolloNotFoundError(error)) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
   const {
     perform: searchByUpc,
     loading: isLoadingItemByUpc,
     error: upcError,
   } = useManagedLazyQuery(ITEM_BY_UPC, {
-    onError,
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: error => {
+      const isNotFoundError = isApolloNotFoundError(error);
+      onErrorRef.current(error, isNotFoundError);
+      if (isApolloNotFoundError(error)) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   const loading = useMemo(
     () => isLoadingItemBySku && isLoadingItemByUpc,
     [isLoadingItemBySku, isLoadingItemByUpc],
   );
-  const error = useMemo(() => skuError ?? upcError, [skuError, upcError]);
+  const searchError = useMemo<SearchError | undefined>(() => {
+    const error = skuError ?? upcError;
+
+    if (!error) {
+      return undefined;
+    }
+
+    return {
+      error,
+      isNotFoundError: isApolloNotFoundError(error),
+    };
+  }, [skuError, upcError]);
 
   const search = useCallback(
     ({ sku, upc, frontTagPrice }: SearchProps) => {
       if (sku) {
         return searchBySku({
           variables: { sku, storeNumber },
-          onError: onErrorRef.current,
           onCompleted: itemDetails => {
             if (itemDetails.itemBySku) {
               onCompleteRef.current?.();
@@ -95,7 +123,6 @@ export function useItemLookup({
       if (upc) {
         return searchByUpc({
           variables: { upc, storeNumber },
-          onError: onErrorRef.current,
           onCompleted: itemDetails => {
             if (itemDetails.itemByUpc) {
               onCompleteRef.current?.();
@@ -110,5 +137,9 @@ export function useItemLookup({
     [navigate, searchBySku, searchByUpc, storeNumber],
   );
 
-  return { search, loading, error };
+  return {
+    search,
+    loading,
+    error: searchError,
+  };
 }
