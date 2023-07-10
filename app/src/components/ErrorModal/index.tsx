@@ -36,7 +36,7 @@ export function ErrorModal({
         <Text style={styles.description}>{description}</Text>
         {withRetry ? (
           <BlockButton
-            label="Retry"
+            label="Try Again"
             style={styles.button}
             textStyle={styles.buttonText}
             onPress={onRetry}
@@ -54,15 +54,10 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
   },
   container: {
-    // TODO: This padding is probably not needed
     paddingTop: 20,
-    paddingBottom: 10,
-    // TODO: Find out why the outer part of the modal is not the specified background color here
-    backgroundColor: Colors.pure,
+    paddingBottom: 40,
   },
   icon: {
-    justifyContent: 'center',
-    alignContent: 'center',
     alignSelf: 'center',
     marginBottom: 12,
   },
@@ -83,7 +78,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     borderRadius: 4,
-    padding: 12,
+    marginHorizontal: 80,
     backgroundColor: Colors.advanceYellow,
   },
   buttonText: {
