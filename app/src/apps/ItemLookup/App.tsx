@@ -11,7 +11,7 @@ export function ItemLookupApp() {
     <AppRoot
       applicationName="Item Lookup"
       activityName=".activities.ItemLookupActivity"
-      initialRoute="ItemLookupHome"
+      initialRoute="ItemLookupApp"
       scannerConfig={scannerConfig}
     />
   );

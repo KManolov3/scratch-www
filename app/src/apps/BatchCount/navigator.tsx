@@ -41,10 +41,10 @@ export type BatchCountNavigatorScreenParams = NavigatorScreenParams<Routes>;
 export type BatchCountScreenProps<K extends keyof Routes> =
   CompositeScreenProps<
     NativeStackScreenProps<Routes, K>,
-    RootScreenProps<'BatchCountHome'>
+    RootScreenProps<'BatchCountApp'>
   >;
 
 export type BatchCountNavigation = CompositeNavigationProp<
-  RootNavigation<'BatchCountHome'>,
+  RootNavigation<'BatchCountApp'>,
   NativeStackNavigationProp<Routes>
 >;

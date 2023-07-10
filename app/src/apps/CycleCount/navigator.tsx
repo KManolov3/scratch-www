@@ -44,10 +44,10 @@ export type CycleCountNavigatorScreenParams = NavigatorScreenParams<Routes>;
 export type CycleCountScreenProps<K extends keyof Routes> =
   CompositeScreenProps<
     NativeStackScreenProps<Routes, K>,
-    RootScreenProps<'CycleCountHome'>
+    RootScreenProps<'CycleCountApp'>
   >;
 
 export type CycleCountNavigation = CompositeNavigationProp<
-  RootNavigation<'CycleCountHome'>,
+  RootNavigation<'CycleCountApp'>,
   NativeStackNavigationProp<Routes>
 >;
