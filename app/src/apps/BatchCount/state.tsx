@@ -19,8 +19,10 @@ import {
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
@@ -31,9 +33,9 @@ interface ContextValue {
   addItem: (item: Item | undefined, incrementCount: boolean) => void;
   updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
   removeItem: (sku: string) => void;
-  submit: () => void;
+  submit: () => Promise<void>;
   submitLoading?: boolean;
-  submitError?: ApolloError;
+  submitError?: unknown;
 }
 
 export const ITEM_BY_SKU = gql(`
@@ -100,8 +102,15 @@ function buildBatchCountRequest(
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
-  const [submitBatchCount, { error, loading }] =
-    useMutation(SUBMIT_BATCH_COUNT);
+  const {
+    perform: submitBatchCount,
+    error,
+    loading,
+  } = useManagedMutation(SUBMIT_BATCH_COUNT, {
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
+  });
   const navigation = useNavigation<BatchCountNavigation>();
 
   const { storeNumber } = useCurrentSessionInfo();
@@ -203,22 +212,38 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
   );
 
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+  const { trigger: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
       addItem(item.itemBySku ?? undefined, false);
       EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
+    globalErrorHandling: searchError => {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+  const { trigger: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
       addItem(item.itemByUpc ?? undefined, true);
       EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
+    globalErrorHandling: searchError => {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   useScanCodeListener(code => {
