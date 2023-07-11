@@ -63,7 +63,7 @@ export class OutageController extends BaseController {
 
   async completeOutageCount(items: TestItemInput[]) {
     for (const [index, item] of items.entries()) {
-      await this.searchForSku(item.sku);
+      await this.manuallyEnterSku(item.sku);
 
       if (item.backStockSlots.length > 0) {
         await waitAndClick(
@@ -98,6 +98,8 @@ export class OutageController extends BaseController {
 
     await waitFor(this.outagePages.homePage.searchForSkuInput, 5000);
 
-    await expect($(this.outagePages.homePage.completedOutageListToast)).toBeDisplayed();
+    await expect(
+      $(this.outagePages.homePage.completedOutageListToast)
+    ).toBeDisplayed();
   }
 }

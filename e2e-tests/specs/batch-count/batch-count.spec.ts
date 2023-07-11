@@ -15,7 +15,7 @@ const testData = new TestDataController();
 
 describe('Batch Count', () => {
   beforeEach(async () => {
-    await waitFor(batchCount.batchCountPages.homePage.searchForSkuInput, 10000);
+    await waitFor(batchCount.batchCountPages.homePage.searchForSkuInput, 15000);
   });
 
   afterEach(async () => {
@@ -24,10 +24,12 @@ describe('Batch Count', () => {
   });
 
   it('should be successfully completed', async () => {
-    const items = buildItems([
-      { onHand: 10, retailPrice: 35.0 },
-      { onHand: 15, retailPrice: 25.0 },
-    ]);
+    const items = buildItems({
+      overrides: [
+        { onHand: 10, retailPrice: 35.0 },
+        { onHand: 15, retailPrice: 25.0 },
+      ],
+    });
 
     await testData.setData({
       storeNumber: testStoreNumber,
@@ -65,7 +67,7 @@ describe('Batch Count', () => {
   });
 
   it('should be successfully completed by Fast Accept', async () => {
-    const items = buildItems([{ onHand: 9, retailPrice: 25.0 }]);
+    const items = buildItems({ overrides: [{ onHand: 9, retailPrice: 25.0 }] });
 
     await testData.setData({
       storeNumber: testStoreNumber,
@@ -109,7 +111,7 @@ describe('Batch Count', () => {
       },
     ];
 
-    const items = buildItems([], thirdItem);
+    const items = buildItems({ additionalItems: thirdItem });
 
     await testData.setData({
       storeNumber: testStoreNumber,
@@ -117,7 +119,7 @@ describe('Batch Count', () => {
     });
 
     for (const [index, item] of items.entries()) {
-      await batchCount.searchForSku(item.sku);
+      await batchCount.manuallyEnterSku(item.sku);
 
       if (index !== items.length - 1) {
         await driver.back();
@@ -151,7 +153,7 @@ describe('Batch Count', () => {
     ).not.toBeDisplayed();
   });
 
-  it('new quantity should starts at 0 when SKU is manually entered', async () => {
+  it('should set new quantity to 0 when SKU is manually entered', async () => {
     const items = buildItems();
 
     await testData.setData({
@@ -159,7 +161,7 @@ describe('Batch Count', () => {
       items,
     });
 
-    await batchCount.searchForSku(items[0].sku);
+    await batchCount.manuallyEnterSku(items[0].sku);
 
     await expectElementText(
       batchCount.batchCountPages.batchCountListPage.productDetails(

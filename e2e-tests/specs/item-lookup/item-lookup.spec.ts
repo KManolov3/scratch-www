@@ -14,7 +14,7 @@ const items: TestDataInput['items'] = buildItems();
 
 describe('Item Lookup', () => {
   beforeEach(async () => {
-    await waitFor(itemLookup.itemLookupPages.homePage.searchForSkuInput, 10000);
+    await waitFor(itemLookup.itemLookupPages.homePage.searchForSkuInput, 15000);
   });
 
   afterEach(async () => {
@@ -29,7 +29,7 @@ describe('Item Lookup', () => {
     });
 
     for (const [index, product] of items.entries()) {
-      await itemLookup.searchForSku(product.sku);
+      await itemLookup.manuallyEnterSku(product.sku);
       await itemLookup.expectProductInfo(product);
 
       if (index !== items.length - 1) {
@@ -39,17 +39,19 @@ describe('Item Lookup', () => {
   });
 
   it('price discrepancy modal should be displayed when scanned front tag price is different from the system price', async () => {
-    const itemWithPriceDiscrepancy = buildItems([
-      {
-        sku: '25370367',
-        retailPrice: 36.99,
-        planograms: [
-          { planogramId: 'F-22352355', seqNum: 23 },
-          { planogramId: 'F-78838679', seqNum: 24 },
-          { planogramId: 'F-46478421', seqNum: 25 },
-        ],
-      },
-    ])[0];
+    const itemWithPriceDiscrepancy = buildItems({
+      overrides: [
+        {
+          sku: '25370367',
+          retailPrice: 36.99,
+          planograms: [
+            { planogramId: 'F-22352355', seqNum: 23 },
+            { planogramId: 'F-78838679', seqNum: 24 },
+            { planogramId: 'F-46478421', seqNum: 25 },
+          ],
+        },
+      ],
+    })[0];
 
     await testData.setData({
       storeNumber: testStoreNumber,
@@ -148,19 +150,15 @@ describe('Item Lookup', () => {
   });
 
   it('should display No Results Found when searching for missing SKU', async () => {
-    const itemWithMissingSku: TestDataInput['items'] = [
-      {
-        sku: '12345',
-      },
-    ];
+    const itemWithMissingSku = buildItems({ overrides: [{ sku: '12345' }] })[0];
 
     await testData.setData({
       storeNumber: testStoreNumber,
       items: [],
-      missingItemSkus: [itemWithMissingSku[0].sku],
+      missingItemSkus: [itemWithMissingSku.sku],
     });
 
-    await itemLookup.searchForSku(itemWithMissingSku[0].sku);
+    await itemLookup.manuallyEnterSku(itemWithMissingSku.sku);
 
     await expect(
       $(itemLookup.commonPages.homePage.noResultsFound)
@@ -178,7 +176,7 @@ describe('Item Lookup', () => {
       },
     ];
 
-    await itemLookup.searchForSku(itemWithMissingSku[0].sku);
+    await itemLookup.manuallyEnterSku(itemWithMissingSku[0].sku);
 
     await expect(
       $(itemLookup.commonPages.homePage.noResultsFound)

@@ -184,7 +184,7 @@ export class BatchCountController extends BaseController {
 
   async addItemsAndSetQuantity(batchCounts: BatchCountData[]) {
     for (const [index, data] of batchCounts.entries()) {
-      await this.searchForSku(data.item.sku);
+      await this.manuallyEnterSku(data.item.sku);
 
       await setValue(
         this.batchCountPages.batchCountListPage.productDetails(

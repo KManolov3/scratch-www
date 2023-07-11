@@ -38,7 +38,7 @@ export class BaseController {
     ]);
   }
 
-  async searchForSku(sku: string) {
+  async manuallyEnterSku(sku: string) {
     await waitFor(this.commonPages.homePage.searchForSkuInput, 5000);
     await (await $(this.commonPages.homePage.searchForSkuInput)).clearValue();
     await waitAndClick(this.commonPages.homePage.searchForSkuInput);

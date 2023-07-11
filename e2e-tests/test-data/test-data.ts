@@ -4,8 +4,16 @@ import { TestItemInput } from '../__generated__/graphql.ts';
 export const testStoreNumber = '0363';
 
 export function buildItems(
-  overrides: Partial<TestItemInput>[] = [],
-  additionalItems: TestItemInput[] = []
+  {
+    overrides = [],
+    additionalItems = [],
+  }: {
+    overrides?: Partial<TestItemInput>[];
+    additionalItems?: TestItemInput[];
+  } = {
+    overrides: [],
+    additionalItems: [],
+  }
 ): TestItemInput[] {
   const firstItem: TestItemInput = {
     partDesc: 'Mobil 1 5W-30 Motor Oil',
