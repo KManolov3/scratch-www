@@ -22,7 +22,10 @@ export function BatchCountHome() {
         setError(searchError);
       },
       onCompleted: item => {
-        addItem(item.itemBySku ?? undefined, false);
+        if (item.itemBySku) {
+          addItem(item.itemBySku, false);
+        }
+
         setError(undefined);
       },
     },

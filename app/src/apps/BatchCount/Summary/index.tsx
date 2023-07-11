@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
-import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
 import { BottomActionBar } from '@components/BottomActionBar';
@@ -10,8 +9,9 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { useLatestRef } from '@hooks/useLatestRef';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -27,7 +27,7 @@ export function BatchCountSummary() {
     submitError,
     updateItem,
     removeItem,
-    sortByBookmark,
+    applySorting,
     batchCountItems,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
@@ -41,13 +41,7 @@ export function BatchCountSummary() {
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
-      updateItem(
-        sku,
-        {
-          newQty,
-        },
-        true,
-      );
+      updateItem(sku, { newQty }, { moveItemToTop: false });
     },
     [updateItem],
   );
@@ -64,9 +58,11 @@ export function BatchCountSummary() {
 
   const onBookmark = useCallback(
     (sku: string, isCurrentlyBookmarked: boolean) => {
-      updateItem(sku, {
-        isBookmarked: !isCurrentlyBookmarked,
-      });
+      updateItem(
+        sku,
+        { isBookmarked: !isCurrentlyBookmarked },
+        { moveItemToTop: false },
+      );
       if (!isCurrentlyBookmarked) {
         toastService.showInfoToast('Item bookmarked as note to self', {
           props: { containerStyle: styles.toast },
@@ -158,9 +154,10 @@ export function BatchCountSummary() {
     );
   });
 
-  useFocusEventBus('search-success', (item?: Item) => {
+  useFocusEventBus('search-success', ({ sku }) => {
     reject();
-    if (item && item.sku !== expandedSku) {
+
+    if (sku !== expandedSku) {
       setExpandedSku(undefined);
     }
   });
@@ -170,13 +167,12 @@ export function BatchCountSummary() {
     Keyboard.dismiss();
   }, [flatListRef]);
 
-  useFocusEventBus(
-    ['add-new-item', 'updated-item'],
-    scrollToTopAndDismissKeyboard,
-  );
+  useFocusEventBus('add-item-to-batch-count', scrollToTopAndDismissKeyboard);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(sortByBookmark, []);
+  const applySortingRef = useLatestRef(applySorting);
+  useFocusEffect(
+    useCallback(() => applySortingRef.current(), [applySortingRef]),
+  );
 
   return (
     <>
