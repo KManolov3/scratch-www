@@ -92,7 +92,9 @@ export function PrinterList({
             openPortablePrinterModal();
           }
         }}
-        onReplace={openPortablePrinterModal}
+        onReplace={
+          lastUsedPortablePrinter ? openPortablePrinterModal : undefined
+        }
       />
 
       <AddPortablePrinterModal

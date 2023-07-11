@@ -1,7 +1,5 @@
-import { sortBy } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
-import { Item } from 'src/__generated__/graphql';
+import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { toastService } from 'src/services/ToastService';
 import { BottomActionBar } from '@components/BottomActionBar';
 import { BlockButton } from '@components/Button/Block';
@@ -9,10 +7,10 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
-import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { useLatestRef } from '@hooks/useLatestRef';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { isErrorWithMessage } from '@lib/error';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
@@ -26,6 +24,7 @@ export function BatchCountList() {
     submitError,
     updateItem,
     removeItem,
+    applySorting,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
 
@@ -34,26 +33,12 @@ export function BatchCountList() {
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
 
-  const sortFn = useCallback(
-    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
-    [],
-  );
-  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
-  const batchCountItemsSorted = useSortOnScreenFocus(
-    batchCountItems,
-    sortFn,
-    keyFn,
-  );
-
-  const [expandedSku, setExpandedSku] = useState<string>();
-
   const flatListRef = useRef<FlatList>(null);
+  const [expandedSku, setExpandedSku] = useState<string>();
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
-      updateItem(sku, {
-        newQty,
-      });
+      updateItem(sku, { newQty }, { moveItemToTop: false });
     },
     [updateItem],
   );
@@ -70,9 +55,11 @@ export function BatchCountList() {
 
   const onBookmark = useCallback(
     (sku: string, isCurrentlyBookmarked: boolean) => {
-      updateItem(sku, {
-        isBookmarked: !isCurrentlyBookmarked,
-      });
+      updateItem(
+        sku,
+        { isBookmarked: !isCurrentlyBookmarked },
+        { moveItemToTop: false },
+      );
       if (!isCurrentlyBookmarked) {
         toastService.showInfoToast('Item bookmarked as note to self', {
           props: { containerStyle: styles.toast },
@@ -96,15 +83,18 @@ export function BatchCountList() {
 
   const onRemove = useCallback(
     (item: BatchCountItem['item']) => {
+      if (item.sku === expandedSku) {
+        setExpandedSku(undefined);
+      }
       removeItem(item.sku);
       toastService.showInfoToast(
-        `${item.partDesc} removed from batch count list`,
+        `${item.partDesc} removed from Batch count list`,
         {
           props: { containerStyle: styles.toast },
         },
       );
     },
-    [removeItem],
+    [removeItem, expandedSku],
   );
 
   useEffect(() => {
@@ -168,16 +158,25 @@ export function BatchCountList() {
     }
   });
 
-  useFocusEventBus('search-success', (item?: Item) => {
+  useFocusEventBus('search-success', ({ sku }) => {
     reject();
-    if (item && item.sku !== expandedSku) {
+
+    if (sku !== expandedSku) {
       setExpandedSku(undefined);
     }
   });
 
-  useFocusEventBus('add-new-item', () => {
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-  });
+    Keyboard.dismiss();
+  }, [flatListRef]);
+
+  useFocusEventBus('add-item-to-batch-count', scrollToTopAndDismissKeyboard);
+
+  const applySortingRef = useLatestRef(applySorting);
+  useFocusEffect(
+    useCallback(() => applySortingRef.current(), [applySortingRef]),
+  );
 
   return (
     <>
@@ -185,7 +184,7 @@ export function BatchCountList() {
         {/* TODO: Extract the FlatList in a separate component and reuse it between here and the BatchCountSummary */}
         <FlatList
           contentContainerStyle={styles.list}
-          data={batchCountItemsSorted}
+          data={batchCountItems}
           renderItem={renderItem}
           ref={flatListRef}
         />
