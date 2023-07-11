@@ -15,7 +15,7 @@
 
     "adb:reverse": "adb reverse tcp:8081 tcp:8081; adb reverse tcp:1337 tcp:1337; adb reverse tcp:8097 tcp:8097",
 
-    "check": "npm run eslint && npm run tsc && npm run prettier:check",
+    "check": "npm run tsc && npm run eslint && npm run prettier:check",
     "tsc": "tsc -p ./ --noEmit",
     "eslint": "eslint . --max-warnings=0 --cache --ext .ts,.tsx,.js,.jsx",
     "prettier:check": "prettier -c .",
@@ -32,22 +32,27 @@
 
     "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps",
     "package:install:local": "adb install -r builds/in-store-apps-local.apk",
+    "package:install:local:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-local.apk",
     "package:build:local": "(cd android && ENVFILE=.env ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-local.apk",
 
     "package:uninstall:dev": "adb uninstall com.advanceautoparts.instoreapps.dev",
     "package:install:dev": "adb install -r builds/in-store-apps-dev.apk",
+    "package:install:dev:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-dev.apk",
     "package:build:dev": "(cd android && ENVFILE=.env.dev ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-dev.apk",
 
     "package:uninstall:qa": "adb uninstall com.advanceautoparts.instoreapps.qa",
     "package:install:qa": "adb install -r builds/in-store-apps-qa.apk",
+    "package:install:qa:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-qa.apk",
     "package:build:qa": "(cd android && ENVFILE=.env.qa ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-qa.apk",
 
     "package:uninstall:staging": "adb uninstall com.advanceautoparts.instoreapps.staging",
     "package:install:staging": "adb install -r builds/in-store-apps-staging.apk",
+    "package:install:staging:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-staging.apk",
     "package:build:staging": "(cd android && ENVFILE=.env.staging ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-staging.apk",
 
     "package:uninstall:production": "adb uninstall com.advanceautoparts.instoreapps",
     "package:install:production": "adb install -r builds/in-store-apps-production.apk",
+    "package:install:production:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-production.apk",
     "package:build:production": "(cd android && ENVFILE=.env.production ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-production.apk",
 
     "send-intent": "scripts/send-intent.sh"
@@ -57,13 +62,13 @@
     "@react-native-community/netinfo": "^9.3.10",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "@react-navigation/native": "^6.1.6",
     "eventemitter3": "^5.0.1",
     "graphql": "^16.6.0",
     "launchdarkly-react-native-client-sdk": "^7.1.4",
     "lodash-es": "^4.17.21",
     "luxon": "^3.3.0",
-    "react": "18.2.0",
-    "react-native": "0.71.6",
+    "newrelic-react-native-agent": "^1.2.1",
     "react-native-config": "^1.5.0",
     "react-native-device-info": "^10.6.0",
     "react-native-get-random-values": "^1.9.0",
@@ -73,6 +78,8 @@
     "react-native-sound": "^0.11.2",
     "react-native-svg": "^13.9.0",
     "react-native-toast-message": "^2.1.6",
+    "react-native": "0.71.6",
+    "react": "18.2.0",
     "rtn-in-store-apps": "file:./react-native-modules/RTNInStoreApps",
     "uuid": "^9.0.0"
   },

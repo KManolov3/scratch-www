@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
@@ -113,17 +114,6 @@ export function OutageItemList() {
     },
   );
 
-  const bottomBarActions: Action[] = useMemo(
-    () => [
-      {
-        label: 'Complete Outage Count',
-        onPress: submit,
-        isLoading: submitLoading,
-      },
-    ],
-    [submit, submitLoading],
-  );
-
   const items = useMemo(
     () => outageCountItems.map(item => ({ ...item, newQty: 0 })),
     [outageCountItems],
@@ -151,7 +141,15 @@ export function OutageItemList() {
           ref={flatListRef}
         />
 
-        <BottomActionBar actions={bottomBarActions} />
+        <BottomActionBar>
+          <BlockButton
+            variant="primary"
+            style={styles.actionButton}
+            onPress={submit}
+            isLoading={submitLoading}>
+            Complete Outage Count
+          </BlockButton>
+        </BottomActionBar>
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -171,6 +169,9 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 6,
+  },
+  actionButton: {
+    flex: 1,
   },
   // TODO: Duplication with batch count
   toast: {

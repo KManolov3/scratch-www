@@ -1,9 +1,15 @@
 import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
-import { ItemDetails } from 'src/types/ItemLookup';
+import { ItemDetailsInfo } from '@components/ItemInfoHeader';
+import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
+import { PlanogramsInfo } from '@components/Locations/PlanogramList';
+
+export type GlobalStateItemDetails = ItemDetailsInfo &
+  PlanogramsInfo &
+  BackstockSlotsInfo;
 
 interface ContextValue {
-  selectedItem?: ItemDetails;
-  setSelectedItem(item: ItemDetails | undefined): void;
+  selectedItem?: GlobalStateItemDetails;
+  setSelectedItem(item: GlobalStateItemDetails | undefined): void;
   applicationName: string;
   activityName: string;
 }
@@ -19,7 +25,7 @@ export function GlobalStateProvider({
   activityName: string;
   applicationName: string;
 }) {
-  const [selectedItem, setSelectedItem] = useState<ItemDetails>();
+  const [selectedItem, setSelectedItem] = useState<GlobalStateItemDetails>();
 
   const value = useMemo(
     () => ({

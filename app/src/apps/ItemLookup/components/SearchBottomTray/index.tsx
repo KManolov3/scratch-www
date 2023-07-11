@@ -24,6 +24,7 @@ export function SearchBottomTray({
       <ItemLookupHome
         onSubmit={onSubmit}
         searchBarStyle={styles.searchBar}
+        barcodeStyle={styles.barcode}
         loading={loading}
         error={error}
       />
@@ -34,5 +35,8 @@ export function SearchBottomTray({
 export const styles = StyleSheet.create({
   searchBar: {
     backgroundColor: Colors.pure,
+  },
+  barcode: {
+    marginTop: 40,
   },
 });

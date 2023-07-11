@@ -3,6 +3,7 @@ import { AuthConfig, InStoreAppsNative } from 'rtn-in-store-apps';
 import { Text } from '@components/Text';
 import { useAppStateChange } from '@hooks/useAppStateChange';
 import { useAsync } from '@hooks/useAsync';
+import { newRelicService } from './NewRelic';
 
 export interface SessionInfo {
   userId: string;
@@ -34,21 +35,24 @@ export function AuthProvider({
 
     error,
   } = useAsync(
-    () =>
-      InStoreAppsNative.reloadAuthFromLauncher({
-        clientId,
-        authServerURL,
-      }).catch(authError => {
+    async () => {
+      try {
+        const auth = await InStoreAppsNative.reloadAuthFromLauncher({
+          clientId,
+          authServerURL,
+        });
+
+        newRelicService.onAuthenticationUpdate(auth);
+
+        return auth;
+      } catch (authError) {
         onErrorRef.current();
 
-        return Promise.reject(authError);
-      }),
-    [clientId, authServerURL],
-    {
-      globalErrorHandling: () => ({
-        displayAs: 'toast',
-      }),
+        throw authError;
+      }
     },
+    [clientId, authServerURL],
+    { globalErrorHandling: () => ({ displayAs: 'toast' }) },
   );
 
   useAppStateChange('active', reloadAuth);

@@ -1,16 +1,16 @@
-import { compact, sortBy } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
 import { Item } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
-import { Action, BottomActionBar } from '@components/BottomActionBar';
+import { BottomActionBar } from '@components/BottomActionBar';
+import { BlockButton } from '@components/Button/Block';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { Colors } from '@lib/colors';
 import { isErrorWithMessage } from '@lib/error';
 import { useNavigation } from '@react-navigation/native';
 import { useErrorManager } from '@services/ErrorContext';
@@ -155,24 +155,6 @@ export function BatchCountList() {
     navigation.navigate('Summary');
   }, [navigation]);
 
-  const bottomBarActions: Action[] = useMemo(
-    () =>
-      compact([
-        {
-          label: 'Fast Accept',
-          onPress: submitBatchCount,
-          buttonStyle: styles.fastAccept,
-          textStyle: styles.fastAcceptText,
-          isLoading: submitLoading,
-        },
-        {
-          label: 'Create Summary',
-          onPress: onVerify,
-        },
-      ]),
-    [submitBatchCount, onVerify, submitLoading],
-  );
-
   useFocusEventBus('search-error', ({ isNoResultsError }) => {
     reject();
 
@@ -207,10 +189,23 @@ export function BatchCountList() {
           renderItem={renderItem}
           ref={flatListRef}
         />
-        <BottomActionBar
-          style={styles.bottomActionBar}
-          actions={bottomBarActions}
-        />
+
+        <BottomActionBar>
+          <BlockButton
+            variant="dark"
+            style={styles.actionButton}
+            onPress={submitBatchCount}
+            isLoading={submitLoading}>
+            Fast Accept
+          </BlockButton>
+
+          <BlockButton
+            variant="primary"
+            style={styles.actionButton}
+            onPress={onVerify}>
+            Create Summary
+          </BlockButton>
+        </BottomActionBar>
       </FixedLayout>
 
       <ShrinkageOverageModal
@@ -232,15 +227,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 21,
     marginVertical: 4,
   },
-  bottomActionBar: {
-    paddingTop: 8,
-  },
-  fastAccept: {
-    backgroundColor: Colors.advanceVoid,
-    borderColor: Colors.advanceVoid,
-  },
-  fastAcceptText: {
-    color: Colors.pure,
+  actionButton: {
+    flex: 1,
   },
   toast: {
     marginBottom: '10%',

@@ -36,11 +36,12 @@ export function ErrorModal({
         <Text style={styles.description}>{description}</Text>
         {withRetry ? (
           <BlockButton
-            label="Try Again"
             style={styles.button}
             textStyle={styles.buttonText}
             onPress={onRetry}
-          />
+            variant="primary">
+            Try Again
+          </BlockButton>
         ) : null}
       </View>
     </Modal>

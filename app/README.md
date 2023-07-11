@@ -38,3 +38,8 @@ as the `APP_NAME` part is lowercased and used for the `name`.
 LaunchDarkly is a feature flagging/dynamic configuration tool used by the application.
 
 - **LAUNCH_DARKLY_MOBILE_KEY** - Environment specific key, needed in order to connect with AAP's Launch Darkly account.
+
+### New Relic
+
+- **ENABLE_NEW_RELIC** - Enables or disables reporting to New Relic. Defaults to `true` if not specified, set this to `false` to disable
+- **NEW_RELIC_APPLICATION_TOKEN** - The New Relic application token. Required if New Relic is enabled.

@@ -28,7 +28,6 @@ export function PriceDiscrepancyModal({
       onCancel={onCancel}
       confirmationLabel="Print Front Tag"
       Icon={AttentionIcon}
-      iconStyles={styles.icon}
       title="Price Discrepancy Detected">
       <Text style={styles.informationText}>Print updated front tag</Text>
       <View style={styles.container}>
@@ -48,7 +47,6 @@ export function PriceDiscrepancyModal({
 }
 
 const styles = StyleSheet.create({
-  icon: { marginTop: 30 },
   informationText: {
     textAlign: 'center',
     lineHeight: 24,

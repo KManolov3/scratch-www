@@ -15,11 +15,13 @@ interface ItemLookupHomeProps {
   error?: SearchError;
   loading: boolean;
   searchBarStyle?: StyleProp<ViewStyle>;
+  barcodeStyle?: StyleProp<ViewStyle>;
 }
 
 export function ItemLookupHome({
   onSubmit,
   searchBarStyle,
+  barcodeStyle,
   error,
   loading,
 }: ItemLookupHomeProps) {
@@ -28,7 +30,10 @@ export function ItemLookupHome({
     <>
       <SkuSearchBar onSubmit={onSubmit} containerStyle={searchBarStyle} />
       {!hasNoResultsError && !loading && (
-        <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
+        <ScanBarcodeLabel
+          label="Scan Barcode"
+          style={[styles.scanBarcode, barcodeStyle]}
+        />
       )}
       {loading && (
         <ActivityIndicator

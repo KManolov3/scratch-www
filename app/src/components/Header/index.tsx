@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ItemDetails } from 'src/types/ItemLookup';
 import { RootNavigation } from '@apps/navigator';
-import { useGlobalState } from '@apps/state';
+import { GlobalStateItemDetails, useGlobalState } from '@apps/state';
 import { HamburgerMenu } from '@assets/icons';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
@@ -13,7 +12,7 @@ type HeaderProps = {
   title?: string;
   leftIcon?: ReactNode;
   onClickLeft?: () => void;
-  item?: ItemDetails;
+  item?: GlobalStateItemDetails;
 } & (
   | {
       rightIcon: ReactNode;
@@ -34,8 +33,7 @@ export function Header({
   item,
 }: HeaderProps) {
   const { navigate } = useNavigation<RootNavigation>();
-  const { applicationName, setSelectedItem: setSlecetedItem } =
-    useGlobalState();
+  const { applicationName, setSelectedItem } = useGlobalState();
 
   return (
     <View style={styles.container}>
@@ -44,10 +42,8 @@ export function Header({
           onPress={
             onClickLeft ??
             (() => {
-              setSlecetedItem(item);
-              navigate('Drawer', {
-                screen: 'DrawerHome',
-              });
+              setSelectedItem(item);
+              navigate('Drawer', { screen: 'DrawerHome' });
             })
           }>
           {leftIcon}
@@ -60,6 +56,7 @@ export function Header({
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.advanceBlack,
