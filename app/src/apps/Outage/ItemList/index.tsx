@@ -8,7 +8,6 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
-import { useErrorManager } from '@services/ErrorContext';
 import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
@@ -25,13 +24,12 @@ export function OutageItemList() {
     outageCountItems,
     removeItem,
     submit: submitOutage,
+    submitLoading,
     requestToAddItem,
   } = useOutageState();
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
-
-  const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const { trigger: addItem } = useAsyncAction(
     async (sku: string) => {
@@ -95,16 +93,12 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  const { trigger: submit, loading: submitLoading } = useAsyncAction(
+  const { trigger: submit } = useAsyncAction(
     async () => {
       if (await askForConfirmation()) {
         // TODO: Submitting an outage shows a toast, but submitting a batch count
         // throws an error. Converge their error handling behaviours
-        await executeWithGlobalErrorHandling(submitOutage, () => ({
-          displayAs: 'toast',
-          message: 'Could not submit the outage count due to an error',
-          allowRetries: true,
-        }));
+        await submitOutage();
         toastService.showInfoToast('Outage List Complete');
         navigate('Home');
       }

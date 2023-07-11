@@ -83,11 +83,14 @@ export function PrintFrontTagScreen({
 
   const { goBack } = useNavigation<ItemLookupNavigation>();
 
-  const { perform: printFrontTag } = useManagedMutation(PRINT_FRONT_TAG, {
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
-  });
+  const { perform: printFrontTag, loading } = useManagedMutation(
+    PRINT_FRONT_TAG,
+    {
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
+    },
+  );
 
   const {
     state: printerModalVisible,
@@ -112,7 +115,7 @@ export function PrintFrontTagScreen({
     return sumBy(checkedLocations, ({ qty }) => qty ?? 0);
   }, [locationStatuses]);
 
-  const { loading, trigger: printTags } = useAsyncAction(
+  const { trigger: printTags } = useAsyncAction(
     async () => {
       if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
         const shouldPrint = await askForConfirmation();

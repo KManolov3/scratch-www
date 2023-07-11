@@ -52,6 +52,7 @@ interface OutageState {
   removeItem: (sku: string) => void;
 
   submit: () => Promise<void>;
+  submitLoading: boolean;
 }
 
 const Context = createContext<OutageState | undefined>(undefined);
@@ -76,14 +77,14 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     globalErrorHandling: () => 'ignored',
   });
 
-  const { perform: submitOutageCount } = useManagedMutation(
-    SUBMIT_OUTAGE_COUNT,
-    {
+  const { perform: submitOutageCount, loading: submitLoading } =
+    useManagedMutation(SUBMIT_OUTAGE_COUNT, {
       globalErrorHandling: () => ({
-        displayAs: 'toast',
+        displayAs: 'modal',
+        message: 'Could not submit the outage count due to an error',
+        allowRetries: true,
       }),
-    },
-  );
+    });
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -145,8 +146,9 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       requestToAddItem,
       removeItem,
       submit,
+      submitLoading,
     }),
-    [outageCountItems, requestToAddItem, removeItem, submit],
+    [outageCountItems, requestToAddItem, removeItem, submit, submitLoading],
   );
 
   return (
