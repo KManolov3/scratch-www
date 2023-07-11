@@ -6,6 +6,7 @@ import { RootRouteName } from '@apps/navigator';
 import { GlobalStateProvider } from '@apps/state';
 import { AppNavigationProvider } from '@config/appNavigationProvider';
 import { useAppStateChange } from '@hooks/useAppStateChange';
+import { ErrorContextProvider } from '@services/ErrorContext';
 import { newRelicService } from '@services/NewRelic';
 import { ScannerProvider } from '@services/Scanner';
 import { config } from './config';
@@ -58,18 +59,22 @@ export function AppRoot({
     <GlobalStateProvider
       applicationName={applicationName}
       activityName={activityName}>
-      <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
-        <LaunchDarklyProvider applicationName={applicationName}>
-          <ApolloProvider client={apolloClient}>
-            <AppNavigationProvider
-              initialRoute={initialRoute}
-              onScreenFocus={hideLoadingScreenIfVisible}
-            />
+      <ErrorContextProvider>
+        <AuthProvider config={config.okta} onError={hideLoadingScreenIfVisible}>
+          <LaunchDarklyProvider applicationName={applicationName}>
+            <ApolloProvider client={apolloClient}>
+              {/* eslint-disable-next-line react/jsx-max-depth */}
+              <AppNavigationProvider
+                initialRoute={initialRoute}
+                onScreenFocus={hideLoadingScreenIfVisible}
+              />
 
-            <Toast config={toastConfig} />
-          </ApolloProvider>
-        </LaunchDarklyProvider>
-      </AuthProvider>
+              {/* eslint-disable-next-line react/jsx-max-depth */}
+              <Toast config={toastConfig} />
+            </ApolloProvider>
+          </LaunchDarklyProvider>
+        </AuthProvider>
+      </ErrorContextProvider>
     </GlobalStateProvider>
   );
 

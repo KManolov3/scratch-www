@@ -3,7 +3,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
 import { toastService } from 'src/services/ToastService';
-import { useMutation } from '@apollo/client';
 import { GlobalStateItemDetails } from '@apps/state';
 import {
   EmptySquareCheckBox,
@@ -13,6 +12,7 @@ import {
 } from '@assets/icons';
 import { BottomActionBar } from '@components/BottomActionBar';
 import { BlockButton } from '@components/Button/Block';
+import { ErrorContainer } from '@components/ErrorContainer';
 import { Header } from '@components/Header';
 import { QuantityAdjuster } from '@components/QuantityAdjuster';
 import { Separator } from '@components/Separator';
@@ -22,6 +22,7 @@ import { useBooleanState } from '@hooks/useBooleanState';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useDefaultSettings } from '@hooks/useDefaultSettings';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedMutation } from '@hooks/useManagedMutation';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
@@ -82,7 +83,11 @@ export function PrintFrontTagScreen({
 
   const { goBack } = useNavigation<ItemLookupNavigation>();
 
-  const [printFrontTag] = useMutation(PRINT_FRONT_TAG);
+  const { perform: printFrontTag } = useManagedMutation(PRINT_FRONT_TAG, {
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
+  });
 
   const {
     state: printerModalVisible,
@@ -107,55 +112,60 @@ export function PrintFrontTagScreen({
     return sumBy(checkedLocations, ({ qty }) => qty ?? 0);
   }, [locationStatuses]);
 
-  const { loading, trigger: printTags } = useAsyncAction(async () => {
-    if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
-      const shouldPrint = await askForConfirmation();
-      if (!shouldPrint) {
-        return;
+  const { loading, trigger: printTags } = useAsyncAction(
+    async () => {
+      if (totalPrintQuantity >= TRIGGER_CONFIRMATION_QUANTITY) {
+        const shouldPrint = await askForConfirmation();
+        if (!shouldPrint) {
+          return;
+        }
       }
-    }
 
-    const promises = locationStatuses
-      .filter(_ => _.checked)
-      .map(({ id, seqNum, qty }) => {
-        return printFrontTag({
-          variables: {
-            storeNumber,
-            printer: Printers.serverIdOf(printer),
-            data: {
-              sku: itemDetails.sku,
-              count: qty,
-              planogramId: id,
-              sequence: seqNum,
+      const promises = locationStatuses
+        .filter(_ => _.checked)
+        .map(({ id, seqNum, qty }) => {
+          return printFrontTag({
+            variables: {
+              storeNumber,
+              printer: Printers.serverIdOf(printer),
+              data: {
+                sku: itemDetails.sku,
+                count: qty,
+                planogramId: id,
+                sequence: seqNum,
+              },
             },
-          },
+          });
         });
-      });
 
-    const data = await Promise.allSettled(promises);
+      const data = await Promise.allSettled(promises);
 
-    const requestsByStatus = countBy(
-      data,
-      ({ status }) => status === 'rejected',
-    );
-    const numberOfFailedRequests = requestsByStatus.rejected;
-
-    if (numberOfFailedRequests && numberOfFailedRequests > 0) {
-      return toastService.showInfoToast(
-        `${numberOfFailedRequests} out of ${data.length} requests failed.`,
+      const requestsByStatus = countBy(
+        data,
+        ({ status }) => status === 'rejected',
       );
-    }
+      const numberOfFailedRequests = requestsByStatus.rejected;
 
-    toastService.showInfoToast(
-      `Front tag sent to ${Printers.labelOf(printer)}`,
-      {
-        props: { containerStyle: styles.toast },
-      },
-    );
+      if (numberOfFailedRequests && numberOfFailedRequests > 0) {
+        return toastService.showInfoToast(
+          `${numberOfFailedRequests} out of ${data.length} requests failed.`,
+        );
+      }
 
-    EventBus.emit('print-success');
-    goBack();
-  });
+      toastService.showInfoToast(
+        `Front tag sent to ${Printers.labelOf(printer)}`,
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
+
+      EventBus.emit('print-success');
+      goBack();
+    },
+    {
+      globalErrorHandling: 'disabled',
+    },
+  );
 
   const onConfirmPrinter = useCallback(
     (selectedPrinter: Printer) => {
@@ -253,7 +263,12 @@ export function PrintFrontTagScreen({
         <Text style={styles.text}>POG</Text>
         <Text style={[styles.text, styles.qty]}>Qty</Text>
       </View>
-
+      {locationStatuses.length === 0 && (
+        <ErrorContainer
+          title="No POG assignment."
+          message="Front tag is not currently available."
+        />
+      )}
       <ScrollView style={styles.planogramContainer}>
         {locationStatuses.map(renderPlanogram)}
       </ScrollView>

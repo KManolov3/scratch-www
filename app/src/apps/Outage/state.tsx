@@ -8,14 +8,22 @@ import {
   useState,
 } from 'react';
 import { DocumentType, gql } from 'src/__generated__';
-import { Action, CycleCountType, Status } from 'src/__generated__/graphql';
+import {
+  Action,
+  CycleCountType,
+  ItemLookupBySkuQuery,
+  Status,
+} from 'src/__generated__/graphql';
 import { v4 as uuid } from 'uuid';
-import { useLazyQuery, useMutation } from '@apollo/client';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
+import { NoResultsError } from './errors/NoResultsError';
 import { OutageNavigation } from './navigator';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
@@ -65,10 +73,18 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
     reject,
   } = useConfirmation<OutageItemInfo>();
 
-  const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
+  const { perform: getItemBySku } = useManagedLazyQuery(ITEM_BY_SKU_QUERY, {
+    globalErrorHandling: () => 'ignored',
+  });
 
-  const [submitOutageCount, { loading: submitLoading }] =
-    useMutation(SUBMIT_OUTAGE_COUNT);
+  const { perform: submitOutageCount, loading: submitLoading } =
+    useManagedMutation(SUBMIT_OUTAGE_COUNT, {
+      globalErrorHandling: () => ({
+        displayAs: 'modal',
+        message: 'Could not submit the outage count due to an error',
+        allowRetries: true,
+      }),
+    });
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -78,16 +94,26 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const response = await getItemBySku({ variables: { sku, storeNumber } });
+      let responseData: ItemLookupBySkuQuery | undefined;
 
-      if (response.error) {
-        throw response.error;
+      try {
+        responseData = (await getItemBySku({ variables: { sku, storeNumber } }))
+          .data;
+      } catch (error) {
+        if (isApolloNoResultsError(error)) {
+          throw new NoResultsError(`Item with sku ${sku} was not found`, error);
+        }
+
+        throw error;
       }
 
-      const item = response?.data?.itemBySku;
+      const item = responseData?.itemBySku;
       if (!item) {
-        // TODO: Better error
-        throw new Error('Item not found');
+        // This should not be a valid case, rather the types should be made stricter on the back-end.
+        toastService.showInfoToast(
+          'Received empty response from server. This should not happen.',
+        );
+        return;
       }
 
       if (item.backStockSlots?.length && !(await askForConfirmation(item))) {
@@ -107,14 +133,9 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const submit = useCallback(async () => {
-    const response = await submitOutageCount({
+    await submitOutageCount({
       variables: { request: buildOutageCount(outageCountItems, storeNumber) },
     });
-
-    // TODO: Does this reject on error?
-    if (response.errors) {
-      throw response.errors;
-    }
 
     setOutageCountItems([]);
   }, [outageCountItems, submitOutageCount, storeNumber]);

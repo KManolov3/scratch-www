@@ -8,9 +8,11 @@ import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
+import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { OutageItemCard } from '../components/ItemCard';
+import { NoResultsError } from '../errors/NoResultsError';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
@@ -23,31 +25,36 @@ export function OutageItemList() {
     removeItem,
     submit: submitOutage,
     submitLoading,
+    requestToAddItem,
   } = useOutageState();
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
 
-  const { requestToAddItem } = useOutageState();
-
-  const { trigger: addItem } = useAsyncAction(async (sku: string) => {
-    try {
+  const { trigger: addItem } = useAsyncAction(
+    async (sku: string) => {
       await requestToAddItem(sku);
 
       flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-    } catch (error) {
-      // TODO: Don't assume that it's "No results found"
-      // TODO: Duplication of the text with the batch count
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning a barcode.',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
+    },
+    {
+      globalErrorHandling: error => {
+        const toastDetails: Partial<ErrorOptions> =
+          error instanceof NoResultsError
+            ? {
+                message:
+                  'No results found. Try searching for another SKU or scanning a barcode.',
+                toastStyle: styles.toast,
+              }
+            : {};
 
-      throw error;
-    }
-  });
+        return {
+          ...toastDetails,
+          displayAs: 'toast',
+        };
+      },
+    },
+  );
 
   useScanCodeListener(code => {
     switch (code.type) {
@@ -86,24 +93,20 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  const { trigger: submit } = useAsyncAction(async () => {
-    try {
+  const { trigger: submit } = useAsyncAction(
+    async () => {
       if (await askForConfirmation()) {
+        // TODO: Submitting an outage shows a toast, but submitting a batch count
+        // throws an error. Converge their error handling behaviours
         await submitOutage();
         toastService.showInfoToast('Outage List Complete');
         navigate('Home');
       }
-    } catch (error) {
-      toastService.showInfoToast(
-        'Could not submit the outage count due to an error',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
-
-      throw error;
-    }
-  });
+    },
+    {
+      globalErrorHandling: 'disabled',
+    },
+  );
 
   const items = useMemo(
     () => outageCountItems.map(item => ({ ...item, newQty: 0 })),

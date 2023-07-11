@@ -51,6 +51,11 @@ export function SelectPrinters() {
         setDefaultPrinter(printer);
       }
     },
+    {
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+      }),
+    },
   );
 
   return (
