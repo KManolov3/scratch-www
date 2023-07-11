@@ -44,6 +44,7 @@ interface OutageState {
   removeItem: (sku: string) => void;
 
   submit: () => Promise<void>;
+  submitLoading: boolean;
 }
 
 const Context = createContext<OutageState | undefined>(undefined);
@@ -66,7 +67,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
 
   const [getItemBySku] = useLazyQuery(ITEM_BY_SKU_QUERY);
 
-  const [submitOutageCount] = useMutation(SUBMIT_OUTAGE_COUNT);
+  const [submitOutageCount, { loading: submitLoading }] =
+    useMutation(SUBMIT_OUTAGE_COUNT);
 
   const requestToAddItem = useCallback(
     async (sku: string) => {
@@ -123,8 +125,9 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
       requestToAddItem,
       removeItem,
       submit,
+      submitLoading,
     }),
-    [outageCountItems, requestToAddItem, removeItem, submit],
+    [outageCountItems, requestToAddItem, removeItem, submit, submitLoading],
   );
 
   return (

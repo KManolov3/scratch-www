@@ -7,7 +7,6 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { swallowError } from '@lib/functions';
 import { useNavigation } from '@react-navigation/native';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
@@ -23,6 +22,7 @@ export function OutageItemList() {
     outageCountItems,
     removeItem,
     submit: submitOutage,
+    submitLoading,
   } = useOutageState();
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
@@ -86,35 +86,24 @@ export function OutageItemList() {
     [removeItem, outageCountItems, navigate],
   );
 
-  const { loading: submitLoading, perform: submitOutageCycleCount } =
-    useAsyncAction(async () => {
-      try {
+  const { trigger: submit } = useAsyncAction(async () => {
+    try {
+      if (await askForConfirmation()) {
         await submitOutage();
         toastService.showInfoToast('Outage List Complete');
         navigate('Home');
-      } catch (error) {
-        toastService.showInfoToast(
-          'Could not submit the outage count due to an error',
-          {
-            props: { containerStyle: styles.toast },
-          },
-        );
-
-        throw error;
       }
-    });
+    } catch (error) {
+      toastService.showInfoToast(
+        'Could not submit the outage count due to an error',
+        {
+          props: { containerStyle: styles.toast },
+        },
+      );
 
-  const submit = useCallback(
-    () =>
-      swallowError(async () => {
-        if (await askForConfirmation()) {
-          // the error of the submit outage is
-          // handled in the use async action
-          await submitOutageCycleCount();
-        }
-      }),
-    [askForConfirmation, submitOutageCycleCount],
-  );
+      throw error;
+    }
+  });
 
   const items = useMemo(
     () => outageCountItems.map(item => ({ ...item, newQty: 0 })),
