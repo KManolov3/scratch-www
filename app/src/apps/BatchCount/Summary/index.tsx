@@ -13,7 +13,9 @@ import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { isErrorWithMessage } from '@lib/error';
 import { useNavigation } from '@react-navigation/native';
+import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -35,6 +37,8 @@ export function BatchCountSummary() {
 
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
+
+  const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const sortFn = useCallback(
     (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
@@ -135,31 +139,36 @@ export function BatchCountSummary() {
     [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
-  const { trigger: submitBatchCount } = useAsyncAction(async () => {
-    if (await askForConfirmation()) {
-      submitBatch();
-    }
-  });
+  const { trigger: submitBatchCount } = useAsyncAction(
+    async () => {
+      if (await askForConfirmation()) {
+        await executeWithGlobalErrorHandling(submitBatch, () => ({
+          displayAs: 'modal',
+          message: `Error while submitting batch count. ${
+            isErrorWithMessage(submitError)
+              ? submitError.message
+              : 'An unknown server error has occured'
+          }`,
+          allowRetries: true,
+        }));
+      }
+    },
+    {
+      globalErrorHandling: 'disabled',
+    },
+  );
 
-  useEffect(() => {
-    if (submitError) {
+  useFocusEventBus('search-error', ({ isNoResultsError }) => {
+    reject();
+
+    if (isNoResultsError) {
       toastService.showInfoToast(
-        `Error while submitting batch count. ${submitError.message}`,
+        'No results found. Try searching for another SKU or scanning a barcode.',
         {
           props: { containerStyle: styles.toast },
         },
       );
     }
-  }, [submitError]);
-
-  useFocusEventBus('search-error', () => {
-    reject();
-    toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning a barcode.',
-      {
-        props: { containerStyle: styles.toast },
-      },
-    );
   });
 
   useFocusEventBus('search-success', (item?: Item) => {

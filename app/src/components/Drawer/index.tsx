@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useMemo } from 'react';
+import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import {
   Pressable,
   SectionList,
@@ -7,12 +7,20 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import type Svg from 'react-native-svg';
+import { Svg } from 'react-native-svg';
 import { InStoreAppsNative } from 'rtn-in-store-apps';
 import { config } from 'src/config';
 import { ItemLookupNavigation } from '@apps/ItemLookup/navigator';
 import { useGlobalState } from '@apps/state';
 import { RightArrowIcon, EmptyRadioButton } from '@assets/icons';
+import BackstockManagementIcon from '@assets/icons/app-icons/backstock-management-icon.svg';
+import BatchCountIcon from '@assets/icons/app-icons/batch-count-icon.svg';
+import CycleCountIcon from '@assets/icons/app-icons/cycle-count-icon.svg';
+import ItemLookupIcon from '@assets/icons/app-icons/item-lookup-icon.svg';
+import OutageIcon from '@assets/icons/app-icons/outage-icon.svg';
+import ReceivingIcon from '@assets/icons/app-icons/receiving-icon.svg';
+import ReturnRequestIcon from '@assets/icons/app-icons/return-request-icon.svg';
+import ToteAssignmentIcon from '@assets/icons/app-icons/tote-assignment-icon.svg';
 import { Text } from '@components/Text';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
@@ -21,9 +29,20 @@ import { useNavigation } from '@react-navigation/native';
 import { useFlags } from '@services/LaunchDarkly';
 import { DrawerNavigation } from './navigator';
 
+const APP_ICONS: Record<string, typeof Svg> = {
+  'backstock-management': BackstockManagementIcon,
+  'batch-count': BatchCountIcon,
+  'cycle-count': CycleCountIcon,
+  'item-lookup': ItemLookupIcon,
+  outage: OutageIcon,
+  receiving: ReceivingIcon,
+  'return-request': ReturnRequestIcon,
+  'tote-assignment': ToteAssignmentIcon,
+};
+
 interface DrawerSectionData {
   label: string;
-  Icon?: typeof Svg;
+  icon?: ReactNode;
   backgroundColor?: string;
   onPress?: () => void;
 }
@@ -92,14 +111,26 @@ export function Drawer() {
         title: 'Functions',
         data: configHamburgerMenuAppFunctions
           .filter(_ => _.activity !== currentActivityName)
-          .map(({ label, activity }) => ({
-            label,
-            Icon: EmptyRadioButton,
-            onPress: () => {
-              goBack();
-              InStoreAppsNative.navigateTo(activity);
-            },
-          })),
+          .map(({ label, activity, icon }) => {
+            const Icon = icon && APP_ICONS[icon];
+
+            return {
+              label,
+              icon: Icon ? (
+                <Icon width={36} height={36} />
+              ) : (
+                <EmptyRadioButton
+                  height={20}
+                  width={20}
+                  style={styles.defaultIcon}
+                />
+              ),
+              onPress: () => {
+                goBack();
+                InStoreAppsNative.navigateTo(activity);
+              },
+            };
+          }),
       },
       {
         title: (
@@ -145,7 +176,7 @@ export function Drawer() {
 
   const renderSectionItem = useCallback(
     ({
-      item: { label, Icon, onPress, backgroundColor },
+      item: { label, icon, onPress, backgroundColor },
       index,
     }: SectionListRenderItemInfo<DrawerSectionData>) => (
       <Pressable
@@ -153,8 +184,8 @@ export function Drawer() {
         onPress={onPress}
         style={[{ backgroundColor }, styles.drawerSections]}>
         <View style={styles.drawerSectionsItem}>
+          {icon}
           <View style={styles.drawerSectionLabel}>
-            {Icon ? <Icon height={20} width={20} style={styles.icon} /> : null}
             <Text style={styles.drawerSectionsItemText}>{label}</Text>
           </View>
           <RightArrowIcon height={12} width={7} />
@@ -190,8 +221,8 @@ export const styles = StyleSheet.create({
     fontWeight: FontWeight.Bold,
     color: Colors.black,
   },
-  icon: {
-    marginRight: 10,
+  defaultIcon: {
+    margin: 8,
   },
   drawerSectionsItem: {
     flexDirection: 'row',
@@ -199,14 +230,14 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.pure,
     borderRadius: 9,
     marginBottom: 12,
-    paddingVertical: 14,
-    paddingLeft: 23,
+    padding: 6,
     paddingRight: 18,
     justifyContent: 'space-between',
   },
   drawerSectionLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
   },
   drawerSectionsItemText: {
     fontSize: 17,
