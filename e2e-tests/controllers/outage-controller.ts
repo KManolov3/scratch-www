@@ -98,8 +98,6 @@ export class OutageController extends BaseController {
   }
 
   async completeOutageCount(items: TestItemInput[]) {
-    await this.addItemsToOutageList(items);
-
     await waitAndClick(
       this.outagePages.completeOutagePage.completeOutageCountButton
     );

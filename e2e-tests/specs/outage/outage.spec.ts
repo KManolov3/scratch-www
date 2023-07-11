@@ -25,6 +25,7 @@ describe('Outage Count', () => {
       items: items,
     });
 
+    await outageCount.addItemsToOutageList(items);
     await outageCount.completeOutageCount(items);
   });
 
