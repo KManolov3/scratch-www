@@ -1,10 +1,9 @@
 import EventEmitter from 'eventemitter3';
 import { useEffect } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface EventTypes {
-  'search-error': [ApolloError];
+  'search-error': [{ error: unknown; isNoResultsError: boolean }];
   'search-success': [{ sku: string }];
   'print-success': [];
   'add-item-to-batch-count': [];
