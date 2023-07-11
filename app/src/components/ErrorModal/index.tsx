@@ -1,6 +1,6 @@
 import { noop } from 'lodash-es';
 import { StyleSheet, View } from 'react-native';
-import { AttentionIcon } from '@assets/icons';
+import { BlackAttentionIcon } from '@assets/icons';
 import { BlockButton } from '@components/Button/Block';
 import { Modal } from '@components/Modal';
 import { Text } from '@components/Text';
@@ -31,7 +31,7 @@ export function ErrorModal({
       onBackdropPress={onCancel}
       style={styles.modal}>
       <View style={styles.container}>
-        <AttentionIcon height={40} width={40} style={styles.icon} />
+        <BlackAttentionIcon height={40} width={40} style={styles.icon} />
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
         {withRetry ? (
@@ -55,8 +55,7 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
   },
   container: {
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingVertical: 20,
   },
   icon: {
     alignSelf: 'center',
@@ -77,14 +76,12 @@ const styles = StyleSheet.create({
     color: Colors.darkerGray,
   },
   button: {
-    flex: 1,
     borderRadius: 4,
+    marginTop: 20,
     marginHorizontal: 80,
-    backgroundColor: Colors.advanceYellow,
   },
   buttonText: {
     fontSize: 16,
-    lineHeight: 24,
     fontWeight: FontWeight.Bold,
     textAlign: 'center',
     color: Colors.darkerGray,
