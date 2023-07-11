@@ -246,7 +246,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
 
   const { trigger: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
-      if (!item.itemBySku || !item.itemBySku.sku) {
+      if (!item.itemBySku?.sku) {
         return;
       }
 
@@ -268,7 +268,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
 
   const { trigger: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
-      if (!item.itemByUpc || !item.itemByUpc.sku) {
+      if (!item.itemByUpc?.sku) {
         return;
       }
 
