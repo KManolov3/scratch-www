@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { gql } from 'src/__generated__';
 import { CycleCountContextQuery } from 'src/__generated__/graphql';
-import { useQuery } from '@apollo/client';
+import { useManagedQuery } from '@hooks/useManagedQuery';
 import { useCurrentSessionInfo } from '@services/Auth';
 
 interface ContextValue {
@@ -38,8 +38,12 @@ const QUERY = gql(`
 
 export function CycleCountStateProvider({ children }: { children: ReactNode }) {
   const { storeNumber } = useCurrentSessionInfo();
-  const { data, loading, error } = useQuery(QUERY, {
+  const { data, loading, error } = useManagedQuery(QUERY, {
     variables: { storeNumber },
+    globalErrorHandling: () => ({
+      displayAs: 'modal',
+      allowRetries: true,
+    }),
   });
 
   const value = useMemo(
