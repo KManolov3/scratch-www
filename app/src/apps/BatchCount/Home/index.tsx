@@ -6,7 +6,7 @@ import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useFocusEventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { isApolloNotFoundError } from '@lib/apollo';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { Colors } from '@lib/colors';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { ITEM_BY_SKU, useBatchCountState } from '../state';
@@ -23,9 +23,9 @@ export function BatchCountHome() {
         setHasNoResultsError(false);
       },
       globalErrorHandling: error => {
-        const isNotFoundError = isApolloNotFoundError(error);
-        setHasNoResultsError(isNotFoundError);
-        if (isNotFoundError) {
+        const isNoResultsError = isApolloNoResultsError(error);
+        setHasNoResultsError(isNoResultsError);
+        if (isNoResultsError) {
           return 'ignored';
         }
 
@@ -44,8 +44,8 @@ export function BatchCountHome() {
     [searchBySku, storeNumber],
   );
 
-  useFocusEventBus('search-error', ({ isNotFoundError }) => {
-    setHasNoResultsError(isNotFoundError);
+  useFocusEventBus('search-error', ({ isNoResultsError }) => {
+    setHasNoResultsError(isNoResultsError);
   });
 
   useFocusEventBus('search-success', () => {
@@ -55,7 +55,6 @@ export function BatchCountHome() {
   return (
     <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={onSubmit} />
-      {/* TODO: Check the error, don't assume every error is NotFound */}
       {!hasNoResultsError && !isLoadingItemBySku && (
         <ScanBarcodeLabel
           label="Scan to Start Batch Count"

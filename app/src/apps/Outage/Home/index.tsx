@@ -8,7 +8,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { NotFoundError } from '../errors/NotFoundError';
+import { NoResultsError } from '../errors/NoResultsError';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
@@ -25,7 +25,7 @@ export function OutageHome() {
     },
     {
       globalErrorHandling: error => {
-        if (error instanceof NotFoundError) {
+        if (error instanceof NoResultsError) {
           return 'ignored';
         }
 
@@ -63,11 +63,11 @@ export function OutageHome() {
         />
       )}
 
-      {!(searchError instanceof NotFoundError) && !loading && (
+      {!(searchError instanceof NoResultsError) && !loading && (
         <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
       )}
 
-      {searchError instanceof NotFoundError && !loading && (
+      {searchError instanceof NoResultsError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a front tag"

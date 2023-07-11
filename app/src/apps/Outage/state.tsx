@@ -18,12 +18,12 @@ import { v4 as uuid } from 'uuid';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
-import { isApolloNotFoundError } from '@lib/apollo';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
-import { NotFoundError } from './errors/NotFoundError';
+import { NoResultsError } from './errors/NoResultsError';
 import { OutageNavigation } from './navigator';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
@@ -99,8 +99,8 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         responseData = (await getItemBySku({ variables: { sku, storeNumber } }))
           .data;
       } catch (error) {
-        if (isApolloNotFoundError(error)) {
-          throw new NotFoundError(`Item with sku ${sku} was not found`, error);
+        if (isApolloNoResultsError(error)) {
+          throw new NoResultsError(`Item with sku ${sku} was not found`, error);
         }
 
         throw error;

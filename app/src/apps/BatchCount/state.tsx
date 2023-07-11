@@ -22,7 +22,7 @@ import { v4 as uuid } from 'uuid';
 import { EventBus } from '@hooks/useEventBus';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
-import { isApolloNotFoundError } from '@lib/apollo';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
@@ -218,9 +218,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       EventBus.emit('search-success', item.itemBySku ?? undefined);
     },
     globalErrorHandling: searchError => {
-      const isNotFoundError = isApolloNotFoundError(searchError);
-      EventBus.emit('search-error', { error, isNotFoundError });
-      if (isNotFoundError) {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
         return 'ignored';
       }
       return {
@@ -235,9 +235,9 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       EventBus.emit('search-success', item.itemByUpc ?? undefined);
     },
     globalErrorHandling: searchError => {
-      const isNotFoundError = isApolloNotFoundError(searchError);
-      EventBus.emit('search-error', { error, isNotFoundError });
-      if (isNotFoundError) {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
         return 'ignored';
       }
       return {

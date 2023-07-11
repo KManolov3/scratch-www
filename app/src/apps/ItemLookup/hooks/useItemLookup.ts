@@ -2,7 +2,7 @@ import { noop } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
 import { gql } from 'src/__generated__';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
-import { isApolloNotFoundError } from '@lib/apollo';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { ItemLookupNavigation } from '../navigator';
@@ -33,11 +33,11 @@ type SearchProps = {
 
 export type SearchError = {
   error: unknown;
-  isNotFoundError: boolean;
+  isNoResultsError: boolean;
 };
 
 export interface UseItemLookupProps {
-  onError?: (error: unknown, isNotFoundError: boolean) => void;
+  onError?: (error: unknown, isNoResultsError: boolean) => void;
   onComplete?: () => void;
 }
 
@@ -59,9 +59,9 @@ export function useItemLookup({
     error: skuError,
   } = useManagedLazyQuery(ITEM_BY_SKU, {
     globalErrorHandling: error => {
-      const isNotFoundError = isApolloNotFoundError(searchError);
-      onErrorRef.current(error, isNotFoundError);
-      if (isNotFoundError) {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      onErrorRef.current(error, isNoResultsError);
+      if (isNoResultsError) {
         return 'ignored';
       }
       return {
@@ -75,9 +75,9 @@ export function useItemLookup({
     error: upcError,
   } = useManagedLazyQuery(ITEM_BY_UPC, {
     globalErrorHandling: error => {
-      const isNotFoundError = isApolloNotFoundError(error);
-      onErrorRef.current(error, isNotFoundError);
-      if (isNotFoundError) {
+      const isNoResultsError = isApolloNoResultsError(error);
+      onErrorRef.current(error, isNoResultsError);
+      if (isNoResultsError) {
         return 'ignored';
       }
       return {
@@ -99,7 +99,7 @@ export function useItemLookup({
 
     return {
       error,
-      isNotFoundError: isApolloNotFoundError(error),
+      isNoResultsError: isApolloNoResultsError(error),
     };
   }, [skuError, upcError]);
 

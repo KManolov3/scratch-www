@@ -4,7 +4,7 @@ import { Item } from 'src/__generated__/graphql';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface EventTypes {
-  'search-error': [{ error: unknown; isNotFoundError: boolean }];
+  'search-error': [{ error: unknown; isNoResultsError: boolean }];
   'search-success': [Item?];
   'print-success': [];
   'add-new-item': [];

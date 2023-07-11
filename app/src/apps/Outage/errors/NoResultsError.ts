@@ -1,4 +1,4 @@
-export class NotFoundError extends Error {
+export class NoResultsError extends Error {
   originalError: unknown;
 
   constructor(message: string, originalError: unknown) {

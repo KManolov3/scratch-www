@@ -173,10 +173,10 @@ export function BatchCountList() {
     [submitBatchCount, onVerify, submitLoading],
   );
 
-  useFocusEventBus('search-error', ({ isNotFoundError }) => {
+  useFocusEventBus('search-error', ({ isNoResultsError }) => {
     reject();
 
-    if (isNotFoundError) {
+    if (isNoResultsError) {
       toastService.showInfoToast(
         'No results found. Try searching for another SKU or scanning a barcode.',
         {

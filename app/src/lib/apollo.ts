@@ -1,9 +1,12 @@
 import { ApolloError } from '@apollo/client';
 
-export function isApolloNotFoundError(error: unknown) {
+export function isApolloNoResultsError(error: unknown) {
   if (
     error instanceof ApolloError &&
-    error.graphQLErrors[0]?.extensions.errorType === 'NOT_FOUND'
+    (error.graphQLErrors[0]?.extensions.errorType === 'NOT_FOUND' ||
+      error.graphQLErrors[0]?.message.endsWith(
+        'should only contain digits 0-9',
+      ))
   ) {
     return true;
   }

@@ -23,11 +23,11 @@ export function ItemLookupHome({
   error,
   loading,
 }: ItemLookupHomeProps) {
-  const hasNotFoundError = error && error.isNotFoundError;
+  const hasNoResultsError = error && error.isNoResultsError;
   return (
     <>
       <SkuSearchBar onSubmit={onSubmit} containerStyle={searchBarStyle} />
-      {!hasNotFoundError && !loading && (
+      {!hasNoResultsError && !loading && (
         <ScanBarcodeLabel label="Scan Barcode" style={styles.scanBarcode} />
       )}
       {loading && (
@@ -37,7 +37,7 @@ export function ItemLookupHome({
           color={Colors.mediumVoid}
         />
       )}
-      {hasNotFoundError && !loading && (
+      {hasNoResultsError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a barcode"

@@ -12,7 +12,7 @@ import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
 import { OutageItemCard } from '../components/ItemCard';
-import { NotFoundError } from '../errors/NotFoundError';
+import { NoResultsError } from '../errors/NoResultsError';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 
@@ -41,7 +41,7 @@ export function OutageItemList() {
     {
       globalErrorHandling: error => {
         const toastDetails: Partial<ErrorOptions> =
-          error instanceof NotFoundError
+          error instanceof NoResultsError
             ? {
                 message:
                   'No results found. Try searching for another SKU or scanning a barcode.',
