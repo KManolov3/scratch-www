@@ -30,4 +30,8 @@ export class BatchCountListPage extends CommonItemDetailsPage {
   get createSummaryButton() {
     return '[text=Create Summary]';
   }
+
+  toastMessageForRemovedItem(itemName: string) {
+    return `//*[contains(@text,"${itemName} removed from batch count list")]`;
+  }
 }

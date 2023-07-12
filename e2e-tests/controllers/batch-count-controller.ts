@@ -11,7 +11,7 @@ import { BaseController } from './base-controller.ts';
 import { waitFor } from '../methods/helpers.ts';
 import { BatchCountSummaryPage } from '../page-objects/batch-count/approve-count-page.ts';
 
-type BatchCountData = {
+export type BatchCountData = {
   item: TestItemInput;
   newQuantity: number;
   bookmarked: boolean;
@@ -50,39 +50,70 @@ export class BatchCountController extends BaseController {
     await super.expectProductInfo(product);
   }
 
-  async confirmProductInfo(data: BatchCountData) {
+  async confirmProductInfo(batchCountsSummary: BatchCountData) {
     const productDetails = this.batchCountPages.summaryPage.productDetails(
-      data.item.mfrPartNum
+      batchCountsSummary.item.mfrPartNum
     );
 
     await waitAndClick(productDetails.partNumber);
 
-    if (data.item.partDesc) {
-      await expectElementText(productDetails.itemName, data.item.partDesc);
+    if (batchCountsSummary.item.partDesc) {
+      await expectElementText(
+        productDetails.itemName,
+        batchCountsSummary.item.partDesc
+      );
     }
 
-    if (data.item.onHand) {
+    if (batchCountsSummary.item.onHand) {
       await expectElementText(
         productDetails.currentQuantity,
-        `${data.item.onHand}`
+        `${batchCountsSummary.item.onHand}`
       );
+      await expectElementText(
+        productDetails.variance,
+        `${batchCountsSummary.newQuantity - batchCountsSummary.item.onHand}`
+      );
+    }
+
+    await expectElementText(productDetails.sku, batchCountsSummary.item.sku);
+
+    if (batchCountsSummary.item.retailPrice) {
+      await expectElementText(
+        productDetails.price,
+        `$${batchCountsSummary.item.retailPrice.toFixed(2)}`
+      );
+    }
+
+    if (batchCountsSummary.item.mfrPartNum) {
+      await expectElementText(
+        productDetails.partNumber,
+        batchCountsSummary.item.mfrPartNum
+      );
+    }
+  }
+
+  async editItemsOnSummary(dataOnSummary: BatchCountData[]) {
+    for (const data of dataOnSummary) {
+      const productDetails = this.batchCountPages.summaryPage.productDetails(
+        data.item.mfrPartNum
+      );
+
+      await waitAndClick(productDetails.partNumber);
+
+      if (data.bookmarked) {
+        await waitAndClick(productDetails.bookmarkItemButton);
+      }
+
+      await setValue(productDetails.newQtyInput, data.newQuantity);
+
       await expectElementText(
         productDetails.variance,
         `${data.newQuantity - data.item.onHand}`
       );
-    }
 
-    await expectElementText(productDetails.sku, data.item.sku);
+      await waitAndClick(productDetails.partNumber);
 
-    if (data.item.retailPrice) {
-      await expectElementText(
-        productDetails.price,
-        `$${data.item.retailPrice}`
-      );
-    }
-
-    if (data.item.mfrPartNum) {
-      await expectElementText(productDetails.partNumber, data.item.mfrPartNum);
+      await this.confirmProductInfo(data);
     }
   }
 
@@ -129,9 +160,31 @@ export class BatchCountController extends BaseController {
     );
   }
 
-  async completeBatchCount(batchCounts: BatchCountData[]) {
+  async removeItem(item: TestItemInput) {
+    const productDetails =
+      this.batchCountPages.batchCountListPage.productDetails(item.mfrPartNum);
+
+    await waitAndClick(productDetails.partNumber);
+
+    await this.verticalScroll(
+      this.batchCountPages.batchCountListPage.pogLocationsButton,
+      500
+    );
+
+    await waitAndClick(productDetails.removeItemButton);
+
+    await expect(
+      $(
+        this.batchCountPages.batchCountListPage.toastMessageForRemovedItem(
+          item.partDesc
+        )
+      )
+    ).toBeDisplayed();
+  }
+
+  async addItemsAndSetQuantity(batchCounts: BatchCountData[]) {
     for (const [index, data] of batchCounts.entries()) {
-      await this.searchForSku(data.item);
+      await this.manuallyEnterSku(data.item.sku);
 
       await setValue(
         this.batchCountPages.batchCountListPage.productDetails(
@@ -149,13 +202,10 @@ export class BatchCountController extends BaseController {
       await this.expectProductInfo(data.item);
 
       if (data.bookmarked) {
-        const pogLocationsButton = await $(
-          this.batchCountPages.batchCountListPage.pogLocationsButton
+        await this.verticalScroll(
+          this.batchCountPages.batchCountListPage.pogLocationsButton,
+          -500
         );
-        const coordinateX = await pogLocationsButton.getLocation('x');
-        const coordinateY = await pogLocationsButton.getLocation('y');
-
-        await this.verticalScroll(coordinateX, coordinateY, -500);
 
         await waitAndClick(
           this.batchCountPages.batchCountListPage.productDetails(
@@ -168,27 +218,38 @@ export class BatchCountController extends BaseController {
         await driver.back();
       }
     }
+  }
 
-    await waitAndClick(
-      this.batchCountPages.batchCountListPage.createSummaryButton
+  async expectShrinkageOverageValues(values: {
+    expectedShrinkage: string;
+    expectedOverage: string;
+    expectedNetDollars: string;
+  }) {
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.shrinkageValue,
+      values.expectedShrinkage
     );
 
-    for (const data of batchCounts) {
-      await this.confirmProductInfo(data);
-    }
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.overageValue,
+      values.expectedOverage
+    );
 
-    await waitAndClick(this.batchCountPages.summaryPage.approveCountButton);
+    await expectElementText(
+      this.batchCountPages.summaryPage.shrinkageOverageModal.netDollars,
+      values.expectedNetDollars
+    );
+  }
 
-    await this.calculateShrinkageAndOverage(batchCounts);
-
+  async approveBatchCount() {
     await waitAndClick(
       this.batchCountPages.summaryPage.shrinkageOverageModal.approveButton
     );
 
     await waitFor(this.batchCountPages.homePage.searchForSkuInput);
 
-    expect(
-      this.batchCountPages.homePage.completedBatchCountToast
+    await expect(
+      $(this.batchCountPages.homePage.completedBatchCountToast)
     ).toBeDisplayed();
   }
 }
