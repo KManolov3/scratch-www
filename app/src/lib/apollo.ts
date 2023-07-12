@@ -1,7 +1,7 @@
 import { ApolloError } from '@apollo/client';
 
-const lengthRegex = /(SKU| UPC) value should be of length between/;
-const digitsRegex = /(SKU| UPC) should only contain digits/;
+const lengthRegex = /(SKU|UPC) value should be of length between/;
+const digitsRegex = /(SKU|UPC) should only contain digits/;
 
 export function isApolloNoResultsError(error: unknown) {
   return !!(
