@@ -185,40 +185,64 @@ export const schema = addMocksToSchema({
     },
     Query: {
       itemBySku(_, args) {
-        if (skuRegex.test(args.sku)) {
-          store.set({
-            typeName: 'Query',
-            key: 'ROOT',
-            fieldName: 'itemBySku',
-            fieldArgs: args,
-            value: {
-              sku: args.sku,
-            },
-          });
+        const { sku } = args;
+        const { length } = sku as string;
 
-          const item = store.get({
-            typeName: 'Query',
-            key: 'ROOT',
-            fieldName: 'itemBySku',
-            fieldArgs: args,
-          }) as Ref<string>;
-
-          if (store.get(item, 'partDesc') === 'Not Found') {
-            throw new GraphQLError('Item not found', {
+        if (length < 1 || length > 9) {
+          throw new GraphQLError(
+            'SKU value should be of length between 1 and 9',
+            {
               extensions: {
-                errorType: 'NOT_FOUND',
+                errorType: 'BAD_REQUEST',
                 debugInfo: {
-                  message: 'Item not found',
-                  statusCode: 404,
+                  statusCode: 400,
                 },
               },
-            });
-          }
-
-          return item;
+            },
+          );
         }
 
-        throw new Error('SKU must contain 1-9 digits.');
+        if (!skuRegex.test(args.sku)) {
+          throw new GraphQLError('SKU should only contain digits 0-9', {
+            extensions: {
+              errorType: 'BAD_REQUEST',
+              debugInfo: {
+                statusCode: 400,
+              },
+            },
+          });
+        }
+
+        store.set({
+          typeName: 'Query',
+          key: 'ROOT',
+          fieldName: 'itemBySku',
+          fieldArgs: args,
+          value: {
+            sku: args.sku,
+          },
+        });
+
+        const item = store.get({
+          typeName: 'Query',
+          key: 'ROOT',
+          fieldName: 'itemBySku',
+          fieldArgs: args,
+        }) as Ref<string>;
+
+        if (store.get(item, 'partDesc') === 'Not Found') {
+          throw new GraphQLError('Item not found', {
+            extensions: {
+              errorType: 'NOT_FOUND',
+              debugInfo: {
+                message: 'Item not found',
+                statusCode: 404,
+              },
+            },
+          });
+        }
+
+        return item;
       },
     },
   }),
