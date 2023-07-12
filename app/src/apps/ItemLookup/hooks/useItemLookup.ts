@@ -1,6 +1,7 @@
 import { noop } from 'lodash-es';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { gql } from 'src/__generated__';
+import { useLatestRef } from '@hooks/useLatestRef';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
@@ -45,10 +46,8 @@ export function useItemLookup({
   onError = noop,
   onComplete,
 }: UseItemLookupProps = {}) {
-  const onErrorRef = useRef(onError);
-  onErrorRef.current = onError;
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  const onErrorRef = useLatestRef(onError);
+  const onCompleteRef = useLatestRef(onComplete);
 
   const { navigate } = useNavigation<ItemLookupNavigation>();
   const { storeNumber } = useCurrentSessionInfo();
@@ -59,7 +58,7 @@ export function useItemLookup({
     error: skuError,
   } = useManagedLazyQuery(ITEM_BY_SKU, {
     globalErrorHandling: error => {
-      const isNoResultsError = isApolloNoResultsError(searchError);
+      const isNoResultsError = isApolloNoResultsError(error);
       onErrorRef.current(error, isNoResultsError);
       if (isNoResultsError) {
         return 'ignored';
@@ -69,6 +68,7 @@ export function useItemLookup({
       };
     },
   });
+
   const {
     trigger: searchByUpc,
     loading: isLoadingItemByUpc,
@@ -90,6 +90,7 @@ export function useItemLookup({
     () => isLoadingItemBySku && isLoadingItemByUpc,
     [isLoadingItemBySku, isLoadingItemByUpc],
   );
+
   const searchError = useMemo<SearchError | undefined>(() => {
     const error = skuError ?? upcError;
 
@@ -134,7 +135,7 @@ export function useItemLookup({
         });
       }
     },
-    [navigate, searchBySku, searchByUpc, storeNumber],
+    [navigate, onCompleteRef, searchBySku, searchByUpc, storeNumber],
   );
 
   return {
