@@ -32,6 +32,6 @@ export class BatchCountListPage extends CommonItemDetailsPage {
   }
 
   toastMessageForRemovedItem(itemName: string) {
-    return `//*[contains(@text,"${itemName} removed from batch count list")]`;
+    return `//*[contains(@text,"${itemName} removed from Batch count list")]`;
   }
 }
