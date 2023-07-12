@@ -92,7 +92,9 @@ export function PrinterList({
             openPortablePrinterModal();
           }
         }}
-        onReplace={openPortablePrinterModal}
+        onReplace={
+          lastUsedPortablePrinter ? openPortablePrinterModal : undefined
+        }
       />
 
       <AddPortablePrinterModal
@@ -161,7 +163,7 @@ function PrinterOption({
           <View style={styles.printerLabelSubtitle}>
             <Text style={styles.subtitle}>{subtitle}</Text>
 
-            {showDefaultLabelIfSelected && (
+            {showDefaultLabelIfSelected && onReplace && (
               <Pressable onPress={onReplace}>
                 <Text style={styles.replaceText}>Replace</Text>
               </Pressable>

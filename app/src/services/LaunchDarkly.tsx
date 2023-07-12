@@ -172,6 +172,12 @@ export function LaunchDarklyProvider({
   const { data: service, loading: configuring } = useAsync(
     () => launchDarkly.configure({ applicationName, userId, storeNumber }),
     [applicationName, userId, storeNumber],
+    {
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+        message: 'Could not configure LaunchDarkly.',
+      }),
+    },
   );
 
   const {
@@ -183,6 +189,12 @@ export function LaunchDarklyProvider({
     // eslint-disable-next-line require-await
     async () => service?.allFlags(),
     [service],
+    {
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+        customMessage: 'Could not load flag defaults.',
+      }),
+    },
   );
 
   useEffect(() => {

@@ -15,7 +15,7 @@ export function useConfirmation<T = void>() {
           confirmation.resolve(false);
         }
 
-        const deferred = new Deferred();
+        const deferred = new Deferred<boolean>();
 
         setConfirmation(deferred);
         setItemToConfirm(item);

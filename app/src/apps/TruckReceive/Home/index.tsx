@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useQuery } from '@apollo/client';
 import { RootNavigation } from '@apps/navigator';
 import { Text } from '@components/Text';
 import { TextInput } from '@components/TextInput';
+import { useManagedQuery } from '@hooks/useManagedQuery';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
@@ -30,8 +30,12 @@ export function TruckReceiveHome() {
   const [search, setSearch] = useState('');
 
   const { storeNumber } = useCurrentSessionInfo();
-  const { loading, data, error } = useQuery(QUERY, {
+  const { loading, data, error } = useManagedQuery(QUERY, {
     variables: { storeNumber },
+    globalErrorHandling: () => ({
+      displayAs: 'modal',
+      allowRetries: true,
+    }),
   });
 
   if (loading) {

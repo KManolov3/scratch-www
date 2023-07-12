@@ -34,22 +34,26 @@ export function AuthProvider({
     // Sending requests will wait for this to be completed anyway.
 
     error,
-  } = useAsync(async () => {
-    try {
-      const auth = await InStoreAppsNative.reloadAuthFromLauncher({
-        clientId,
-        authServerURL,
-      });
+  } = useAsync(
+    async () => {
+      try {
+        const auth = await InStoreAppsNative.reloadAuthFromLauncher({
+          clientId,
+          authServerURL,
+        });
 
-      newRelicService.onAuthenticationUpdate(auth);
+        newRelicService.onAuthenticationUpdate(auth);
 
-      return auth;
-    } catch (authError) {
-      onErrorRef.current();
+        return auth;
+      } catch (authError) {
+        onErrorRef.current();
 
-      throw authError;
-    }
-  }, [clientId, authServerURL]);
+        throw authError;
+      }
+    },
+    [clientId, authServerURL],
+    { globalErrorHandling: () => ({ displayAs: 'toast' }) },
+  );
 
   useAppStateChange('active', reloadAuth);
 

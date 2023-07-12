@@ -1,4 +1,4 @@
-import { merge } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import { DateTime } from 'luxon';
 import {
   ReactNode,
@@ -19,8 +19,10 @@ import {
 import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { EventBus } from '@hooks/useEventBus';
+import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
+import { useManagedMutation } from '@hooks/useManagedMutation';
+import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
@@ -28,12 +30,26 @@ import { BatchCountNavigation } from './navigator';
 
 interface ContextValue {
   batchCountItems: BatchCountItem[];
-  addItem: (item: Item | undefined, incrementCount: boolean) => void;
-  updateItem: (sku: string, item: Partial<BatchCountItem>) => void;
+
+  applySorting: () => void;
+
+  addItem: (item: Item, incrementCount: boolean) => void;
+  updateItem: (
+    sku: string,
+    item: Partial<BatchCountItem>,
+    options: { moveItemToTop: boolean },
+  ) => void;
   removeItem: (sku: string) => void;
-  submit: () => void;
+
+  submit: () => Promise<void>;
   submitLoading?: boolean;
-  submitError?: ApolloError;
+  submitError?: unknown;
+}
+
+export interface BatchCountItem {
+  item: Item & { sku: NonNullable<Item['sku']> };
+  newQty: number;
+  isBookmarked?: boolean;
 }
 
 export const ITEM_BY_SKU = gql(`
@@ -55,12 +71,6 @@ export const ITEM_BY_UPC = gql(`
     },
   }
 `);
-
-export interface BatchCountItem {
-  item: Item & { sku: NonNullable<Item['sku']> };
-  newQty: number;
-  isBookmarked?: boolean;
-}
 
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
@@ -100,55 +110,68 @@ function buildBatchCountRequest(
 
 export function BatchCountStateProvider({ children }: { children: ReactNode }) {
   const [batchCountItems, setBatchCountItems] = useState<BatchCountItem[]>([]);
-  const [submitBatchCount, { error, loading }] =
-    useMutation(SUBMIT_BATCH_COUNT);
+  const {
+    perform: submitBatchCount,
+    error,
+    loading,
+  } = useManagedMutation(SUBMIT_BATCH_COUNT, {
+    globalErrorHandling: () => ({
+      displayAs: 'toast',
+    }),
+  });
   const navigation = useNavigation<BatchCountNavigation>();
 
   const { storeNumber } = useCurrentSessionInfo();
 
   const updateItem = useCallback(
-    (sku: string, updatedItem: Partial<BatchCountItem>) => {
-      const itemInState = batchCountItems.find(({ item }) => item.sku === sku);
+    (
+      sku: string,
+      updates: Partial<BatchCountItem>,
+      { moveItemToTop }: { moveItemToTop: boolean },
+    ) => {
+      setBatchCountItems(items => {
+        const itemInState = items.find(({ item }) => item.sku === sku);
 
-      if (!itemInState) {
-        // TODO: Should this be an error? It will break the application, but then again,
-        // if the item does not exist in state that definitely means something is wrong.
-        throw new Error('Attempting to update an item not existing in state');
-      }
+        if (!itemInState) {
+          // TODO: Should this be an error? It will break the application, but then again,
+          // if the item does not exist in state that definitely means something is wrong.
+          throw new Error('Attempting to update an item not existing in state');
+        }
+        const updatedItem = { ...itemInState, ...updates };
 
-      setBatchCountItems([
-        merge(itemInState, updatedItem),
-        ...batchCountItems.filter(({ item }) => item.sku !== sku),
-      ]);
+        if (moveItemToTop) {
+          return [updatedItem, ...items.filter(({ item }) => item.sku !== sku)];
+        }
+
+        return items.map(item => (item.item.sku !== sku ? item : updatedItem));
+      });
     },
-    [batchCountItems, setBatchCountItems],
+    [setBatchCountItems],
   );
 
   const addItem = useCallback(
-    (newItem: Item | undefined, incrementCount: boolean) => {
-      if (newItem) {
-        const itemInState = batchCountItems.find(
-          ({ item }) => item.sku === newItem.sku,
-        );
+    (newItem: Item, incrementCount: boolean) => {
+      const itemInState = batchCountItems.find(
+        ({ item }) => item.sku === newItem.sku,
+      );
 
-        if (!itemInState) {
-          setBatchCountItems([
-            {
-              item: {
-                ...newItem,
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                sku: newItem.sku!,
-              },
-              newQty: incrementCount ? 1 : 0,
-            },
-            ...batchCountItems,
-          ]);
-          EventBus.emit('add-new-item');
-        } else {
-          // Updating with the retrieved information even if the item already exists in the state
-          // in case something changed (for example, the price) on the backend.
+      if (!itemInState) {
+        const newBatchCountItem = {
+          item: {
+            ...newItem,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            sku: newItem.sku!,
+          },
+          newQty: incrementCount ? 1 : 0,
+        };
+        setBatchCountItems([newBatchCountItem, ...batchCountItems]);
+      } else {
+        // Updating with the retrieved information even if the item already exists in the state
+        // in case something changed (for example, the price) on the backend.
+        updateItem(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          updateItem(newItem.sku!, {
+          newItem.sku!,
+          {
             item: {
               ...newItem,
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -157,19 +180,23 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
             newQty: incrementCount
               ? itemInState.newQty + 1
               : itemInState.newQty,
-          });
-        }
-        navigation.navigate('List');
+          },
+          { moveItemToTop: true },
+        );
       }
+
+      EventBus.emit('add-item-to-batch-count');
+      navigation.navigate('List');
     },
     [batchCountItems, navigation, updateItem],
   );
 
   const removeItem = useCallback(
-    (sku: string) =>
+    (sku: string) => {
       setBatchCountItems(
         batchCountItems.filter(({ item }) => item.sku !== sku),
-      ),
+      );
+    },
     [batchCountItems],
   );
 
@@ -188,6 +215,10 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     navigation.navigate('Home');
   }, [batchCountItems, storeNumber, submitBatchCount, navigation]);
 
+  const applySorting = useCallback(() => {
+    setBatchCountItems(items => sortBy(items, item => !item.isBookmarked));
+  }, []);
+
   const value = useMemo(
     () => ({
       batchCountItems,
@@ -195,30 +226,65 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       submit,
+      applySorting,
 
       // TODO: Make these part of the user useAsyncAction and just make `submit` return a promise?
       submitLoading: loading,
       submitError: error,
     }),
-    [batchCountItems, addItem, updateItem, removeItem, submit, loading, error],
+    [
+      batchCountItems,
+      addItem,
+      updateItem,
+      removeItem,
+      submit,
+      applySorting,
+      loading,
+      error,
+    ],
   );
 
-  const [searchBySku] = useLazyQuery(ITEM_BY_SKU, {
+  const { trigger: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
     onCompleted: item => {
-      addItem(item.itemBySku ?? undefined, false);
-      EventBus.emit('search-success', item.itemBySku ?? undefined);
+      if (!item.itemBySku?.sku) {
+        return;
+      }
+
+      addItem(item.itemBySku, false);
+
+      EventBus.emit('search-success', { sku: item.itemBySku.sku });
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
+    globalErrorHandling: searchError => {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
-  const [searchByUpc] = useLazyQuery(ITEM_BY_UPC, {
+  const { trigger: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
     onCompleted: item => {
-      addItem(item.itemByUpc ?? undefined, true);
-      EventBus.emit('search-success', item.itemByUpc ?? undefined);
+      if (!item.itemByUpc?.sku) {
+        return;
+      }
+
+      addItem(item.itemByUpc, true);
+      EventBus.emit('search-success', { sku: item.itemByUpc.sku });
     },
-    onError: (searchError: ApolloError) =>
-      EventBus.emit('search-error', searchError),
+    globalErrorHandling: searchError => {
+      const isNoResultsError = isApolloNoResultsError(searchError);
+      EventBus.emit('search-error', { error, isNoResultsError });
+      if (isNoResultsError) {
+        return 'ignored';
+      }
+      return {
+        displayAs: 'toast',
+      };
+    },
   });
 
   useScanCodeListener(code => {

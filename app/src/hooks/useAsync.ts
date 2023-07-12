@@ -1,12 +1,17 @@
 import { DependencyList, useEffect } from 'react';
-import { useAsyncAction } from './useAsyncAction';
+import { AsyncActionOptions, useAsyncAction } from './useAsyncAction';
 
 export function useAsync<T>(
   action: () => Promise<T>,
   dependencies: DependencyList,
+  options: AsyncActionOptions<T>,
 ) {
   const { trigger, data, loading, error } = useAsyncAction(action, {
-    loading: true,
+    ...options,
+    initialState: {
+      ...options.initialState,
+      loading: true,
+    },
   });
 
   // This is intentional

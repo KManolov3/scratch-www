@@ -1,7 +1,5 @@
-import { sortBy } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet } from 'react-native';
-import { Item } from 'src/__generated__/graphql';
+import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
 import { BottomActionBar } from '@components/BottomActionBar';
@@ -11,9 +9,11 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
-import { useSortOnScreenFocus } from '@hooks/useSortOnScreenFocus';
+import { useLatestRef } from '@hooks/useLatestRef';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { useNavigation } from '@react-navigation/native';
+import { isErrorWithMessage } from '@lib/error';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
@@ -29,6 +29,7 @@ export function BatchCountSummary() {
     submitError,
     updateItem,
     removeItem,
+    applySorting,
     batchCountItems,
   } = useBatchCountState();
   const navigation = useNavigation<BatchCountNavigation>();
@@ -36,26 +37,15 @@ export function BatchCountSummary() {
   const { confirmationRequested, askForConfirmation, accept, reject } =
     useConfirmation();
 
-  const sortFn = useCallback(
-    (items: BatchCountItem[]) => sortBy(items, item => !item.isBookmarked),
-    [],
-  );
-  const keyFn = useCallback(({ item }: BatchCountItem) => item.sku, []);
-  const batchCountItemsSorted = useSortOnScreenFocus(
-    batchCountItems,
-    sortFn,
-    keyFn,
-  );
-
-  const [expandedSku, setExpandedSku] = useState<string>();
+  const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const flatListRef = useRef<FlatList>(null);
 
+  const [expandedSku, setExpandedSku] = useState<string>();
+
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
-      updateItem(sku, {
-        newQty,
-      });
+      updateItem(sku, { newQty }, { moveItemToTop: false });
     },
     [updateItem],
   );
@@ -72,9 +62,11 @@ export function BatchCountSummary() {
 
   const onBookmark = useCallback(
     (sku: string, isCurrentlyBookmarked: boolean) => {
-      updateItem(sku, {
-        isBookmarked: !isCurrentlyBookmarked,
-      });
+      updateItem(
+        sku,
+        { isBookmarked: !isCurrentlyBookmarked },
+        { moveItemToTop: false },
+      );
       if (!isCurrentlyBookmarked) {
         toastService.showInfoToast('Item bookmarked as note to self', {
           props: { containerStyle: styles.toast },
@@ -98,15 +90,19 @@ export function BatchCountSummary() {
 
   const onRemove = useCallback(
     (item: BatchCountItem['item']) => {
+      if (item.sku === expandedSku) {
+        setExpandedSku(undefined);
+      }
       removeItem(item.sku);
       toastService.showInfoToast(
         `${item.partDesc} removed from Batch count list`,
+
         {
           props: { containerStyle: styles.toast },
         },
       );
     },
-    [removeItem],
+    [removeItem, expandedSku],
   );
 
   useEffect(() => {
@@ -135,43 +131,57 @@ export function BatchCountSummary() {
     [expandedSku, setNewQuantity, onBookmark, onRemove, onClick],
   );
 
-  const { trigger: submitBatchCount } = useAsyncAction(async () => {
-    if (await askForConfirmation()) {
-      submitBatch();
-    }
-  });
+  const { trigger: submitBatchCount } = useAsyncAction(
+    async () => {
+      if (await askForConfirmation()) {
+        await executeWithGlobalErrorHandling(submitBatch, () => ({
+          displayAs: 'modal',
+          message: `Error while submitting batch count. ${
+            isErrorWithMessage(submitError)
+              ? submitError.message
+              : 'An unknown server error has occured'
+          }`,
+          allowRetries: true,
+        }));
+      }
+    },
+    {
+      globalErrorHandling: 'disabled',
+    },
+  );
 
-  useEffect(() => {
-    if (submitError) {
+  useFocusEventBus('search-error', ({ isNoResultsError }) => {
+    reject();
+
+    if (isNoResultsError) {
       toastService.showInfoToast(
-        `Error while submitting batch count. ${submitError.message}`,
+        'No results found. Try searching for another SKU or scanning a barcode.',
         {
           props: { containerStyle: styles.toast },
         },
       );
     }
-  }, [submitError]);
-
-  useFocusEventBus('search-error', () => {
-    reject();
-    toastService.showInfoToast(
-      'No results found. Try searching for another SKU or scanning a barcode.',
-      {
-        props: { containerStyle: styles.toast },
-      },
-    );
   });
 
-  useFocusEventBus('search-success', (item?: Item) => {
+  useFocusEventBus('search-success', ({ sku }) => {
     reject();
-    if (item && item.sku !== expandedSku) {
+
+    if (sku !== expandedSku) {
       setExpandedSku(undefined);
     }
   });
 
-  useFocusEventBus('add-new-item', () => {
+  const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-  });
+    Keyboard.dismiss();
+  }, [flatListRef]);
+
+  useFocusEventBus('add-item-to-batch-count', scrollToTopAndDismissKeyboard);
+
+  const applySortingRef = useLatestRef(applySorting);
+  useFocusEffect(
+    useCallback(() => applySortingRef.current(), [applySortingRef]),
+  );
 
   return (
     <>
@@ -185,7 +195,7 @@ export function BatchCountSummary() {
         }>
         <FlatList
           contentContainerStyle={styles.list}
-          data={batchCountItemsSorted}
+          data={batchCountItems}
           renderItem={renderItem}
           ref={flatListRef}
         />
