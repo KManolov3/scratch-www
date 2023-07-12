@@ -96,12 +96,14 @@ export function Drawer() {
         data: [
           {
             label: 'Print Front Tags',
-            onPress: () =>
+            onPress: () => {
+              goBack();
               selectedItem
                 ? navigate('PrintFrontTag', { itemDetails: selectedItem })
                 : InStoreAppsNative.navigateTo(
                     '.activities.ItemLookupActivity',
-                  ),
+                  );
+            },
           },
           // { label: 'Backstock Moves' },
           // { label: 'Manage Backstock slot' },

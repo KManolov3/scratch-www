@@ -19,7 +19,10 @@ export function BatchCountHome() {
   const { trigger: searchBySku, loading: isLoadingItemBySku } =
     useManagedLazyQuery(ITEM_BY_SKU, {
       onCompleted: item => {
-        addItem(item.itemBySku ?? undefined, false);
+        if (item.itemBySku) {
+          addItem(item.itemBySku, false);
+        }
+
         setHasNoResultsError(false);
       },
       globalErrorHandling: error => {

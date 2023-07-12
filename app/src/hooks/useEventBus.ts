@@ -1,13 +1,12 @@
 import EventEmitter from 'eventemitter3';
 import { useEffect } from 'react';
-import { Item } from 'src/__generated__/graphql';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface EventTypes {
   'search-error': [{ error: unknown; isNoResultsError: boolean }];
-  'search-success': [Item?];
+  'search-success': [{ sku: string }];
   'print-success': [];
-  'add-new-item': [];
+  'add-item-to-batch-count': [];
 }
 
 export const EventBus = new EventEmitter<EventTypes>();
@@ -20,6 +19,7 @@ export function useFocusEventBus<T extends EventEmitter.EventNames<EventTypes>>(
 ) {
   useFocusEffect(() => {
     EventBus.addListener(event, listener);
+
     return () => {
       EventBus.removeListener(event, listener);
     };
@@ -34,6 +34,7 @@ export function useEventBus<T extends EventEmitter.EventNames<EventTypes>>(
 ) {
   useEffect(() => {
     EventBus.addListener(event, listener);
+
     return () => {
       EventBus.removeListener(event, listener);
     };
