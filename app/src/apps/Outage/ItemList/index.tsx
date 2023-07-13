@@ -11,8 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
+import { NoResultsError } from '../../../errors/NoResultsError';
 import { OutageItemCard } from '../components/ItemCard';
-import { NoResultsError } from '../errors/NoResultsError';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
 

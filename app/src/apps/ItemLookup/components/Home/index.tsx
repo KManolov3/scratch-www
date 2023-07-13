@@ -4,7 +4,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { SearchError } from '@apps/ItemLookup/hooks/useItemLookup';
+import { NoResultsError } from 'src/errors/NoResultsError';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
@@ -12,7 +12,7 @@ import { Colors } from '@lib/colors';
 
 interface ItemLookupHomeProps {
   onSubmit?(value: string): void;
-  error?: SearchError;
+  error?: unknown;
   loading: boolean;
   searchBarStyle?: StyleProp<ViewStyle>;
   barcodeStyle?: StyleProp<ViewStyle>;
@@ -25,7 +25,7 @@ export function ItemLookupHome({
   error,
   loading,
 }: ItemLookupHomeProps) {
-  const hasNoResultsError = error && error.isNoResultsError;
+  const hasNoResultsError = error instanceof NoResultsError;
   return (
     <>
       <SkuSearchBar onSubmit={onSubmit} containerStyle={searchBarStyle} />

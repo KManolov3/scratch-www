@@ -1,8 +1,9 @@
-import { noop } from 'lodash-es';
-import { useCallback, useMemo } from 'react';
 import { gql } from 'src/__generated__';
+import { NoResultsError } from 'src/errors/NoResultsError';
+import { GlobalStateItemDetails } from '@apps/state';
+import { apolloClient } from '@config/graphql';
+import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useLatestRef } from '@hooks/useLatestRef';
-import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
@@ -32,18 +33,13 @@ type SearchProps = {
   frontTagPrice?: number;
 } & ({ sku?: undefined; upc: string } | { sku: string; upc?: undefined });
 
-export type SearchError = {
-  error: unknown;
-  isNoResultsError: boolean;
-};
-
 export interface UseItemLookupProps {
-  onError?: (error: unknown, isNoResultsError: boolean) => void;
+  onError?: (error: unknown) => void;
   onComplete?: () => void;
 }
 
 export function useItemLookup({
-  onError = noop,
+  onError,
   onComplete,
 }: UseItemLookupProps = {}) {
   const onErrorRef = useLatestRef(onError);
@@ -53,94 +49,94 @@ export function useItemLookup({
   const { storeNumber } = useCurrentSessionInfo();
 
   const {
-    trigger: searchBySku,
-    loading: isLoadingItemBySku,
-    error: skuError,
-  } = useManagedLazyQuery(ITEM_BY_SKU, {
-    globalErrorHandling: error => {
-      const isNoResultsError = isApolloNoResultsError(error);
-      onErrorRef.current(error, isNoResultsError);
-      if (isNoResultsError) {
-        return 'ignored';
-      }
-      return {
-        displayAs: 'toast',
-      };
-    },
-  });
+    trigger: search,
+    loading,
+    error,
+  } = useAsyncAction(
+    async ({ sku, upc, frontTagPrice }: SearchProps) => {
+      let searchResult: {
+        itemDetails?: GlobalStateItemDetails;
+        frontTagPrice?: number;
+      } = {};
+      let searchError: unknown;
 
-  const {
-    trigger: searchByUpc,
-    loading: isLoadingItemByUpc,
-    error: upcError,
-  } = useManagedLazyQuery(ITEM_BY_UPC, {
-    globalErrorHandling: error => {
-      const isNoResultsError = isApolloNoResultsError(error);
-      onErrorRef.current(error, isNoResultsError);
-      if (isNoResultsError) {
-        return 'ignored';
-      }
-      return {
-        displayAs: 'toast',
-      };
-    },
-  });
-
-  const loading = useMemo(
-    () => isLoadingItemBySku && isLoadingItemByUpc,
-    [isLoadingItemBySku, isLoadingItemByUpc],
-  );
-
-  const searchError = useMemo<SearchError | undefined>(() => {
-    const error = skuError ?? upcError;
-
-    if (!error) {
-      return undefined;
-    }
-
-    return {
-      error,
-      isNoResultsError: isApolloNoResultsError(error),
-    };
-  }, [skuError, upcError]);
-
-  const search = useCallback(
-    ({ sku, upc, frontTagPrice }: SearchProps) => {
       if (sku) {
-        return searchBySku({
-          variables: { sku, storeNumber },
-          onCompleted: itemDetails => {
-            if (itemDetails.itemBySku) {
-              onCompleteRef.current?.();
-              navigate('ItemLookup', {
-                itemDetails: itemDetails.itemBySku,
-                frontTagPrice,
-              });
-            }
-          },
-        });
+        try {
+          const skuResult = await apolloClient.query({
+            query: ITEM_BY_SKU,
+            variables: { sku, storeNumber },
+          });
+
+          // eslint-disable-next-line max-depth
+          if (skuResult.data.itemBySku) {
+            searchResult = {
+              itemDetails: skuResult.data.itemBySku,
+            };
+          }
+        } catch (e) {
+          searchError = e;
+        }
       }
 
       if (upc) {
-        return searchByUpc({
-          variables: { upc, storeNumber },
-          onCompleted: itemDetails => {
-            if (itemDetails.itemByUpc) {
-              onCompleteRef.current?.();
-              navigate('ItemLookup', {
-                itemDetails: itemDetails.itemByUpc,
-              });
-            }
-          },
+        try {
+          const upcResult = await apolloClient.query({
+            query: ITEM_BY_UPC,
+            variables: { upc, storeNumber },
+          });
+
+          // eslint-disable-next-line max-depth
+          if (upcResult.data.itemByUpc) {
+            searchResult = {
+              itemDetails: upcResult.data.itemByUpc,
+              frontTagPrice,
+            };
+          }
+        } catch (e) {
+          searchError = e;
+        }
+      }
+
+      if (searchError) {
+        let transformedError = searchError;
+        if (isApolloNoResultsError(searchError)) {
+          transformedError = new NoResultsError(
+            'No results found. Try searching for another SKU or scanning a barcode.',
+            searchError,
+          );
+        }
+
+        onErrorRef.current?.(transformedError);
+
+        throw transformedError;
+      }
+
+      onCompleteRef.current?.();
+      if (searchResult.itemDetails) {
+        navigate('ItemLookup', {
+          itemDetails: searchResult.itemDetails,
+          frontTagPrice: searchResult.frontTagPrice,
         });
       }
+
+      return searchResult;
     },
-    [navigate, onCompleteRef, searchBySku, searchByUpc, storeNumber],
+    {
+      globalErrorHandling: searchError => {
+        const isNoResultsError = searchError instanceof NoResultsError;
+        if (isNoResultsError) {
+          return 'ignored';
+        }
+        return {
+          displayAs: 'toast',
+        };
+      },
+    },
   );
 
   return {
     search,
     loading,
-    error: searchError,
+    error,
   };
 }

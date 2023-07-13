@@ -23,6 +23,7 @@ export function useManagedLazyQuery<
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options: LazyQueryHookOptions<TData, TVariables> & {
     globalErrorHandling: GlobalErrorHandlingSetting;
+    onExecute?: () => void;
   },
 ) {
   const { executeWithGlobalErrorHandling } = useErrorManager();
@@ -31,6 +32,8 @@ export function useManagedLazyQuery<
 
   const shimmedExecute = useCallback(
     (additionalOptions?: Partial<LazyQueryHookOptions<TData, TVariables>>) => {
+      options.onExecute?.();
+
       if (options.globalErrorHandling === 'disabled') {
         return execute(additionalOptions);
       }

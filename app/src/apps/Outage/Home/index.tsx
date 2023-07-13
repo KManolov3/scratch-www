@@ -8,7 +8,7 @@ import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { NoResultsError } from '../errors/NoResultsError';
+import { NoResultsError } from '../../../errors/NoResultsError';
 import { useOutageState } from '../state';
 
 export function OutageHome() {

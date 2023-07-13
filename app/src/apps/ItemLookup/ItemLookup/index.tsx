@@ -54,7 +54,7 @@ export function ItemLookupScreen({
         .catch(soundError => console.log('Error playing sound.', soundError));
     } else {
       // TODO: This is done on the second render, thus the modal changes values first, then hides.
-      //       Maybe we want to hide it directly somehow?
+      // Maybe we want to hide it directly somehow?
       hidePriceDiscrepancyModal();
     }
   }, [

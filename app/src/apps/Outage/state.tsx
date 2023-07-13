@@ -22,8 +22,8 @@ import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
+import { NoResultsError } from '../../errors/NoResultsError';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
-import { NoResultsError } from './errors/NoResultsError';
 import { OutageNavigation } from './navigator';
 
 const SUBMIT_OUTAGE_COUNT = gql(`
