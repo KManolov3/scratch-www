@@ -16,13 +16,10 @@ import {
   Item,
   Status,
 } from 'src/__generated__/graphql';
-import { useScanCodeListener } from 'src/services/ScanCode';
 import { toastService } from 'src/services/ToastService';
 import { v4 as uuid } from 'uuid';
 import { EventBus } from '@hooks/useEventBus';
-import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
-import { isApolloNoResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { SubmitBatchCountGql } from './external-types';
@@ -51,26 +48,6 @@ export interface BatchCountItem {
   newQty: number;
   isBookmarked?: boolean;
 }
-
-export const ITEM_BY_SKU = gql(`
-  query BatchCountItemBySkuLookup($sku: String!, $storeNumber: String!) {
-    itemBySku(sku: $sku, storeNumber: $storeNumber) {
-      ...ItemInfoFields
-      ...PlanogramFields
-      ...BackstockSlotFields
-    },
-  }
-`);
-
-export const ITEM_BY_UPC = gql(`
-  query BatchCountItemByUpcLookup($upc: String!, $storeNumber: String!) {
-    itemByUpc(upc: $upc, storeNumber: $storeNumber) {
-      ...ItemInfoFields
-      ...PlanogramFields
-      ...BackstockSlotFields
-    },
-  }
-`);
 
 const SUBMIT_BATCH_COUNT = gql(`
   mutation SubmitBatchCount($request: CycleCountList!) {
@@ -243,65 +220,6 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
       error,
     ],
   );
-
-  const { trigger: searchBySku } = useManagedLazyQuery(ITEM_BY_SKU, {
-    onCompleted: item => {
-      if (!item.itemBySku?.sku) {
-        return;
-      }
-
-      addItem(item.itemBySku, false);
-
-      EventBus.emit('search-success', { sku: item.itemBySku.sku });
-    },
-    globalErrorHandling: searchError => {
-      const isNoResultsError = isApolloNoResultsError(searchError);
-      EventBus.emit('search-error', { error, isNoResultsError });
-      if (isNoResultsError) {
-        return 'ignored';
-      }
-      return {
-        displayAs: 'toast',
-      };
-    },
-  });
-
-  const { trigger: searchByUpc } = useManagedLazyQuery(ITEM_BY_UPC, {
-    onCompleted: item => {
-      if (!item.itemByUpc?.sku) {
-        return;
-      }
-
-      addItem(item.itemByUpc, true);
-      EventBus.emit('search-success', { sku: item.itemByUpc.sku });
-    },
-    globalErrorHandling: searchError => {
-      const isNoResultsError = isApolloNoResultsError(searchError);
-      EventBus.emit('search-error', { error, isNoResultsError });
-      if (isNoResultsError) {
-        return 'ignored';
-      }
-      return {
-        displayAs: 'toast',
-      };
-    },
-  });
-
-  useScanCodeListener(code => {
-    switch (code.type) {
-      case 'front-tag':
-      case 'sku':
-        return searchBySku({
-          variables: { sku: code.sku, storeNumber },
-        });
-      case 'UPC':
-        return searchByUpc({
-          variables: { upc: code.upc, storeNumber },
-        });
-      default:
-        toastService.showInfoToast('Scanned barcode is not supported');
-    }
-  });
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
+import { NoResultsError } from 'src/errors/NoResultsError';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
 import { BottomActionBar } from '@components/BottomActionBar';
@@ -15,6 +16,7 @@ import { isErrorWithMessage } from '@lib/error';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
+import { useBatchCountSearchAndScanListener } from '../hooks/useBatchCountSearchAndScanListener';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
 
@@ -42,6 +44,26 @@ export function BatchCountSummary() {
   const flatListRef = useRef<FlatList>(null);
 
   const [expandedSku, setExpandedSku] = useState<string>();
+
+  useBatchCountSearchAndScanListener({
+    onError: error => {
+      if (error instanceof NoResultsError) {
+        toastService.showInfoToast(
+          'No results found. Try searching for another SKU or scanning a barcode.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+      }
+    },
+    onComplete: ({ itemDetails }) => {
+      reject();
+
+      if (itemDetails?.sku !== expandedSku) {
+        setExpandedSku(undefined);
+      }
+    },
+  });
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -149,27 +171,6 @@ export function BatchCountSummary() {
       globalErrorHandling: 'disabled',
     },
   );
-
-  useFocusEventBus('search-error', ({ isNoResultsError }) => {
-    reject();
-
-    if (isNoResultsError) {
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning a barcode.',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
-    }
-  });
-
-  useFocusEventBus('search-success', ({ sku }) => {
-    reject();
-
-    if (sku !== expandedSku) {
-      setExpandedSku(undefined);
-    }
-  });
 
   const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });

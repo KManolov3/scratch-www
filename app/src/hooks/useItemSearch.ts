@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Exact, Item } from 'src/__generated__/graphql';
 import { NoResultsError } from 'src/errors/NoResultsError';
 import { TypedDocumentNode } from '@apollo/client';
@@ -15,6 +16,7 @@ type SearchProps = {
 export interface SearchResult {
   itemDetails?: GlobalStateItemDetails;
   frontTagPrice?: number;
+  searchType: 'sku' | 'upc';
 }
 
 export interface UseItemSearchProps {
@@ -53,53 +55,55 @@ export function useItemSearch({
 
   const { storeNumber } = useCurrentSessionInfo();
 
+  const searchBy = useCallback(
+    async ({ sku, upc, frontTagPrice }: SearchProps): Promise<SearchResult> => {
+      if (sku) {
+        const skuResult = await apolloClient.query({
+          query: skuQuery,
+          variables: { sku, storeNumber },
+        });
+
+        if (skuResult.data.itemBySku) {
+          return {
+            itemDetails: skuResult.data.itemBySku,
+            searchType: 'sku',
+          };
+        }
+      }
+
+      if (upc) {
+        const upcResult = await apolloClient.query({
+          query: upcQuery,
+          variables: { upc, storeNumber },
+        });
+
+        if (upcResult.data.itemByUpc) {
+          return {
+            itemDetails: upcResult.data.itemByUpc,
+            frontTagPrice,
+            searchType: 'upc',
+          };
+        }
+      }
+
+      throw new Error('Unsupported search type. This should not happen.');
+    },
+    [skuQuery, storeNumber, upcQuery],
+  );
+
   const {
     trigger: search,
     loading,
     error,
   } = useAsyncAction(
-    async ({ sku, upc, frontTagPrice }: SearchProps) => {
-      let searchResult: SearchResult = {};
-      let searchError: unknown;
+    async (searchProps: SearchProps) => {
+      try {
+        const searchResult = await searchBy(searchProps);
 
-      if (sku) {
-        try {
-          const skuResult = await apolloClient.query({
-            query: skuQuery,
-            variables: { sku, storeNumber },
-          });
+        onCompleteRef.current?.(searchResult);
 
-          // eslint-disable-next-line max-depth
-          if (skuResult.data.itemBySku) {
-            searchResult = {
-              itemDetails: skuResult.data.itemBySku,
-            };
-          }
-        } catch (e) {
-          searchError = e;
-        }
-      }
-
-      if (upc) {
-        try {
-          const upcResult = await apolloClient.query({
-            query: upcQuery,
-            variables: { upc, storeNumber },
-          });
-
-          // eslint-disable-next-line max-depth
-          if (upcResult.data.itemByUpc) {
-            searchResult = {
-              itemDetails: upcResult.data.itemByUpc,
-              frontTagPrice,
-            };
-          }
-        } catch (e) {
-          searchError = e;
-        }
-      }
-
-      if (searchError) {
+        return searchResult;
+      } catch (searchError) {
         let transformedError = searchError;
         if (isApolloNoResultsError(searchError)) {
           transformedError = new NoResultsError(
@@ -112,10 +116,6 @@ export function useItemSearch({
 
         throw transformedError;
       }
-
-      onCompleteRef.current?.(searchResult);
-
-      return searchResult;
     },
     {
       globalErrorHandling: searchError => {
