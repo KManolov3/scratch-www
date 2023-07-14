@@ -1,4 +1,4 @@
-import { compact, countBy, every, some, sumBy } from 'lodash-es';
+import { compact, every, some, sumBy } from 'lodash-es';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
@@ -25,6 +25,7 @@ import { EventBus } from '@hooks/useEventBus';
 import { useManagedMutation } from '@hooks/useManagedMutation';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
+import { count } from '@lib/array';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { Printers, Printer } from '@services/Printers';
@@ -86,9 +87,7 @@ export function PrintFrontTagScreen({
   const { perform: printFrontTag, loading } = useManagedMutation(
     PRINT_FRONT_TAG,
     {
-      globalErrorHandling: () => ({
-        displayAs: 'toast',
-      }),
+      globalErrorHandling: () => ({ displayAs: 'toast' }),
     },
   );
 
@@ -143,13 +142,16 @@ export function PrintFrontTagScreen({
 
       const data = await Promise.allSettled(promises);
 
-      const requestsByStatus = countBy(
+      const numberOfFailedRequests = count(
         data,
         ({ status }) => status === 'rejected',
       );
-      const numberOfFailedRequests = requestsByStatus.rejected;
 
-      if (numberOfFailedRequests && numberOfFailedRequests > 0) {
+      if (numberOfFailedRequests > 0) {
+        if (numberOfFailedRequests === data.length) {
+          return toastService.showInfoToast('Could not print the front tags');
+        }
+
         return toastService.showInfoToast(
           `${numberOfFailedRequests} out of ${data.length} requests failed.`,
         );
@@ -165,9 +167,7 @@ export function PrintFrontTagScreen({
       EventBus.emit('print-success');
       goBack();
     },
-    {
-      globalErrorHandling: 'disabled',
-    },
+    { globalErrorHandling: () => 'ignored' },
   );
 
   const onConfirmPrinter = useCallback(

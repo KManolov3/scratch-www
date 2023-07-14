@@ -136,9 +136,7 @@ export function BatchCountList() {
         }));
       }
     },
-    {
-      globalErrorHandling: 'disabled',
-    },
+    { globalErrorHandling: () => 'ignored' },
   );
 
   const onVerify = useCallback(() => {

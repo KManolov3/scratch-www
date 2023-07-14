@@ -103,9 +103,7 @@ export function OutageItemList() {
         navigate('Home');
       }
     },
-    {
-      globalErrorHandling: 'disabled',
-    },
+    { globalErrorHandling: () => 'ignored' },
   );
 
   const items = useMemo(
