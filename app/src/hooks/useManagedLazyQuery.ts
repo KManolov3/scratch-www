@@ -31,10 +31,6 @@ export function useManagedLazyQuery<
 
   const shimmedExecute = useCallback(
     (additionalOptions?: Partial<LazyQueryHookOptions<TData, TVariables>>) => {
-      if (options.globalErrorHandling === 'disabled') {
-        return execute(additionalOptions);
-      }
-
       return executeWithGlobalErrorHandling(async () => {
         const result = await execute(additionalOptions);
         if (result.error) {

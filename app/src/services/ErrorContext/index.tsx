@@ -10,6 +10,7 @@ import { ErrorModal } from '@components/ErrorModal';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { isErrorWithMessage } from '@lib/error';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { newRelicService } from '@services/NewRelic';
 import { toastService } from '@services/ToastService';
 import {
   buildErrorInfo,
@@ -20,9 +21,7 @@ import {
 
 const ErrorContext = createContext<GlobalErrorHandling | undefined>(undefined);
 
-export type GlobalErrorHandlingSetting =
-  | 'disabled'
-  | ((error: unknown) => ErrorOptions);
+export type GlobalErrorHandlingSetting = (error: unknown) => ErrorOptions;
 
 export interface GlobalErrorHandling {
   /**
@@ -76,6 +75,14 @@ export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
     reject: cancel,
   } = useConfirmation<ModalError>();
 
+  const logError = useCallback((error: unknown) => {
+    // Intentionally leaving this here so that we can see what errors happen
+    // eslint-disable-next-line no-console
+    console.error(error);
+
+    newRelicService.onGlobalError(error);
+  }, []);
+
   const executeAndHandleErrors = useCallback(
     async <T,>(
       doRequest: () => Promise<T>,
@@ -85,6 +92,8 @@ export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
       try {
         return await doRequest();
       } catch (error) {
+        logError(error);
+
         let errorInfo: ErrorInfo;
         let errorToRethrow = error;
 
@@ -139,7 +148,7 @@ export function ErrorContextProvider({ children }: ErrorContextProviderProps) {
         throw errorToRethrow;
       }
     },
-    [showErrorModal],
+    [logError, showErrorModal],
   );
 
   const executeWithGlobalErrorHandling = useCallback(

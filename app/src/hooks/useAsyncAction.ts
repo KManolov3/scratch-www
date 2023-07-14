@@ -3,7 +3,6 @@ import {
   GlobalErrorHandlingSetting,
   useErrorManager,
 } from '@services/ErrorContext';
-import { newRelicService } from '@services/NewRelic';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseAsyncActionResult<Args extends any[], T>
@@ -39,14 +38,8 @@ export function useAsyncAction<Args extends any[], T>(
   const { executeWithGlobalErrorHandling } = useErrorManager();
 
   const actionRef = useRef(action);
-  actionRef.current =
-    globalErrorHandling !== 'disabled'
-      ? (...args) =>
-          executeWithGlobalErrorHandling(
-            () => action(...args),
-            globalErrorHandling,
-          )
-      : action;
+  actionRef.current = (...args) =>
+    executeWithGlobalErrorHandling(() => action(...args), globalErrorHandling);
 
   const perform = useCallback(async (...args: Args) => {
     requestIdRef.current += 1;
@@ -65,13 +58,6 @@ export function useAsyncAction<Args extends any[], T>(
       if (requestIdRef.current === myRequestId) {
         setState(oldState => ({ loading: false, error, data: oldState.data }));
       }
-
-      // Intentionally leaving this here so that we can see what errors happen
-      // eslint-disable-next-line no-console
-      console.error(error);
-
-      // TODO: Make this not send to NewRelic when used with useMutation
-      newRelicService.onUseAsyncActionError(error);
 
       throw error;
     }

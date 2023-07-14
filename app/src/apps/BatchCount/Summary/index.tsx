@@ -145,9 +145,7 @@ export function BatchCountSummary() {
         }));
       }
     },
-    {
-      globalErrorHandling: 'disabled',
-    },
+    { globalErrorHandling: () => 'ignored' },
   );
 
   useFocusEventBus('search-error', ({ isNoResultsError }) => {

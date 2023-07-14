@@ -76,7 +76,7 @@ class NewRelicService {
     );
   }
 
-  onUseAsyncActionError(error: unknown) {
+  onGlobalError(error: unknown) {
     this.recordError(error);
   }
 
