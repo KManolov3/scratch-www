@@ -30,7 +30,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <action android:name="${applicationId}.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.advanceautoparts.instoreapps.cyclecount.SCANNER" />
             </intent-filter>
@@ -52,7 +52,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <action android:name="${applicationId}.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.advanceautoparts.instoreapps.batchcount.SCANNER" />
             </intent-filter>
@@ -73,7 +73,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <action android:name="${applicationId}.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.advanceautoparts.instoreapps.outage.SCANNER" />
             </intent-filter>
@@ -95,7 +95,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <action android:name="${applicationId}.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.advanceautoparts.instoreapps.itemlookup.SCANNER" />
             </intent-filter>
@@ -117,7 +117,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.advanceautoparts.instoreapps.SCAN" />
+                <action android:name="${applicationId}.SCAN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.advanceautoparts.instoreapps.truckscan.SCANNER" />
             </intent-filter>

@@ -10,9 +10,10 @@ BARCODE="$1"
 BARCODE_TYPE="${2:-'LABEL-TYPE-CODE128'}"
 
 # Example output: "    mResumedActivity: ActivityRecord{b365d00 u0 com.advanceautoparts.instoreapps/.activities.ItemLookupActivity t60}"
-CURRENT_ACTIVITY="$(adb shell dumpsys activity activities | grep mResumedActivity)"
+# Example output: "    mResumedActivity: ActivityRecord{b365d00 u0 com.advanceautoparts.instoreapps.local/.activities.ItemLookupActivity t60}"
+CURRENT_ACTIVITY_OUTPUT="$(adb shell dumpsys activity activities | grep mResumedActivity)"
 
-case "$CURRENT_ACTIVITY" in
+case "$CURRENT_ACTIVITY_OUTPUT" in
     *ItemLookupActivity*)
         CATEGORY="com.advanceautoparts.instoreapps.itemlookup.SCANNER"
         ;;
@@ -34,9 +35,12 @@ case "$CURRENT_ACTIVITY" in
         ;;
 esac
 
+SUFFIX=$(echo "$CURRENT_ACTIVITY_OUTPUT" | sed -n 's/^.* com\.advanceautoparts\.instoreapps\(\.[^\/]*\)\/\([^ ]*\) .*$/\1/p')
+ACTION="com.advanceautoparts.instoreapps$SUFFIX.SCAN"
+
 adb shell \
     am start \
-        -a "com.advanceautoparts.instoreapps.SCAN" \
+        -a "$ACTION" \
         -c "$CATEGORY" \
         --es com.symbol.datawedge.label_type "$BARCODE_TYPE" \
         --es com.symbol.datawedge.data_string "$BARCODE" \
