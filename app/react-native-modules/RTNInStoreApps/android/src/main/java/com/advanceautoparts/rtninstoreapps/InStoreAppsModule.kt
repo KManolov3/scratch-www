@@ -78,7 +78,7 @@ class InStoreAppsModule(val reactContext: ReactApplicationContext) : NativeInSto
                 activityList = listOf(reactContext.currentActivity!!.javaClass.name)
             ),
             intentConfig = IntentConfig(
-                action = "com.advanceautoparts.instoreapps.SCAN",
+                action = "${reactContext.packageName}.SCAN",
                 category = config.getString("scanIntentCategory")!!
             )
         )
