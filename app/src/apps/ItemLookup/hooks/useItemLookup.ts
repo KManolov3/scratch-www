@@ -1,4 +1,5 @@
 import { gql } from 'src/__generated__/gql';
+import { ResultOf } from '@graphql-typed-document-node/core';
 import { SearchResult, useItemSearch } from '@hooks/useItemSearch';
 import { useNavigation } from '@react-navigation/native';
 import { ItemLookupNavigation } from '../navigator';
@@ -23,9 +24,13 @@ query AutomaticItemLookup($upc: String!, $storeNumber: String!) {
 }
 `);
 
+type SearchResultType = SearchResult<
+  | ResultOf<typeof ITEM_BY_SKU>['itemBySku']
+  | ResultOf<typeof ITEM_BY_UPC>['itemByUpc']
+>;
 export interface UseItemLookupProps {
   onError?: (error: unknown) => void;
-  onComplete?: <T>(searchResult: SearchResult<T>) => void;
+  onComplete?: (searchResult: SearchResultType) => void;
 }
 
 export function useItemLookup({
@@ -36,7 +41,7 @@ export function useItemLookup({
 
   return useItemSearch({
     onError,
-    onComplete: searchResult => {
+    onComplete: (searchResult: SearchResultType) => {
       onComplete?.(searchResult);
       if (searchResult.itemDetails) {
         navigate('ItemLookup', {

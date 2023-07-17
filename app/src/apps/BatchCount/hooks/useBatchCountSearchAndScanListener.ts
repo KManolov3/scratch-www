@@ -25,14 +25,14 @@ export const ITEM_BY_UPC = gql(`
   }
 `);
 
+type SearchResultType = SearchResult<
+  | ResultOf<typeof ITEM_BY_SKU>['itemBySku']
+  | ResultOf<typeof ITEM_BY_UPC>['itemByUpc']
+>;
+
 export interface useBatchCountSearchProps {
   onError?: (error: unknown) => void;
-  onComplete?: (
-    searchResult: SearchResult<
-      | ResultOf<typeof ITEM_BY_SKU>['itemBySku']
-      | ResultOf<typeof ITEM_BY_UPC>['itemByUpc']
-    >,
-  ) => void;
+  onComplete?: (searchResult: SearchResultType) => void;
 }
 
 export function useBatchCountSearchAndScanListener({
@@ -42,7 +42,7 @@ export function useBatchCountSearchAndScanListener({
   const { addItem } = useBatchCountState();
   const { search, loading, error } = useItemSearch({
     onError,
-    onComplete: searchResult => {
+    onComplete: (searchResult: SearchResultType) => {
       onComplete?.(searchResult);
       if (searchResult.itemDetails) {
         addItem(searchResult.itemDetails, searchResult.searchType === 'upc');
