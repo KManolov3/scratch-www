@@ -85,6 +85,7 @@ export function useItemSearch({
 
         return {
           itemDetails: skuResult.data.itemBySku,
+          frontTagPrice,
           searchType: 'sku' as const,
         };
       }
@@ -101,7 +102,6 @@ export function useItemSearch({
 
         return {
           itemDetails: upcResult.data.itemByUpc,
-          frontTagPrice,
           searchType: 'upc' as const,
         };
       }
