@@ -35,7 +35,7 @@ export function buildErrorInfo(
 
   if (selectedOptions.displayAs === 'toast') {
     return {
-      message: 'Oops! An unexpected error occured.',
+      message: 'Oops! An unexpected error occurred.',
       ...selectedOptions,
     };
   }
@@ -47,7 +47,7 @@ export function buildErrorInfo(
       displayAs: 'modal',
       allowRetries: true,
       maxRetries: Number.POSITIVE_INFINITY,
-      title: 'Server Error',
+      title: 'Network Error',
       message:
         'A connection error occurred. Please check the network connection and try again.',
     };

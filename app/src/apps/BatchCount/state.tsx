@@ -92,9 +92,7 @@ export function BatchCountStateProvider({ children }: { children: ReactNode }) {
     error,
     loading,
   } = useManagedMutation(SUBMIT_BATCH_COUNT, {
-    globalErrorHandling: () => ({
-      displayAs: 'toast',
-    }),
+    globalErrorHandling: () => 'ignored',
   });
   const navigation = useNavigation<BatchCountNavigation>();
 
