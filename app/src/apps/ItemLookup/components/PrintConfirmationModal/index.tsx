@@ -30,7 +30,7 @@ export function PrintConfirmationModal({
       <View style={styles.confirmationText}>
         <View style={styles.tagsInformation}>
           <Text style={styles.text}>Are you sure you want to print</Text>
-          <Text style={styles.bold}>{quantity} front tags?</Text>
+          <Text style={styles.bold}>{quantity} Front Tags?</Text>
         </View>
       </View>
     </ConfirmationModal>
