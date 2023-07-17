@@ -1,47 +1,63 @@
 import { useCallback } from 'react';
-import { Exact, Item } from 'src/__generated__/graphql';
-import { NoResultsError } from 'src/errors/NoResultsError';
+import { Item } from 'src/__generated__/graphql';
 import { TypedDocumentNode } from '@apollo/client';
-import { GlobalStateItemDetails } from '@apps/state';
 import { apolloClient } from '@config/graphql';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useLatestRef } from '@hooks/useLatestRef';
-import { isApolloNoResultsError } from '@lib/apollo';
+import { isApolloNoItemResultsError } from '@lib/apollo';
 import { useCurrentSessionInfo } from '@services/Auth';
+
+export class NoItemResultsError extends Error {
+  originalError: unknown;
+
+  constructor(message: string, originalError: unknown) {
+    super(message);
+    this.originalError = originalError;
+  }
+}
 
 type SearchProps = {
   frontTagPrice?: number;
 } & ({ sku?: undefined; upc: string } | { sku: string; upc?: undefined });
 
-export interface SearchResult {
-  itemDetails?: GlobalStateItemDetails;
+export interface SearchResult<T> {
+  itemDetails?: T;
   frontTagPrice?: number;
   searchType: 'sku' | 'upc';
 }
 
+type SkuQueryResult = {
+  itemBySku?: Partial<Item> | null;
+};
+type SkuQuery = TypedDocumentNode<
+  {
+    __typename?: 'Query';
+  } & SkuQueryResult,
+  {
+    sku: string;
+    storeNumber: string;
+  }
+>;
+
+type UpcQueryResult = {
+  itemByUpc?: Partial<Item> | null;
+};
+type UpcQuery = TypedDocumentNode<
+  {
+    __typename?: 'Query';
+  } & UpcQueryResult,
+  {
+    upc: string;
+    storeNumber: string;
+  }
+>;
+
+type ItemResult = SkuQueryResult['itemBySku'] | UpcQueryResult['itemByUpc'];
 export interface UseItemSearchProps {
+  skuQuery: SkuQuery;
+  upcQuery: UpcQuery;
   onError?: (error: unknown) => void;
-  onComplete?: (searchResult: SearchResult) => void;
-  skuQuery: TypedDocumentNode<
-    {
-      __typename?: 'Query';
-      itemBySku?: Partial<Item> | null;
-    },
-    Exact<{
-      sku: string;
-      storeNumber: string;
-    }>
-  >;
-  upcQuery: TypedDocumentNode<
-    {
-      __typename?: 'Query';
-      itemByUpc?: Partial<Item> | null;
-    },
-    Exact<{
-      upc: string;
-      storeNumber: string;
-    }>
-  >;
+  onComplete?: <T extends ItemResult>(searchResult: SearchResult<T>) => void;
 }
 
 export function useItemSearch({
@@ -56,19 +72,21 @@ export function useItemSearch({
   const { storeNumber } = useCurrentSessionInfo();
 
   const searchBy = useCallback(
-    async ({ sku, upc, frontTagPrice }: SearchProps): Promise<SearchResult> => {
+    async ({ sku, upc, frontTagPrice }: SearchProps) => {
       if (sku) {
         const skuResult = await apolloClient.query({
           query: skuQuery,
           variables: { sku, storeNumber },
         });
 
-        if (skuResult.data.itemBySku) {
-          return {
-            itemDetails: skuResult.data.itemBySku,
-            searchType: 'sku',
-          };
+        if (!skuResult.data.itemBySku) {
+          throw new Error('Missing item info');
         }
+
+        return {
+          itemDetails: skuResult.data.itemBySku,
+          searchType: 'sku' as const,
+        };
       }
 
       if (upc) {
@@ -77,13 +95,15 @@ export function useItemSearch({
           variables: { upc, storeNumber },
         });
 
-        if (upcResult.data.itemByUpc) {
-          return {
-            itemDetails: upcResult.data.itemByUpc,
-            frontTagPrice,
-            searchType: 'upc',
-          };
+        if (!upcResult.data.itemByUpc) {
+          throw new Error('Missing item info');
         }
+
+        return {
+          itemDetails: upcResult.data.itemByUpc,
+          frontTagPrice,
+          searchType: 'upc' as const,
+        };
       }
 
       throw new Error('Unsupported search type. This should not happen.');
@@ -105,8 +125,8 @@ export function useItemSearch({
         return searchResult;
       } catch (searchError) {
         let transformedError = searchError;
-        if (isApolloNoResultsError(searchError)) {
-          transformedError = new NoResultsError(
+        if (isApolloNoItemResultsError(searchError)) {
+          transformedError = new NoItemResultsError(
             'No results found. Try searching for another SKU or scanning a barcode.',
             searchError,
           );
@@ -118,15 +138,10 @@ export function useItemSearch({
       }
     },
     {
-      globalErrorHandling: searchError => {
-        const isNoResultsError = searchError instanceof NoResultsError;
-        if (isNoResultsError) {
-          return 'ignored';
-        }
-        return {
-          displayAs: 'toast',
-        };
-      },
+      globalErrorHandling: searchError =>
+        searchError instanceof NoItemResultsError
+          ? 'ignored'
+          : { displayAs: 'toast' },
     },
   );
 

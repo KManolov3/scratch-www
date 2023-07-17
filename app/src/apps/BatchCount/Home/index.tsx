@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { NoResultsError } from 'src/errors/NoResultsError';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useBatchCountSearchAndScanListener } from '../hooks/useBatchCountSearchAndScanListener';
@@ -20,12 +20,12 @@ export function BatchCountHome() {
     },
     [searchAndAddItem],
   );
-  const hasNoResultsError = error instanceof NoResultsError;
+  const hasNoItemResultsError = error instanceof NoItemResultsError;
 
   return (
     <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={onSubmit} />
-      {!hasNoResultsError && !loading && (
+      {!hasNoItemResultsError && !loading && (
         <ScanBarcodeLabel
           label="Scan to Start Batch Count"
           style={styles.scanBarcode}
@@ -38,7 +38,7 @@ export function BatchCountHome() {
           color={Colors.mediumVoid}
         />
       )}
-      {hasNoResultsError && !loading && (
+      {hasNoItemResultsError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a barcode"

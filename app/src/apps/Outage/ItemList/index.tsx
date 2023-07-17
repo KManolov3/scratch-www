@@ -6,12 +6,12 @@ import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { useNavigation } from '@react-navigation/native';
 import { ErrorOptions } from '@services/ErrorContext/formatter';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { NoResultsError } from '../../../errors/NoResultsError';
 import { OutageItemCard } from '../components/ItemCard';
 import { OutageNavigation } from '../navigator';
 import { useOutageState } from '../state';
@@ -40,7 +40,7 @@ export function OutageItemList() {
     {
       globalErrorHandling: error => {
         const toastDetails: Partial<ErrorOptions> =
-          error instanceof NoResultsError
+          error instanceof NoItemResultsError
             ? {
                 message:
                   'No results found. Try searching for another SKU or scanning a barcode.',

@@ -16,13 +16,13 @@ import {
 } from 'src/__generated__/graphql';
 import { v4 as uuid } from 'uuid';
 import { useConfirmation } from '@hooks/useConfirmation';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { useManagedLazyQuery } from '@hooks/useManagedLazyQuery';
 import { useManagedMutation } from '@hooks/useManagedMutation';
-import { isApolloNoResultsError } from '@lib/apollo';
+import { isApolloNoItemResultsError } from '@lib/apollo';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { toastService } from '@services/ToastService';
-import { NoResultsError } from '../../errors/NoResultsError';
 import { BackstockWarningModal } from './components/BackstockWarningModal';
 import { OutageNavigation } from './navigator';
 
@@ -100,8 +100,11 @@ export function OutageStateProvider({ children }: { children: ReactNode }) {
         responseData = (await getItemBySku({ variables: { sku, storeNumber } }))
           .data;
       } catch (error) {
-        if (isApolloNoResultsError(error)) {
-          throw new NoResultsError(`Item with sku ${sku} was not found`, error);
+        if (isApolloNoItemResultsError(error)) {
+          throw new NoItemResultsError(
+            `Item with sku ${sku} was not found`,
+            error,
+          );
         }
 
         throw error;

@@ -3,12 +3,12 @@ import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
 import { useAsyncAction } from '@hooks/useAsyncAction';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
-import { NoResultsError } from '../../../errors/NoResultsError';
 import { useOutageState } from '../state';
 
 export function OutageHome() {
@@ -25,7 +25,7 @@ export function OutageHome() {
     },
     {
       globalErrorHandling: error => {
-        if (error instanceof NoResultsError) {
+        if (error instanceof NoItemResultsError) {
           return 'ignored';
         }
 
@@ -51,6 +51,7 @@ export function OutageHome() {
     }
   });
 
+  const hasNoResultsError = searchError instanceof NoItemResultsError;
   return (
     <FixedLayout style={styles.container}>
       <SkuSearchBar onSubmit={addItem} />
@@ -63,11 +64,11 @@ export function OutageHome() {
         />
       )}
 
-      {!(searchError instanceof NoResultsError) && !loading && (
+      {!hasNoResultsError && !loading && (
         <ScanBarcodeLabel label="Scan For Outage" style={styles.scanBarcode} />
       )}
 
-      {searchError instanceof NoResultsError && !loading && (
+      {hasNoResultsError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a front tag"

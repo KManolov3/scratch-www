@@ -4,10 +4,10 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { NoResultsError } from 'src/errors/NoResultsError';
 import { ErrorContainer } from '@components/ErrorContainer';
 import { ScanBarcodeLabel } from '@components/ScanBarcodeLabel';
 import { SkuSearchBar } from '@components/SkuSearchBar';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { Colors } from '@lib/colors';
 
 interface ItemLookupHomeProps {
@@ -25,11 +25,11 @@ export function ItemLookupHome({
   error,
   loading,
 }: ItemLookupHomeProps) {
-  const hasNoResultsError = error instanceof NoResultsError;
+  const hasNoItemResultsError = error instanceof NoItemResultsError;
   return (
     <>
       <SkuSearchBar onSubmit={onSubmit} containerStyle={searchBarStyle} />
-      {!hasNoResultsError && !loading && (
+      {!hasNoItemResultsError && !loading && (
         <ScanBarcodeLabel
           label="Scan Barcode"
           style={[styles.scanBarcode, barcodeStyle]}
@@ -42,7 +42,7 @@ export function ItemLookupHome({
           color={Colors.mediumVoid}
         />
       )}
-      {hasNoResultsError && !loading && (
+      {hasNoItemResultsError && !loading && (
         <ErrorContainer
           title="No Results Found"
           message="Try searching for another SKU or scanning a barcode"

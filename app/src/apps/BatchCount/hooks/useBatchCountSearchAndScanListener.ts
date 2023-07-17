@@ -1,4 +1,5 @@
 import { gql } from 'src/__generated__/gql';
+import { ResultOf } from '@graphql-typed-document-node/core';
 import { SearchResult, useItemSearch } from '@hooks/useItemSearch';
 import { useScanCodeListener } from '@services/ScanCode';
 import { toastService } from '@services/ToastService';
@@ -26,7 +27,12 @@ export const ITEM_BY_UPC = gql(`
 
 export interface useBatchCountSearchProps {
   onError?: (error: unknown) => void;
-  onComplete?: (searchResult: SearchResult) => void;
+  onComplete?: (
+    searchResult: SearchResult<
+      | ResultOf<typeof ITEM_BY_SKU>['itemBySku']
+      | ResultOf<typeof ITEM_BY_UPC>['itemByUpc']
+    >,
+  ) => void;
 }
 
 export function useBatchCountSearchAndScanListener({

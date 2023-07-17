@@ -25,7 +25,7 @@ query AutomaticItemLookup($upc: String!, $storeNumber: String!) {
 
 export interface UseItemLookupProps {
   onError?: (error: unknown) => void;
-  onComplete?: (searchResult: SearchResult) => void;
+  onComplete?: <T>(searchResult: SearchResult<T>) => void;
 }
 
 export function useItemLookup({

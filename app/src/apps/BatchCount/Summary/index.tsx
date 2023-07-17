@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, ListRenderItem, StyleSheet } from 'react-native';
-import { NoResultsError } from 'src/errors/NoResultsError';
 import { toastService } from 'src/services/ToastService';
 import { WhiteBackArrow } from '@assets/icons';
 import { BottomActionBar } from '@components/BottomActionBar';
@@ -10,6 +9,7 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { useLatestRef } from '@hooks/useLatestRef';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { isErrorWithMessage } from '@lib/error';
@@ -47,7 +47,7 @@ export function BatchCountSummary() {
 
   useBatchCountSearchAndScanListener({
     onError: error => {
-      if (error instanceof NoResultsError) {
+      if (error instanceof NoItemResultsError) {
         toastService.showInfoToast(
           'No results found. Try searching for another SKU or scanning a barcode.',
           {
