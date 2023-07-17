@@ -7,12 +7,14 @@ import { ShrinkageOverageModal } from '@components/ShrinkageOverageModal';
 import { useAsyncAction } from '@hooks/useAsyncAction';
 import { useConfirmation } from '@hooks/useConfirmation';
 import { useFocusEventBus } from '@hooks/useEventBus';
+import { NoItemResultsError } from '@hooks/useItemSearch';
 import { useLatestRef } from '@hooks/useLatestRef';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { isErrorWithMessage } from '@lib/error';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useErrorManager } from '@services/ErrorContext';
 import { BatchCountItemCard } from '../components/BatchCountItemCard';
+import { useBatchCountSearchAndScanListener } from '../hooks/useBatchCountSearchAndScanListener';
 import { BatchCountNavigation } from '../navigator';
 import { BatchCountItem, useBatchCountState } from '../state';
 
@@ -35,6 +37,26 @@ export function BatchCountList() {
 
   const flatListRef = useRef<FlatList>(null);
   const [expandedSku, setExpandedSku] = useState<string>();
+
+  useBatchCountSearchAndScanListener({
+    onError: error => {
+      if (error instanceof NoItemResultsError) {
+        toastService.showInfoToast(
+          'No results found. Try searching for another SKU or scanning a barcode.',
+          {
+            props: { containerStyle: styles.toast },
+          },
+        );
+      }
+    },
+    onComplete: ({ itemDetails }) => {
+      reject();
+
+      if (itemDetails?.sku !== expandedSku) {
+        setExpandedSku(undefined);
+      }
+    },
+  });
 
   const setNewQuantity = useCallback(
     (sku: string, newQty: number) => {
@@ -130,7 +152,7 @@ export function BatchCountList() {
           message: `Error while submitting batch count. ${
             isErrorWithMessage(submitError)
               ? submitError.message
-              : 'An unknown server error has occured'
+              : 'An unknown server error has occurred'
           }`,
           allowRetries: true,
         }));
@@ -142,27 +164,6 @@ export function BatchCountList() {
   const onVerify = useCallback(() => {
     navigation.navigate('Summary');
   }, [navigation]);
-
-  useFocusEventBus('search-error', ({ isNoResultsError }) => {
-    reject();
-
-    if (isNoResultsError) {
-      toastService.showInfoToast(
-        'No results found. Try searching for another SKU or scanning a barcode.',
-        {
-          props: { containerStyle: styles.toast },
-        },
-      );
-    }
-  });
-
-  useFocusEventBus('search-success', ({ sku }) => {
-    reject();
-
-    if (sku !== expandedSku) {
-      setExpandedSku(undefined);
-    }
-  });
 
   const scrollToTopAndDismissKeyboard = useCallback(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });

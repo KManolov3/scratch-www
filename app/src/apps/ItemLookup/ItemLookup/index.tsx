@@ -54,7 +54,7 @@ export function ItemLookupScreen({
         .catch(soundError => console.log('Error playing sound.', soundError));
     } else {
       // TODO: This is done on the second render, thus the modal changes values first, then hides.
-      //       Maybe we want to hide it directly somehow?
+      // Maybe we want to hide it directly somehow?
       hidePriceDiscrepancyModal();
     }
   }, [
@@ -75,17 +75,31 @@ export function ItemLookupScreen({
     disable: hideSearchTray,
   } = useBooleanState();
 
-  const { search, error, loading } = useItemLookupScanCodeListener({
-    onError: () => {
+  const [trayError, setTrayError] = useState<unknown>();
+
+  const { search, loading } = useItemLookupScanCodeListener({
+    onError: searchError => {
       if (!searchTrayOpen) {
         hidePriceDiscrepancyModal();
         toastService.showInfoToast(
           'No results found. Try searching for another SKU or scanning a barcode.',
         );
+        return;
       }
+
+      setTrayError(searchError);
     },
-    onComplete: hideSearchTray,
+    onComplete: () => {
+      hideSearchTray();
+    },
   });
+
+  // Clear the trayError upon closing the tray
+  useEffect(() => {
+    if (!searchTrayOpen) {
+      setTrayError(undefined);
+    }
+  }, [searchTrayOpen]);
 
   const searchItem = useCallback((sku: string) => search({ sku }), [search]);
   const printFrontTag = useCallback(
@@ -135,7 +149,7 @@ export function ItemLookupScreen({
       )}
 
       <SearchBottomTray
-        error={error}
+        error={trayError}
         loading={loading}
         isVisible={searchTrayOpen}
         hideTray={hideSearchTray}

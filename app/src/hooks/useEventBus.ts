@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface EventTypes {
-  'search-error': [{ error: unknown; isNoResultsError: boolean }];
+  'search-error': [{ error: unknown; isNoItemResultsError: boolean }];
   'search-success': [{ sku: string }];
   'print-success': [];
   'add-item-to-batch-count': [];
