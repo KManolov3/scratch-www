@@ -161,7 +161,7 @@ export function BatchCountSummary() {
           message: `Error while submitting batch count. ${
             isErrorWithMessage(submitError)
               ? submitError.message
-              : 'An unknown server error has occured'
+              : 'An unknown server error has occurred'
           }`,
           allowRetries: true,
         }));
