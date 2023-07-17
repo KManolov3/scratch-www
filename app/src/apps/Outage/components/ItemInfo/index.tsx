@@ -1,15 +1,14 @@
 import { View } from 'react-native';
 import { DocumentType, gql } from 'src/__generated__';
 import { ItemPropertyDisplay } from '@components/ItemPropertyDisplay';
-import { BackstockSlotsInfo } from '@components/Locations/BackstockSlotList';
 import { Text } from '@components/Text';
 import { convertCurrencyToString } from '@lib/currency';
 import { WarningMessage } from '../WarningMessage';
 import { styles } from './styles';
 
-function formatBackstockSlots(slots: BackstockSlotsInfo['backStockSlots']) {
+function formatBackstockSlots(slots: OutageItem['backStockSlots']) {
   return `Slot: ${slots
-    ?.map(slot => slot?.slotId?.toString())
+    ?.map(slot => slot?.slotName?.toString())
     .filter(Boolean)
     .join(', ')}`;
 }
@@ -22,18 +21,19 @@ const OUTAGE_ITEM_INFO_FIELDS = gql(`
     retailPrice
     onHand
     backStockSlots {
-      slotId
+      slotName
     }
   }
 `);
 
+type OutageItem = DocumentType<typeof OUTAGE_ITEM_INFO_FIELDS>;
+
 export interface OutageItemInfoProps {
-  outageItem: DocumentType<typeof OUTAGE_ITEM_INFO_FIELDS>;
+  outageItem: OutageItem;
 }
 
 export function OutageItemInfo({ outageItem }: OutageItemInfoProps) {
   const { partDesc, mfrPartNum, retailPrice, onHand } = outageItem;
-
   return (
     <View style={styles.container}>
       <View style={styles.titleWrapper}>
