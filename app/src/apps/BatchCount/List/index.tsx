@@ -185,6 +185,11 @@ export function BatchCountList() {
           contentContainerStyle={styles.list}
           data={batchCountItems}
           renderItem={renderItem}
+          // According to https://reactnative.dev/docs/optimizing-flatlist-configuration#removeclippedsubviews
+          // `false` should be the default value. But it isn't.
+          // We need it set to false to prevent elements getting unmounted when opening a keyboard which hides them
+          // from the viewport, which can result in defects such as https://advanceautoparts.atlassian.net/browse/RIP-820
+          removeClippedSubviews={false}
           ref={flatListRef}
         />
 
