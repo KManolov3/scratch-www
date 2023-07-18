@@ -185,6 +185,9 @@ export function BatchCountList() {
           contentContainerStyle={styles.list}
           data={batchCountItems}
           renderItem={renderItem}
+          // According to https://reactnative.dev/docs/optimizing-flatlist-configuration#removeclippedsubviews
+          // `false` should be the default value. But it isn't.
+          removeClippedSubviews={false}
           ref={flatListRef}
         />
 
