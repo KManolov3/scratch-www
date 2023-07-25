@@ -7,6 +7,7 @@ export const PLANOGRAM_FIELDS = gql(`
     planograms {
       planogramId
       seqNum
+      description
     }
   }
 `);
@@ -26,7 +27,8 @@ export function PlanogramList({ planograms }: PlanogramListProps) {
     () => [
       {
         label: 'POG',
-        getValue: (item: Planogram) => item.planogramId ?? 'undefined',
+        getValue: (item: Planogram) =>
+          item.description ?? item.planogramId ?? 'undefined',
       },
       {
         label: 'POG Seq #',

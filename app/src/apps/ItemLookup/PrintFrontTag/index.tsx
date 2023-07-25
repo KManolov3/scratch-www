@@ -53,13 +53,14 @@ interface LocationStatus {
   qty: number | undefined;
   id: string;
   seqNum: number;
+  description: string;
 }
 
 function createInitialValueMap(
   locations: GlobalStateItemDetails['planograms'],
 ) {
   return new Map<string, LocationStatus>(
-    compact(locations).map(({ planogramId, seqNum }) => [
+    compact(locations).map(({ planogramId, seqNum, description }) => [
       // These can't realistically be null
       // but the types say they can
       planogramId ?? '',
@@ -68,6 +69,7 @@ function createInitialValueMap(
         checked: true,
         id: planogramId ?? '',
         seqNum: seqNum ?? 0,
+        description: description ?? '',
       },
     ]),
   );
@@ -180,7 +182,11 @@ export function PrintFrontTagScreen({
 
   const renderPlanogram = useCallback(
     (location: LocationStatus) => {
-      const { id, qty, checked } = location;
+      const { id, qty, checked, description, seqNum } = location;
+
+      const printTagText =
+        description === '' ? id : `${description} - ${seqNum}`;
+
       return (
         <View style={styles.planogramsContainer} key={id}>
           <View style={styles.table}>
@@ -193,10 +199,12 @@ export function PrintFrontTagScreen({
                 ) : (
                   <EmptySquareCheckBox width={20} height={20} />
                 )}
-                <Text style={[styles.text, styles.planogramId]}>{id}</Text>
+                <Text style={[styles.text, styles.planogramId]}>
+                  {printTagText}
+                </Text>
               </Pressable>
             ) : (
-              <Text style={styles.text}>{id}</Text>
+              <Text style={styles.text}>{printTagText}</Text>
             )}
             <QuantityAdjuster
               uniqueAccessibilityLabel={id}
