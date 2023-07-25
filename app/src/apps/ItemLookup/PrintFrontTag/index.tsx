@@ -182,9 +182,10 @@ export function PrintFrontTagScreen({
 
   const renderPlanogram = useCallback(
     (location: LocationStatus) => {
-      const { id, qty, checked, description } = location;
+      const { id, qty, checked, description, seqNum } = location;
 
-      const printTagText = description === '' ? id : `${description} - ${id}`;
+      const printTagText =
+        description === '' ? id : `${description} - ${seqNum}`;
 
       return (
         <View style={styles.planogramsContainer} key={id}>
