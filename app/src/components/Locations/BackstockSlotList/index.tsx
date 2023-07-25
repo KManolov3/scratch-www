@@ -5,8 +5,8 @@ import { ListWithHeaders } from '@components/ListWithHeaders';
 export const BACKSTOCK_SLOT_FIELDS = gql(`
   fragment BackstockSlotFields on Item {
     backStockSlots {
-      slotId
       qty
+      slotName
     }
   }
 `);
@@ -30,7 +30,7 @@ export function BackstockSlotList({ backstockSlots }: BackstockSlotListProps) {
     () => [
       {
         label: 'Slot Location',
-        getValue: (item: BackstockSlot) => item.slotId ?? 'undefined',
+        getValue: (item: BackstockSlot) => item.slotName ?? 'undefined',
       },
       {
         label: 'Qty',
