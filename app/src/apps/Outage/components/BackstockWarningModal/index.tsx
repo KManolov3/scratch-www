@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { BlackAttentionIcon } from '@assets/icons';
 import { ConfirmationModal } from '@components/ConfirmationModal';
@@ -5,6 +6,7 @@ import { ItemDetailsInfo } from '@components/ItemInfoHeader';
 import { Text } from '@components/Text';
 import { Colors } from '@lib/colors';
 import { FontWeight } from '@lib/font';
+import { soundService } from '@services/SoundService';
 import { OutageItemInfo } from '../ItemInfo';
 
 export interface BackstockWarningModalProps {
@@ -20,6 +22,14 @@ export function BackstockWarningModal({
   onConfirm,
   onCancel,
 }: BackstockWarningModalProps) {
+  useEffect(() => {
+    if (isVisible) {
+      soundService
+        .playSound('error')
+        // eslint-disable-next-line no-console
+        .catch(soundError => console.log('Error playing sound.', soundError));
+    }
+  }, [isVisible]);
   return (
     <ConfirmationModal
       isVisible={isVisible}

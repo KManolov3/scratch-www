@@ -28,7 +28,7 @@ const documents = {
     "\n  query truckScanApp($storeNumber: String!) {\n    truckScansByStore(storeNumber: $storeNumber) {\n      asnReferenceNumber\n      status\n      storeNumber\n    }\n  }\n": types.TruckScanAppDocument,
     "\n  query truckScanDetails($asn: String!) {\n    truckScanByASN(asnReferenceNumber: $asn) {\n      asnReferenceNumber\n      status\n      storeNumber\n      items { sku upc mfrPartNum partDesc expectedCount actualCount }\n    }\n  }\n": types.TruckScanDetailsDocument,
     "\n  fragment ItemInfoHeaderFields on Item {\n    mfrPartNum\n    sku\n    retailPrice\n    onHand\n    partDesc\n    backStockSlots {\n      qty\n    }\n  }\n": types.ItemInfoHeaderFieldsFragmentDoc,
-    "\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      slotId\n      qty\n    }\n  }\n": types.BackstockSlotFieldsFragmentDoc,
+    "\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      qty\n      slotName\n    }\n  }\n": types.BackstockSlotFieldsFragmentDoc,
     "\n  fragment PlanogramFields on Item {\n    planograms {\n      planogramId\n      seqNum\n    }\n  }\n": types.PlanogramFieldsFragmentDoc,
 };
 
@@ -109,7 +109,7 @@ export function gql(source: "\n  fragment ItemInfoHeaderFields on Item {\n    mf
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      slotId\n      qty\n    }\n  }\n"): (typeof documents)["\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      slotId\n      qty\n    }\n  }\n"];
+export function gql(source: "\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      qty\n      slotName\n    }\n  }\n"): (typeof documents)["\n  fragment BackstockSlotFields on Item {\n    backStockSlots {\n      qty\n      slotName\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
