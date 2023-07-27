@@ -4,6 +4,7 @@ export interface SupportedFeatureFlags {
     activity: string;
     icon?: string;
   }[];
+  enablePrintFrontTag: boolean;
 }
 
 export const FEATURE_FLAG_DEFAULTS: SupportedFeatureFlags = {
@@ -24,4 +25,5 @@ export const FEATURE_FLAG_DEFAULTS: SupportedFeatureFlags = {
       activity: '.activities.OutageActivity',
     },
   ],
+  enablePrintFrontTag: false,
 };
