@@ -69,5 +69,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     lineHeight: 19,
+    // we hope that this is never exceeded anyway
+    maxWidth: 280,
   },
 });
