@@ -127,7 +127,7 @@ export function ItemLookupScreen({
         togglePriceDiscrepancyModal={toggleModal}
       />
 
-      {!enablePrintFrontTag && (
+      {enablePrintFrontTag && (
         <BottomActionBar
           topComponent={
             hasPriceDiscrepancy ? (
