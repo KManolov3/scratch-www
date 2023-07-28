@@ -30,7 +30,7 @@
 
     "package:clean": "rm android/app/src/main/assets/index.android.bundle",
 
-    "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps",
+    "package:uninstall:local": "adb uninstall com.advanceautoparts.instoreapps.local",
     "package:install:local": "adb install -r builds/in-store-apps-local.apk",
     "package:install:local:zebra": "./scripts/install-to-zebras.sh builds/in-store-apps-local.apk",
     "package:build:local": "(cd android && ENVFILE=.env ./gradlew assembleRelease) && mkdir -p builds && cp android/app/build/outputs/apk/release/app-release.apk builds/in-store-apps-local.apk",
