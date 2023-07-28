@@ -74,7 +74,7 @@ export function QuantityAdjuster({
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-    gap: 18,
+    gap: 8,
   },
   button: {
     marginHorizontal: 8,

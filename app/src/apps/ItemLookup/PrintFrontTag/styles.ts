@@ -5,7 +5,7 @@ import { FontWeight } from '@lib/font';
 export const styles = StyleSheet.create({
   bold: { fontWeight: FontWeight.Bold },
   flexRow: { flexDirection: 'row', alignItems: 'center' },
-  planogramId: { marginLeft: 13 },
+  planogramId: { marginLeft: 6 },
   header: {
     fontSize: 20,
     textAlign: 'center',
@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   },
   container: { backgroundColor: Colors.pure },
   actionButton: { flex: 1 },
-  text: { fontSize: 16, lineHeight: 22 },
+  text: { fontSize: 14, lineHeight: 22, maxWidth: 205 },
   printToLabel: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -23,7 +23,8 @@ export const styles = StyleSheet.create({
   table: {
     justifyContent: 'space-between',
     flexDirection: 'row',
-    padding: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   headers: {
@@ -36,7 +37,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   planogramsContainer: {
-    marginHorizontal: 13,
+    marginHorizontal: 8,
   },
   qty: {
     marginRight: 46,

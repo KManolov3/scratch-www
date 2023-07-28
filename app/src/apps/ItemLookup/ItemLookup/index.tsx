@@ -12,6 +12,7 @@ import { useEventBus } from '@hooks/useEventBus';
 import { FixedLayout } from '@layouts/FixedLayout';
 import { Colors } from '@lib/colors';
 import { useNavigation } from '@react-navigation/native';
+import { useFlags } from '@services/LaunchDarkly';
 import { toastService } from '@services/ToastService';
 import { PriceDiscrepancyAttention } from '../components/PriceDiscrepancyAttention';
 import { SearchBottomTray } from '../components/SearchBottomTray';
@@ -107,6 +108,8 @@ export function ItemLookupScreen({
     [navigate, itemDetails],
   );
 
+  const { enablePrintFrontTag } = useFlags();
+
   return (
     <FixedLayout
       style={styles.container}
@@ -124,19 +127,21 @@ export function ItemLookupScreen({
         togglePriceDiscrepancyModal={toggleModal}
       />
 
-      <BottomActionBar
-        topComponent={
-          hasPriceDiscrepancy ? (
-            <PriceDiscrepancyAttention style={styles.priceDiscrepancy} />
-          ) : null
-        }>
-        <BlockButton
-          style={styles.actionButton}
-          variant="primary"
-          onPress={printFrontTag}>
-          Print Front Tag
-        </BlockButton>
-      </BottomActionBar>
+      {enablePrintFrontTag && (
+        <BottomActionBar
+          topComponent={
+            hasPriceDiscrepancy ? (
+              <PriceDiscrepancyAttention style={styles.priceDiscrepancy} />
+            ) : null
+          }>
+          <BlockButton
+            style={styles.actionButton}
+            variant="primary"
+            onPress={printFrontTag}>
+            Print Front Tag
+          </BlockButton>
+        </BottomActionBar>
+      )}
 
       {frontTagPrice && itemDetails.retailPrice && (
         <PriceDiscrepancyModal
