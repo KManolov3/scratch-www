@@ -2,6 +2,7 @@ import { compact, every, some, sumBy } from 'lodash-es';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { gql } from 'src/__generated__';
+import { PrintRequestStatus } from 'src/__generated__/graphql';
 import { toastService } from 'src/services/ToastService';
 import { GlobalStateItemDetails } from '@apps/state';
 import {
@@ -25,7 +26,6 @@ import { EventBus } from '@hooks/useEventBus';
 import { useManagedMutation } from '@hooks/useManagedMutation';
 import { useMap } from '@hooks/useMap';
 import { FixedLayout } from '@layouts/FixedLayout';
-import { count } from '@lib/array';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrentSessionInfo } from '@services/Auth';
 import { Printers, Printer } from '@services/Printers';
@@ -89,7 +89,8 @@ export function PrintFrontTagScreen({
   const { perform: printFrontTag, loading } = useManagedMutation(
     PRINT_FRONT_TAG,
     {
-      globalErrorHandling: () => ({ displayAs: 'toast' }),
+      // managed in the useAsyncAction below
+      globalErrorHandling: () => 'ignored',
     },
   );
 
@@ -125,38 +126,23 @@ export function PrintFrontTagScreen({
         }
       }
 
-      const promises = locationStatuses
-        .filter(_ => _.checked)
-        .map(({ id, seqNum, qty }) => {
-          return printFrontTag({
-            variables: {
-              storeNumber,
-              printer: Printers.serverIdOf(printer),
-              data: {
-                sku: itemDetails.sku,
-                count: qty,
-                planogramId: id,
-                sequence: seqNum,
-              },
-            },
-          });
-        });
+      const result = await printFrontTag({
+        variables: {
+          storeNumber,
+          printer: Printers.serverIdOf(printer),
+          data: locationStatuses
+            .filter(_ => _.checked)
+            .map(({ id, seqNum, qty }) => ({
+              sku: itemDetails.sku,
+              count: qty,
+              planogramId: id,
+              sequence: seqNum,
+            })),
+        },
+      });
 
-      const data = await Promise.allSettled(promises);
-
-      const numberOfFailedRequests = count(
-        data,
-        ({ status }) => status === 'rejected',
-      );
-
-      if (numberOfFailedRequests > 0) {
-        if (numberOfFailedRequests === data.length) {
-          return toastService.showInfoToast('Could not print the front tags');
-        }
-
-        return toastService.showInfoToast(
-          `${numberOfFailedRequests} out of ${data.length} requests failed.`,
-        );
+      if (result?.frontTagRequest === PrintRequestStatus.Error) {
+        throw new Error('Could not print the front tags');
       }
 
       toastService.showInfoToast(
@@ -169,7 +155,12 @@ export function PrintFrontTagScreen({
       EventBus.emit('print-success');
       goBack();
     },
-    { globalErrorHandling: () => 'ignored' },
+    {
+      globalErrorHandling: () => ({
+        displayAs: 'toast',
+        message: 'Could not print the front tags',
+      }),
+    },
   );
 
   const onConfirmPrinter = useCallback(
