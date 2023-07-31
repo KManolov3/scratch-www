@@ -1,0 +1,53 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/FuturaPT-Bold-Italic.otf",
+      "sha1": "146e20605d3fc5a5e1c637fb6158a37b4838cb5c"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Bold.otf",
+      "sha1": "134b9ed86365117365f124c88fbb2698b913cdc7"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Book-Italic.otf",
+      "sha1": "a9af9fc360988d9e1ede642761dc7d0be454574b"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Book.otf",
+      "sha1": "d633453cd20a2fe9bb6ed0067b2188500b3562d3"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Demi-Italic.otf",
+      "sha1": "e41f3f009eb9f54030ca1137ce2361567c65b3e8"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Demi.otf",
+      "sha1": "6bc10acc9957d1a5137513ef618f6d8e3f8d901d"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Medium-Italic.otf",
+      "sha1": "1a50a7da3cbf03bfbe2357dd08e93f830b01c4ba"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPT-Medium.otf",
+      "sha1": "b90cbd107617a2648ea088d5cd7cf6e188b90786"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPTCond-Bold-Italic.otf",
+      "sha1": "7d946394faa3fad13592f4e68468ded56a2416a7"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPTCond-Bold.otf",
+      "sha1": "552d0f49aee253f0ab3bd425667500f70c4a78a3"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPTCond-Medium-Italic.otf",
+      "sha1": "7b893a5bffbca90807942c122a0a0009f55365fd"
+    },
+    {
+      "path": "src/assets/fonts/FuturaPTCond-Medium.otf",
+      "sha1": "22be40670ff4a1c6b787561ac8198509d31ee0cc"
+    }
+  ]
+}

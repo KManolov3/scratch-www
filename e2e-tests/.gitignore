@@ -1,0 +1,5 @@
+node_modules/
+.vscode
+.env
+reports/
+reports-from-multiple-apps/

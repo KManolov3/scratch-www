@@ -1,0 +1,41 @@
+import { useMemo } from 'react';
+import { DocumentType, gql } from 'src/__generated__';
+import { ListWithHeaders } from '@components/ListWithHeaders';
+
+export const PLANOGRAM_FIELDS = gql(`
+  fragment PlanogramFields on Item {
+    planograms {
+      planogramId
+      seqNum
+      description
+    }
+  }
+`);
+
+export type PlanogramsInfo = NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>>;
+
+type Planogram = NonNullable<
+  NonNullable<DocumentType<typeof PLANOGRAM_FIELDS>['planograms']>[number]
+>;
+
+export interface PlanogramListProps {
+  planograms: Planogram[];
+}
+
+export function PlanogramList({ planograms }: PlanogramListProps) {
+  const listItemInfo = useMemo(
+    () => [
+      {
+        label: 'POG',
+        getValue: (item: Planogram) =>
+          item.description ?? item.planogramId ?? 'undefined',
+      },
+      {
+        label: 'POG Seq #',
+        getValue: (item: Planogram) => item.seqNum ?? 'undefined',
+      },
+    ],
+    [],
+  );
+  return <ListWithHeaders itemInfo={listItemInfo} data={planograms} />;
+}
