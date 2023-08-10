@@ -28,5 +28,9 @@ export const apolloClient = new ApolloClient({
     mutate: {
       fetchPolicy: 'no-cache',
     },
+    // This applies to lazy queries as well
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+    },
   },
 });
